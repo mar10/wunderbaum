@@ -1,0 +1,589 @@
+<!doctype html>
+<html class="default no-js">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<title>WunderbaumOptions | wunderbaum - v0.0.1-0</title>
+	<meta name="description" content="Documentation for wunderbaum - v0.0.1-0">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link rel="stylesheet" href="../assets/css/main.css">
+	<script async src="../assets/js/search.js" id="search-script"></script>
+</head>
+<body>
+<header>
+	<div class="tsd-page-toolbar">
+		<div class="container">
+			<div class="table-wrap">
+				<div class="table-cell" id="tsd-search" data-index="../assets/js/search.json" data-base="..">
+					<div class="field">
+						<label for="tsd-search-field" class="tsd-widget search no-caption">Search</label>
+						<input id="tsd-search-field" type="text" />
+					</div>
+					<ul class="results">
+						<li class="state loading">Preparing search index...</li>
+						<li class="state failure">The search index is not available</li>
+					</ul>
+					<a href="../index.html" class="title">wunderbaum - v0.0.1-0</a>
+				</div>
+				<div class="table-cell" id="tsd-widgets">
+					<div id="tsd-filter">
+						<a href="#" class="tsd-widget options no-caption" data-toggle="options">Options</a>
+						<div class="tsd-filter-group">
+							<div class="tsd-select" id="tsd-filter-visibility">
+								<span class="tsd-select-label">All</span>
+								<ul class="tsd-select-list">
+									<li data-value="public">Public</li>
+									<li data-value="protected">Public/Protected</li>
+									<li data-value="private" class="selected">All</li>
+								</ul>
+							</div>
+							<input type="checkbox" id="tsd-filter-inherited" checked />
+							<label class="tsd-widget" for="tsd-filter-inherited">Inherited</label>
+							<input type="checkbox" id="tsd-filter-externals" checked />
+							<label class="tsd-widget" for="tsd-filter-externals">Externals</label>
+						</div>
+					</div>
+					<a href="#" class="tsd-widget menu no-caption" data-toggle="menu">Menu</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="tsd-page-title">
+		<div class="container">
+			<ul class="tsd-breadcrumb">
+				<li>
+					<a href="../modules.html">wunderbaum - v0.0.1-0</a>
+				</li>
+				<li>
+					<a href="../modules/wb_options.html">wb_options</a>
+				</li>
+				<li>
+					<a href="wb_options.wunderbaumoptions.html">WunderbaumOptions</a>
+				</li>
+			</ul>
+			<h1>Interface WunderbaumOptions</h1>
+		</div>
+	</div>
+</header>
+<div class="container container-main">
+	<div class="row">
+		<div class="col-8 col-content">
+			<section class="tsd-panel tsd-comment">
+				<div class="tsd-comment tsd-typography">
+					<div class="lead">
+						<p>Available options for [[PersistentObject]].</p>
+					</div>
+					<p>Options are passed to the constructor as plain object:</p>
+					<pre><code class="language-js"><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">store</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">mar10</span><span style="color: #000000">.</span><span style="color: #795E26">PersistentObject</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;test&quot;</span><span style="color: #000000">, {</span>
+<span style="color: #000000">  </span><span style="color: #001080">storage:</span><span style="color: #000000"> </span><span style="color: #001080">sessionStorage</span><span style="color: #000000">,  </span><span style="color: #008000">// Default: localStorage</span>
+<span style="color: #000000">  </span><span style="color: #001080">attachForm:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;#form1&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">  </span><span style="color: #001080">defaults:</span><span style="color: #000000"> {</span>
+<span style="color: #000000">    </span><span style="color: #001080">title:</span><span style="color: #000000"> </span><span style="color: #A31515">&quot;foo&quot;</span><span style="color: #000000">,</span>
+<span style="color: #000000">    ...</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">});</span>
+</code></pre>
+					<p>Events may be handled by passing a handler callback option:</p>
+					<pre><code class="language-js"><span style="color: #0000FF">let</span><span style="color: #000000"> </span><span style="color: #001080">store</span><span style="color: #000000"> = </span><span style="color: #0000FF">new</span><span style="color: #000000"> </span><span style="color: #001080">mar10</span><span style="color: #000000">.</span><span style="color: #795E26">PersistentObject</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;mySettings&quot;</span><span style="color: #000000">, {</span>
+<span style="color: #000000">  </span><span style="color: #001080">[</span><span style="color: #000000">...</span><span style="color: #001080">]</span>
+<span style="color: #001080">  change:</span><span style="color: #000000"> </span><span style="color: #0000FF">function</span><span style="color: #000000">(</span><span style="color: #001080">hint</span><span style="color: #000000">){</span>
+<span style="color: #000000">    </span><span style="color: #795E26">alert</span><span style="color: #000000">(</span><span style="color: #A31515">&quot;Store &quot;</span><span style="color: #000000"> + </span><span style="color: #0000FF">this</span><span style="color: #000000"> + </span><span style="color: #A31515">&quot; was changed. Reason: &quot;</span><span style="color: #000000"> + </span><span style="color: #001080">hint</span><span style="color: #000000">);</span>
+<span style="color: #000000">  }</span>
+<span style="color: #000000">});</span>
+</code></pre>
+				</div>
+			</section>
+			<section class="tsd-panel tsd-hierarchy">
+				<h3>Hierarchy</h3>
+				<ul class="tsd-hierarchy">
+					<li>
+						<span class="target">WunderbaumOptions</span>
+					</li>
+				</ul>
+			</section>
+			<section class="tsd-panel-group tsd-index-group">
+				<h2>Index</h2>
+				<section class="tsd-panel tsd-index-panel">
+					<div class="tsd-index-content">
+						<section class="tsd-index-section ">
+							<h3>Callback Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#change" class="tsd-kind-icon">change</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#commit" class="tsd-kind-icon">commit</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#conflict" class="tsd-kind-icon">conflict</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#error" class="tsd-kind-icon">error</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#pull" class="tsd-kind-icon">pull</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#push" class="tsd-kind-icon">push</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#save" class="tsd-kind-icon">save</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#status" class="tsd-kind-icon">status</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#update" class="tsd-kind-icon">update</a></li>
+							</ul>
+							<h3>Other Properties</h3>
+							<ul class="tsd-index-list">
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#attachform" class="tsd-kind-icon">attach<wbr>Form</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#commitdelay" class="tsd-kind-icon">commit<wbr>Delay</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#createparents" class="tsd-kind-icon">create<wbr>Parents</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#debuglevel" class="tsd-kind-icon">debug<wbr>Level</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#defaults" class="tsd-kind-icon">defaults</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#maxcommitdelay" class="tsd-kind-icon">max<wbr>Commit<wbr>Delay</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#maxpushdelay" class="tsd-kind-icon">max<wbr>Push<wbr>Delay</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#pushdelay" class="tsd-kind-icon">push<wbr>Delay</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#remote" class="tsd-kind-icon">remote</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#statuselement" class="tsd-kind-icon">status<wbr>Element</a></li>
+								<li class="tsd-kind-property tsd-parent-kind-interface"><a href="wb_options.wunderbaumoptions.html#storage" class="tsd-kind-icon">storage</a></li>
+							</ul>
+						</section>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Callback Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="change" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> change</h3>
+					<div class="tsd-signature tsd-kind-icon">change<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>hint<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:127</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called when data was changed (before comitting).</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="commit" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> commit</h3>
+					<div class="tsd-signature tsd-kind-icon">commit<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:132</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called after modified data was written to storage.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="conflict" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> conflict</h3>
+					<div class="tsd-signature tsd-kind-icon">conflict<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>remoteData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span>, localData<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:140</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called when new data arrives from storage, while local data is still
+							uncommitted.</p>
+						</div>
+						<p>Return false to prevent updating the local data with the new storage content.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="error" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> error</h3>
+					<div class="tsd-signature tsd-kind-icon">error<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">...</span>args<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:145</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called on errors, e.g. when Ajax requests fails.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pull" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> pull</h3>
+					<div class="tsd-signature tsd-kind-icon">pull<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>response<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:150</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called after data was received from remote service.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="push" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> push</h3>
+					<div class="tsd-signature tsd-kind-icon">push<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>response<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:155</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called after modified data was POSTed to <code>remote</code>.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="save" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> save</h3>
+					<div class="tsd-signature tsd-kind-icon">save<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:163</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Modified data was stored.</p>
+						</div>
+						<p>If <code>remote</code> was passed, this means <code>push</code> has finished,
+						otherwise <code>commit</code> has finished.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="status" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> status</h3>
+					<div class="tsd-signature tsd-kind-icon">status<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>status<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:170</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Status changed.</p>
+						</div>
+						<p>Possible values: &#39;ok&#39;, &#39;error&#39;, &#39;loading&#39;, &#39;status&#39;, &#39;modified&#39;.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="update" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> update</h3>
+					<div class="tsd-signature tsd-kind-icon">update<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:175</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Called after data was loaded from local storage.</p>
+						</div>
+					</div>
+				</section>
+			</section>
+			<section class="tsd-panel-group tsd-member-group ">
+				<h2>Other Properties</h2>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="attachform" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> attach<wbr>Form</h3>
+					<div class="tsd-signature tsd-kind-icon">attach<wbr>Form<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">HTMLFormElement</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:54</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Track form input changes and maintain status class names.</p>
+						</div>
+						<p>Automatically call [[readFromForm]] when users enter form data.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="commitdelay" class="tsd-anchor"></a>
+					<h3>commit<wbr>Delay</h3>
+					<div class="tsd-signature tsd-kind-icon">commit<wbr>Delay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:73</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Commit changes after <em>X</em> milliseconds of inactivity.</p>
+						</div>
+						<p>Commit cached changes to localStorage after 0.5 seconds of inactivity.<br>
+							After each change, we wait 0.5 more seconds for additional changes to come
+						in, before the actual commit is executed.</p>
+						<p>The maximum delay (first change until actual commit) is limited by
+						<a href="wb_options.wunderbaumoptions.html#maxcommitdelay">maxCommitDelay</a>.</p>
+						<p>Set to <code>0</code> to force synchronous mode.
+						Default: <code>500</code> milliseconds.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="createparents" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> create<wbr>Parents</h3>
+					<div class="tsd-signature tsd-kind-icon">create<wbr>Parents<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">boolean</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:78</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Allow [[PersistentObject.set]] to create missing intermediate parent
+							objects.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="debuglevel" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> debug<wbr>Level</h3>
+					<div class="tsd-signature tsd-kind-icon">debug<wbr>Level<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:122</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Verbosity level: 0:quiet, 1:normal, 2:verbose.
+							Default: <code>1</code></p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="defaults" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> defaults</h3>
+					<div class="tsd-signature tsd-kind-icon">defaults<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:48</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Default values if no data is found in localStorage.</p>
+						</div>
+						<p>Default: <code>{}</code>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="maxcommitdelay" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max<wbr>Commit<wbr>Delay</h3>
+					<div class="tsd-signature tsd-kind-icon">max<wbr>Commit<wbr>Delay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:87</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Commit changes max. <em>X</em> millseconds after first change.</p>
+						</div>
+						<p>This settings limits the effect of <a href="wb_options.wunderbaumoptions.html#commitdelay">commitDelay</a>, which would otherwise
+						never commit if the user enters keystrokes frequently.</p>
+						<p>Default: <code>3000</code> milliseconds</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="maxpushdelay" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> max<wbr>Push<wbr>Delay</h3>
+					<div class="tsd-signature tsd-kind-icon">max<wbr>Push<wbr>Delay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:108</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Push commits max. <em>X</em> milliseconds after first change.</p>
+						</div>
+						<p>Push every commit to remote max. 30 seconds after it occurred.
+						This setting limits the effect of <a href="wb_options.wunderbaumoptions.html#pushdelay">pushDelay</a>.</p>
+						<p>Default: <code>30000</code> milliseconds.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="pushdelay" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> push<wbr>Delay</h3>
+					<div class="tsd-signature tsd-kind-icon">push<wbr>Delay<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:99</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Push commits after <em>X</em> milliseconds of inactivity.</p>
+						</div>
+						<p>Push commits to remote after 5 seconds of inactivity.<br>
+							After each change, we wait 5 more seconds for additional changes to come
+							in, before the actual push is executed.<br>
+						The maximum delay (first change until actual push) is limited by <a href="wb_options.wunderbaumoptions.html#maxpushdelay">maxPushDelay</a>.</p>
+						<p>Set to <code>0</code> to force synchronous mode.
+						Default: <code>5000</code> milliseconds</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="remote" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> remote</h3>
+					<div class="tsd-signature tsd-kind-icon">remote<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:42</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>URL for GET/PUT request to remote server.</p>
+						</div>
+						<p>Pass <code>null</code> to disable remote synchronization.<br>
+						Default: <code>null</code>.</p>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="statuselement" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> status<wbr>Element</h3>
+					<div class="tsd-signature tsd-kind-icon">status<wbr>Element<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">HTMLFormElement</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:58</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Set status-dependant classes here.</p>
+						</div>
+					</div>
+				</section>
+				<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-interface">
+					<a name="storage" class="tsd-anchor"></a>
+					<h3><span class="tsd-flag ts-flagOptional">Optional</span> storage</h3>
+					<div class="tsd-signature tsd-kind-icon">storage<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">any</span></div>
+					<aside class="tsd-sources">
+						<ul>
+							<li>Defined in wb_options.ts:117</li>
+						</ul>
+					</aside>
+					<div class="tsd-comment tsd-typography">
+						<div class="lead">
+							<p>Instance of <a href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API">Web Storage</a>.</p>
+						</div>
+						<p>Possible values are <code>window.localStorage</code>, <code>window.sessionStorage</code>.<br>
+						Pass <code>null</code> to disable persistence.</p>
+						<p>Default: <code>window.localStorage</code></p>
+					</div>
+				</section>
+			</section>
+		</div>
+		<div class="col-4 col-menu menu-sticky-wrap menu-highlight">
+			<nav class="tsd-navigation primary">
+				<ul>
+					<li class=" ">
+						<a href="../modules.html">Modules</a>
+					</li>
+					<li class="current tsd-kind-module">
+						<a href="../modules/wb_options.html">wb_<wbr>options</a>
+					</li>
+					<li class=" tsd-kind-module">
+						<a href="../modules/wunderbaum.html">wunderbaum</a>
+					</li>
+				</ul>
+			</nav>
+			<nav class="tsd-navigation secondary menu-sticky">
+				<ul class="before-current">
+				</ul>
+				<ul class="current">
+					<li class="current tsd-kind-interface tsd-parent-kind-module">
+						<a href="wb_options.wunderbaumoptions.html" class="tsd-kind-icon">Wunderbaum<wbr>Options</a>
+						<ul>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#attachform" class="tsd-kind-icon">attach<wbr>Form</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#change" class="tsd-kind-icon">change</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#commit" class="tsd-kind-icon">commit</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#commitdelay" class="tsd-kind-icon">commit<wbr>Delay</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#conflict" class="tsd-kind-icon">conflict</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#createparents" class="tsd-kind-icon">create<wbr>Parents</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#debuglevel" class="tsd-kind-icon">debug<wbr>Level</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#defaults" class="tsd-kind-icon">defaults</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#error" class="tsd-kind-icon">error</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#maxcommitdelay" class="tsd-kind-icon">max<wbr>Commit<wbr>Delay</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#maxpushdelay" class="tsd-kind-icon">max<wbr>Push<wbr>Delay</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#pull" class="tsd-kind-icon">pull</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#push" class="tsd-kind-icon">push</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#pushdelay" class="tsd-kind-icon">push<wbr>Delay</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#remote" class="tsd-kind-icon">remote</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#save" class="tsd-kind-icon">save</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#status" class="tsd-kind-icon">status</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#statuselement" class="tsd-kind-icon">status<wbr>Element</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#storage" class="tsd-kind-icon">storage</a>
+							</li>
+							<li class=" tsd-kind-property tsd-parent-kind-interface">
+								<a href="wb_options.wunderbaumoptions.html#update" class="tsd-kind-icon">update</a>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="after-current">
+				</ul>
+			</nav>
+		</div>
+	</div>
+</div>
+<footer class="with-border-bottom">
+	<div class="container">
+		<h2>Legend</h2>
+		<div class="tsd-legend-group">
+			<ul class="tsd-legend">
+				<li class="tsd-kind-interface"><span class="tsd-kind-icon">Interface</span></li>
+				<li class="tsd-kind-property tsd-parent-kind-interface"><span class="tsd-kind-icon">Property</span></li>
+			</ul>
+			<ul class="tsd-legend">
+				<li class="tsd-kind-class"><span class="tsd-kind-icon">Class</span></li>
+			</ul>
+		</div>
+	</div>
+</footer>
+<div class="container tsd-generator">
+	<p>Generated using <a href="https://typedoc.org/" target="_blank">TypeDoc</a></p>
+</div>
+<div class="overlay"></div>
+<script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,8 @@
+/.settings
+/archive
+/build
+/test/triage
+/node_modules
+*.log
+sauce_connect.*
+.pyftpsync-meta.json
