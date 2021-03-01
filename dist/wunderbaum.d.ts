@@ -90,6 +90,9 @@ declare module "wunderbaum" {
         lazy: boolean;
         expanded: boolean;
         selected: boolean;
+        statusNodeType: string;
+        subMatchCount: number;
+        match: boolean;
         _rowIdx: number | undefined;
         _rowElem: HTMLElement | undefined;
         constructor(tree: Wunderbaum, parent: WunderbaumNode, data: any);
@@ -98,41 +101,102 @@ declare module "wunderbaum" {
          * @internal
          */
         toString(): string;
-        visit(callback: (WunderbaumNode), includeSelf?: boolean): void;
+        /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
+        hasChildren(): boolean;
+        /** Return true if this node is a temporarily generated system node like
+         * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
+         */
+        isStatusNode(): boolean;
+        /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
+         * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
+         * Return false if iteration was stopped.
+         *
+         * @param {function} callback the callback function.
+         *     Return false to stop iteration, return "skip" to skip this node and
+         *     its children only.
+         */
+        visit(callback: (node: WunderbaumNode) => any, includeSelf?: boolean): any;
+        /** Call fn(node) for all parent nodes, bottom-up, including invisible system root.<br>
+         * Stop iteration, if callback() returns false.<br>
+         * Return false if iteration was stopped.
+         *
+         * @param {function} callback the callback function.
+         *     Return false to stop iteration, return "skip" to skip this node and children only.
+         */
+        visitParents(callback: (node: WunderbaumNode) => boolean | undefined, includeSelf?: boolean): boolean;
+        /** Call fn(node) for all sibling nodes.<br>
+         * Stop iteration, if fn() returns false.<br>
+         * Return false if iteration was stopped.
+         *
+         * @param {function} fn the callback function.
+         *     Return false to stop iteration.
+         */
+        visitSiblings(callback: (node: WunderbaumNode) => boolean | undefined, includeSelf?: boolean): boolean;
         setExpanded(flag?: boolean): void;
-        render(): void;
+        render(opts: any): void;
         addChild(node: WunderbaumNode, before?: WunderbaumNode): void;
     }
     /**
      * A persistent plain object or array.
      *
-     * See also [[PersistoOptions]].
+     * See also [[WunderbaumOptions]].
      */
     export class Wunderbaum {
         static version: string;
         static sequence: number;
         readonly root: WunderbaumNode;
         readonly name: string;
-        readonly element: any;
+        readonly element: HTMLElement;
+        readonly treeElement: HTMLElement;
+        readonly nodeListElement: HTMLElement;
         protected keyMap: any;
         protected refKeyMap: any;
         protected rows: WunderbaumNode[];
         protected activeNode: WunderbaumNode | null;
         protected opts: any;
+        enableFilter: boolean;
+        _enableUpdate: boolean;
         constructor(options: WunderbaumOptions);
+        /** Log to console if opts.debugLevel >= 4 */
+        debug(...args: any[]): void;
         /**
          * Return readable string representation for this instance.
          * @internal
          */
         toString(): string;
-        debug(...args: any[]): void;
         log(...args: any[]): void;
+        /** @internal */
         logTime(label: string): string;
+        /** @internal */
         logTimeEnd(label: string): void;
         /** */
-        visit(callback: (WunderbaumNode), includeSelf?: boolean): void;
-        /** */
-        renumber(): void;
+        renumber(opts: any): boolean;
+        /** Redraw DOM elements.
+         */
+        render(opts?: any): void;
+        /** Call callback(node) for all nodes in hierarchical order (depth-first).
+         *
+         * @param {function} callback the callback function.
+         *     Return false to stop iteration, return "skip" to skip this node and children only.
+         * @returns {boolean} false, if the iterator was stopped.
+         */
+        visit(callback: (node: WunderbaumNode) => any): any;
+        /** Call fn(node) for all nodes in vertical order, top down (or bottom up).<br>
+         * Stop iteration, if fn() returns false.<br>
+         * Return false if iteration was stopped.
+         *
+         * @param {function} callback the callback function.
+         *     Return false to stop iteration, return "skip" to skip this node and children only.
+         * @param {object} [options]
+         *     Defaults:
+         *     {start: First top node, reverse: false, includeSelf: true, includeHidden: false}
+         * @returns {boolean} false if iteration was cancelled
+         */
+        visitRows(callback: (node: WunderbaumNode) => any, opts?: any): boolean;
+        /** Call fn(node) for all nodes in vertical order, bottom up.
+         * @internal
+         */
+        protected _visitRowsUp(callback: (node: WunderbaumNode) => any, opts: any): boolean;
         /** . */
         load(source: any): Promise<WunderbaumNode>;
         /** . */
@@ -140,7 +204,7 @@ declare module "wunderbaum" {
         /**
          *
          */
-        enableUpdate(node: WunderbaumNode | null, change: ChangeType): boolean;
+        enableUpdate(flag: boolean): boolean;
         protected setModified(node: WunderbaumNode | null, change: ChangeType): void;
         /** Download  data from the cloud, then call `.update()`. */
         protected _load(parent: WunderbaumNode, source: any): Promise<WunderbaumNode>;
