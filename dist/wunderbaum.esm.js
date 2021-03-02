@@ -1,7 +1,7 @@
 /*!
  * persisto.js - utils
  * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Mon, 01 Mar 2021 17:43:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Tue, 02 Mar 2021 18:18:30 GMT (https://github.com/mar10/wunderbaum)
  */
 function toggleClass(element, classname, force) {
     if (typeof element === "string") {
@@ -52,18 +52,28 @@ function noop() { }
  * Released under the MIT license.
  *
  * @version v0.0.1-0
- * @date Mon, 01 Mar 2021 17:43:39 GMT
+ * @date Tue, 02 Mar 2021 18:18:30 GMT
  */
-// import { PersistoOptions } from "./wb_options";
-const default_debuglevel = 1; // Replaced by rollup script
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
-var ChangeType;
+var ChangeType$1;
 (function (ChangeType) {
     ChangeType["any"] = "any";
     ChangeType["children"] = "children";
     ChangeType["status"] = "status";
-})(ChangeType || (ChangeType = {}));
+})(ChangeType$1 || (ChangeType$1 = {}));
+
+/*!
+ * wunderbaum.ts
+ *
+ * A tree control.
+ *
+ * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
+ * Released under the MIT license.
+ *
+ * @version v0.0.1-0
+ * @date Tue, 02 Mar 2021 18:18:30 GMT
+ */
 class WunderbaumNode {
     constructor(tree, parent, data) {
         this.refKey = undefined;
@@ -89,6 +99,14 @@ class WunderbaumNode {
      */
     toString() {
         return "WunderbaumNode@" + this.key + "<'" + this.title + "'>";
+    }
+    getLevel() {
+        let i = 0, p = this.parent;
+        while (p) {
+            i++;
+            p = p.parent;
+        }
+        return i;
     }
     /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
     hasChildren() {
@@ -183,6 +201,10 @@ class WunderbaumNode {
     }
     setExpanded(flag = true) {
         this.expanded = flag;
+        this.setDirty(ChangeType$1.children);
+    }
+    setDirty(hint) {
+        this.render({});
     }
     render(opts) {
         let parentElem;
@@ -197,7 +219,6 @@ class WunderbaumNode {
         else {
             let elem, nodeElem;
             parentElem = this.tree.nodeListElement;
-            // parentElem = this.parent ? this.parent!._rowElem! : this.tree.element;
             rowDiv = document.createElement("div");
             rowDiv.classList.add("wb-row");
             if (this.expanded) {
@@ -216,9 +237,11 @@ class WunderbaumNode {
             elem.classList.add("wb-checkbox");
             elem.classList.add("bi", "bi-check2-square");
             nodeElem.appendChild(elem);
-            elem = document.createElement("i");
-            elem.classList.add("wb-indent");
-            nodeElem.appendChild(elem);
+            for (let i = this.getLevel(); i > 0; i--) {
+                elem = document.createElement("i");
+                elem.classList.add("wb-indent");
+                nodeElem.appendChild(elem);
+            }
             elem = document.createElement("i");
             elem.classList.add("wb-expander");
             elem.classList.add("bi", "bi-dash-square");
@@ -252,6 +275,30 @@ class WunderbaumNode {
     }
 }
 WunderbaumNode.sequence = 0;
+
+/*!
+ * wunderbaum.ts
+ *
+ * A tree control.
+ *
+ * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
+ * Released under the MIT license.
+ *
+ * @version v0.0.1-0
+ * @date Tue, 02 Mar 2021 18:18:30 GMT
+ */
+// import { PersistoOptions } from "./wb_options";
+const default_debuglevel = 1; // Replaced by rollup script
+const ROW_HEIGHT = 16;
+const RENDER_PREFETCH = 5;
+// const class_prefix = "wb-";
+// const node_props: string[] = ["title", "key", "refKey"];
+var ChangeType;
+(function (ChangeType) {
+    ChangeType["any"] = "any";
+    ChangeType["children"] = "children";
+    ChangeType["status"] = "status";
+})(ChangeType || (ChangeType = {}));
 /**
  * A persistent plain object or array.
  *
@@ -266,10 +313,6 @@ class Wunderbaum {
         this.activeNode = null;
         this.enableFilter = false;
         this._enableUpdate = true;
-        this.root = new WunderbaumNode(this, null, {
-            key: "__root__",
-            name: "__root__",
-        });
         let opts = this.opts = extend({
             source: null,
             element: null,
@@ -279,6 +322,12 @@ class Wunderbaum {
             error: noop,
             receive: noop,
         }, options);
+        this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
+        this.root = new WunderbaumNode(this, null, {
+            key: "__root__",
+            name: "__root__",
+        });
+        // --- Create Markup
         if (typeof opts.element === "string") {
             this.element = document.querySelector(opts.element);
         }
@@ -286,11 +335,26 @@ class Wunderbaum {
             this.element = opts.element;
         }
         this.treeElement = this.element.querySelector("div.wunderbaum");
-        this.nodeListElement = this.element.querySelector("div.wb-tree");
-        this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
+        this.scrollContainer = this.treeElement.querySelector("div.wb-scroll-container");
+        this.nodeListElement = this.scrollContainer.querySelector("div.wb-node-list");
+        this.nodeListElement.textContent = "";
+        if (!this.nodeListElement) {
+            alert("TODO: create markup");
+        }
+        // Load initial data
         if (opts.source) {
             this.load(opts.source);
         }
+        // Bind listeners
+        this.scrollContainer.addEventListener("scroll", (e) => {
+            let height = this.scrollContainer.clientHeight;
+            let ofs = this.scrollContainer.scrollTop;
+            let start = Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH);
+            let end = Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH);
+            // this.debug(e, height, start, end)
+            this.render({ startIdx: start, endIdx: end });
+        });
+        // util.onEvent(this.scrollContainer)
     }
     /** Log to console if opts.debugLevel >= 4 */
     debug(...args) {
@@ -342,13 +406,13 @@ class Wunderbaum {
                 node._rowIdx = idx;
                 modified = true;
             }
-            if (idx < start && idx > end) {
+            if (idx < start || idx > end) {
                 if (node._rowElem) {
                     node._rowElem.remove();
                     node._rowElem = undefined;
                 }
             }
-            else if (prevIdx != idx) {
+            else if (!node._rowElem || prevIdx != idx) {
                 node.render({ top: top });
             }
             idx++;
@@ -357,15 +421,17 @@ class Wunderbaum {
         // Resize tree container
         this.nodeListElement.style.height = "" + top;
         this.logTimeEnd(label);
+        this.log("n=" + null, opts);
         return modified;
+    }
+    /** */
+    updateViewport() {
+        this.renumber({});
     }
     /** Redraw DOM elements.
      */
     render(opts) {
-        this.renumber({
-            start: 100,
-            end: 100 + 20,
-        });
+        this.renumber(opts);
     }
     /** Call callback(node) for all nodes in hierarchical order (depth-first).
      *
@@ -568,4 +634,4 @@ class Wunderbaum {
 Wunderbaum.version = "v0.0.1-0"; // Set to semver by 'grunt release'
 Wunderbaum.sequence = 0;
 
-export { Wunderbaum, WunderbaumNode };
+export { ChangeType, Wunderbaum };
