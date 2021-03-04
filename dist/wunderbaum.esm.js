@@ -1,8 +1,40 @@
 /*!
  * persisto.js - utils
  * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Tue, 02 Mar 2021 18:18:30 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 04 Mar 2021 21:49:34 GMT (https://github.com/mar10/wunderbaum)
  */
+/**
+ * Bind event handler using event delegation:
+ *
+ * E.g. handle all 'input' events for input and textarea elements of a given
+ * form
+ * ```ts
+ * onEvent("#form_1", "input", "input,textarea", function (e: Event) {
+ *   console.log(e.type, e.target);
+ * });
+ * ```
+ *
+ * @param element HTMLElement or selector
+ * @param eventName
+ * @param selector
+ * @param handler
+ * @param bind
+ */
+function onEvent(element, eventName, selector, handler, bind) {
+    if (typeof element === "string") {
+        element = document.querySelector(element);
+    }
+    element.addEventListener(eventName, function (e) {
+        if (e.target && e.target.matches(selector)) {
+            if (bind) {
+                return handler.call(bind, e);
+            }
+            else {
+                return handler(e);
+            }
+        }
+    });
+}
 function toggleClass(element, classname, force) {
     if (typeof element === "string") {
         element = document.querySelector(element);
@@ -52,27 +84,7 @@ function noop() { }
  * Released under the MIT license.
  *
  * @version v0.0.1-0
- * @date Tue, 02 Mar 2021 18:18:30 GMT
- */
-// const class_prefix = "wb-";
-// const node_props: string[] = ["title", "key", "refKey"];
-var ChangeType$1;
-(function (ChangeType) {
-    ChangeType["any"] = "any";
-    ChangeType["children"] = "children";
-    ChangeType["status"] = "status";
-})(ChangeType$1 || (ChangeType$1 = {}));
-
-/*!
- * wunderbaum.ts
- *
- * A tree control.
- *
- * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
- * Released under the MIT license.
- *
- * @version v0.0.1-0
- * @date Tue, 02 Mar 2021 18:18:30 GMT
+ * @date Thu, 04 Mar 2021 21:49:34 GMT
  */
 class WunderbaumNode {
     constructor(tree, parent, data) {
@@ -199,9 +211,15 @@ class WunderbaumNode {
         }
         return true;
     }
+    setActive(flag = true) {
+        let prev = this.tree.activeNode;
+        this.tree.activeNode = this;
+        prev === null || prev === void 0 ? void 0 : prev.setDirty(ChangeType.status);
+        this.setDirty(ChangeType.status);
+    }
     setExpanded(flag = true) {
         this.expanded = flag;
-        this.setDirty(ChangeType$1.children);
+        this.setDirty(ChangeType.structure);
     }
     setDirty(hint) {
         this.render({});
@@ -214,6 +232,7 @@ class WunderbaumNode {
             toggleClass(rowDiv, "wb-expanded", !!this.expanded);
             toggleClass(rowDiv, "wb-lazy", !!this.lazy);
             toggleClass(rowDiv, "wb-selected", !!this.selected);
+            toggleClass(rowDiv, "wb-active", this === this.tree.activeNode);
             titleSpan = rowDiv.querySelector("span.wb-title");
         }
         else {
@@ -221,6 +240,7 @@ class WunderbaumNode {
             parentElem = this.tree.nodeListElement;
             rowDiv = document.createElement("div");
             rowDiv.classList.add("wb-row");
+            rowDiv._wb_node = this;
             if (this.expanded) {
                 rowDiv.classList.add("wb-expanded");
             }
@@ -285,7 +305,7 @@ WunderbaumNode.sequence = 0;
  * Released under the MIT license.
  *
  * @version v0.0.1-0
- * @date Tue, 02 Mar 2021 18:18:30 GMT
+ * @date Thu, 04 Mar 2021 21:49:34 GMT
  */
 // import { PersistoOptions } from "./wb_options";
 const default_debuglevel = 1; // Replaced by rollup script
@@ -296,7 +316,7 @@ const RENDER_PREFETCH = 5;
 var ChangeType;
 (function (ChangeType) {
     ChangeType["any"] = "any";
-    ChangeType["children"] = "children";
+    ChangeType["structure"] = "structure";
     ChangeType["status"] = "status";
 })(ChangeType || (ChangeType = {}));
 /**
@@ -313,7 +333,7 @@ class Wunderbaum {
         this.activeNode = null;
         this.enableFilter = false;
         this._enableUpdate = true;
-        let opts = this.opts = extend({
+        let opts = (this.opts = extend({
             source: null,
             element: null,
             debugLevel: default_debuglevel,
@@ -321,7 +341,7 @@ class Wunderbaum {
             change: noop,
             error: noop,
             receive: noop,
-        }, options);
+        }, options));
         this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
         this.root = new WunderbaumNode(this, null, {
             key: "__root__",
@@ -334,9 +354,9 @@ class Wunderbaum {
         else {
             this.element = opts.element;
         }
-        this.treeElement = this.element.querySelector("div.wunderbaum");
-        this.scrollContainer = this.treeElement.querySelector("div.wb-scroll-container");
-        this.nodeListElement = this.scrollContainer.querySelector("div.wb-node-list");
+        this.treeElement = (this.element.querySelector("div.wunderbaum"));
+        this.scrollContainer = (this.treeElement.querySelector("div.wb-scroll-container"));
+        this.nodeListElement = (this.scrollContainer.querySelector("div.wb-node-list"));
         this.nodeListElement.textContent = "";
         if (!this.nodeListElement) {
             alert("TODO: create markup");
@@ -347,14 +367,29 @@ class Wunderbaum {
         }
         // Bind listeners
         this.scrollContainer.addEventListener("scroll", (e) => {
-            let height = this.scrollContainer.clientHeight;
-            let ofs = this.scrollContainer.scrollTop;
-            let start = Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH);
-            let end = Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH);
-            // this.debug(e, height, start, end)
-            this.render({ startIdx: start, endIdx: end });
+            this.updateViewport();
         });
-        // util.onEvent(this.scrollContainer)
+        onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
+            var _a;
+            (_a = this.getNode(e)) === null || _a === void 0 ? void 0 : _a.setActive();
+            this.log("click");
+        });
+    }
+    /** */
+    static getTree() { }
+    /** */
+    getNode(needle) {
+        // let nodeElem;
+        this.log("getNode", needle);
+        if (needle instanceof Event) {
+            needle = needle.target;
+        }
+        if (needle instanceof Element) {
+            let nodeElem = needle.closest("div.wb-row");
+            this.log("getNode", nodeElem);
+            return nodeElem._wb_node;
+        }
+        return null;
     }
     /** Log to console if opts.debugLevel >= 4 */
     debug(...args) {
@@ -397,8 +432,10 @@ class Wunderbaum {
         let top = 0;
         let height = 16;
         let modified = false;
-        let start = opts.startIdx || 30;
-        let end = opts.endIdx || start + 100;
+        let start = opts.startIdx;
+        let end = opts.endIdx;
+        this.debug("render", opts);
+        assert(start != null && end != null);
         this.root.children[1].expanded = true;
         this.visitRows(function (node) {
             let prevIdx = node._rowIdx;
@@ -419,19 +456,18 @@ class Wunderbaum {
             top += height;
         });
         // Resize tree container
-        this.nodeListElement.style.height = "" + top;
+        this.nodeListElement.style.height = "" + top + "px";
         this.logTimeEnd(label);
-        this.log("n=" + null, opts);
         return modified;
     }
     /** */
     updateViewport() {
-        this.renumber({});
-    }
-    /** Redraw DOM elements.
-     */
-    render(opts) {
-        this.renumber(opts);
+        let height = this.scrollContainer.clientHeight;
+        let ofs = this.scrollContainer.scrollTop;
+        this.renumber({
+            startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
+            endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
+        });
     }
     /** Call callback(node) for all nodes in hierarchical order (depth-first).
      *
@@ -468,10 +504,7 @@ class Wunderbaum {
             // visit siblings
             siblings = parent.children;
             nextIdx = siblings.indexOf(node) + siblingOfs;
-            assert(nextIdx >= 0, "Could not find " +
-                node +
-                " in parent's children: " +
-                parent);
+            assert(nextIdx >= 0, "Could not find " + node + " in parent's children: " + parent);
             for (i = nextIdx; i < siblings.length; i++) {
                 node = siblings[i];
                 if (checkFilter && !node.match && !node.subMatchCount) {
@@ -563,7 +596,7 @@ class Wunderbaum {
                 this.addChildren(node, d.children);
             }
         }
-        this.setModified(parent, ChangeType.children);
+        this.setModified(parent, ChangeType.structure);
     }
     /**
      *
@@ -577,8 +610,7 @@ class Wunderbaum {
         if (flag) {
             this.debug("enableUpdate(true): redraw "); //, this._dirtyRoots);
             // this._callHook("treeStructureChanged", this, "enableUpdate");
-            this.renumber({});
-            // this.render();
+            this.updateViewport();
         }
         else {
             // 	this._dirtyRoots = null;
@@ -586,8 +618,7 @@ class Wunderbaum {
         }
         return !flag; // return previous value
     }
-    setModified(node, change) {
-    }
+    setModified(node, change) { }
     /** Download  data from the cloud, then call `.update()`. */
     _load(parent, source) {
         let opts = this.opts;

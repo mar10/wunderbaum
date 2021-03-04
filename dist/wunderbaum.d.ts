@@ -58,7 +58,7 @@ declare module "util" {
     export function ready(fn: any): void;
     export function type(obj: any): any;
 }
-declare module "wunderbaum" {
+declare module "wunderbaum_node" {
     /*!
      * wunderbaum.ts
      *
@@ -71,12 +71,7 @@ declare module "wunderbaum" {
      * @date @DATE
      */
     import "./wunderbaum.scss";
-    enum ChangeType {
-        any = "any",
-        children = "children",
-        status = "status"
-    }
-    type WunderbaumOptions = any;
+    import { Wunderbaum, ChangeType } from "wunderbaum";
     export class WunderbaumNode {
         static sequence: number;
         /** Reference to owning tree. */
@@ -101,6 +96,7 @@ declare module "wunderbaum" {
          * @internal
          */
         toString(): string;
+        getLevel(): number;
         /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
         hasChildren(): boolean;
         /** Return true if this node is a temporarily generated system node like
@@ -132,10 +128,33 @@ declare module "wunderbaum" {
          *     Return false to stop iteration.
          */
         visitSiblings(callback: (node: WunderbaumNode) => boolean | undefined, includeSelf?: boolean): boolean;
+        setActive(flag?: boolean): void;
         setExpanded(flag?: boolean): void;
+        setDirty(hint: ChangeType): void;
         render(opts: any): void;
         addChild(node: WunderbaumNode, before?: WunderbaumNode): void;
     }
+}
+declare module "wunderbaum" {
+    /*!
+     * wunderbaum.ts
+     *
+     * A tree control.
+     *
+     * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
+     * Released under the MIT license.
+     *
+     * @version @VERSION
+     * @date @DATE
+     */
+    import "./wunderbaum.scss";
+    import { WunderbaumNode } from "wunderbaum_node";
+    export enum ChangeType {
+        any = "any",
+        structure = "structure",
+        status = "status"
+    }
+    type WunderbaumOptions = any;
     /**
      * A persistent plain object or array.
      *
@@ -149,14 +168,19 @@ declare module "wunderbaum" {
         readonly element: HTMLElement;
         readonly treeElement: HTMLElement;
         readonly nodeListElement: HTMLElement;
+        readonly scrollContainer: HTMLElement;
         protected keyMap: any;
         protected refKeyMap: any;
         protected rows: WunderbaumNode[];
-        protected activeNode: WunderbaumNode | null;
+        activeNode: WunderbaumNode | null;
         protected opts: any;
         enableFilter: boolean;
         _enableUpdate: boolean;
         constructor(options: WunderbaumOptions);
+        /** */
+        static getTree(): void;
+        /** */
+        getNode(needle: any): WunderbaumNode | null;
         /** Log to console if opts.debugLevel >= 4 */
         debug(...args: any[]): void;
         /**
@@ -171,9 +195,8 @@ declare module "wunderbaum" {
         logTimeEnd(label: string): void;
         /** */
         renumber(opts: any): boolean;
-        /** Redraw DOM elements.
-         */
-        render(opts?: any): void;
+        /** */
+        updateViewport(): void;
         /** Call callback(node) for all nodes in hierarchical order (depth-first).
          *
          * @param {function} callback the callback function.

@@ -11,35 +11,46 @@ div.wunderbaum {
   margin: 1px;
   padding: 0;
   font-family: $font-stack;
-}
-div.wunderbaum span.wb-col {
-  position: absolute;
-  display: inline-block;
-}
-div.wunderbaum div.wb-scroll-container {
-  overflow: auto;
-  scroll-behavior: smooth;
-  position: relative;
-  height: 200px;
-}
-div.wunderbaum div.wb-header span.wb-col {
-  font-weight: bold;
-}
-div.wunderbaum div.wb-row {
-  position: absolute;
-  width: 100%;
-  height: 1em;
-}
-div.wunderbaum div.wb-row:hover {
-  background-color: $hover-color;
-}
-div.wunderbaum i.wb-checkbox,
-div.wunderbaum i.wb-expander,
-div.wunderbaum i.wb-icon,
-div.wunderbaum i.wb-indent {
-  width: 1em;
-  display: inline-block;
-}
-div.wunderbaum span.wb-title {
-  min-width: 1em;
+  border: 1px solid gray;
+
+  div.wb-header {
+    height: 1em;
+    border: 2px outset gainsboro;
+    background-color: honeydew;
+    span.wb-col {
+      font-weight: bold;
+    }
+  }
+  span.wb-col {
+    position: absolute;
+    display: inline-block;
+  }
+  div.wb-scroll-container {
+    overflow: auto;
+    scroll-behavior: smooth;
+    position: relative;
+    height: 200px;
+  }
+  div.wb-row {
+    position: absolute;
+    width: 100%;
+    height: 1em;
+    &:hover {
+      background-color: $hover-color;
+    }
+    &.wb-active {
+      font-weight: bolder;
+    }
+  }
+  i.wb-checkbox,
+  i.wb-expander,
+  i.wb-icon,
+  i.wb-indent {
+    width: 1em;
+    display: inline-block;
+    margin-right: 3px;
+  }
+  span.wb-title {
+    min-width: 1em;
+  }
 }

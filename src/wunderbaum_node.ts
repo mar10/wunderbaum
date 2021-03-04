@@ -165,9 +165,16 @@ export class WunderbaumNode {
     return true;
   }
 
+  setActive(flag: boolean = true) {
+    let prev = this.tree.activeNode;
+    this.tree.activeNode = this;
+    prev?.setDirty(ChangeType.status);
+    this.setDirty(ChangeType.status);
+  }
+
   setExpanded(flag: boolean = true) {
     this.expanded = flag;
-    this.setDirty(ChangeType.children);
+    this.setDirty(ChangeType.structure);
   }
 
   setDirty(hint: ChangeType) {
@@ -183,6 +190,7 @@ export class WunderbaumNode {
       util.toggleClass(rowDiv, "wb-expanded", !!this.expanded);
       util.toggleClass(rowDiv, "wb-lazy", !!this.lazy);
       util.toggleClass(rowDiv, "wb-selected", !!this.selected);
+      util.toggleClass(rowDiv, "wb-active", this === this.tree.activeNode);
       titleSpan = <HTMLElement>rowDiv.querySelector("span.wb-title");
 
     } else {
@@ -193,6 +201,7 @@ export class WunderbaumNode {
 
       rowDiv = document.createElement("div");
       rowDiv.classList.add("wb-row");
+      (<any>rowDiv)._wb_node = this
       if (this.expanded) { rowDiv.classList.add("wb-expanded"); }
       if (this.lazy) { rowDiv.classList.add("wb-lazy"); }
       if (this.selected) { rowDiv.classList.add("wb-selected"); }

@@ -24,7 +24,7 @@ const RENDER_PREFETCH = 5;
 
 export enum ChangeType {
   any = "any",
-  children = "children",
+  structure = "structure",
   status = "status",
 }
 
@@ -49,7 +49,7 @@ export class Wunderbaum {
   protected keyMap: any = {};
   protected refKeyMap: any = {};
   protected rows: WunderbaumNode[] = [];
-  protected activeNode: WunderbaumNode | null = null;
+  activeNode: WunderbaumNode | null = null;
   protected opts: any;
   enableFilter = false;
   _enableUpdate = true;
@@ -57,7 +57,7 @@ export class Wunderbaum {
   // ready: Promise<any>;
 
   constructor(options: WunderbaumOptions) {
-    let opts = this.opts = util.extend(
+    let opts = (this.opts = util.extend(
       {
         source: null, // URL for GET/PUT, ajax options, or callback
         element: null,
@@ -68,10 +68,10 @@ export class Wunderbaum {
         receive: util.noop,
       },
       options
-    );
+    ));
 
     this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
-    this.root = new WunderbaumNode(this, <WunderbaumNode><unknown>null, {
+    this.root = new WunderbaumNode(this, <WunderbaumNode>(<unknown>null), {
       key: "__root__",
       name: "__root__",
     });
@@ -82,9 +82,15 @@ export class Wunderbaum {
     } else {
       this.element = opts.element;
     }
-    this.treeElement = <HTMLElement>this.element.querySelector("div.wunderbaum");
-    this.scrollContainer = <HTMLElement>this.treeElement.querySelector("div.wb-scroll-container");
-    this.nodeListElement = <HTMLElement>this.scrollContainer.querySelector("div.wb-node-list");
+    this.treeElement = <HTMLElement>(
+      this.element.querySelector("div.wunderbaum")
+    );
+    this.scrollContainer = <HTMLElement>(
+      this.treeElement.querySelector("div.wb-scroll-container")
+    );
+    this.nodeListElement = <HTMLElement>(
+      this.scrollContainer.querySelector("div.wb-node-list")
+    );
     this.nodeListElement.textContent = "";
     if (!this.nodeListElement) {
       alert("TODO: create markup");
@@ -96,14 +102,31 @@ export class Wunderbaum {
     }
     // Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
-      let height = this.scrollContainer.clientHeight;
-      let ofs = this.scrollContainer.scrollTop;
-      let start = Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH);
-      let end = Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH);
-      // this.debug(e, height, start, end)
-      this.render({ startIdx: start, endIdx: end });
+      this.updateViewport();
     });
-    // util.onEvent(this.scrollContainer)
+    util.onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
+      this.getNode(e)?.setActive();
+      this.log("click");
+    });
+  }
+
+  /** */
+  public static getTree() {}
+
+  /** */
+  public getNode(needle: any): WunderbaumNode | null {
+    // let nodeElem;
+    this.log("getNode", needle)
+
+    if (needle instanceof Event) {
+      needle = needle.target;
+    }
+    if (needle instanceof Element) {
+      let nodeElem = needle.closest("div.wb-row");
+      this.log("getNode", nodeElem)
+      return <WunderbaumNode>(<any>nodeElem!)._wb_node;
+    }
+    return null;
   }
 
   /** Log to console if opts.debugLevel >= 4 */
@@ -152,9 +175,11 @@ export class Wunderbaum {
     let top = 0;
     let height = 16;
     let modified = false;
-    let start = opts.startIdx || 30;
-    let end = opts.endIdx || start + 100;
+    let start = opts.startIdx;
+    let end = opts.endIdx;
 
+    this.debug("render", opts);
+    util.assert(start != null && end != null);
     this.root.children![1].expanded = true;
 
     this.visitRows(function (node) {
@@ -175,21 +200,20 @@ export class Wunderbaum {
       top += height;
     });
     // Resize tree container
-    this.nodeListElement.style.height = "" + top;
+    this.nodeListElement.style.height = "" + top + "px";
     this.logTimeEnd(label);
-    this.log("n=" + null, opts);
     return modified;
   }
 
   /** */
   updateViewport() {
-    this.renumber({});
-  }
+    let height = this.scrollContainer.clientHeight;
+    let ofs = this.scrollContainer.scrollTop;
 
-  /** Redraw DOM elements.
-   */
-  render(opts?: any) {
-    this.renumber(opts);
+    this.renumber({
+      startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
+      endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
+    });
   }
 
   /** Call callback(node) for all nodes in hierarchical order (depth-first).
@@ -241,10 +265,7 @@ export class Wunderbaum {
       nextIdx = siblings.indexOf(node) + siblingOfs;
       util.assert(
         nextIdx >= 0,
-        "Could not find " +
-        node +
-        " in parent's children: " +
-        parent
+        "Could not find " + node + " in parent's children: " + parent
       );
 
       for (i = nextIdx; i < siblings.length; i++) {
@@ -289,7 +310,10 @@ export class Wunderbaum {
   /** Call fn(node) for all nodes in vertical order, bottom up.
    * @internal
    */
-  protected _visitRowsUp(callback: (node: WunderbaumNode) => any, opts: any): boolean {
+  protected _visitRowsUp(
+    callback: (node: WunderbaumNode) => any,
+    opts: any
+  ): boolean {
     var children,
       idx,
       parent,
@@ -351,7 +375,7 @@ export class Wunderbaum {
         this.addChildren(node, d.children);
       }
     }
-    this.setModified(parent, ChangeType.children);
+    this.setModified(parent, ChangeType.structure);
   }
 
   /**
@@ -366,8 +390,7 @@ export class Wunderbaum {
     if (flag) {
       this.debug("enableUpdate(true): redraw "); //, this._dirtyRoots);
       // this._callHook("treeStructureChanged", this, "enableUpdate");
-      this.renumber({});
-      // this.render();
+      this.updateViewport();
     } else {
       // 	this._dirtyRoots = null;
       this.debug("enableUpdate(false)...");
@@ -375,12 +398,13 @@ export class Wunderbaum {
     return !flag; // return previous value
   }
 
-  protected setModified(node: WunderbaumNode | null, change: ChangeType) {
-
-  }
+  protected setModified(node: WunderbaumNode | null, change: ChangeType) {}
 
   /** Download  data from the cloud, then call `.update()`. */
-  protected _load(parent: WunderbaumNode, source: any): Promise<WunderbaumNode> {
+  protected _load(
+    parent: WunderbaumNode,
+    source: any
+  ): Promise<WunderbaumNode> {
     let opts = this.opts;
     if (opts.debugLevel >= 2 && console.time) {
       console.time(this + "._load");
@@ -395,14 +419,14 @@ export class Wunderbaum {
           } else {
             util.error(
               "GET " +
-              opts.remote +
-              " returned " +
-              response.status +
-              ", " +
-              response
+                opts.remote +
+                " returned " +
+                response.status +
+                ", " +
+                response
             );
           }
-          return response.json();  // pas as `data` to next then()
+          return response.json(); // pas as `data` to next then()
         })
         .then(function (data) {
           let prev = self.enableUpdate(false);
@@ -420,7 +444,6 @@ export class Wunderbaum {
             console.timeEnd(self + "._load");
           }
         });
-
     });
     return promise;
   }
