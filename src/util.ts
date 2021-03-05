@@ -78,20 +78,22 @@ export class Deferred {
  * @param bind
  */
 export function onEvent(
-  element: HTMLElement | string,
+  rootElem: HTMLElement | string,
   eventName: string,
   selector: string,
-  handler: (e: Event) => boolean | void,
-  bind?: any
+  handler: (e: Event) => boolean | void
 ): void {
-  if (typeof element === "string") {
-    element = <HTMLElement>document.querySelector(element);
+  if (typeof rootElem === "string") {
+    rootElem = <HTMLElement>document.querySelector(rootElem);
   }
-  element.addEventListener(eventName, function (e) {
-    if (e.target && (<HTMLElement>e.target).matches(selector)) {
-      if (bind) {
-        return handler.call(bind, e);
-      } else {
+  rootElem.addEventListener(eventName, function (e) {
+    if (e.target) {
+      let elem = <HTMLElement>e.target;
+      if (elem.matches(selector)) {
+        return handler(e);
+      }
+      elem = <HTMLElement>elem.closest(selector);
+      if (elem) {
         return handler(e);
       }
     }
@@ -151,8 +153,8 @@ export function error(msg: string) {
 }
 
 export function assert(cond: boolean, msg?: string) {
-  if( !cond){
-    msg = msg || "Assertion failed."
+  if (!cond) {
+    msg = msg || "Assertion failed.";
     throw new Error(msg);
   }
 }
@@ -186,7 +188,7 @@ export function isPlainObject(obj: any) {
 }
 
 export function isArray(obj: any) {
-  return Array.isArray(obj)
+  return Array.isArray(obj);
 }
 
 export function noop(): any {}

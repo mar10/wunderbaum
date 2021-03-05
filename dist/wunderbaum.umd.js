@@ -7,7 +7,7 @@
     /*!
      * persisto.js - utils
      * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
-     * v0.0.1-0, Thu, 04 Mar 2021 21:49:34 GMT (https://github.com/mar10/wunderbaum)
+     * v0.0.1-0, Fri, 05 Mar 2021 08:04:32 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Bind event handler using event delegation:
@@ -26,16 +26,18 @@
      * @param handler
      * @param bind
      */
-    function onEvent(element, eventName, selector, handler, bind) {
-        if (typeof element === "string") {
-            element = document.querySelector(element);
+    function onEvent(rootElem, eventName, selector, handler) {
+        if (typeof rootElem === "string") {
+            rootElem = document.querySelector(rootElem);
         }
-        element.addEventListener(eventName, function (e) {
-            if (e.target && e.target.matches(selector)) {
-                if (bind) {
-                    return handler.call(bind, e);
+        rootElem.addEventListener(eventName, function (e) {
+            if (e.target) {
+                let elem = e.target;
+                if (elem.matches(selector)) {
+                    return handler(e);
                 }
-                else {
+                elem = elem.closest(selector);
+                if (elem) {
                     return handler(e);
                 }
             }
@@ -90,7 +92,7 @@
      * Released under the MIT license.
      *
      * @version v0.0.1-0
-     * @date Thu, 04 Mar 2021 21:49:34 GMT
+     * @date Fri, 05 Mar 2021 08:04:32 GMT
      */
     class WunderbaumNode {
         constructor(tree, parent, data) {
@@ -311,7 +313,7 @@
      * Released under the MIT license.
      *
      * @version v0.0.1-0
-     * @date Thu, 04 Mar 2021 21:49:34 GMT
+     * @date Fri, 05 Mar 2021 08:04:32 GMT
      */
     // import { PersistoOptions } from "./wb_options";
     const default_debuglevel = 1; // Replaced by rollup script
