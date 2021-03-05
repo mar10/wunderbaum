@@ -397,26 +397,38 @@ class Wunderbaum {
         });
         onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
             var _a;
-            (_a = this.getNode(e)) === null || _a === void 0 ? void 0 : _a.setActive();
+            (_a = Wunderbaum.getNode(e)) === null || _a === void 0 ? void 0 : _a.setActive();
+            // if(e.target.classList.)
             this.log("click");
         });
     }
     /** */
     static getTree() { }
     /** */
-    getNode(needle) {
-        // let nodeElem;
-        this.log("getNode", needle);
-        if (needle instanceof Event) {
-            needle = needle.target;
+    static getNode(obj) {
+        if (obj instanceof Event) {
+            obj = obj.target;
         }
-        if (needle instanceof Element) {
-            let nodeElem = needle.closest("div.wb-row");
-            this.log("getNode", nodeElem);
+        if (obj instanceof Element) {
+            let nodeElem = obj.closest("div.wb-row");
             return nodeElem._wb_node;
         }
         return null;
     }
+    // /** */
+    // public static getNodeEx(obj: any): WunderbaumNode | null {
+    //   // let nodeElem;
+    //   // this.log("getNode", obj)
+    //   if (obj instanceof Event) {
+    //     obj = obj.target;
+    //   }
+    //   if (obj instanceof Element) {
+    //     let nodeElem = obj.closest("div.wb-row");
+    //     // this.log("getNode", nodeElem)
+    //     return <WunderbaumNode>(<any>nodeElem!)._wb_node;
+    //   }
+    //   return null;
+    // }
     /** Log to console if opts.debugLevel >= 4 */
     debug(...args) {
         if (this.opts.debugLevel >= 4) {
@@ -460,7 +472,7 @@ class Wunderbaum {
         let modified = false;
         let start = opts.startIdx;
         let end = opts.endIdx;
-        this.debug("render", opts);
+        // this.debug("render", opts);
         assert(start != null && end != null);
         this.root.children[1].expanded = true;
         this.visitRows(function (node) {

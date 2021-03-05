@@ -21,7 +21,8 @@ export default {
   plugins: [
     typescript(),
     scss({
-      output: "dist/wunderbaum.css"
+      output: "dist/wunderbaum.css",
+      outputStyle: "compressed",
     }),
     modify({
       '@VERSION': 'v' + package_json.version,
