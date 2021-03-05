@@ -45,7 +45,8 @@ export class WunderbaumNode {
     this.tree = tree;
     this.parent = parent;
     this.title = data.title || "?";
-    this.key = data.key === undefined ? "" + ++WunderbaumNode.sequence : "" + data.key;
+    this.key =
+      data.key === undefined ? "" + ++WunderbaumNode.sequence : "" + data.key;
     // this.refKey = data.refKey;
   }
 
@@ -57,9 +58,23 @@ export class WunderbaumNode {
     return "WunderbaumNode@" + this.key + "<'" + this.title + "'>";
   }
 
+  addChild(node: WunderbaumNode, before?: WunderbaumNode) {
+    if (this.children == null) {
+      this.children = [node];
+    } else if (before) {
+      util.assert(false);
+    } else {
+      this.children.push(node);
+    }
+  }
+
   getLevel() {
-    let i = 0, p = this.parent;
-    while (p) { i++; p = p.parent; }
+    let i = 0,
+      p = this.parent;
+    while (p) {
+      i++;
+      p = p.parent;
+    }
     return i;
   }
 
@@ -89,6 +104,129 @@ export class WunderbaumNode {
   isStatusNode() {
     return !!this.statusNodeType;
   }
+
+  isExpandable() {
+    return this.children;
+  }
+
+  render(opts: any) {
+    let elem: HTMLElement, nodeElem: HTMLElement;
+    let parentElem: HTMLElement;
+    let rowDiv = this._rowElem;
+    let titleSpan: HTMLElement;
+    let expanderSpan: HTMLElement;
+    let iconMap = {
+      expanderExpanded: "bi bi-dash-square",
+      expanderCollapsed: "bi bi-plus-square",
+      expanderLazy: "bi bi-x-square",
+      checkChecked: "bi bi-check-square",
+      checkUnchecked: "bi bi-square",
+      checkUnknown: "bi dash-square-dotted",
+      radioChecked: "bi bi-circle-fill",
+      radioUnchecked: "bi bi-circle",
+      radioUnknown: "bi bi-circle-dotted",
+      folder: "bi bi-file-earmark",
+      folderOpen: "bi bi-file-earmark",
+      doc: "bi bi-file-earmark",
+    };
+
+    //
+    let rowClasses = ["wb-row"];
+    this.expanded ? rowClasses.push("wb-expanded") : 0;
+    this.lazy ? rowClasses.push("wb-lazy") : 0;
+    this.selected ? rowClasses.push("wb-selected") : 0;
+    this === this.tree.activeNode ? rowClasses.push("wb-active") : 0;
+
+    if (rowDiv) {
+      // Already
+      titleSpan = <HTMLElement>rowDiv.querySelector("span.wb-title");
+      expanderSpan = <HTMLElement>rowDiv.querySelector("i.wb-expander");
+    } else {
+      parentElem = this.tree.nodeListElement;
+
+      rowDiv = document.createElement("div");
+      // rowDiv.classList.add("wb-row");
+      // Attach a node reference to the DOM Element:
+      (<any>rowDiv)._wb_node = this;
+
+      nodeElem = document.createElement("span");
+      nodeElem.classList.add("wb-node", "wb-col");
+      rowDiv.appendChild(nodeElem);
+
+      elem = document.createElement("i");
+      elem.classList.add("wb-checkbox");
+      elem.classList.add("bi", "bi-check2-square");
+      nodeElem.appendChild(elem);
+
+      for (let i = this.getLevel(); i > 0; i--) {
+        elem = document.createElement("i");
+        elem.classList.add("wb-indent");
+        nodeElem.appendChild(elem);
+      }
+
+      expanderSpan = document.createElement("i");
+      nodeElem.appendChild(expanderSpan);
+
+      if (this.isExpandable()) {
+        // elem.classList.add("wb-expander");
+        if (this.expanded) {
+          expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+        } else {
+          expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+        }
+      }
+      elem = document.createElement("i");
+      elem.classList.add("wb-icon");
+      elem.classList.add("bi", "bi-folder");
+      nodeElem.appendChild(elem);
+
+      titleSpan = document.createElement("span");
+      titleSpan.classList.add("wb-title");
+      nodeElem.appendChild(titleSpan);
+    }
+    rowDiv.className = rowClasses.join(" ");
+    rowDiv.style.top = this._rowIdx! * 16 + "px";
+
+    if (expanderSpan && this.isExpandable()) {
+      // elem.classList.add("wb-expander");
+      if (this.expanded) {
+        expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+      } else {
+        expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+      }
+    } else {
+      expanderSpan.classList.add("wb-indent");
+    }
+    titleSpan.textContent = this.title;
+
+    // Attach to DOM as late as possible
+    if (!this._rowElem) {
+      this._rowElem = rowDiv;
+      parentElem!.appendChild(rowDiv);
+    }
+  }
+
+  setActive(flag: boolean = true) {
+    let prev = this.tree.activeNode;
+    this.tree.activeNode = this;
+    prev?.setDirty(ChangeType.status);
+    this.setDirty(ChangeType.status);
+  }
+
+  setDirty(hint: ChangeType) {
+    this.render({});
+  }
+
+  setExpanded(flag: boolean = true) {
+    this.expanded = flag;
+    this.setDirty(ChangeType.structure);
+  }
+
+  setSelected(flag: boolean = true) {
+    this.selected = flag;
+    this.setDirty(ChangeType.structure);
+  }
+
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
    * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
    * Return false if iteration was stopped.
@@ -97,7 +235,10 @@ export class WunderbaumNode {
    *     Return false to stop iteration, return "skip" to skip this node and
    *     its children only.
    */
-  visit(callback: (node: WunderbaumNode) => any, includeSelf: boolean = false): any {
+  visit(
+    callback: (node: WunderbaumNode) => any,
+    includeSelf: boolean = false
+  ): any {
     let i,
       l,
       res: any = true,
@@ -127,7 +268,10 @@ export class WunderbaumNode {
    * @param {function} callback the callback function.
    *     Return false to stop iteration, return "skip" to skip this node and children only.
    */
-  visitParents(callback: (node: WunderbaumNode) => boolean | undefined, includeSelf: boolean = false): boolean {
+  visitParents(
+    callback: (node: WunderbaumNode) => boolean | undefined,
+    includeSelf: boolean = false
+  ): boolean {
     if (includeSelf && callback(this) === false) {
       return false;
     }
@@ -148,7 +292,10 @@ export class WunderbaumNode {
    * @param {function} fn the callback function.
    *     Return false to stop iteration.
    */
-  visitSiblings(callback: (node: WunderbaumNode) => boolean | undefined, includeSelf: boolean = false): boolean {
+  visitSiblings(
+    callback: (node: WunderbaumNode) => boolean | undefined,
+    includeSelf: boolean = false
+  ): boolean {
     let i,
       l,
       n,
@@ -163,95 +310,5 @@ export class WunderbaumNode {
       }
     }
     return true;
-  }
-
-  setActive(flag: boolean = true) {
-    let prev = this.tree.activeNode;
-    this.tree.activeNode = this;
-    prev?.setDirty(ChangeType.status);
-    this.setDirty(ChangeType.status);
-  }
-
-  setExpanded(flag: boolean = true) {
-    this.expanded = flag;
-    this.setDirty(ChangeType.structure);
-  }
-
-  setDirty(hint: ChangeType) {
-    this.render({});
-  }
-
-  render(opts: any) {
-    let parentElem: HTMLElement;
-    let titleSpan: HTMLElement;
-    let rowDiv = this._rowElem;
-
-    if (rowDiv) {
-      util.toggleClass(rowDiv, "wb-expanded", !!this.expanded);
-      util.toggleClass(rowDiv, "wb-lazy", !!this.lazy);
-      util.toggleClass(rowDiv, "wb-selected", !!this.selected);
-      util.toggleClass(rowDiv, "wb-active", this === this.tree.activeNode);
-      titleSpan = <HTMLElement>rowDiv.querySelector("span.wb-title");
-
-    } else {
-      let elem: HTMLElement,
-        nodeElem: HTMLElement;
-
-      parentElem = this.tree.nodeListElement;
-
-      rowDiv = document.createElement("div");
-      rowDiv.classList.add("wb-row");
-      (<any>rowDiv)._wb_node = this
-      if (this.expanded) { rowDiv.classList.add("wb-expanded"); }
-      if (this.lazy) { rowDiv.classList.add("wb-lazy"); }
-      if (this.selected) { rowDiv.classList.add("wb-selected"); }
-
-      nodeElem = document.createElement("span");
-      nodeElem.classList.add("wb-node", "wb-col");
-      rowDiv.appendChild(nodeElem);
-
-      elem = document.createElement("i");
-      elem.classList.add("wb-checkbox");
-      elem.classList.add("bi", "bi-check2-square");
-      nodeElem.appendChild(elem);
-
-      for (let i = this.getLevel(); i > 0; i--) {
-        elem = document.createElement("i");
-        elem.classList.add("wb-indent");
-        nodeElem.appendChild(elem);
-      }
-
-      elem = document.createElement("i");
-      elem.classList.add("wb-expander");
-      elem.classList.add("bi", "bi-dash-square");
-      nodeElem.appendChild(elem);
-
-      elem = document.createElement("i");
-      elem.classList.add("wb-icon");
-      elem.classList.add("bi", "bi-folder");
-      nodeElem.appendChild(elem);
-
-      titleSpan = document.createElement("span");
-      titleSpan.classList.add("wb-title");
-      nodeElem.appendChild(titleSpan);
-    }
-    rowDiv.style.top = (this._rowIdx! * 16) + "px";
-    titleSpan.textContent = this.title;
-
-    // Attach to DOM as late as possible
-    if (!this._rowElem) {
-      this._rowElem = rowDiv;
-      parentElem!.appendChild(rowDiv);
-    }
-  }
-
-  addChild(node: WunderbaumNode, before?: WunderbaumNode) {
-    if (this.children == null) {
-      this.children = [node];
-    } else if (before) {
-      util.assert(false);
-    } else {
-      this.children.push(node);
-    }
   }
 }

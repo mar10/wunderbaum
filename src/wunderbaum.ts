@@ -39,6 +39,7 @@ export class Wunderbaum {
   static version: string = "@VERSION"; // Set to semver by 'grunt release'
   static sequence = 0;
 
+  /** The invisible root node, that holds all visible top level nodes. */
   readonly root: WunderbaumNode;
   readonly name: string;
   readonly element: HTMLElement;

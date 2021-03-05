@@ -7,7 +7,7 @@
     /*!
      * persisto.js - utils
      * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
-     * v0.0.1-0, Fri, 05 Mar 2021 08:04:32 GMT (https://github.com/mar10/wunderbaum)
+     * v0.0.1-0, @DATE (https://github.com/mar10/wunderbaum)
      */
     /**
      * Bind event handler using event delegation:
@@ -43,21 +43,6 @@
             }
         });
     }
-    function toggleClass(element, classname, force) {
-        if (typeof element === "string") {
-            element = document.querySelector(element);
-        }
-        switch (force) {
-            case true:
-                element.classList.add(classname);
-                break;
-            case false:
-                element.classList.remove(classname);
-                break;
-            default:
-                element.classList.toggle(classname);
-        }
-    }
     function error(msg) {
         throw new Error(msg);
     }
@@ -92,7 +77,7 @@
      * Released under the MIT license.
      *
      * @version v0.0.1-0
-     * @date Fri, 05 Mar 2021 08:04:32 GMT
+     * @date @DATE
      */
     class WunderbaumNode {
         constructor(tree, parent, data) {
@@ -110,7 +95,8 @@
             this.tree = tree;
             this.parent = parent;
             this.title = data.title || "?";
-            this.key = data.key === undefined ? "" + ++WunderbaumNode.sequence : "" + data.key;
+            this.key =
+                data.key === undefined ? "" + ++WunderbaumNode.sequence : "" + data.key;
             // this.refKey = data.refKey;
         }
         /**
@@ -119,6 +105,17 @@
          */
         toString() {
             return "WunderbaumNode@" + this.key + "<'" + this.title + "'>";
+        }
+        addChild(node, before) {
+            if (this.children == null) {
+                this.children = [node];
+            }
+            else if (before) {
+                assert(false);
+            }
+            else {
+                this.children.push(node);
+            }
         }
         getLevel() {
             let i = 0, p = this.parent;
@@ -153,6 +150,115 @@
          */
         isStatusNode() {
             return !!this.statusNodeType;
+        }
+        isExpandable() {
+            return this.children;
+        }
+        render(opts) {
+            let elem, nodeElem;
+            let parentElem;
+            let rowDiv = this._rowElem;
+            let titleSpan;
+            let expanderSpan;
+            let iconMap = {
+                expanderExpanded: "bi bi-dash-square",
+                expanderCollapsed: "bi bi-plus-square",
+                expanderLazy: "bi bi-x-square",
+                checkChecked: "bi bi-check-square",
+                checkUnchecked: "bi bi-square",
+                checkUnknown: "bi dash-square-dotted",
+                radioChecked: "bi bi-circle-fill",
+                radioUnchecked: "bi bi-circle",
+                radioUnknown: "bi bi-circle-dotted",
+                folder: "bi bi-file-earmark",
+                folderOpen: "bi bi-file-earmark",
+                doc: "bi bi-file-earmark",
+            };
+            //
+            let rowClasses = ["wb-row"];
+            this.expanded ? rowClasses.push("wb-expanded") : 0;
+            this.lazy ? rowClasses.push("wb-lazy") : 0;
+            this.selected ? rowClasses.push("wb-selected") : 0;
+            this === this.tree.activeNode ? rowClasses.push("wb-active") : 0;
+            if (rowDiv) {
+                // Already
+                titleSpan = rowDiv.querySelector("span.wb-title");
+                expanderSpan = rowDiv.querySelector("i.wb-expander");
+            }
+            else {
+                parentElem = this.tree.nodeListElement;
+                rowDiv = document.createElement("div");
+                // rowDiv.classList.add("wb-row");
+                // Attach a node reference to the DOM Element:
+                rowDiv._wb_node = this;
+                nodeElem = document.createElement("span");
+                nodeElem.classList.add("wb-node", "wb-col");
+                rowDiv.appendChild(nodeElem);
+                elem = document.createElement("i");
+                elem.classList.add("wb-checkbox");
+                elem.classList.add("bi", "bi-check2-square");
+                nodeElem.appendChild(elem);
+                for (let i = this.getLevel(); i > 0; i--) {
+                    elem = document.createElement("i");
+                    elem.classList.add("wb-indent");
+                    nodeElem.appendChild(elem);
+                }
+                expanderSpan = document.createElement("i");
+                nodeElem.appendChild(expanderSpan);
+                if (this.isExpandable()) {
+                    // elem.classList.add("wb-expander");
+                    if (this.expanded) {
+                        expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+                    }
+                    else {
+                        expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+                    }
+                }
+                elem = document.createElement("i");
+                elem.classList.add("wb-icon");
+                elem.classList.add("bi", "bi-folder");
+                nodeElem.appendChild(elem);
+                titleSpan = document.createElement("span");
+                titleSpan.classList.add("wb-title");
+                nodeElem.appendChild(titleSpan);
+            }
+            rowDiv.className = rowClasses.join(" ");
+            rowDiv.style.top = this._rowIdx * 16 + "px";
+            if (expanderSpan && this.isExpandable()) {
+                // elem.classList.add("wb-expander");
+                if (this.expanded) {
+                    expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+                }
+                else {
+                    expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+                }
+            }
+            else {
+                expanderSpan.classList.add("wb-indent");
+            }
+            titleSpan.textContent = this.title;
+            // Attach to DOM as late as possible
+            if (!this._rowElem) {
+                this._rowElem = rowDiv;
+                parentElem.appendChild(rowDiv);
+            }
+        }
+        setActive(flag = true) {
+            let prev = this.tree.activeNode;
+            this.tree.activeNode = this;
+            prev === null || prev === void 0 ? void 0 : prev.setDirty(exports.ChangeType.status);
+            this.setDirty(exports.ChangeType.status);
+        }
+        setDirty(hint) {
+            this.render({});
+        }
+        setExpanded(flag = true) {
+            this.expanded = flag;
+            this.setDirty(exports.ChangeType.structure);
+        }
+        setSelected(flag = true) {
+            this.selected = flag;
+            this.setDirty(exports.ChangeType.structure);
         }
         /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
          * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
@@ -219,88 +325,6 @@
             }
             return true;
         }
-        setActive(flag = true) {
-            let prev = this.tree.activeNode;
-            this.tree.activeNode = this;
-            prev === null || prev === void 0 ? void 0 : prev.setDirty(exports.ChangeType.status);
-            this.setDirty(exports.ChangeType.status);
-        }
-        setExpanded(flag = true) {
-            this.expanded = flag;
-            this.setDirty(exports.ChangeType.structure);
-        }
-        setDirty(hint) {
-            this.render({});
-        }
-        render(opts) {
-            let parentElem;
-            let titleSpan;
-            let rowDiv = this._rowElem;
-            if (rowDiv) {
-                toggleClass(rowDiv, "wb-expanded", !!this.expanded);
-                toggleClass(rowDiv, "wb-lazy", !!this.lazy);
-                toggleClass(rowDiv, "wb-selected", !!this.selected);
-                toggleClass(rowDiv, "wb-active", this === this.tree.activeNode);
-                titleSpan = rowDiv.querySelector("span.wb-title");
-            }
-            else {
-                let elem, nodeElem;
-                parentElem = this.tree.nodeListElement;
-                rowDiv = document.createElement("div");
-                rowDiv.classList.add("wb-row");
-                rowDiv._wb_node = this;
-                if (this.expanded) {
-                    rowDiv.classList.add("wb-expanded");
-                }
-                if (this.lazy) {
-                    rowDiv.classList.add("wb-lazy");
-                }
-                if (this.selected) {
-                    rowDiv.classList.add("wb-selected");
-                }
-                nodeElem = document.createElement("span");
-                nodeElem.classList.add("wb-node", "wb-col");
-                rowDiv.appendChild(nodeElem);
-                elem = document.createElement("i");
-                elem.classList.add("wb-checkbox");
-                elem.classList.add("bi", "bi-check2-square");
-                nodeElem.appendChild(elem);
-                for (let i = this.getLevel(); i > 0; i--) {
-                    elem = document.createElement("i");
-                    elem.classList.add("wb-indent");
-                    nodeElem.appendChild(elem);
-                }
-                elem = document.createElement("i");
-                elem.classList.add("wb-expander");
-                elem.classList.add("bi", "bi-dash-square");
-                nodeElem.appendChild(elem);
-                elem = document.createElement("i");
-                elem.classList.add("wb-icon");
-                elem.classList.add("bi", "bi-folder");
-                nodeElem.appendChild(elem);
-                titleSpan = document.createElement("span");
-                titleSpan.classList.add("wb-title");
-                nodeElem.appendChild(titleSpan);
-            }
-            rowDiv.style.top = (this._rowIdx * 16) + "px";
-            titleSpan.textContent = this.title;
-            // Attach to DOM as late as possible
-            if (!this._rowElem) {
-                this._rowElem = rowDiv;
-                parentElem.appendChild(rowDiv);
-            }
-        }
-        addChild(node, before) {
-            if (this.children == null) {
-                this.children = [node];
-            }
-            else if (before) {
-                assert(false);
-            }
-            else {
-                this.children.push(node);
-            }
-        }
     }
     WunderbaumNode.sequence = 0;
 
@@ -313,7 +337,7 @@
      * Released under the MIT license.
      *
      * @version v0.0.1-0
-     * @date Fri, 05 Mar 2021 08:04:32 GMT
+     * @date @DATE
      */
     // import { PersistoOptions } from "./wb_options";
     const default_debuglevel = 1; // Replaced by rollup script

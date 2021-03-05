@@ -67,7 +67,7 @@
   "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
 
   "typedocOptions": {
-    "entryPoints": ["src/wunderbaum.ts", "src/wb_options.ts"],
+    "entryPoints": ["src/wunderbaum.ts", "src/wunderbaum_node.ts", "src/wb_options.ts"],
     "out": "docs",
     "excludePrivate": true,
     "excludeProtected": true,
