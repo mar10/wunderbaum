@@ -1,13 +1,7 @@
 /*!
- * wunderbaum.ts
- *
- * A tree control.
- *
- * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
- * Released under the MIT license.
- *
- * @version @VERSION
- * @date @DATE
+ * wunderbaum.js - wunderbaum_node
+ * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
 import "./wunderbaum.scss";
@@ -17,7 +11,8 @@ import * as util from "./util";
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
 
-import { Wunderbaum, ChangeType } from "./wunderbaum";
+import { Wunderbaum } from "./wunderbaum";
+import { ChangeType } from "./common";
 
 export class WunderbaumNode {
   static sequence = 0;
@@ -98,6 +93,22 @@ export class WunderbaumNode {
     }
     return !!(this.children && this.children.length);
   }
+  isActive() {
+    return this.tree.activeNode === this;
+  }
+
+  isExpandable() {
+    return this.children;
+  }
+
+  isExpanded() {
+    return !!this.expanded;
+  }
+
+  isSelected() {
+    return !!this.selected;
+  }
+
   /** Return true if this node is a temporarily generated system node like
    * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
    */
@@ -105,15 +116,13 @@ export class WunderbaumNode {
     return !!this.statusNodeType;
   }
 
-  isExpandable() {
-    return this.children;
-  }
-
   render(opts: any) {
     let elem: HTMLElement, nodeElem: HTMLElement;
     let parentElem: HTMLElement;
     let rowDiv = this._rowElem;
     let titleSpan: HTMLElement;
+    let checkboxSpan: HTMLElement;
+    let iconSpan: HTMLElement;
     let expanderSpan: HTMLElement;
     let iconMap = {
       expanderExpanded: "bi bi-dash-square",
@@ -125,8 +134,8 @@ export class WunderbaumNode {
       radioChecked: "bi bi-circle-fill",
       radioUnchecked: "bi bi-circle",
       radioUnknown: "bi bi-circle-dotted",
-      folder: "bi bi-file-earmark",
-      folderOpen: "bi bi-file-earmark",
+      folder: "bi bi-folder2",
+      folderOpen: "bi bi-folder2-open",
       doc: "bi bi-file-earmark",
     };
 
@@ -138,9 +147,11 @@ export class WunderbaumNode {
     this === this.tree.activeNode ? rowClasses.push("wb-active") : 0;
 
     if (rowDiv) {
-      // Already
+      // Row markup already exists
       titleSpan = <HTMLElement>rowDiv.querySelector("span.wb-title");
       expanderSpan = <HTMLElement>rowDiv.querySelector("i.wb-expander");
+      checkboxSpan = <HTMLElement>rowDiv.querySelector("i.wb-checkbox");
+      iconSpan = <HTMLElement>rowDiv.querySelector("i.wb-icon");
     } else {
       parentElem = this.tree.nodeListElement;
 
@@ -153,10 +164,8 @@ export class WunderbaumNode {
       nodeElem.classList.add("wb-node", "wb-col");
       rowDiv.appendChild(nodeElem);
 
-      elem = document.createElement("i");
-      elem.classList.add("wb-checkbox");
-      elem.classList.add("bi", "bi-check2-square");
-      nodeElem.appendChild(elem);
+      checkboxSpan = document.createElement("i");
+      nodeElem.appendChild(checkboxSpan);
 
       for (let i = this.getLevel(); i > 0; i--) {
         elem = document.createElement("i");
@@ -167,18 +176,8 @@ export class WunderbaumNode {
       expanderSpan = document.createElement("i");
       nodeElem.appendChild(expanderSpan);
 
-      if (this.isExpandable()) {
-        // elem.classList.add("wb-expander");
-        if (this.expanded) {
-          expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
-        } else {
-          expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
-        }
-      }
-      elem = document.createElement("i");
-      elem.classList.add("wb-icon");
-      elem.classList.add("bi", "bi-folder");
-      nodeElem.appendChild(elem);
+      iconSpan = document.createElement("i");
+      nodeElem.appendChild(iconSpan);
 
       titleSpan = document.createElement("span");
       titleSpan.classList.add("wb-title");
@@ -187,15 +186,32 @@ export class WunderbaumNode {
     rowDiv.className = rowClasses.join(" ");
     rowDiv.style.top = this._rowIdx! * 16 + "px";
 
-    if (expanderSpan && this.isExpandable()) {
-      // elem.classList.add("wb-expander");
-      if (this.expanded) {
-        expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+    if (expanderSpan) {
+      if (this.isExpandable()) {
+        if (this.expanded) {
+          expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+        } else {
+          expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+        }
       } else {
-        expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+        expanderSpan.classList.add("wb-indent");
       }
-    } else {
-      expanderSpan.classList.add("wb-indent");
+    }
+    if (checkboxSpan) {
+      if (this.selected) {
+        checkboxSpan.className = "wb-checkbox " + iconMap.checkChecked;
+      } else {
+        checkboxSpan.className = "wb-checkbox " + iconMap.checkUnchecked;
+      }
+    }
+    if (iconSpan) {
+      if (this.expanded) {
+        iconSpan.className = "wb-icon " + iconMap.folderOpen;
+      } else if (this.children) {
+        iconSpan.className = "wb-icon " + iconMap.folder;
+      } else {
+        iconSpan.className = "wb-icon " + iconMap.doc;
+      }
     }
     titleSpan.textContent = this.title;
 
@@ -213,8 +229,12 @@ export class WunderbaumNode {
     this.setDirty(ChangeType.status);
   }
 
-  setDirty(hint: ChangeType) {
-    this.render({});
+  setDirty(type: ChangeType) {
+    if (type === ChangeType.structure) {
+      this.tree.updateViewport();
+    } else {
+      this.render({});
+    }
   }
 
   setExpanded(flag: boolean = true) {
@@ -224,7 +244,7 @@ export class WunderbaumNode {
 
   setSelected(flag: boolean = true) {
     this.selected = flag;
-    this.setDirty(ChangeType.structure);
+    this.setDirty(ChangeType.status);
   }
 
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>

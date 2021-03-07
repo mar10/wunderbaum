@@ -14,6 +14,7 @@ import "./wunderbaum.scss";
 import * as util from "./util";
 import { WunderbaumNode } from "./wunderbaum_node";
 // import { PersistoOptions } from "./wb_options";
+import { ChangeType, TargetType, WunderbaumOptions } from "./common";
 
 const default_debuglevel = 2; // Replaced by rollup script
 const ROW_HEIGHT = 16;
@@ -21,14 +22,6 @@ const RENDER_PREFETCH = 5;
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
-
-export enum ChangeType {
-  any = "any",
-  structure = "structure",
-  status = "status",
-}
-
-type WunderbaumOptions = any;
 
 /**
  * A persistent plain object or array.
@@ -106,9 +99,16 @@ export class Wunderbaum {
       this.updateViewport();
     });
     util.onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
-      Wunderbaum.getNode(e)?.setActive();
+      let info = this.getEventTarget(e);
+      info.node!.setActive();
+      if (info.type === TargetType.expander) {
+        info.node?.setExpanded(!info.node.isExpanded());
+      }
+      if (info.type === TargetType.checkbox) {
+        info.node?.setSelected(!info.node.isSelected());
+      }
       // if(e.target.classList.)
-      this.log("click");
+      this.log("click", info);
     });
   }
 
@@ -126,22 +126,59 @@ export class Wunderbaum {
     }
     return null;
   }
+  /** Return a {node: FancytreeNode, type: TYPE} object for a mouse event.
+   *
+   * @param {Event} event Mouse event, e.g. click, ...
+   * @returns {object} Return a {node: FancytreeNode, type: TYPE} object
+   *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
+   */
+  getEventTarget(event: Event) {
+    let target = <Element>event.target,
+      cl = target.classList,
+      // tree,
+      // tcn = event && event.target ? event.target.className : "",
+      node = Wunderbaum.getNode(event.target),
+      res = { node: node, type: TargetType.unknown };
 
-  // /** */
-  // public static getNodeEx(obj: any): WunderbaumNode | null {
-  //   // let nodeElem;
-  //   // this.log("getNode", obj)
-
-  //   if (obj instanceof Event) {
-  //     obj = obj.target;
-  //   }
-  //   if (obj instanceof Element) {
-  //     let nodeElem = obj.closest("div.wb-row");
-  //     // this.log("getNode", nodeElem)
-  //     return <WunderbaumNode>(<any>nodeElem!)._wb_node;
-  //   }
-  //   return null;
-  // }
+    if (cl.contains("wb-title")) {
+      res.type = TargetType.title;
+    } else if (cl.contains("wb-expander")) {
+      res.type =
+        node!.hasChildren() === false ? TargetType.prefix : TargetType.expander;
+    } else if (cl.contains("wb-checkbox")) {
+      res.type = TargetType.checkbox;
+    } else if (cl.contains("wb-icon") || cl.contains("wb-custom-icon")) {
+      res.type = TargetType.icon;
+    } else if (cl.contains("wb-node")) {
+      // Somewhere near the title
+      res.type = TargetType.title;
+      // } else if (event && event.target) {
+      //   $target = $(event.target);
+      //   if ($target.is("ul[role=group]")) {
+      //     // #nnn: Clicking right to a node may hit the surrounding UL
+      //     tree = res.node && res.node.tree;
+      //     (tree || FT).debug("Ignoring click on outer UL.");
+      //     res.node = null;
+      //   } else if ($target.closest(".wb-title").length) {
+      //     // #228: clicking an embedded element inside a title
+      //     res.type = "title";
+      //   } else if ($target.closest(".wb-checkbox").length) {
+      //     // E.g. <svg> inside checkbox span
+      //     res.type = "checkbox";
+      //   } else if ($target.closest(".wb-expander").length) {
+      //     res.type = "expander";
+      //   }
+    }
+    return res;
+  }
+  /** Return a string describing the affected node region for a mouse event.
+   *
+   * @param {Event} event Mouse event, e.g. click, mousemove, ...
+   * @returns {string} 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
+   */
+  getEventTargetType(event: Event) {
+    return this.getEventTarget(event).type;
+  }
 
   /** Log to console if opts.debugLevel >= 4 */
   debug(...args: any[]) {
