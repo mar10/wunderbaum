@@ -16,11 +16,12 @@ div.wunderbaum {
   border: 1px solid gray;
 
   div.wb-header {
+    position: relative;
     height: 1em;
     border: 2px outset gainsboro;
     background-color: honeydew;
     span.wb-col {
-      font-weight: bold;
+      // font-weight: bold;
     }
   }
   span.wb-col {
@@ -36,7 +37,7 @@ div.wunderbaum {
   div.wb-row {
     position: absolute;
     width: 100%;
-    height: 1em;
+    height: 1.1em;
     &:hover {
       background-color: $hover-color;
     }
@@ -51,6 +52,7 @@ div.wunderbaum {
     width: 1em;
     display: inline-block;
     margin-right: 3px;
+    font-size: small;
   }
   span.wb-title {
     min-width: 1em;

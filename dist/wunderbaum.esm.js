@@ -172,6 +172,13 @@ class WunderbaumNode {
     isStatusNode() {
         return !!this.statusNodeType;
     }
+    removeMarkup() {
+        if (this._rowElem) {
+            delete this._rowElem._wb_node;
+            this._rowElem.remove();
+            this._rowElem = undefined;
+        }
+    }
     render(opts) {
         let elem, nodeElem;
         let parentElem;
@@ -282,7 +289,8 @@ class WunderbaumNode {
         if (type === ChangeType.structure) {
             this.tree.updateViewport();
         }
-        else {
+        else if (this._rowElem) {
+            // otherwise not in viewport, so no need to render
             this.render({});
         }
     }
@@ -388,6 +396,7 @@ class Wunderbaum {
     constructor(options) {
         this.keyMap = {};
         this.refKeyMap = {};
+        this.viewNodes = new Set();
         this.rows = [];
         this.activeNode = null;
         this.enableFilter = false;
@@ -462,10 +471,7 @@ class Wunderbaum {
      *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
      */
     getEventTarget(event) {
-        let target = event.target, cl = target.classList, 
-        // tree,
-        // tcn = event && event.target ? event.target.className : "",
-        node = Wunderbaum.getNode(event.target), res = { node: node, type: TargetType.unknown };
+        let target = event.target, cl = target.classList, node = Wunderbaum.getNode(event.target), res = { node: node, type: TargetType.unknown };
         if (cl.contains("wb-title")) {
             res.type = TargetType.title;
         }
@@ -544,35 +550,41 @@ class Wunderbaum {
         }
     }
     /** */
-    renumber(opts) {
-        let label = this.logTime("renumber");
+    render(opts) {
+        let label = this.logTime("render");
         let idx = 0;
         let top = 0;
         let height = 16;
         let modified = false;
         let start = opts.startIdx;
         let end = opts.endIdx;
+        let obsoleteViewNodes = this.viewNodes;
+        this.viewNodes = new Set();
+        let viewNodes = this.viewNodes;
         // this.debug("render", opts);
         assert(start != null && end != null);
-        this.root.children[1].expanded = true;
+        // this.root.children![1].expanded = true;
         this.visitRows(function (node) {
             let prevIdx = node._rowIdx;
+            viewNodes.add(node);
+            obsoleteViewNodes.delete(node);
             if (prevIdx !== idx) {
                 node._rowIdx = idx;
                 modified = true;
             }
             if (idx < start || idx > end) {
-                if (node._rowElem) {
-                    node._rowElem.remove();
-                    node._rowElem = undefined;
-                }
+                node.removeMarkup();
             }
-            else if (!node._rowElem || prevIdx != idx) {
+            else {
+                // if (!node._rowElem || prevIdx != idx) {
                 node.render({ top: top });
             }
             idx++;
             top += height;
         });
+        for (let prevNode of obsoleteViewNodes) {
+            prevNode.removeMarkup();
+        }
         // Resize tree container
         this.nodeListElement.style.height = "" + top + "px";
         this.logTimeEnd(label);
@@ -582,7 +594,7 @@ class Wunderbaum {
     updateViewport() {
         let height = this.scrollContainer.clientHeight;
         let ofs = this.scrollContainer.scrollTop;
-        this.renumber({
+        this.render({
             startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
             endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
         });
@@ -663,7 +675,7 @@ class Wunderbaum {
      * @internal
      */
     _visitRowsUp(callback, opts) {
-        var children, idx, parent, includeHidden = !!opts.includeHidden, node = opts.start || this.root.children[0];
+        let children, idx, parent, includeHidden = !!opts.includeHidden, node = opts.start || this.root.children[0];
         while (true) {
             parent = node.parent;
             children = parent.children;

@@ -116,6 +116,14 @@ export class WunderbaumNode {
     return !!this.statusNodeType;
   }
 
+  removeMarkup() {
+    if (this._rowElem) {
+      delete (<any>this._rowElem)._wb_node;
+      this._rowElem.remove();
+      this._rowElem = undefined;
+    }
+  }
+
   render(opts: any) {
     let elem: HTMLElement, nodeElem: HTMLElement;
     let parentElem: HTMLElement;
@@ -232,7 +240,8 @@ export class WunderbaumNode {
   setDirty(type: ChangeType) {
     if (type === ChangeType.structure) {
       this.tree.updateViewport();
-    } else {
+    } else if (this._rowElem) {
+      // otherwise not in viewport, so no need to render
       this.render({});
     }
   }
