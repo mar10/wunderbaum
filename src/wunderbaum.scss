@@ -5,7 +5,20 @@
  */
 
 $font-stack: Helvetica, sans-serif;
-$hover-color: #eef;
+$hover-color: #e5f3fb;
+$hover-border-color: #70c0e7;
+$focus-border-color: #969da3;
+$active-color: #f7f7f7;
+$active-border-color: #dedede;
+$active-hover-color: #cbe8f6;
+$active-hover-border-color: #26a0da;
+
+$row-height: 20px;
+
+$level-rainbow: rgba(255, 255, 64, 0.2), rgba(127, 255, 127, 0.2),
+  rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
+// $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
+//   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
 
 div.wunderbaum {
   height: 100%;
@@ -17,13 +30,17 @@ div.wunderbaum {
 
   div.wb-header {
     position: relative;
-    height: 1em;
-    border: 2px outset gainsboro;
-    background-color: honeydew;
+    height: $row-height;
+    border-bottom: 1px solid gainsboro;
+    // background-color: honeydew;
     span.wb-col {
-      // font-weight: bold;
+      font-weight: bold;
+      &:hover {
+        background-color: $active-hover-color;
+      }
     }
   }
+
   span.wb-col {
     position: absolute;
     display: inline-block;
@@ -33,28 +50,60 @@ div.wunderbaum {
     scroll-behavior: smooth;
     position: relative;
     height: 200px;
-  }
-  div.wb-row {
-    position: absolute;
-    width: 100%;
-    height: 1.1em;
-    &:hover {
-      background-color: $hover-color;
+    div.wb-row {
+      position: absolute;
+      width: 100%;
+      height: $row-height;
+      border: 1px solid transparent;
+      &.wb-active {
+        // font-weight: bold;
+      }
+      &.wb-selected {
+        font-style: italic;
+      }
+      &:hover {
+        background-color: $hover-color;
+        border-color: $hover-border-color;
+      }
+      &.wb-active,
+      &.wb-selected {
+        background-color: $active-color;
+        border-color: $active-border-color;
+        &:hover {
+          background-color: $active-hover-color;
+          border-color: $active-hover-border-color;
+        }
+      }
     }
-    &.wb-active {
-      font-weight: bolder;
+    i.wb-checkbox,
+    i.wb-expander,
+    i.wb-icon,
+    i.wb-indent {
+      width: 1em;
+      display: inline-block;
+      height: $row-height;
+      margin-right: 3px;
+      font-size: small;
+      // &:before {
+      //   display: inline-block;
+      //   // font-family: bootstrap-icons !important;
+      //   // font-style: normal;
+      //   // font-weight: normal !important;
+      //   // font-variant: normal;
+      //   // text-transform: none;
+      //   line-height: 1;
+      //   // vertical-align: -.125em;
+      //   // -webkit-font-smoothing: antialiased;
+      // }
     }
   }
-  i.wb-checkbox,
-  i.wb-expander,
-  i.wb-icon,
-  i.wb-indent {
-    width: 1em;
-    display: inline-block;
-    margin-right: 3px;
-    font-size: small;
-  }
+
   span.wb-title {
     min-width: 1em;
+  }
+  @for $i from 1 through length($level-rainbow) {
+    i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
+      background: nth($level-rainbow, $i);
+    }
   }
 }

@@ -14,11 +14,7 @@ import "./wunderbaum.scss";
 import * as util from "./util";
 import { WunderbaumNode } from "./wunderbaum_node";
 // import { PersistoOptions } from "./wb_options";
-import { ChangeType, TargetType, WunderbaumOptions } from "./common";
-
-const default_debuglevel = 2; // Replaced by rollup script
-const ROW_HEIGHT = 16;
-const RENDER_PREFETCH = 5;
+import { ChangeType, default_debuglevel, RENDER_PREFETCH, ROW_HEIGHT, TargetType, WunderbaumOptions } from "./common";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -223,7 +219,7 @@ export class Wunderbaum {
     let label = this.logTime("render");
     let idx = 0;
     let top = 0;
-    let height = 16;
+    let height = ROW_HEIGHT;
     let modified = false;
     let start = opts.startIdx;
     let end = opts.endIdx;

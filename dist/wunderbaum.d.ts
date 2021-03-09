@@ -1,6 +1,6 @@
 declare module "util" {
     /*!
-     * persisto.js - utils
+     * wunderbaum.js - utils
      * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
@@ -41,7 +41,7 @@ declare module "util" {
      * @param handler
      * @param bind
      */
-    export function onEvent(element: HTMLElement | string, eventName: string, selector: string, handler: (e: Event) => boolean | void, bind?: any): void;
+    export function onEvent(rootElem: HTMLElement | string, eventName: string, selector: string, handler: (e: Event) => boolean | void): void;
     export function toggleClass(element: HTMLElement | string, classname: string, force?: boolean): void;
     /**
      * jQuery Shims
@@ -58,20 +58,39 @@ declare module "util" {
     export function ready(fn: any): void;
     export function type(obj: any): any;
 }
+declare module "common" {
+    /*!
+     * wunderbaum.js - common
+     * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+     * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
+     */
+    export enum ChangeType {
+        any = "any",
+        structure = "structure",
+        status = "status"
+    }
+    export enum TargetType {
+        unknown = "",
+        title = "title",
+        icon = "icon",
+        expander = "expander",
+        checkbox = "checkbox",
+        prefix = "prefix"
+    }
+    export type WunderbaumOptions = any;
+    export const default_debuglevel = 2;
+    export const ROW_HEIGHT = 22;
+    export const RENDER_PREFETCH = 5;
+}
 declare module "wunderbaum_node" {
     /*!
-     * wunderbaum.ts
-     *
-     * A tree control.
-     *
-     * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
-     * Released under the MIT license.
-     *
-     * @version @VERSION
-     * @date @DATE
+     * wunderbaum.js - wunderbaum_node
+     * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+     * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import "./wunderbaum.scss";
-    import { Wunderbaum, ChangeType } from "wunderbaum";
+    import { Wunderbaum } from "wunderbaum";
+    import { ChangeType } from "common";
     export class WunderbaumNode {
         static sequence: number;
         /** Reference to owning tree. */
@@ -96,13 +115,24 @@ declare module "wunderbaum_node" {
          * @internal
          */
         toString(): string;
+        addChild(node: WunderbaumNode, before?: WunderbaumNode): void;
         getLevel(): number;
         /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
         hasChildren(): boolean;
+        isActive(): boolean;
+        isExpandable(): WunderbaumNode[];
+        isExpanded(): boolean;
+        isSelected(): boolean;
         /** Return true if this node is a temporarily generated system node like
          * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
          */
         isStatusNode(): boolean;
+        removeMarkup(): void;
+        render(opts: any): void;
+        setActive(flag?: boolean): void;
+        setDirty(type: ChangeType): void;
+        setExpanded(flag?: boolean): void;
+        setSelected(flag?: boolean): void;
         /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
          * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
          * Return false if iteration was stopped.
@@ -128,11 +158,6 @@ declare module "wunderbaum_node" {
          *     Return false to stop iteration.
          */
         visitSiblings(callback: (node: WunderbaumNode) => boolean | undefined, includeSelf?: boolean): boolean;
-        setActive(flag?: boolean): void;
-        setExpanded(flag?: boolean): void;
-        setDirty(hint: ChangeType): void;
-        render(opts: any): void;
-        addChild(node: WunderbaumNode, before?: WunderbaumNode): void;
     }
 }
 declare module "wunderbaum" {
@@ -149,12 +174,7 @@ declare module "wunderbaum" {
      */
     import "./wunderbaum.scss";
     import { WunderbaumNode } from "wunderbaum_node";
-    export enum ChangeType {
-        any = "any",
-        structure = "structure",
-        status = "status"
-    }
-    type WunderbaumOptions = any;
+    import { ChangeType, TargetType, WunderbaumOptions } from "common";
     /**
      * A persistent plain object or array.
      *
@@ -163,6 +183,7 @@ declare module "wunderbaum" {
     export class Wunderbaum {
         static version: string;
         static sequence: number;
+        /** The invisible root node, that holds all visible top level nodes. */
         readonly root: WunderbaumNode;
         readonly name: string;
         readonly element: HTMLElement;
@@ -171,6 +192,7 @@ declare module "wunderbaum" {
         readonly scrollContainer: HTMLElement;
         protected keyMap: any;
         protected refKeyMap: any;
+        protected viewNodes: Set<WunderbaumNode>;
         protected rows: WunderbaumNode[];
         activeNode: WunderbaumNode | null;
         protected opts: any;
@@ -180,7 +202,23 @@ declare module "wunderbaum" {
         /** */
         static getTree(): void;
         /** */
-        getNode(needle: any): WunderbaumNode | null;
+        static getNode(obj: any): WunderbaumNode | null;
+        /** Return a {node: FancytreeNode, type: TYPE} object for a mouse event.
+         *
+         * @param {Event} event Mouse event, e.g. click, ...
+         * @returns {object} Return a {node: FancytreeNode, type: TYPE} object
+         *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
+         */
+        getEventTarget(event: Event): {
+            node: WunderbaumNode;
+            type: TargetType;
+        };
+        /** Return a string describing the affected node region for a mouse event.
+         *
+         * @param {Event} event Mouse event, e.g. click, mousemove, ...
+         * @returns {string} 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
+         */
+        getEventTargetType(event: Event): TargetType;
         /** Log to console if opts.debugLevel >= 4 */
         debug(...args: any[]): void;
         /**
@@ -194,7 +232,7 @@ declare module "wunderbaum" {
         /** @internal */
         logTimeEnd(label: string): void;
         /** */
-        renumber(opts: any): boolean;
+        render(opts: any): boolean;
         /** */
         updateViewport(): void;
         /** Call callback(node) for all nodes in hierarchical order (depth-first).

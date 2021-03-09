@@ -88,6 +88,9 @@
         TargetType["checkbox"] = "checkbox";
         TargetType["prefix"] = "prefix";
     })(TargetType || (TargetType = {}));
+    const default_debuglevel = 1; // Replaced by rollup script
+    const ROW_HEIGHT = 22;
+    const RENDER_PREFETCH = 5;
 
     /*!
      * wunderbaum.js - wunderbaum_node
@@ -231,7 +234,7 @@
                 rowDiv.appendChild(nodeElem);
                 checkboxSpan = document.createElement("i");
                 nodeElem.appendChild(checkboxSpan);
-                for (let i = this.getLevel(); i > 0; i--) {
+                for (let i = this.getLevel() - 1; i > 0; i--) {
                     elem = document.createElement("i");
                     elem.classList.add("wb-indent");
                     nodeElem.appendChild(elem);
@@ -245,7 +248,8 @@
                 nodeElem.appendChild(titleSpan);
             }
             rowDiv.className = rowClasses.join(" ");
-            rowDiv.style.top = this._rowIdx * 16 + "px";
+            // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
+            rowDiv.style.top = this._rowIdx * ROW_HEIGHT + "px";
             if (expanderSpan) {
                 if (this.isExpandable()) {
                     if (this.expanded) {
@@ -387,9 +391,6 @@
      * @version v0.0.1-0
      * @date @DATE
      */
-    const default_debuglevel = 1; // Replaced by rollup script
-    const ROW_HEIGHT = 16;
-    const RENDER_PREFETCH = 5;
     // const class_prefix = "wb-";
     // const node_props: string[] = ["title", "key", "refKey"];
     /**
@@ -560,7 +561,7 @@
             let label = this.logTime("render");
             let idx = 0;
             let top = 0;
-            let height = 16;
+            let height = ROW_HEIGHT;
             let modified = false;
             let start = opts.startIdx;
             let end = opts.endIdx;

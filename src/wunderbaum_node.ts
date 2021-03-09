@@ -12,7 +12,7 @@ import * as util from "./util";
 // const node_props: string[] = ["title", "key", "refKey"];
 
 import { Wunderbaum } from "./wunderbaum";
-import { ChangeType } from "./common";
+import { ChangeType, ROW_HEIGHT } from "./common";
 
 export class WunderbaumNode {
   static sequence = 0;
@@ -175,7 +175,7 @@ export class WunderbaumNode {
       checkboxSpan = document.createElement("i");
       nodeElem.appendChild(checkboxSpan);
 
-      for (let i = this.getLevel(); i > 0; i--) {
+      for (let i = this.getLevel() - 1; i > 0; i--) {
         elem = document.createElement("i");
         elem.classList.add("wb-indent");
         nodeElem.appendChild(elem);
@@ -192,7 +192,8 @@ export class WunderbaumNode {
       nodeElem.appendChild(titleSpan);
     }
     rowDiv.className = rowClasses.join(" ");
-    rowDiv.style.top = this._rowIdx! * 16 + "px";
+    // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
+    rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
 
     if (expanderSpan) {
       if (this.isExpandable()) {

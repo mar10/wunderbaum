@@ -19,3 +19,7 @@ export enum TargetType {
 }
 
 export type WunderbaumOptions = any;
+
+export const default_debuglevel = 2; // Replaced by rollup script
+export const ROW_HEIGHT = 22;
+export const RENDER_PREFETCH = 5;
