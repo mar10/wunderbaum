@@ -38,6 +38,9 @@ div.wunderbaum {
       &:hover {
         background-color: $active-hover-color;
       }
+      &::after{
+        content: "|";
+      }
     }
   }
 

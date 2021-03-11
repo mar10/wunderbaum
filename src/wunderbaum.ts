@@ -107,6 +107,9 @@ export class Wunderbaum {
       // if(e.target.classList.)
       this.log("click", info);
     });
+    util.onEvent(this.treeElement, "mousemove", "div.wb-header span.wb-col", (e) => {
+      this.log("mouse", e.target, e);
+    });
   }
 
   /** */

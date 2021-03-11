@@ -15,26 +15,28 @@
  * ```
  *
  * @param element HTMLElement or selector
- * @param eventName
+ * @param eventNames
  * @param selector
  * @param handler
  * @param bind
  */
-function onEvent(rootElem, eventName, selector, handler) {
+function onEvent(rootElem, eventNames, selector, handler) {
     if (typeof rootElem === "string") {
         rootElem = document.querySelector(rootElem);
     }
-    rootElem.addEventListener(eventName, function (e) {
-        if (e.target) {
-            let elem = e.target;
-            if (elem.matches(selector)) {
-                return handler(e);
+    eventNames.split(' ').forEach(evn => {
+        rootElem.addEventListener(evn, function (e) {
+            if (e.target) {
+                let elem = e.target;
+                if (elem.matches(selector)) {
+                    return handler(e);
+                }
+                elem = elem.closest(selector);
+                if (elem) {
+                    return handler(e);
+                }
             }
-            elem = elem.closest(selector);
-            if (elem) {
-                return handler(e);
-            }
-        }
+        });
     });
 }
 function error(msg) {
@@ -450,6 +452,9 @@ class Wunderbaum {
             }
             // if(e.target.classList.)
             this.log("click", info);
+        });
+        onEvent(this.treeElement, "mousemove", "div.wb-header span.wb-col", (e) => {
+            this.log("mouse", e.target, e);
         });
     }
     /** */

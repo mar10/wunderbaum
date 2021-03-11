@@ -18,7 +18,7 @@ export class Deferred {
   private resolvedValue: any;
   private rejectedError: any;
 
-  constructor() {}
+  constructor() { }
 
   resolve(value?: any) {
     if (this.status) {
@@ -72,31 +72,33 @@ export class Deferred {
  * ```
  *
  * @param element HTMLElement or selector
- * @param eventName
+ * @param eventNames
  * @param selector
  * @param handler
  * @param bind
  */
 export function onEvent(
   rootElem: HTMLElement | string,
-  eventName: string,
+  eventNames: string,
   selector: string,
   handler: (e: Event) => boolean | void
 ): void {
   if (typeof rootElem === "string") {
     rootElem = <HTMLElement>document.querySelector(rootElem);
   }
-  rootElem.addEventListener(eventName, function (e) {
-    if (e.target) {
-      let elem = <HTMLElement>e.target;
-      if (elem.matches(selector)) {
-        return handler(e);
+  eventNames.split(' ').forEach(evn => {
+    (<HTMLElement>rootElem).addEventListener(evn, function (e) {
+      if (e.target) {
+        let elem = <HTMLElement>e.target;
+        if (elem.matches(selector)) {
+          return handler(e);
+        }
+        elem = <HTMLElement>elem.closest(selector);
+        if (elem) {
+          return handler(e);
+        }
       }
-      elem = <HTMLElement>elem.closest(selector);
-      if (elem) {
-        return handler(e);
-      }
-    }
+    });
   });
 }
 
@@ -191,7 +193,7 @@ export function isArray(obj: any) {
   return Array.isArray(obj);
 }
 
-export function noop(): any {}
+export function noop(): any { }
 
 export function ready(fn: any) {
   if (document.readyState === "loading") {
