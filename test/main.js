@@ -4,6 +4,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
     source:
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
+    columns: [],
+
     change: function () {
       console.log("change", arguments);
     },

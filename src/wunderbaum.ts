@@ -14,7 +14,14 @@ import "./wunderbaum.scss";
 import * as util from "./util";
 import { WunderbaumNode } from "./wunderbaum_node";
 // import { PersistoOptions } from "./wb_options";
-import { ChangeType, default_debuglevel, RENDER_PREFETCH, ROW_HEIGHT, TargetType, WunderbaumOptions } from "./common";
+import {
+  ChangeType,
+  default_debuglevel,
+  RENDER_PREFETCH,
+  ROW_HEIGHT,
+  TargetType,
+  WunderbaumOptions,
+} from "./common";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -41,9 +48,13 @@ export class Wunderbaum {
   protected viewNodes: Set<WunderbaumNode> = new Set();
   protected rows: WunderbaumNode[] = [];
   activeNode: WunderbaumNode | null = null;
-  protected opts: any;
+  opts: any;
   enableFilter = false;
   _enableUpdate = true;
+  /** Shared properties, referenced by `node.type`. */
+  types: any = {};
+  /** List of column definitions. */
+  columns: any[] = [];
 
   // ready: Promise<any>;
 
@@ -82,14 +93,17 @@ export class Wunderbaum {
     this.nodeListElement = <HTMLElement>(
       this.scrollContainer.querySelector("div.wb-node-list")
     );
-    this.nodeListElement.textContent = "";
     if (!this.nodeListElement) {
       alert("TODO: create markup");
     }
 
     // Load initial data
     if (opts.source) {
-      this.load(opts.source);
+      this.nodeListElement.innerHTML =
+        "<progress class='spinner'>loading...</progress>";
+      this.load(opts.source).finally(() => {
+        this.element.querySelector(".spinner")?.remove();
+      });
     }
     // Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
@@ -107,9 +121,14 @@ export class Wunderbaum {
       // if(e.target.classList.)
       this.log("click", info);
     });
-    util.onEvent(this.treeElement, "mousemove", "div.wb-header span.wb-col", (e) => {
-      this.log("mouse", e.target, e);
-    });
+    util.onEvent(
+      this.treeElement,
+      "mousemove",
+      "div.wb-header span.wb-col",
+      (e) => {
+        this.log("mouse", e.target);
+      }
+    );
   }
 
   /** */
@@ -416,7 +435,7 @@ export class Wunderbaum {
 
   /** . */
   load(source: any) {
-    return this._load(this.root, source);
+    return this.root.load(source);
   }
 
   /** . */
@@ -456,51 +475,5 @@ export class Wunderbaum {
 
   protected setModified(node: WunderbaumNode | null, change: ChangeType) {}
 
-  /** Download  data from the cloud, then call `.update()`. */
-  protected _load(
-    parent: WunderbaumNode,
-    source: any
-  ): Promise<WunderbaumNode> {
-    let opts = this.opts;
-    if (opts.debugLevel >= 2 && console.time) {
-      console.time(this + "._load");
-    }
-    let self = this;
-
-    let promise = new Promise<WunderbaumNode>(function (resolve, reject) {
-      fetch(opts.source, { method: "GET" })
-        .then(function (response) {
-          if (response.ok) {
-            opts.receive.call(self, response);
-          } else {
-            util.error(
-              "GET " +
-                opts.remote +
-                " returned " +
-                response.status +
-                ", " +
-                response
-            );
-          }
-          return response.json(); // pas as `data` to next then()
-        })
-        .then(function (data) {
-          let prev = self.enableUpdate(false);
-          self.addChildren.call(self, parent, data);
-          self.enableUpdate(prev);
-          resolve(parent);
-        })
-        .catch(function () {
-          console.error(arguments);
-          reject(parent);
-          opts.error.call(self, arguments);
-        })
-        .finally(function () {
-          if (opts.debugLevel >= 2 && console.time) {
-            console.timeEnd(self + "._load");
-          }
-        });
-    });
-    return promise;
-  }
+  setColumns(columns: any[]) {}
 }

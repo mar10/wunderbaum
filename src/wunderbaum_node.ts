@@ -116,6 +116,41 @@ export class WunderbaumNode {
     return !!this.statusNodeType;
   }
 
+  /** Download  data from the cloud, then call `.update()`. */
+  async load(source: any) {
+    let tree = this.tree;
+    let opts = tree.opts;
+
+    if (opts.debugLevel >= 2 && console.time) {
+      console.time(this + "._load");
+    }
+    try {
+      const response = await fetch(source, { method: "GET" });
+      if (!response.ok) {
+        util.error(
+          "GET " +
+            opts.remote +
+            " returned " +
+            response.status +
+            ", " +
+            response
+        );
+      }
+      opts.receive.call(tree, response);
+      const data = await response.json();
+
+      let prev = tree.enableUpdate(false);
+      tree.addChildren(this, data);
+      tree.enableUpdate(prev);
+    } catch (error) {
+      opts.error.call(tree, error);
+    }
+
+    if (opts.debugLevel >= 2 && console.time) {
+      console.timeEnd(this + "._load");
+    }
+  }
+
   removeMarkup() {
     if (this._rowElem) {
       delete (<any>this._rowElem)._wb_node;

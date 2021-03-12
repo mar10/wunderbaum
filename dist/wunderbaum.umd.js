@@ -91,7 +91,7 @@
         TargetType["prefix"] = "prefix";
     })(TargetType || (TargetType = {}));
     const default_debuglevel = 1; // Replaced by rollup script
-    const ROW_HEIGHT = 22;
+    const ROW_HEIGHT = 25;
     const RENDER_PREFETCH = 5;
 
     /*!
@@ -182,6 +182,36 @@
          */
         isStatusNode() {
             return !!this.statusNodeType;
+        }
+        /** Download  data from the cloud, then call `.update()`. */
+        async load(source) {
+            let tree = this.tree;
+            let opts = tree.opts;
+            if (opts.debugLevel >= 2 && console.time) {
+                console.time(this + "._load");
+            }
+            try {
+                const response = await fetch(source, { method: "GET" });
+                if (!response.ok) {
+                    error("GET " +
+                        opts.remote +
+                        " returned " +
+                        response.status +
+                        ", " +
+                        response);
+                }
+                opts.receive.call(tree, response);
+                const data = await response.json();
+                let prev = tree.enableUpdate(false);
+                tree.addChildren(this, data);
+                tree.enableUpdate(prev);
+            }
+            catch (error) {
+                opts.error.call(tree, error);
+            }
+            if (opts.debugLevel >= 2 && console.time) {
+                console.timeEnd(this + "._load");
+            }
         }
         removeMarkup() {
             if (this._rowElem) {
@@ -410,6 +440,10 @@
             this.activeNode = null;
             this.enableFilter = false;
             this._enableUpdate = true;
+            /** Shared properties, referenced by `node.type`. */
+            this.types = {};
+            /** List of column definitions. */
+            this.columns = [];
             let opts = (this.opts = extend({
                 source: null,
                 element: null,
@@ -434,13 +468,17 @@
             this.treeElement = (this.element.querySelector("div.wunderbaum"));
             this.scrollContainer = (this.treeElement.querySelector("div.wb-scroll-container"));
             this.nodeListElement = (this.scrollContainer.querySelector("div.wb-node-list"));
-            this.nodeListElement.textContent = "";
             if (!this.nodeListElement) {
                 alert("TODO: create markup");
             }
             // Load initial data
             if (opts.source) {
-                this.load(opts.source);
+                this.nodeListElement.innerHTML =
+                    "<progress class='spinner'>loading...</progress>";
+                this.load(opts.source).finally(() => {
+                    var _a;
+                    (_a = this.element.querySelector(".spinner")) === null || _a === void 0 ? void 0 : _a.remove();
+                });
             }
             // Bind listeners
             this.scrollContainer.addEventListener("scroll", (e) => {
@@ -460,7 +498,7 @@
                 this.log("click", info);
             });
             onEvent(this.treeElement, "mousemove", "div.wb-header span.wb-col", (e) => {
-                this.log("mouse", e.target, e);
+                this.log("mouse", e.target);
             });
         }
         /** */
@@ -725,7 +763,7 @@
         }
         /** . */
         load(source) {
-            return this._load(this.root, source);
+            return this.root.load(source);
         }
         /** . */
         addChildren(parent, data) {
@@ -761,48 +799,7 @@
             return !flag; // return previous value
         }
         setModified(node, change) { }
-        /** Download  data from the cloud, then call `.update()`. */
-        _load(parent, source) {
-            let opts = this.opts;
-            if (opts.debugLevel >= 2 && console.time) {
-                console.time(this + "._load");
-            }
-            let self = this;
-            let promise = new Promise(function (resolve, reject) {
-                fetch(opts.source, { method: "GET" })
-                    .then(function (response) {
-                    if (response.ok) {
-                        opts.receive.call(self, response);
-                    }
-                    else {
-                        error("GET " +
-                            opts.remote +
-                            " returned " +
-                            response.status +
-                            ", " +
-                            response);
-                    }
-                    return response.json(); // pas as `data` to next then()
-                })
-                    .then(function (data) {
-                    let prev = self.enableUpdate(false);
-                    self.addChildren.call(self, parent, data);
-                    self.enableUpdate(prev);
-                    resolve(parent);
-                })
-                    .catch(function () {
-                    console.error(arguments);
-                    reject(parent);
-                    opts.error.call(self, arguments);
-                })
-                    .finally(function () {
-                    if (opts.debugLevel >= 2 && console.time) {
-                        console.timeEnd(self + "._load");
-                    }
-                });
-            });
-            return promise;
-        }
+        setColumns(columns) { }
     }
     Wunderbaum.version = "v0.0.1-0"; // Set to semver by 'grunt release'
     Wunderbaum.sequence = 0;
