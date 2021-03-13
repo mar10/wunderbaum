@@ -97,12 +97,12 @@ export class WunderbaumNode {
     return this.tree.activeNode === this;
   }
 
-  isExpandable() {
-    return this.children;
-  }
-
   isExpanded() {
     return !!this.expanded;
+  }
+
+  isExpandable() {
+    return !!this.children;
   }
 
   isSelected() {

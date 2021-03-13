@@ -24,7 +24,7 @@ function onEvent(rootElem, eventNames, selector, handler) {
     if (typeof rootElem === "string") {
         rootElem = document.querySelector(rootElem);
     }
-    eventNames.split(' ').forEach(evn => {
+    eventNames.split(" ").forEach((evn) => {
         rootElem.addEventListener(evn, function (e) {
             if (e.target) {
                 let elem = e.target;
@@ -62,7 +62,8 @@ function extend(...args) {
 function isArray(obj) {
     return Array.isArray(obj);
 }
-function noop() { }
+/** A dummy function that does nothing ('no operation'). */
+function noop(...args) { }
 
 /*!
  * wunderbaum.js - common
@@ -162,11 +163,11 @@ class WunderbaumNode {
     isActive() {
         return this.tree.activeNode === this;
     }
-    isExpandable() {
-        return this.children;
-    }
     isExpanded() {
         return !!this.expanded;
+    }
+    isExpandable() {
+        return !!this.children;
     }
     isSelected() {
         return !!this.selected;
@@ -479,20 +480,21 @@ class Wunderbaum {
             this.updateViewport();
         });
         onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
-            var _a, _b;
-            let info = this.getEventTarget(e);
-            info.node.setActive();
-            if (info.type === TargetType.expander) {
-                (_a = info.node) === null || _a === void 0 ? void 0 : _a.setExpanded(!info.node.isExpanded());
-            }
-            if (info.type === TargetType.checkbox) {
-                (_b = info.node) === null || _b === void 0 ? void 0 : _b.setSelected(!info.node.isSelected());
+            let info = this.getEventTarget(e), node = info.node;
+            if (node) {
+                node.setActive();
+                if (info.type === TargetType.expander) {
+                    node.setExpanded(!node.isExpanded());
+                }
+                else if (info.type === TargetType.checkbox) {
+                    node.setSelected(!node.isSelected());
+                }
             }
             // if(e.target.classList.)
             this.log("click", info);
         });
         onEvent(this.treeElement, "mousemove", "div.wb-header span.wb-col", (e) => {
-            this.log("mouse", e.target);
+            // this.log("mouse", e.target);
         });
     }
     /** */

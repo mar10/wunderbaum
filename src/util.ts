@@ -18,7 +18,7 @@ export class Deferred {
   private resolvedValue: any;
   private rejectedError: any;
 
-  constructor() { }
+  constructor() {}
 
   resolve(value?: any) {
     if (this.status) {
@@ -86,7 +86,7 @@ export function onEvent(
   if (typeof rootElem === "string") {
     rootElem = <HTMLElement>document.querySelector(rootElem);
   }
-  eventNames.split(' ').forEach(evn => {
+  eventNames.split(" ").forEach((evn) => {
     (<HTMLElement>rootElem).addEventListener(evn, function (e) {
       if (e.target) {
         let elem = <HTMLElement>e.target;
@@ -193,7 +193,8 @@ export function isArray(obj: any) {
   return Array.isArray(obj);
 }
 
-export function noop(): any { }
+/** A dummy function that does nothing ('no operation'). */
+export function noop(...args: any[]): any {}
 
 export function ready(fn: any) {
   if (document.readyState === "loading") {

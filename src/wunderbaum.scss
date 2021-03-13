@@ -38,15 +38,16 @@ div.wunderbaum {
       &:hover {
         background-color: $active-hover-color;
       }
-      &::after{
-        content: "|";
-      }
+      // &::after {
+      //   content: "|";
+      // }
     }
   }
 
   span.wb-col {
     position: absolute;
     display: inline-block;
+    // height: $row-height;
   }
   div.wb-scroll-container {
     overflow: auto;
@@ -58,9 +59,9 @@ div.wunderbaum {
       width: 100%;
       height: $row-height;
       border: 1px solid transparent;
-      &.wb-active {
-        // font-weight: bold;
-      }
+      // &.wb-active {
+      //   font-weight: bold;
+      // }
       &.wb-selected {
         font-style: italic;
       }
@@ -87,17 +88,9 @@ div.wunderbaum {
       height: $row-height;
       margin-right: 3px;
       font-size: small;
-      // &:before {
-      //   display: inline-block;
-      //   // font-family: bootstrap-icons !important;
-      //   // font-style: normal;
-      //   // font-weight: normal !important;
-      //   // font-variant: normal;
-      //   // text-transform: none;
-      //   line-height: 1;
-      //   // vertical-align: -.125em;
-      //   // -webkit-font-smoothing: antialiased;
-      // }
+    }
+    i.wb-indent::before {
+      content: "\00a0";
     }
   }
 

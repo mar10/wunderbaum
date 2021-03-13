@@ -110,13 +110,16 @@ export class Wunderbaum {
       this.updateViewport();
     });
     util.onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
-      let info = this.getEventTarget(e);
-      info.node!.setActive();
-      if (info.type === TargetType.expander) {
-        info.node?.setExpanded(!info.node.isExpanded());
-      }
-      if (info.type === TargetType.checkbox) {
-        info.node?.setSelected(!info.node.isSelected());
+      let info = this.getEventTarget(e),
+        node = info.node;
+
+      if (node) {
+        node.setActive();
+        if (info.type === TargetType.expander) {
+          node.setExpanded(!node.isExpanded());
+        } else if (info.type === TargetType.checkbox) {
+          node.setSelected(!node.isSelected());
+        }
       }
       // if(e.target.classList.)
       this.log("click", info);
@@ -126,7 +129,7 @@ export class Wunderbaum {
       "mousemove",
       "div.wb-header span.wb-col",
       (e) => {
-        this.log("mouse", e.target);
+        // this.log("mouse", e.target);
       }
     );
   }
