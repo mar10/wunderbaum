@@ -89,8 +89,11 @@ div.wunderbaum {
       margin-right: 3px;
       font-size: small;
     }
-    i.wb-indent::before {
-      content: "\00a0";
+    i.wb-indent {
+      // border-left: 1px solid gray;
+      &::before {
+        content: "\00a0";
+      }
     }
   }
 

@@ -118,7 +118,7 @@ export class Wunderbaum {
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
       this.updateViewport();
     });
-    util.onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
+    util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       let info = this.getEventTarget(e),
         node = info.node;
 
@@ -144,7 +144,7 @@ export class Wunderbaum {
   }
 
   /** */
-  public static getTree() {}
+  public static getTree() { }
 
   /** */
   public static getNode(obj: any): WunderbaumNode | null {
@@ -167,7 +167,7 @@ export class Wunderbaum {
     let target = <Element>event.target,
       cl = target.classList,
       node = Wunderbaum.getNode(event.target),
-      res = { node: node, type: TargetType.unknown };
+      res = { node: node, type: TargetType.unknown, column: undefined };
 
     if (cl.contains("wb-title")) {
       res.type = TargetType.title;
@@ -179,8 +179,12 @@ export class Wunderbaum {
     } else if (cl.contains("wb-icon") || cl.contains("wb-custom-icon")) {
       res.type = TargetType.icon;
     } else if (cl.contains("wb-node")) {
-      // Somewhere near the title
       res.type = TargetType.title;
+    } else if (cl.contains("wb-col")) {
+      res.type = TargetType.column;
+      let idx = Array.prototype.indexOf.call(target.parentNode!.children, target)
+      res.column = node?.tree.columns[idx]
+      // Somewhere near the title
       // } else if (event && event.target) {
       //   $target = $(event.target);
       //   if ($target.is("ul[role=group]")) {

@@ -11,15 +11,16 @@ export enum ChangeType {
 
 export enum TargetType {
   unknown = "",
-  title = "title",
-  icon = "icon",
-  expander = "expander",
   checkbox = "checkbox",
+  column = "column",
+  expander = "expander",
+  icon = "icon",
   prefix = "prefix",
+  title = "title",
 }
 
 export type WunderbaumOptions = any;
 
 export const default_debuglevel = 2; // Replaced by rollup script
-export const ROW_HEIGHT = 25;
+export const ROW_HEIGHT = 24;
 export const RENDER_PREFETCH = 5;

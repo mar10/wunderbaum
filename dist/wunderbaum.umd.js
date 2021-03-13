@@ -85,14 +85,15 @@
     var TargetType;
     (function (TargetType) {
         TargetType["unknown"] = "";
-        TargetType["title"] = "title";
-        TargetType["icon"] = "icon";
-        TargetType["expander"] = "expander";
         TargetType["checkbox"] = "checkbox";
+        TargetType["column"] = "column";
+        TargetType["expander"] = "expander";
+        TargetType["icon"] = "icon";
         TargetType["prefix"] = "prefix";
+        TargetType["title"] = "title";
     })(TargetType || (TargetType = {}));
     const default_debuglevel = 1; // Replaced by rollup script
-    const ROW_HEIGHT = 25;
+    const ROW_HEIGHT = 24;
     const RENDER_PREFETCH = 5;
 
     /*!
@@ -280,6 +281,9 @@
                 nodeElem.appendChild(titleSpan);
                 // Render columns
                 for (let col of tree.columns) {
+                    if (col.id === "*") {
+                        continue;
+                    }
                     let colElem = document.createElement("span");
                     colElem.classList.add("wb-col");
                     colElem.textContent = "" + col.id;
@@ -497,7 +501,7 @@
             this.scrollContainer.addEventListener("scroll", (e) => {
                 this.updateViewport();
             });
-            onEvent(this.nodeListElement, "click", "span.wb-node", (e) => {
+            onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
                 let info = this.getEventTarget(e), node = info.node;
                 if (node) {
                     node.setActive();
@@ -535,7 +539,7 @@
          *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
          */
         getEventTarget(event) {
-            let target = event.target, cl = target.classList, node = Wunderbaum.getNode(event.target), res = { node: node, type: TargetType.unknown };
+            let target = event.target, cl = target.classList, node = Wunderbaum.getNode(event.target), res = { node: node, type: TargetType.unknown, column: undefined };
             if (cl.contains("wb-title")) {
                 res.type = TargetType.title;
             }
@@ -550,8 +554,13 @@
                 res.type = TargetType.icon;
             }
             else if (cl.contains("wb-node")) {
-                // Somewhere near the title
                 res.type = TargetType.title;
+            }
+            else if (cl.contains("wb-col")) {
+                res.type = TargetType.column;
+                let idx = Array.prototype.indexOf.call(target.parentNode.children, target);
+                res.column = node === null || node === void 0 ? void 0 : node.tree.columns[idx];
+                // Somewhere near the title
                 // } else if (event && event.target) {
                 //   $target = $(event.target);
                 //   if ($target.is("ul[role=group]")) {
@@ -812,8 +821,22 @@
             }
             return !flag; // return previous value
         }
+        /** Update column headers and width. */
+        setColumns(columns, opts) {
+            if (columns && columns.length) {
+                this.columns = columns;
+            }
+            // for (let col of this.columns) {
+            //   if (col.id === "*") {
+            //     continue;
+            //   }
+            //   let colElem = document.createElement("span");
+            //   colElem.classList.add("wb-col");
+            //   colElem.textContent = "" + col.id;
+            //   rowDiv.appendChild(colElem);
+            // }
+        }
         setModified(node, change) { }
-        setColumns(columns) { }
     }
     Wunderbaum.version = "v0.0.1-0"; // Set to semver by 'grunt release'
     Wunderbaum.sequence = 0;

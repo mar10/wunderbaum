@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     debugLevel: 5,
     types: {},
     columns: [
-      { id: "*", header: "node" },
+      { id: "*", header: "Name" },
       { id: "id1", header: "a" },
       { id: "id2", header: "b" },
     ],

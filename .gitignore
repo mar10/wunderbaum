@@ -1,8 +1,10 @@
 /.settings
 /archive
 /build
+/dist
 /test/triage
 /node_modules
 *.log
 sauce_connect.*
 .pyftpsync-meta.json
+.DS_Store
