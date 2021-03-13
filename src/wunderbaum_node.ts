@@ -12,7 +12,7 @@ import * as util from "./util";
 // const node_props: string[] = ["title", "key", "refKey"];
 
 import { Wunderbaum } from "./wunderbaum";
-import { ChangeType, ROW_HEIGHT } from "./common";
+import { ChangeType, iconMap, ROW_HEIGHT } from "./common";
 
 export class WunderbaumNode {
   static sequence = 0;
@@ -61,6 +61,21 @@ export class WunderbaumNode {
     } else {
       this.children.push(node);
     }
+  }
+
+  /** . */
+  addChildren(data: any) {
+    util.assert(util.isArray(data));
+    for (let i = 0; i < data.length; i++) {
+      let d = data[i];
+      let node = new WunderbaumNode(this.tree, this, d);
+
+      this.addChild(node);
+      if (d.children) {
+        node.addChildren(d.children);
+      }
+    }
+    this.tree.setModified(this, ChangeType.structure);
   }
 
   getLevel() {
@@ -129,18 +144,18 @@ export class WunderbaumNode {
       if (!response.ok) {
         util.error(
           "GET " +
-            opts.remote +
-            " returned " +
-            response.status +
-            ", " +
-            response
+          opts.remote +
+          " returned " +
+          response.status +
+          ", " +
+          response
         );
       }
       opts.receive.call(tree, response);
       const data = await response.json();
 
       let prev = tree.enableUpdate(false);
-      tree.addChildren(this, data);
+      this.addChildren(data);
       tree.enableUpdate(prev);
     } catch (error) {
       opts.error.call(tree, error);
@@ -167,20 +182,6 @@ export class WunderbaumNode {
     let checkboxSpan: HTMLElement;
     let iconSpan: HTMLElement;
     let expanderSpan: HTMLElement;
-    let iconMap = {
-      expanderExpanded: "bi bi-dash-square",
-      expanderCollapsed: "bi bi-plus-square",
-      expanderLazy: "bi bi-x-square",
-      checkChecked: "bi bi-check-square",
-      checkUnchecked: "bi bi-square",
-      checkUnknown: "bi dash-square-dotted",
-      radioChecked: "bi bi-circle-fill",
-      radioUnchecked: "bi bi-circle",
-      radioUnknown: "bi bi-circle-dotted",
-      folder: "bi bi-folder2",
-      folderOpen: "bi bi-folder2-open",
-      doc: "bi bi-file-earmark",
-    };
 
     //
     let rowClasses = ["wb-row"];
@@ -231,6 +232,8 @@ export class WunderbaumNode {
         }
         let colElem = document.createElement("span");
         colElem.classList.add("wb-col");
+        colElem.style.left = col._ofsPx + "px";
+        colElem.style.width = col._widthPx + "px";
         colElem.textContent = "" + col.id;
         rowDiv.appendChild(colElem);
       }

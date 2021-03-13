@@ -17,6 +17,7 @@ import { WunderbaumNode } from "./wunderbaum_node";
 import {
   ChangeType,
   default_debuglevel,
+  // iconMap,
   RENDER_PREFETCH,
   ROW_HEIGHT,
   TargetType,
@@ -38,8 +39,10 @@ export class Wunderbaum {
   /** The invisible root node, that holds all visible top level nodes. */
   readonly root: WunderbaumNode;
   readonly name: string;
+
   readonly element: HTMLElement;
   readonly treeElement: HTMLElement;
+  readonly headerElement: HTMLElement;
   readonly nodeListElement: HTMLElement;
   readonly scrollContainer: HTMLElement;
 
@@ -95,6 +98,9 @@ export class Wunderbaum {
     }
     this.treeElement = <HTMLElement>(
       this.element.querySelector("div.wunderbaum")
+    );
+    this.headerElement = <HTMLElement>(
+      this.treeElement.querySelector("div.wb-header")
     );
     this.scrollContainer = <HTMLElement>(
       this.treeElement.querySelector("div.wb-scroll-container")
@@ -182,8 +188,8 @@ export class Wunderbaum {
       res.type = TargetType.title;
     } else if (cl.contains("wb-col")) {
       res.type = TargetType.column;
-      let idx = Array.prototype.indexOf.call(target.parentNode!.children, target)
-      res.column = node?.tree.columns[idx]
+      let idx = Array.prototype.indexOf.call(target.parentNode!.children, target);
+      res.column = node?.tree.columns[idx];
       // Somewhere near the title
       // } else if (event && event.target) {
       //   $target = $(event.target);
@@ -296,15 +302,88 @@ export class Wunderbaum {
     return modified;
   }
 
+  renderHeader() {
+    let headerRow = this.headerElement.querySelector(".wb-row");
+
+    if (!headerRow) {
+      util.assert(false);
+    }
+    for (let i = 0; i < this.columns.length; i++) {
+      let col = this.columns[i];
+      let colElem = <HTMLElement>headerRow!.children[i];
+      colElem.style.left = col._ofsPx + "px";
+      colElem.style.width = col._widthPx + "px";
+      colElem.textContent = col.id;
+    }
+  }
+
   /** */
+  setModified(node: WunderbaumNode | null, change: ChangeType) { }
+
+  /** Render all rows that are visible in the viewport. */
   updateViewport() {
     let height = this.scrollContainer.clientHeight;
     let ofs = this.scrollContainer.scrollTop;
 
+    this.updateColumns({ render: false });
     this.render({
       startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
       endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
     });
+  }
+
+  /** Update column headers and width. */
+  updateColumns(opts: any) {
+    let modified = false;
+    let minWidth = 4;
+    let vpWidth = this.treeElement.clientWidth;
+    let totalWeight = 0;
+    let fixedWidth = 0;
+
+    // Gather width requests
+    for (let col of this.columns) {
+      let cw = col.width;
+
+      if (!cw || cw === "*") {
+        col._weight = 1.0;
+        totalWeight += 1.0;
+      } else if (typeof cw === "number") {
+        col._weight = cw;
+        totalWeight += cw;
+      } else if (typeof cw === "string" && cw.endsWith("px")) {
+        col._weight = 0;
+        let px = parseFloat(cw.slice(0, -2));
+        if (col._widthPx != px) {
+          modified = true;
+          col._widthPx = px;
+        }
+        fixedWidth += px;
+      } else {
+        util.error("Invalid column width: " + cw);
+      }
+    }
+    // Share remaining space between non-fixed columns
+    let restPx = Math.max(0, vpWidth - fixedWidth);
+    let ofsPx = 0;
+
+    for (let col of this.columns) {
+      if (col._weight) {
+        let px = Math.max(minWidth, restPx * col._weight / totalWeight);
+        if (col._widthPx != px) {
+          modified = true;
+          col._widthPx = px;
+        }
+      }
+      col._ofsPx = ofsPx;
+      ofsPx += col._widthPx;
+    }
+    // Every column has now a calculated `_ofsPx` and `_widthPx`
+    if (modified) {
+      this.renderHeader();
+      if (opts.render !== false) {
+        this.render({});
+      }
+    }
   }
 
   /** Call callback(node) for all nodes in hierarchical order (depth-first).
@@ -454,21 +533,6 @@ export class Wunderbaum {
     return this.root.load(source);
   }
 
-  /** . */
-  addChildren(parent: WunderbaumNode, data: any) {
-    util.assert(util.isArray(data));
-    for (let i = 0; i < data.length; i++) {
-      let d = data[i];
-      let node = new WunderbaumNode(this, parent, d);
-
-      parent.addChild(node);
-      if (d.children) {
-        this.addChildren(node, d.children);
-      }
-    }
-    this.setModified(parent, ChangeType.structure);
-  }
-
   /**
    *
    */
@@ -489,21 +553,4 @@ export class Wunderbaum {
     return !flag; // return previous value
   }
 
-  /** Update column headers and width. */
-  setColumns(columns: any[], opts: any) {
-    if (columns && columns.length) {
-      this.columns = columns;
-    }
-    // for (let col of this.columns) {
-    //   if (col.id === "*") {
-    //     continue;
-    //   }
-    //   let colElem = document.createElement("span");
-    //   colElem.classList.add("wb-col");
-    //   colElem.textContent = "" + col.id;
-    //   rowDiv.appendChild(colElem);
-    // }
-  }
-
-  protected setModified(node: WunderbaumNode | null, change: ChangeType) {}
 }

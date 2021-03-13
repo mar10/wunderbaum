@@ -26,7 +26,7 @@ export default {
     }),
     modify({
       '@VERSION': 'v' + package_json.version,
-      '@DATE_NONO': '' + new Date().toUTCString(),
+      '@DATE': '' + new Date().toUTCString(),
       'const default_debuglevel = 2;': 'const default_debuglevel = 1;',
     }),
   ],
