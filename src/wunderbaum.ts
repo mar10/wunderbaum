@@ -64,6 +64,9 @@ export class Wunderbaum {
         source: null, // URL for GET/PUT, ajax options, or callback
         element: null,
         debugLevel: default_debuglevel, // 0:quiet, 1:normal, 2:verbose
+        columns: null,
+        types: null,
+
         // Events
         change: util.noop,
         error: util.noop,
@@ -77,6 +80,12 @@ export class Wunderbaum {
       key: "__root__",
       name: "__root__",
     });
+
+    // --- Evaluate options
+    this.columns = opts.columns || [];
+    delete opts.columns;
+    this.types = opts.types || {};
+    delete opts.types;
 
     // --- Create Markup
     if (typeof opts.element === "string") {
@@ -97,15 +106,15 @@ export class Wunderbaum {
       alert("TODO: create markup");
     }
 
-    // Load initial data
+    // --- Load initial data
     if (opts.source) {
       this.nodeListElement.innerHTML =
         "<progress class='spinner'>loading...</progress>";
       this.load(opts.source).finally(() => {
-        this.element.querySelector(".spinner")?.remove();
+        this.element.querySelector("progress.spinner")!.remove();
       });
     }
-    // Bind listeners
+    // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
       this.updateViewport();
     });

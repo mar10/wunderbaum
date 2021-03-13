@@ -4,10 +4,17 @@ document.addEventListener("DOMContentLoaded", function (event) {
     source:
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
-    columns: [],
+    types: {},
+    columns: [
+      { id: "id1", header: "a" },
+      { id: "id2", header: "b" },
+    ],
 
     change: function () {
       console.log("change", arguments);
+    },
+    render: function () {
+      console.log("render", this, arguments);
     },
   });
 });

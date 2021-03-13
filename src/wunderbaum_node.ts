@@ -121,8 +121,8 @@ export class WunderbaumNode {
     let tree = this.tree;
     let opts = tree.opts;
 
-    if (opts.debugLevel >= 2 && console.time) {
-      console.time(this + "._load");
+    if (opts.debugLevel >= 2) {
+      console.time(this + ".load");
     }
     try {
       const response = await fetch(source, { method: "GET" });
@@ -146,8 +146,8 @@ export class WunderbaumNode {
       opts.error.call(tree, error);
     }
 
-    if (opts.debugLevel >= 2 && console.time) {
-      console.timeEnd(this + "._load");
+    if (opts.debugLevel >= 2) {
+      console.timeEnd(this + ".load");
     }
   }
 
@@ -160,8 +160,8 @@ export class WunderbaumNode {
   }
 
   render(opts: any) {
+    let tree = this.tree;
     let elem: HTMLElement, nodeElem: HTMLElement;
-    let parentElem: HTMLElement;
     let rowDiv = this._rowElem;
     let titleSpan: HTMLElement;
     let checkboxSpan: HTMLElement;
@@ -196,8 +196,6 @@ export class WunderbaumNode {
       checkboxSpan = <HTMLElement>rowDiv.querySelector("i.wb-checkbox");
       iconSpan = <HTMLElement>rowDiv.querySelector("i.wb-icon");
     } else {
-      parentElem = this.tree.nodeListElement;
-
       rowDiv = document.createElement("div");
       // rowDiv.classList.add("wb-row");
       // Attach a node reference to the DOM Element:
@@ -225,7 +223,16 @@ export class WunderbaumNode {
       titleSpan = document.createElement("span");
       titleSpan.classList.add("wb-title");
       nodeElem.appendChild(titleSpan);
+
+      // Render columns
+      for (let col of tree.columns) {
+        let colElem = document.createElement("span");
+        colElem.classList.add("wb-col");
+        colElem.textContent = "" + col.id;
+        rowDiv.appendChild(colElem);
+      }
     }
+
     rowDiv.className = rowClasses.join(" ");
     // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
     rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
@@ -262,7 +269,7 @@ export class WunderbaumNode {
     // Attach to DOM as late as possible
     if (!this._rowElem) {
       this._rowElem = rowDiv;
-      parentElem!.appendChild(rowDiv);
+      tree.nodeListElement.appendChild(rowDiv);
     }
   }
 

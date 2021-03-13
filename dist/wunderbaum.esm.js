@@ -182,8 +182,8 @@ class WunderbaumNode {
     async load(source) {
         let tree = this.tree;
         let opts = tree.opts;
-        if (opts.debugLevel >= 2 && console.time) {
-            console.time(this + "._load");
+        if (opts.debugLevel >= 2) {
+            console.time(this + ".load");
         }
         try {
             const response = await fetch(source, { method: "GET" });
@@ -204,8 +204,8 @@ class WunderbaumNode {
         catch (error) {
             opts.error.call(tree, error);
         }
-        if (opts.debugLevel >= 2 && console.time) {
-            console.timeEnd(this + "._load");
+        if (opts.debugLevel >= 2) {
+            console.timeEnd(this + ".load");
         }
     }
     removeMarkup() {
@@ -216,8 +216,8 @@ class WunderbaumNode {
         }
     }
     render(opts) {
+        let tree = this.tree;
         let elem, nodeElem;
-        let parentElem;
         let rowDiv = this._rowElem;
         let titleSpan;
         let checkboxSpan;
@@ -251,7 +251,6 @@ class WunderbaumNode {
             iconSpan = rowDiv.querySelector("i.wb-icon");
         }
         else {
-            parentElem = this.tree.nodeListElement;
             rowDiv = document.createElement("div");
             // rowDiv.classList.add("wb-row");
             // Attach a node reference to the DOM Element:
@@ -273,6 +272,13 @@ class WunderbaumNode {
             titleSpan = document.createElement("span");
             titleSpan.classList.add("wb-title");
             nodeElem.appendChild(titleSpan);
+            // Render columns
+            for (let col of tree.columns) {
+                let colElem = document.createElement("span");
+                colElem.classList.add("wb-col");
+                colElem.textContent = "" + col.id;
+                rowDiv.appendChild(colElem);
+            }
         }
         rowDiv.className = rowClasses.join(" ");
         // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
@@ -313,7 +319,7 @@ class WunderbaumNode {
         // Attach to DOM as late as possible
         if (!this._rowElem) {
             this._rowElem = rowDiv;
-            parentElem.appendChild(rowDiv);
+            tree.nodeListElement.appendChild(rowDiv);
         }
     }
     setActive(flag = true) {
@@ -443,6 +449,8 @@ class Wunderbaum {
             source: null,
             element: null,
             debugLevel: default_debuglevel,
+            columns: null,
+            types: null,
             // Events
             change: noop,
             error: noop,
@@ -453,6 +461,11 @@ class Wunderbaum {
             key: "__root__",
             name: "__root__",
         });
+        // --- Evaluate options
+        this.columns = opts.columns || [];
+        delete opts.columns;
+        this.types = opts.types || {};
+        delete opts.types;
         // --- Create Markup
         if (typeof opts.element === "string") {
             this.element = document.querySelector(opts.element);
@@ -466,16 +479,15 @@ class Wunderbaum {
         if (!this.nodeListElement) {
             alert("TODO: create markup");
         }
-        // Load initial data
+        // --- Load initial data
         if (opts.source) {
             this.nodeListElement.innerHTML =
                 "<progress class='spinner'>loading...</progress>";
             this.load(opts.source).finally(() => {
-                var _a;
-                (_a = this.element.querySelector(".spinner")) === null || _a === void 0 ? void 0 : _a.remove();
+                this.element.querySelector("progress.spinner").remove();
             });
         }
-        // Bind listeners
+        // --- Bind listeners
         this.scrollContainer.addEventListener("scroll", (e) => {
             this.updateViewport();
         });
