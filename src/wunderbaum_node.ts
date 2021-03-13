@@ -226,6 +226,9 @@ export class WunderbaumNode {
 
       // Render columns
       for (let col of tree.columns) {
+        if (col.id === "*") {
+          continue;
+        }
         let colElem = document.createElement("span");
         colElem.classList.add("wb-col");
         colElem.textContent = "" + col.id;

@@ -485,7 +485,21 @@ export class Wunderbaum {
     return !flag; // return previous value
   }
 
-  protected setModified(node: WunderbaumNode | null, change: ChangeType) {}
+  /** Update column headers and width. */
+  setColumns(columns: any[], opts: any) {
+    if (columns && columns.length) {
+      this.columns = columns;
+    }
+    // for (let col of this.columns) {
+    //   if (col.id === "*") {
+    //     continue;
+    //   }
+    //   let colElem = document.createElement("span");
+    //   colElem.classList.add("wb-col");
+    //   colElem.textContent = "" + col.id;
+    //   rowDiv.appendChild(colElem);
+    // }
+  }
 
-  setColumns(columns: any[]) {}
+  protected setModified(node: WunderbaumNode | null, change: ChangeType) {}
 }
