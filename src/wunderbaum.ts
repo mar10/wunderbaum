@@ -111,6 +111,7 @@ export class Wunderbaum {
     if (!this.nodeListElement) {
       alert("TODO: create markup");
     }
+    (<any>this.treeElement)._wb_tree = this;
 
     // --- Load initial data
     if (opts.source) {
@@ -122,6 +123,9 @@ export class Wunderbaum {
     }
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
+      this.updateViewport();
+    });
+    window.addEventListener("resize", (e: Event) => {
       this.updateViewport();
     });
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
@@ -150,7 +154,11 @@ export class Wunderbaum {
   }
 
   /** */
-  public static getTree() { }
+  public static getTree(idxOrIdOrSelector?: any): Wunderbaum | null {
+    idxOrIdOrSelector = idxOrIdOrSelector || ".wunderbaum";
+    let elem = document.querySelector(idxOrIdOrSelector)
+    return <Wunderbaum>(<any>elem!)._wb_tree;
+  }
 
   /** */
   public static getNode(obj: any): WunderbaumNode | null {
@@ -163,6 +171,17 @@ export class Wunderbaum {
     }
     return null;
   }
+
+  /** */
+  expandAll(flag: boolean = true) {
+    let tag = this.logTime("expandAll(" + flag + ")")
+    let prev = this.enableUpdate(false)
+    let res = this.root.expandAll(flag);
+    this.enableUpdate(prev)
+    this.logTimeEnd(tag)
+    return res
+  }
+
   /** Return a {node: FancytreeNode, type: TYPE} object for a mouse event.
    *
    * @param {Event} event Mouse event, e.g. click, ...
@@ -219,14 +238,6 @@ export class Wunderbaum {
     return this.getEventTarget(event).type;
   }
 
-  /** Log to console if opts.debugLevel >= 4 */
-  debug(...args: any[]) {
-    if (this.opts.debugLevel >= 4) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.log.apply(console, args);
-    }
-  }
-
   /**
    * Return readable string representation for this instance.
    * @internal
@@ -241,6 +252,28 @@ export class Wunderbaum {
       Array.prototype.unshift.call(args, this.toString());
       console.log.apply(console, args);
     }
+  }
+
+  /** Log to console if opts.debugLevel >= 4 */
+  logDebug(...args: any[]) {
+    if (this.opts.debugLevel >= 4) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.log.apply(console, args);
+    }
+  }
+
+  /** Log to console if opts.debugLevel >= 4 */
+  logWarning(...args: any[]) {
+    if (this.opts.debugLevel >= 1) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.warn.apply(console, args);
+    }
+  }
+
+  /** Log error to console. */
+  logError(...args: any[]) {
+    Array.prototype.unshift.call(args, this.toString());
+    console.error.apply(console, args);
   }
 
   /** @internal */
@@ -323,7 +356,13 @@ export class Wunderbaum {
   /** Render all rows that are visible in the viewport. */
   updateViewport() {
     let height = this.scrollContainer.clientHeight;
+    let wantHeight = this.treeElement.clientHeight - this.headerElement.clientHeight;
     let ofs = this.scrollContainer.scrollTop;
+
+    if (Math.abs(height - wantHeight) > 1.0) {
+      this.log("resize", height, wantHeight);
+      this.scrollContainer.style.height = wantHeight + "px";
+    }
 
     this.updateColumns({ render: false });
     this.render({
@@ -543,12 +582,12 @@ export class Wunderbaum {
     }
     this._enableUpdate = flag;
     if (flag) {
-      this.debug("enableUpdate(true): redraw "); //, this._dirtyRoots);
+      this.logDebug("enableUpdate(true): redraw "); //, this._dirtyRoots);
       // this._callHook("treeStructureChanged", this, "enableUpdate");
       this.updateViewport();
     } else {
       // 	this._dirtyRoots = null;
-      this.debug("enableUpdate(false)...");
+      this.logDebug("enableUpdate(false)...");
     }
     return !flag; // return previous value
   }

@@ -16,6 +16,23 @@ document.addEventListener("DOMContentLoaded", function (event) {
     },
     render: function () {
       console.log("render", this, arguments);
+      document.querySelector("#tree-info").textContent = "todo"
     },
   });
 });
+
+document.querySelector("a#expand-all").addEventListener("click", (event) => {
+  let tree = mar10.Wunderbaum.getTree();
+  console.time("expandAll")
+  tree.expandAll()
+  console.timeEnd("expandAll")
+  // tree.expandAll().done(()=>{
+  //   console.timeEnd("expandAll")
+  // })
+})
+document.querySelector("a#collapse-all").addEventListener("click", (event) => {
+  let tree = mar10.Wunderbaum.getTree();
+  console.time("collapseAll")
+  tree.expandAll(false);
+  console.timeEnd("collapseAll")
+})

@@ -14,23 +14,23 @@ $active-hover-color: #cbe8f6;
 $active-hover-border-color: #26a0da;
 
 $row-height: 20px;
+$header_height: $row-height;
 
-$level-rainbow: rgba(255, 255, 64, 0.2), rgba(127, 255, 127, 0.2),
+$level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
-// $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
-//   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
 
 div.wunderbaum {
-  height: 100%;
+  height: 100%;  // fill parent container
   box-sizing: border-box;
   margin: 1px;
   padding: 0;
   font-family: $font-stack;
   border: 1px solid gray;
+  overflow: hidden;  // avoid unwanted effects when auto-resizing
 
   div.wb-header {
     position: relative;
-    height: $row-height;
+    height: $header-height;
     border-bottom: 1px solid gainsboro;
     // background-color: honeydew;
     span.wb-col {
@@ -53,7 +53,8 @@ div.wunderbaum {
     overflow: auto;
     scroll-behavior: smooth;
     position: relative;
-    height: 200px;
+    min-height: 4px;
+    // height: calc(100% - #{$header_height});  // didn't work. Using JS instead
     div.wb-row {
       position: absolute;
       width: 100%;

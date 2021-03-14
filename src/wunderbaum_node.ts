@@ -78,9 +78,18 @@ export class WunderbaumNode {
     this.tree.setModified(this, ChangeType.structure);
   }
 
-  getLevel() {
+  /** */
+  expandAll(flag: boolean = true) {
+    this.visit((node) => {
+      node.setExpanded(flag)
+    });
+  }
+
+  /** Return node depth (starting with 1 for top level nodes). */
+  getLevel(): number {
     let i = 0,
       p = this.parent;
+
     while (p) {
       i++;
       p = p.parent;
@@ -164,6 +173,36 @@ export class WunderbaumNode {
     if (opts.debugLevel >= 2) {
       console.timeEnd(this + ".load");
     }
+  }
+
+  /* Log to console if opts.debugLevel >= 1 */
+  log(...args: any[]) {
+    if (this.tree.opts.debugLevel >= 1) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.log.apply(console, args);
+    }
+  }
+
+  /* Log to console if opts.debugLevel >= 4 */
+  logDebug(...args: any[]) {
+    if (this.tree.opts.debugLevel >= 4) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.log.apply(console, args);
+    }
+  }
+
+  /* Log warning to console if opts.debugLevel >= 1 */
+  logWarning(...args: any[]) {
+    if (this.tree.opts.debugLevel >= 1) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.warn.apply(console, args);
+    }
+  }
+
+  /* Log error to console. */
+  logError(...args: any[]) {
+    Array.prototype.unshift.call(args, this.toString());
+    console.error.apply(console, args);
   }
 
   removeMarkup() {
@@ -287,6 +326,9 @@ export class WunderbaumNode {
   }
 
   setDirty(type: ChangeType) {
+    if (this.tree._enableUpdate === false) {
+      return;
+    }
     if (type === ChangeType.structure) {
       this.tree.updateViewport();
     } else if (this._rowElem) {

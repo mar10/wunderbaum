@@ -1,91 +1,146 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>Test | Wunderbaum</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="stylesheet"
-      type="text/css"
-      media="screen"
-      href="../dist/wunderbaum.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
-    />
-    <style>
-      body {
-        height: 100%;
-      }
-      .wunderbaum span.wb-col:nth-of-type(1) {
-        left: 0;
-        width: 30em;
-      }
-      .wunderbaum span.wb-col:nth-of-type(2) {
-        left: 30em;
-        width: 10em;
-      }
-      .wunderbaum span.wb-col:nth-of-type(3) {
-        left: 40em;
-        width: auto;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>Wunderbaum</h1>
 
-    <div id="demo-tree">
-      <div class="wunderbaum">
-        <div class="wb-header">
-          <div class="wb-row">
-            <span class="wb-col">
-              <i class="wb-checkbox bi bi-check2-square"></i>
-              <i class="wb-indent"></i>
-              <i class="wb-indent"></i>
-              <i class="wb-indent"></i>
-              Name
-            </span>
-            <span class="wb-col"> col 1.1 </span>
-            <span class="wb-col"> col 1.2 </span>
-          </div>
-        </div>
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <title>Test | Wunderbaum</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" type="text/css" media="screen" href="../dist/wunderbaum.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
+  <style>
+    /* body {
+      height: 100%;
+    } */
 
-        <div class="wb-scroll-container">
-          <div class="wb-node-list" style="height: 400px">
-            <div
-              class="wb-row wb-last-sib wb-expanded wb-selected"
-              style="top: 132px"
-            >
-              <span class="wb-node wb-col">
+
+    * {
+      box-sizing: border-box;
+      padding: 0;
+      margin: 0;
+    }
+
+    div.grid-wrapper {
+      display: grid;
+      width: 100vw;
+      height: 100vh;
+      grid-template-columns: 1fr 4fr;
+      grid-template-rows: 3em 5em auto 5em 1em;
+      grid-gap: 4px;
+      background-color: rgb(240, 229, 207);
+    }
+
+    div.grid-wrapper div.menu {
+      grid-column: 1 / span 2;
+      grid-row: 1;
+    }
+
+    div.grid-wrapper nav.nav {
+      grid-column: 1;
+      grid-row: 2 / 4;
+    }
+
+    div.grid-wrapper section.header {
+      background-color: whitesmoke;
+      grid-column: 2;
+      grid-row: 2;
+    }
+    div.grid-wrapper main.view {
+      background-color: white;
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    div.grid-wrapper section.footer {
+      background-color: whitesmoke;
+      grid-column: 2;
+      grid-row: 4;
+    }
+
+    div.grid-wrapper div.statbar {
+      grid-column: 1 / span 2;
+      grid-row: 5;
+    }
+
+    div#demo-tree {
+      height: 100%
+    }
+  </style>
+</head>
+
+<body>
+  <div class="grid-wrapper">
+    <div class="menu">
+      <h1>Wunderbaum</h1>
+    </div>
+    <nav class="nav">
+      Nav
+    </nav>
+    <section class="header">
+      <a id="expand-all" href="#">Expand all</a>
+      &mdash; <a id="collapse-all" href="#">Collapse all</a>
+    </section>
+
+    <main class="view">
+      <div id="demo-tree">
+        <div class="wunderbaum">
+          <div class="wb-header">
+            <div class="wb-row">
+              <span class="wb-col">
                 <i class="wb-checkbox bi bi-check2-square"></i>
                 <i class="wb-indent"></i>
-                <i class="wb-expander bi bi-dash-square"></i>
-                <i class="wb-icon bi bi-folder"></i>
-                <span class="wb-title">Node 1</span>
+                <i class="wb-indent"></i>
+                <i class="wb-indent"></i>
+                Name
               </span>
               <span class="wb-col"> col 1.1 </span>
               <span class="wb-col"> col 1.2 </span>
             </div>
-            <div class="wb-row wb-last-sib wb-selected" style="top: 148px">
-              <span class="wb-col">
-                <span class="wb-checkbox">X</span>
-              </span>
-              <span class="wb-node wb-col">
-                <i class="wb-indent"></i>
-                <i class="wb-expander bi bi-plus-square"></i>
-                <i class="wb-icon bi bi-file-earmark"></i>
-                <span class="wb-title">Node 1</span>
-              </span>
-              <span class="wb-col"> col 2.1 </span>
-              <span class="wb-col"> col 2.2 </span>
+          </div>
+
+          <div class="wb-scroll-container">
+            <div class="wb-node-list" style="height: 400px">
+              <div class="wb-row wb-last-sib wb-expanded wb-selected" style="top: 132px">
+                <span class="wb-node wb-col">
+                  <i class="wb-checkbox bi bi-check2-square"></i>
+                  <i class="wb-indent"></i>
+                  <i class="wb-expander bi bi-dash-square"></i>
+                  <i class="wb-icon bi bi-folder"></i>
+                  <span class="wb-title">Node 1</span>
+                </span>
+                <span class="wb-col"> col 1.1 </span>
+                <span class="wb-col"> col 1.2 </span>
+              </div>
+              <div class="wb-row wb-last-sib wb-selected" style="top: 148px">
+                <span class="wb-col">
+                  <span class="wb-checkbox">X</span>
+                </span>
+                <span class="wb-node wb-col">
+                  <i class="wb-indent"></i>
+                  <i class="wb-expander bi bi-plus-square"></i>
+                  <i class="wb-icon bi bi-file-earmark"></i>
+                  <span class="wb-title">Node 1</span>
+                </span>
+                <span class="wb-col"> col 2.1 </span>
+                <span class="wb-col"> col 2.2 </span>
+              </div>
             </div>
           </div>
         </div>
       </div>
+    </main>
+
+    <section class="footer">
+      <span id="tree-info">
+    </section>
+    
+    <div class="statbar">
+      Wunderbaum &copy; 2021 Martin Wendt
     </div>
-    <script src="../dist/wunderbaum.umd.js"></script>
-    <script src="main.js"></script>
-  </body>
+  </div>
+
+  <script src="../dist/wunderbaum.umd.js"></script>
+  <script src="main.js"></script>
+</body>
+
 </html>
