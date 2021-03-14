@@ -18,6 +18,7 @@
       box-sizing: border-box;
       padding: 0;
       margin: 0;
+      overflow: hidden;  /* prevent scrollbars, which would break `100vh` */
     }
 
     div.grid-wrapper {
@@ -26,8 +27,9 @@
       height: 100vh;
       grid-template-columns: 1fr 4fr;
       grid-template-rows: 3em 5em auto 5em 1em;
-      grid-gap: 4px;
       background-color: rgb(240, 229, 207);
+      padding: 8px;
+      grid-gap: 2px;
     }
 
     div.grid-wrapper div.menu {
@@ -133,7 +135,7 @@
     <section class="footer">
       <span id="tree-info">
     </section>
-    
+
     <div class="statbar">
       Wunderbaum &copy; 2021 Martin Wendt
     </div>
