@@ -61,7 +61,7 @@ export class Deferred {
 }
 
 /**
- * Bind event handler using event delegation:
+ * Bind event handler using event delegation.
  *
  * E.g. handle all 'input' events for input and textarea elements of a given
  * form
@@ -73,14 +73,14 @@ export class Deferred {
  *
  * @param element HTMLElement or selector
  * @param eventNames
- * @param selector
+ * @param selector (pass null if no event delegation is needed)
  * @param handler
  * @param bind
  */
 export function onEvent(
   rootElem: HTMLElement | string,
   eventNames: string,
-  selector: string,
+  selector: string | null,
   handler: (e: Event) => boolean | void
 ): void {
   if (typeof rootElem === "string") {
@@ -88,7 +88,9 @@ export function onEvent(
   }
   eventNames.split(" ").forEach((evn) => {
     (<HTMLElement>rootElem).addEventListener(evn, function (e) {
-      if (e.target) {
+      if (!selector) {
+        return handler(e); // no event delegation
+      } else if (e.target) {
         let elem = <HTMLElement>e.target;
         if (elem.matches(selector)) {
           return handler(e);

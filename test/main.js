@@ -6,9 +6,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
     debugLevel: 5,
     types: {},
     columns: [
-      { id: "*", header: "Name", width: "300px" },
-      { id: "id1", header: "a", width: 2 },
-      { id: "id2", header: "b" },
+      { id: "*", title: "Name", width: "300px" },
+      { id: "id1", title: "a", width: 2 },
+      { id: "id2", title: "b" },
     ],
 
     change: function () {

@@ -346,7 +346,7 @@ export class Wunderbaum {
       let colElem = <HTMLElement>headerRow!.children[i];
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
-      colElem.textContent = col.id;
+      colElem.textContent = col.title || col.id;
     }
   }
 
