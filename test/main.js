@@ -21,6 +21,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
   });
 });
 
+
 document.querySelector("a#expand-all").addEventListener("click", (event) => {
   let tree = mar10.Wunderbaum.getTree();
   console.time("expandAll")
@@ -30,6 +31,8 @@ document.querySelector("a#expand-all").addEventListener("click", (event) => {
   //   console.timeEnd("expandAll")
   // })
 })
+
+
 document.querySelector("a#collapse-all").addEventListener("click", (event) => {
   let tree = mar10.Wunderbaum.getTree();
   console.time("collapseAll")

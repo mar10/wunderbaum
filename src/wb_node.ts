@@ -1,5 +1,5 @@
 /*!
- * wunderbaum.js - wunderbaum_node
+ * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
@@ -12,7 +12,8 @@ import * as util from "./util";
 // const node_props: string[] = ["title", "key", "refKey"];
 
 import { Wunderbaum } from "./wunderbaum";
-import { ChangeType, iconMap, ROW_HEIGHT } from "./common";
+import { ChangeType, iconMap, KEY_TO_ACTION_MAP, NodeAnyCallback, ROW_HEIGHT } from "./common";
+import { Deferred } from "./deferred";
 
 export class WunderbaumNode {
   static sequence = 0;
@@ -28,7 +29,8 @@ export class WunderbaumNode {
   public lazy: boolean = false;
   public expanded: boolean = false;
   public selected: boolean = false;
-  statusNodeType = "";
+  public type?: string;
+  statusNodeType?: string;
   subMatchCount = 0;
   match = false;
 
@@ -81,8 +83,26 @@ export class WunderbaumNode {
   /** */
   expandAll(flag: boolean = true) {
     this.visit((node) => {
-      node.setExpanded(flag)
+      node.setExpanded(flag);
     });
+  }
+
+  /** Find a node relative to self.
+   *
+   * @param {number|string} where The keyCode that would normally trigger this move,
+   *		or a keyword ('down', 'first', 'last', 'left', 'parent', 'right', 'up').
+
+
+  */
+  findRelatedNode(where: string, includeHidden = false) {
+    return this.tree.findRelatedNode(this, where, includeHidden);
+  }
+
+  /** Return the first child node or null.
+   * @returns {FancytreeNode | null}
+   */
+  getFirstChild() {
+    return this.children ? this.children[0] : null;
   }
 
   /** Return node depth (starting with 1 for top level nodes). */
@@ -95,6 +115,51 @@ export class WunderbaumNode {
       p = p.parent;
     }
     return i;
+  }
+  /** Return the parent node (null for the system root node).
+   * @returns {FancytreeNode | null}
+   */
+  getParent() {
+    // TODO: return null for top-level nodes?
+    return this.parent;
+  }
+  /** Return an array of all parent nodes (top-down).
+   * @param includeRoot Include the invisible system root node.
+   * @param includeSelf Include the node itself.
+   */
+  getParentList(includeRoot = false, includeSelf = false) {
+    var l = [],
+      dtn = includeSelf ? this : this.parent;
+    while (dtn) {
+      if (includeRoot || dtn.parent) {
+        l.unshift(dtn);
+      }
+      dtn = dtn.parent;
+    }
+    return l;
+  }
+  /** Return a string representing the hierachical node path, e.g. "a/b/c".
+   * @param includeSelf
+   * @param node property name or callback
+   * @param separator
+   */
+  getPath(includeSelf = true, part: keyof WunderbaumNode | NodeAnyCallback = "title", separator = "/") {
+    // includeSelf = includeSelf !== false;
+    // part = part || "title";
+    // separator = separator || "/";
+
+    var val,
+      path: string[] = [],
+      isFunc = typeof part === "function";
+
+    this.visitParents((n) => {
+      if (n.parent) {
+        val = isFunc ? (<NodeAnyCallback>part)(n) : n[<keyof WunderbaumNode>part];
+        path.unshift(val);
+      }
+      return undefined;  // TODO remove this line
+    }, includeSelf);
+    return path.join(separator);
   }
 
   /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
@@ -132,6 +197,49 @@ export class WunderbaumNode {
   isSelected() {
     return !!this.selected;
   }
+  /** Return true if this a top level node, i.e. a direct child of the (invisible) system root node.
+   */
+  isTopLevel() {
+    return this.tree.root === this.parent;
+  }
+  /** Return true if node is lazy and not yet loaded. For non-lazy nodes always return false.
+   */
+  isUndefined() {
+    return this.hasChildren() === undefined; // also checks if the only child is a status node
+  }
+  /** Return true if all parent nodes are expanded. Note: this does not check
+   * whether the node is scrolled into the visible part of the screen.
+   */
+  isVisible() {
+    var i,
+      l,
+      n,
+      hasFilter = this.tree.enableFilter,
+      parents = this.getParentList(false, false);
+
+    // TODO: check $(n.span).is(":visible")
+    // i.e. return false for nodes (but not parents) that are hidden
+    // by a filter
+    if (hasFilter && !this.match && !this.subMatchCount) {
+      // this.debug( "isVisible: HIDDEN (" + hasFilter + ", " + this.match + ", " + this.match + ")" );
+      return false;
+    }
+
+    for (i = 0, l = parents.length; i < l; i++) {
+      n = parents[i];
+
+      if (!n.expanded) {
+        // this.debug("isVisible: HIDDEN (parent collapsed)");
+        return false;
+      }
+      // if (hasFilter && !n.match && !n.subMatchCount) {
+      // 	this.debug("isVisible: HIDDEN (" + hasFilter + ", " + this.match + ", " + this.match + ")");
+      // 	return false;
+      // }
+    }
+    // this.debug("isVisible: VISIBLE");
+    return true;
+  }
 
   /** Return true if this node is a temporarily generated system node like
    * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
@@ -140,10 +248,15 @@ export class WunderbaumNode {
     return !!this.statusNodeType;
   }
 
+  /** Return true if this node is a temporarily generated system node of type 'paging'. */
+  isPagingNode() {
+    return this.statusNodeType === "paging";
+  }
+
   /** Download  data from the cloud, then call `.update()`. */
   async load(source: any) {
     let tree = this.tree;
-    let opts = tree.opts;
+    let opts = tree.options;
 
     if (opts.debugLevel >= 2) {
       console.time(this + ".load");
@@ -177,7 +290,7 @@ export class WunderbaumNode {
 
   /* Log to console if opts.debugLevel >= 1 */
   log(...args: any[]) {
-    if (this.tree.opts.debugLevel >= 1) {
+    if (this.tree.options.debugLevel >= 1) {
       Array.prototype.unshift.call(args, this.toString());
       console.log.apply(console, args);
     }
@@ -185,7 +298,7 @@ export class WunderbaumNode {
 
   /* Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
-    if (this.tree.opts.debugLevel >= 4) {
+    if (this.tree.options.debugLevel >= 4) {
       Array.prototype.unshift.call(args, this.toString());
       console.log.apply(console, args);
     }
@@ -193,7 +306,7 @@ export class WunderbaumNode {
 
   /* Log warning to console if opts.debugLevel >= 1 */
   logWarning(...args: any[]) {
-    if (this.tree.opts.debugLevel >= 1) {
+    if (this.tree.options.debugLevel >= 1) {
       Array.prototype.unshift.call(args, this.toString());
       console.warn.apply(console, args);
     }
@@ -203,6 +316,86 @@ export class WunderbaumNode {
   logError(...args: any[]) {
     Array.prototype.unshift.call(args, this.toString());
     console.error.apply(console, args);
+  }
+
+  /** Expand all parents and optionally scroll into visible area as neccessary.
+   * Promise is resolved, when lazy loading and animations are done.
+   * @param {object} [opts] passed to `setExpanded()`.
+   *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
+   */
+  async makeVisible(opts: any) {
+    var i,
+      dfd = new Deferred(),
+      deferreds = [],
+      parents = this.getParentList(false, false),
+      len = parents.length,
+      effects = !(opts && opts.noAnimation === true),
+      scroll = !(opts && opts.scrollIntoView === false);
+
+    // Expand bottom-up, so only the top node is animated
+    for (i = len - 1; i >= 0; i--) {
+      // self.debug("pushexpand" + parents[i]);
+      deferreds.push(parents[i].setExpanded(true, opts));
+    }
+    Promise.all(deferreds).then(() => {
+      // All expands have finished
+      // self.debug("expand DONE", scroll);
+      if (scroll) {
+        this.scrollIntoView(effects).then(() => {
+          // self.debug("scroll DONE");
+          dfd.resolve();
+        });
+      } else {
+        dfd.resolve();
+      }
+    });
+    return dfd.promise();
+  }
+
+  /** Set focus relative to this node and optionally activate.
+   *
+   * 'left' collapses the node if it is expanded, or move to the parent
+   * otherwise.
+   * 'right' expands the node if it is collapsed, or move to the first
+   * child otherwise.
+   *
+   * @param where 'down', 'first', 'last', 'left', 'parent', 'right', or 'up'.
+   *   (Alternatively the `event.key` that would normally trigger this move,
+   *   e.g. `ArrowLeft` = 'left'.
+   * @param options
+   */
+  async navigate(where: string, options?:any) {
+    // Allow to pass 'ArrowLeft' instead of 'left'
+    where = KEY_TO_ACTION_MAP[where] || where;
+
+    // Handle optional expand/collapse action for LEFT/RIGHT
+    switch (where) {
+      case "left":
+        if (this.expanded) {
+          return this.setExpanded(false);
+        }
+        break;
+      case "right":
+        if (!this.expanded && (this.children || this.lazy)) {
+          return this.setExpanded();
+        }
+        break;
+    }
+    // Otherwise activate or focus the related node
+    let node = this.findRelatedNode(where);
+    if (node) {
+      // setFocus/setActive will scroll later (if autoScroll is specified)
+      try {
+        node.makeVisible({ scrollIntoView: false });
+      } catch (e) { } // #272
+      if (options.activate === false) {
+        node.setFocus();
+        return Promise.resolve(this);
+      }
+      return node.setActive();
+    }
+    this.logWarning("Could not find related node '" + where + "'.");
+    return Promise.resolve(this);
   }
 
   removeMarkup() {
@@ -318,11 +511,16 @@ export class WunderbaumNode {
     }
   }
 
-  setActive(flag: boolean = true) {
+  async scrollIntoView(options?: any) {
+    return this.tree.scrollTo(this);
+  }
+
+  async setActive(flag: boolean = true, options?: any) {
     let prev = this.tree.activeNode;
     this.tree.activeNode = this;
     prev?.setDirty(ChangeType.status);
     this.setDirty(ChangeType.status);
+    this.scrollIntoView()
   }
 
   setDirty(type: ChangeType) {
@@ -337,12 +535,19 @@ export class WunderbaumNode {
     }
   }
 
-  setExpanded(flag: boolean = true) {
+  async setExpanded(flag: boolean = true, options?: any) {
     this.expanded = flag;
     this.setDirty(ChangeType.structure);
   }
 
-  setSelected(flag: boolean = true) {
+  setFocus(flag: boolean = true, options?: any) {
+    let prev = this.tree.focusNode;
+    this.tree.focusNode = this;
+    prev?.setDirty(ChangeType.status);
+    this.setDirty(ChangeType.status);
+  }
+
+  setSelected(flag: boolean = true, options?: any) {
     this.selected = flag;
     this.setDirty(ChangeType.status);
   }

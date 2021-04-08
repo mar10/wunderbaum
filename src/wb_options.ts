@@ -1,5 +1,5 @@
 /*!
- * persisto.js - utils
+ * Wunderbaum - utils
  * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */

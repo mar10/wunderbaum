@@ -1,10 +1,16 @@
 /*!
- * wunderbaum.js - utils
+ * Wunderbaum - utils
  * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
+/** Readable names for `MouseEvent.button` */
+export const MOUSE_BUTTONS: { [key: number]: string; } = {
+  0: "", 1: "left", 2: "middle", 3: "right", 4: "back", 5: "forward"
+};
+
 export const MAX_INT = 9007199254740991;
+
 type promiseCallbackType = (val: any) => void;
 
 /**
@@ -18,7 +24,7 @@ export class Deferred {
   private resolvedValue: any;
   private rejectedError: any;
 
-  constructor() {}
+  constructor() { }
 
   resolve(value?: any) {
     if (this.status) {
@@ -156,6 +162,70 @@ export function error(msg: string) {
   throw new Error(msg);
 }
 
+/** Convert a keydown or mouse event to a canonical string like 'ctrl+a',
+ * 'ctrl+shift+f2', 'shift+leftdblclick'.
+ *
+ * This is especially handy for switch-statements in event handlers.
+ *
+ * @param {event}
+ * @returns {string}
+ *
+ * @example
+
+switch( $.ui.fancytree.eventToString(event) ) {
+  case "-":
+    tree.nodeSetExpanded(ctx, false);
+    break;
+  case "shift+return":
+    tree.nodeSetActive(ctx, true);
+    break;
+  case "down":
+    res = node.navigate(event.which, activate);
+    break;
+  default:
+    handled = false;
+}
+if( handled ){
+  event.preventDefault();
+}
+*/
+
+const IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
+
+export function eventToString(event: Event) {
+  var key = (<KeyboardEvent>event).key,
+    // which = (<KeyboardEvent>event).keyCode,
+    et = event.type,
+    s = [];
+
+  if ((<KeyboardEvent>event).altKey) {
+    s.push("Alt");
+  }
+  if ((<KeyboardEvent>event).ctrlKey) {
+    s.push("Control");
+  }
+  if ((<KeyboardEvent>event).metaKey) {
+    s.push("Meta");
+  }
+  if ((<KeyboardEvent>event).shiftKey) {
+    s.push("Shift");
+  }
+
+  if (et === "click" || et === "dblclick") {
+    s.push(MOUSE_BUTTONS[(<MouseEvent>event).button] + et);
+  } else if (et === "wheel") {
+    s.push(et);
+    // } else if (!IGNORE_KEYCODES[key]) {
+    //   s.push(
+    //     SPECIAL_KEYCODES[key] ||
+    //     String.fromCharCode(key).toLowerCase()
+    //   );
+  } else if (!IGNORE_KEYS.has(key)) {
+    s.push(key);
+  }
+  return s.join("+");
+}
+
 export function assert(cond: boolean, msg?: string) {
   if (!cond) {
     msg = msg || "Assertion failed.";
@@ -196,7 +266,7 @@ export function isArray(obj: any) {
 }
 
 /** A dummy function that does nothing ('no operation'). */
-export function noop(...args: any[]): any {}
+export function noop(...args: any[]): any { }
 
 export function ready(fn: any) {
   if (document.readyState === "loading") {
