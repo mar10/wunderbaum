@@ -32,8 +32,10 @@ export enum TargetType {
 }
 
 export let iconMap = {
-  expanderExpanded: "bi bi-dash-square",
-  expanderCollapsed: "bi bi-plus-square",
+  expanderExpanded: "bi bi-chevron-down",
+  // expanderExpanded: "bi bi-dash-square",
+  expanderCollapsed: "bi bi-chevron-right",
+  // expanderCollapsed: "bi bi-plus-square",
   expanderLazy: "bi bi-x-square",
   checkChecked: "bi bi-check-square",
   checkUnchecked: "bi bi-square",

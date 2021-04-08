@@ -93,7 +93,8 @@ export class KeynavExtension extends WunderbaumExtension {
         //   tree._triggerNodeEvent("clickPaging", ctx, event);
         // } else 
         if (
-          evalOption("checkbox", node, node, opts, false)
+          true
+          // evalOption("checkbox", node, node, opts, false)
         ) {
           node.setSelected(!node.isSelected());
         } else {
