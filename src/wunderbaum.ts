@@ -55,7 +55,7 @@ export class Wunderbaum {
   protected rows: WunderbaumNode[] = [];
   activeNode: WunderbaumNode | null = null;
   focusNode: WunderbaumNode | null = null;
-  options: any; 
+  options: any;
   enableFilter = false;
   _enableUpdate = true;
   /** Shared properties, referenced by `node.type`. */
@@ -207,6 +207,56 @@ export class Wunderbaum {
     return res;
   }
 
+  /** Return the topmost visible node in the viewport */
+  protected _firstNodeInView(complete = true) {
+    let topIdx = Math.floor(this.scrollContainer.scrollTop / ROW_HEIGHT);
+    let node: WunderbaumNode;
+    // TODO: start searching from active node (reverse)
+    this.visitRows((n) => {
+      if (n._rowIdx === topIdx) {
+        node = n;
+        return false;
+      }
+    });
+    return <WunderbaumNode>node!;
+  }
+
+  /** Return the lowest visible node in the viewport */
+  protected _lastNodeInView(complete = true) {
+    let bottomIdx = Math.floor((this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) / ROW_HEIGHT);
+    let node: WunderbaumNode;
+    // TODO: start searching from active node
+    this.visitRows((n) => {
+      if (n._rowIdx === bottomIdx) {
+        node = n;
+        return false;
+      }
+    });
+    return <WunderbaumNode>node!;
+  }
+
+  /** Return preceeding visible node in the viewport */
+  protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
+    this.visitRows((n) => {
+      node = n;
+      if (ofs-- <= 0) {
+        return false;
+      }
+    }, { reverse: true, start: node || this.getActiveNode() });
+    return node;
+  }
+
+  /** Return following visible node in the viewport */
+  protected _getNextNodeInView(node?: WunderbaumNode, ofs = 1) {
+    this.visitRows((n) => {
+      node = n;
+      if (ofs-- <= 0) {
+        return false;
+      }
+    }, { reverse: false, start: node || this.getActiveNode() });
+    return node;
+  }
+
   /** */
   expandAll(flag: boolean = true) {
     let tag = this.logTime("expandAll(" + flag + ")");
@@ -223,10 +273,11 @@ export class Wunderbaum {
    * @param where 'down', 'first', 'last', 'left', 'parent', 'right', or 'up'.
    *   (Alternatively the keyCode that would normally trigger this move,
    *   e.g. `$.ui.keyCode.LEFT` = 'left'.
-   * @param Not yet implemented
+   * @param includeHidden Not yet implemented
    */
-  findRelatedNode(node: WunderbaumNode, where: string | number, includeHidden = false) {
-    var res = null;
+  findRelatedNode(node: WunderbaumNode, where: string, includeHidden = false) {
+    let res = null;
+    let pageSize = Math.floor(this.scrollContainer.clientHeight / ROW_HEIGHT);
 
     switch (where) {
       case "parent":
@@ -267,22 +318,28 @@ export class Wunderbaum {
         }
         break;
       case "up":
-        this.visitRows(
-          function (n) {
-            res = n;
-            return false;
-          },
-          { start: node, reverse: true, includeSelf: false }
-        );
+        res = this._getPrevNodeInView(node);
         break;
       case "down":
-        this.visitRows(
-          function (n) {
-            res = n;
-            return false;
-          },
-          { start: node, includeSelf: false }
-        );
+        res = this._getNextNodeInView(node);
+        break;
+      case "pageDown":
+        let bottomNode = this._lastNodeInView();
+
+        if (this.activeNode !== bottomNode) {
+          res = bottomNode;
+        } else {
+          res = this._getNextNodeInView(node, pageSize);
+        }
+        break;
+      case "pageUp":
+        let topNode = this._firstNodeInView();
+
+        if (this.activeNode !== topNode) {
+          res = topNode;
+        } else {
+          res = this._getPrevNodeInView(node, pageSize);
+        }
         break;
       default:
         this.logWarning("Unknown relation '" + where + "'.");
@@ -482,10 +539,10 @@ export class Wunderbaum {
   /**
    *
    * @param {boolean | PlainObject} [effects=false] animation options.
-   * @param {object} [options=null] {topNode: null, effects: ..., parent: ...} 
+   * @param {object} [options=null] {topNode: null, effects: ..., parent: ...}
    *     this node will remain visible in
    *     any case, even if `this` is outside the scroll pane.
-   * Make sure that a node is scrolled into the viewport. 
+   * Make sure that a node is scrolled into the viewport.
    */
   scrollTo(opts: any) {
     const MARGIN = 1;
@@ -603,11 +660,11 @@ export class Wunderbaum {
    * Stop iteration, if fn() returns false.<br>
    * Return false if iteration was stopped.
    *
-   * @param {function} callback the callback function.
+   * @param callback the callback function.
    *     Return false to stop iteration, return "skip" to skip this node and children only.
-   * @param {object} [options]
+   * @param [options]
    *     Defaults:
-   *     {start: First top node, reverse: false, includeSelf: true, includeHidden: false}
+   *     {start: First tree node, reverse: false, includeSelf: true, includeHidden: false, wrap: false}
    * @returns {boolean} false if iteration was cancelled
    */
   visitRows(callback: (node: WunderbaumNode) => any, opts?: any): boolean {
@@ -619,22 +676,22 @@ export class Wunderbaum {
       return this._visitRowsUp(callback, opts);
     }
     opts = opts || {};
-
     let i,
       nextIdx,
       parent,
       res,
       siblings,
+      stopNode: WunderbaumNode,
       siblingOfs = 0,
       skipFirstNode = opts.includeSelf === false,
       includeHidden = !!opts.includeHidden,
       checkFilter = !includeHidden && this.enableFilter,
-      node = opts.start || this.root.children![0];
+      node: WunderbaumNode = opts.start || this.root.children![0];
 
     parent = node.parent;
     while (parent) {
       // visit siblings
-      siblings = parent.children;
+      siblings = parent.children!;
       nextIdx = siblings.indexOf(node) + siblingOfs;
       util.assert(
         nextIdx >= 0,
@@ -643,6 +700,7 @@ export class Wunderbaum {
 
       for (i = nextIdx; i < siblings.length; i++) {
         node = siblings[i];
+        if (node === stopNode!) { return false; }
         if (checkFilter && !node.match && !node.subMatchCount) {
           continue;
         }
@@ -657,6 +715,7 @@ export class Wunderbaum {
           (includeHidden || node.expanded)
         ) {
           res = node.visit(function (n: WunderbaumNode) {
+            if (n === stopNode) { return false; }
             if (checkFilter && !n.match && !n.subMatchCount) {
               return "skip";
             }
@@ -676,6 +735,15 @@ export class Wunderbaum {
       node = parent;
       parent = parent.parent;
       siblingOfs = 1; //
+
+      if (!parent && opts.wrap) {
+        this.log("visitRows(): wrap around");
+        util.assert(opts.start, "`wrap` option requires `start`");
+        stopNode = opts.start;
+        opts.wrap = false;
+        parent = this.root;
+        siblingOfs = 0;
+      }
     }
     return true;
   }
@@ -693,6 +761,11 @@ export class Wunderbaum {
       includeHidden = !!opts.includeHidden,
       node = opts.start || this.root.children![0];
 
+      if( opts.includeSelf !== false ) {
+      if (callback(node) === false) {
+        return false;
+      }
+    }
     while (true) {
       parent = node.parent;
       children = parent.children;
@@ -726,7 +799,6 @@ export class Wunderbaum {
       if (callback(node) === false) {
         return false;
       }
-      break;
     }
     return true;
   }

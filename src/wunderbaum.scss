@@ -100,6 +100,7 @@ div.wunderbaum {
 
   span.wb-title {
     min-width: 1em;
+    display: inline-block;  // fix vertical offset on Chrome?
   }
   @for $i from 1 through length($level-rainbow) {
     i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {

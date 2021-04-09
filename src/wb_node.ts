@@ -380,6 +380,10 @@ export class WunderbaumNode {
           return this.setExpanded();
         }
         break;
+      case "firstCol":
+      case "lastCol":
+        this.logWarning("navigate("+where+") is not yet implmented")
+        break;
     }
     // Otherwise activate or focus the related node
     let node = this.findRelatedNode(where);

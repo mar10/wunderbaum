@@ -81,17 +81,19 @@ export class KeynavExtension extends WunderbaumExtension {
     // }
     switch (eventName) {
       // switch (eventToString(event)) {
+      case "+":
       case "Add":
         // case "=": // 187: '+' @ Chrome, Safari
         node.setExpanded(true);
         break;
+      case "-":
       case "Subtract":
-        node.setExpanded(false );
+        node.setExpanded(false);
         break;
       case " ":
         // if (node.isPagingNode()) {
         //   tree._triggerNodeEvent("clickPaging", ctx, event);
-        // } else 
+        // } else
         if (
           true
           // evalOption("checkbox", node, node, opts, false)
@@ -104,13 +106,17 @@ export class KeynavExtension extends WunderbaumExtension {
       case "Enter":
         node.setActive(true);
         break;
-      case "Home":
-      case "End":
-      case "Backspace":
+      case "ArrowDown":
       case "ArrowLeft":
       case "ArrowRight":
       case "ArrowUp":
-      case "ArrowDown":
+      case "Backspace":
+      case "End":
+      case "Home":
+      case "Control+End":
+      case "Control+Home":
+      case "PageDown":
+      case "PageUp":
         node.navigate(eventName, activate);
         break;
       default:

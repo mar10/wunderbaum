@@ -68,16 +68,24 @@ export abstract class WunderbaumExtension {
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_MAP: { [key: string]: string; } = {
   " ": "toggleSelect",
+  "+": "expand",
   "Add": "expand",
   "ArrowDown": "down",
   "ArrowLeft": "left",
   "ArrowRight": "right",
   "ArrowUp": "up",
   "Backspace": "parent",
+  "/": "collapseAll",
   "Divide": "collapseAll",
-  "End": "last",
-  "Home": "first",
+  "End": "lastCol",
+  "Home": "firstCol",
+  "Control+End": "last",
+  "Control+Home": "first",
+  "*": "expandAll",
   "Multiply": "expandAll",
+  "PageDown": "pageDown",
+  "PageUp": "pageUp",
+  "-": "collapse",
   "Subtract": "collapse",
 };
 
