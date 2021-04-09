@@ -44,17 +44,14 @@ div.wunderbaum {
     }
   }
 
-  span.wb-col {
-    position: absolute;
-    display: inline-block;
-    // height: $row-height;
-  }
   div.wb-scroll-container {
     overflow: auto;
     scroll-behavior: smooth;
     position: relative;
     min-height: 4px;
     // height: calc(100% - #{$header_height});  // didn't work. Using JS instead
+    // padding: 0 4px;
+
     div.wb-row {
       position: absolute;
       width: 100%;
@@ -80,15 +77,20 @@ div.wunderbaum {
         }
       }
     }
+    span.wb-node :first-of-type {
+      margin-left: 8px; // leftmost icon gets a little margin
+    }
+
     i.wb-checkbox,
     i.wb-expander,
     i.wb-icon,
     i.wb-indent {
-      width: 1em;
+      width: 1.1em;
       display: inline-block;
       height: $row-height;
       margin-right: 3px;
-      font-size: small;
+      // font-size: small;
+      // vertical-align: middle;
     }
     i.wb-indent {
       // border-left: 1px solid gray;
@@ -101,7 +103,17 @@ div.wunderbaum {
   span.wb-title {
     min-width: 1em;
     display: inline-block;  // fix vertical offset on Chrome?
+    vertical-align: top;
+    text-overflow: ellipsis;
   }
+
+  span.wb-col {
+    position: absolute;
+    display: inline-block;
+    // height: $row-height;
+    vertical-align: top;
+  }
+
   @for $i from 1 through length($level-rainbow) {
     i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
       background: nth($level-rainbow, $i);
