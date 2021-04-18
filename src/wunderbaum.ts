@@ -158,14 +158,9 @@ export class Wunderbaum {
     //     // this.log("mouse", e.target);
     //   }
     // );
-    util.onEvent(
-      this.treeElement,
-      "keydown",
-      null,
-      (e) => {
-        this._callHook("onKeyEvent", { tree: this, event: e });
-      }
-    );
+    util.onEvent(this.treeElement, "keydown", null, (e) => {
+      this._callHook("onKeyEvent", { tree: this, event: e });
+    });
   }
 
   /** */
@@ -197,12 +192,20 @@ export class Wunderbaum {
   /** */
   protected _callHook(hook: keyof WunderbaumExtension, data: any = {}): any {
     let res;
-    let d = util.extend({}, { options: this.options, tree: this, result: undefined }, data);
+    let d = util.extend(
+      {},
+      { options: this.options, tree: this, result: undefined },
+      data
+    );
 
     for (let ext of this.extensions) {
       res = (<any>ext[hook]).call(ext, d);
-      if (res === false) { break; }
-      if (d.result !== undefined) { res = d.result; }
+      if (res === false) {
+        break;
+      }
+      if (d.result !== undefined) {
+        res = d.result;
+      }
     }
     return res;
   }
@@ -223,7 +226,10 @@ export class Wunderbaum {
 
   /** Return the lowest visible node in the viewport */
   protected _lastNodeInView(complete = true) {
-    let bottomIdx = Math.floor((this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) / ROW_HEIGHT);
+    let bottomIdx = Math.floor(
+      (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
+        ROW_HEIGHT
+    );
     let node: WunderbaumNode;
     // TODO: start searching from active node
     this.visitRows((n) => {
@@ -237,23 +243,29 @@ export class Wunderbaum {
 
   /** Return preceeding visible node in the viewport */
   protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
-    this.visitRows((n) => {
-      node = n;
-      if (ofs-- <= 0) {
-        return false;
-      }
-    }, { reverse: true, start: node || this.getActiveNode() });
+    this.visitRows(
+      (n) => {
+        node = n;
+        if (ofs-- <= 0) {
+          return false;
+        }
+      },
+      { reverse: true, start: node || this.getActiveNode() }
+    );
     return node;
   }
 
   /** Return following visible node in the viewport */
   protected _getNextNodeInView(node?: WunderbaumNode, ofs = 1) {
-    this.visitRows((n) => {
-      node = n;
-      if (ofs-- <= 0) {
-        return false;
-      }
-    }, { reverse: false, start: node || this.getActiveNode() });
+    this.visitRows(
+      (n) => {
+        node = n;
+        if (ofs-- <= 0) {
+          return false;
+        }
+      },
+      { reverse: false, start: node || this.getActiveNode() }
+    );
     return node;
   }
 
@@ -354,18 +366,18 @@ export class Wunderbaum {
     return this.activeNode;
   }
 
-  /**
-   * Return the currently active node or null.
-   */
-  getFocusNode() {
-    return this.focusNode;
-  }
-
   /** Return the first top level node if any (not the invisible root node).
    * @returns {FancytreeNode | null}
    */
   getFirstChild() {
     return this.root.getFirstChild();
+  }
+
+  /**
+   * Return the currently active node or null.
+   */
+  getFocusNode() {
+    return this.focusNode;
   }
 
   /** Return a {node: FancytreeNode, type: TYPE} object for a mouse event.
@@ -393,7 +405,10 @@ export class Wunderbaum {
       res.type = TargetType.title;
     } else if (cl.contains("wb-col")) {
       res.type = TargetType.column;
-      let idx = Array.prototype.indexOf.call(target.parentNode!.children, target);
+      let idx = Array.prototype.indexOf.call(
+        target.parentNode!.children,
+        target
+      );
       res.column = node?.tree.columns[idx];
       // Somewhere near the title
       // } else if (event && event.target) {
@@ -448,14 +463,6 @@ export class Wunderbaum {
     }
   }
 
-  /** Log to console if opts.debugLevel >= 4 */
-  logWarning(...args: any[]) {
-    if (this.options.debugLevel >= 1) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.warn.apply(console, args);
-    }
-  }
-
   /** Log error to console. */
   logError(...args: any[]) {
     Array.prototype.unshift.call(args, this.toString());
@@ -474,6 +481,14 @@ export class Wunderbaum {
   logTimeEnd(label: string): void {
     if (this.options.debugLevel >= 1) {
       console.timeEnd(label);
+    }
+  }
+
+  /** Log to console if opts.debugLevel >= 4 */
+  logWarning(...args: any[]) {
+    if (this.options.debugLevel >= 1) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.warn.apply(console, args);
     }
   }
 
@@ -572,7 +587,7 @@ export class Wunderbaum {
   }
 
   /** */
-  setModified(node: WunderbaumNode | null, change: ChangeType) { }
+  setModified(node: WunderbaumNode | null, change: ChangeType) {}
 
   /** Update column headers and width. */
   updateColumns(opts: any) {
@@ -610,7 +625,7 @@ export class Wunderbaum {
 
     for (let col of this.columns) {
       if (col._weight) {
-        let px = Math.max(minWidth, restPx * col._weight / totalWeight);
+        let px = Math.max(minWidth, (restPx * col._weight) / totalWeight);
         if (col._widthPx != px) {
           modified = true;
           col._widthPx = px;
@@ -631,7 +646,8 @@ export class Wunderbaum {
   /** Render all rows that are visible in the viewport. */
   updateViewport() {
     let height = this.scrollContainer.clientHeight;
-    let wantHeight = this.treeElement.clientHeight - this.headerElement.clientHeight;
+    let wantHeight =
+      this.treeElement.clientHeight - this.headerElement.clientHeight;
     let ofs = this.scrollContainer.scrollTop;
 
     if (Math.abs(height - wantHeight) > 1.0) {
@@ -700,7 +716,9 @@ export class Wunderbaum {
 
       for (i = nextIdx; i < siblings.length; i++) {
         node = siblings[i];
-        if (node === stopNode!) { return false; }
+        if (node === stopNode!) {
+          return false;
+        }
         if (checkFilter && !node.match && !node.subMatchCount) {
           continue;
         }
@@ -715,7 +733,9 @@ export class Wunderbaum {
           (includeHidden || node.expanded)
         ) {
           res = node.visit(function (n: WunderbaumNode) {
-            if (n === stopNode) { return false; }
+            if (n === stopNode) {
+              return false;
+            }
             if (checkFilter && !n.match && !n.subMatchCount) {
               return "skip";
             }
@@ -761,7 +781,7 @@ export class Wunderbaum {
       includeHidden = !!opts.includeHidden,
       node = opts.start || this.root.children![0];
 
-      if( opts.includeSelf !== false ) {
+    if (opts.includeSelf !== false) {
       if (callback(node) === false) {
         return false;
       }
@@ -827,5 +847,4 @@ export class Wunderbaum {
     }
     return !flag; // return previous value
   }
-
 }

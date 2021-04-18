@@ -48,7 +48,6 @@ export let iconMap = {
   doc: "bi bi-file-earmark",
 };
 
-
 export abstract class WunderbaumExtension {
   abstract name: string;
   readonly tree: Wunderbaum;
@@ -60,33 +59,36 @@ export abstract class WunderbaumExtension {
   // init(tree: Wunderbaum) {
   //   super(tree)
   // }
-  onKeyEvent(data: any): boolean | undefined { return; }
-  onRender(data: any): boolean | undefined { return; }
-
+  onKeyEvent(data: any): boolean | undefined {
+    return;
+  }
+  onRender(data: any): boolean | undefined {
+    return;
+  }
 }
 
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_MAP: { [key: string]: string; } = {
+export const KEY_TO_ACTION_MAP: { [key: string]: string } = {
   " ": "toggleSelect",
   "+": "expand",
-  "Add": "expand",
-  "ArrowDown": "down",
-  "ArrowLeft": "left",
-  "ArrowRight": "right",
-  "ArrowUp": "up",
-  "Backspace": "parent",
+  Add: "expand",
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  ArrowUp: "up",
+  Backspace: "parent",
   "/": "collapseAll",
-  "Divide": "collapseAll",
-  "End": "lastCol",
-  "Home": "firstCol",
+  Divide: "collapseAll",
+  End: "lastCol",
+  Home: "firstCol",
   "Control+End": "last",
   "Control+Home": "first",
   "*": "expandAll",
-  "Multiply": "expandAll",
-  "PageDown": "pageDown",
-  "PageUp": "pageUp",
+  Multiply: "expandAll",
+  PageDown: "pageDown",
+  PageUp: "pageUp",
   "-": "collapse",
-  "Subtract": "collapse",
+  Subtract: "collapse",
 };
 
 /** Return an option value that has a default, but may be overridden by a

@@ -127,5 +127,4 @@ export class KeynavExtension extends WunderbaumExtension {
     }
     return;
   }
-
 }

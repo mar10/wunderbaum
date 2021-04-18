@@ -12,7 +12,13 @@ import * as util from "./util";
 // const node_props: string[] = ["title", "key", "refKey"];
 
 import { Wunderbaum } from "./wunderbaum";
-import { ChangeType, iconMap, KEY_TO_ACTION_MAP, NodeAnyCallback, ROW_HEIGHT } from "./common";
+import {
+  ChangeType,
+  iconMap,
+  KEY_TO_ACTION_MAP,
+  NodeAnyCallback,
+  ROW_HEIGHT,
+} from "./common";
 import { Deferred } from "./deferred";
 
 export class WunderbaumNode {
@@ -143,7 +149,11 @@ export class WunderbaumNode {
    * @param node property name or callback
    * @param separator
    */
-  getPath(includeSelf = true, part: keyof WunderbaumNode | NodeAnyCallback = "title", separator = "/") {
+  getPath(
+    includeSelf = true,
+    part: keyof WunderbaumNode | NodeAnyCallback = "title",
+    separator = "/"
+  ) {
     // includeSelf = includeSelf !== false;
     // part = part || "title";
     // separator = separator || "/";
@@ -154,10 +164,12 @@ export class WunderbaumNode {
 
     this.visitParents((n) => {
       if (n.parent) {
-        val = isFunc ? (<NodeAnyCallback>part)(n) : n[<keyof WunderbaumNode>part];
+        val = isFunc
+          ? (<NodeAnyCallback>part)(n)
+          : n[<keyof WunderbaumNode>part];
         path.unshift(val);
       }
-      return undefined;  // TODO remove this line
+      return undefined; // TODO remove this line
     }, includeSelf);
     return path.join(separator);
   }
@@ -266,11 +278,11 @@ export class WunderbaumNode {
       if (!response.ok) {
         util.error(
           "GET " +
-          opts.remote +
-          " returned " +
-          response.status +
-          ", " +
-          response
+            opts.remote +
+            " returned " +
+            response.status +
+            ", " +
+            response
         );
       }
       opts.receive.call(tree, response);
@@ -364,7 +376,7 @@ export class WunderbaumNode {
    *   e.g. `ArrowLeft` = 'left'.
    * @param options
    */
-  async navigate(where: string, options?:any) {
+  async navigate(where: string, options?: any) {
     // Allow to pass 'ArrowLeft' instead of 'left'
     where = KEY_TO_ACTION_MAP[where] || where;
 
@@ -382,7 +394,7 @@ export class WunderbaumNode {
         break;
       case "firstCol":
       case "lastCol":
-        this.logWarning("navigate("+where+") is not yet implmented")
+        this.logWarning("navigate(" + where + ") is not yet implmented");
         break;
     }
     // Otherwise activate or focus the related node
@@ -391,7 +403,7 @@ export class WunderbaumNode {
       // setFocus/setActive will scroll later (if autoScroll is specified)
       try {
         node.makeVisible({ scrollIntoView: false });
-      } catch (e) { } // #272
+      } catch (e) {} // #272
       if (options.activate === false) {
         node.setFocus();
         return Promise.resolve(this);
@@ -524,7 +536,7 @@ export class WunderbaumNode {
     this.tree.activeNode = this;
     prev?.setDirty(ChangeType.status);
     this.setDirty(ChangeType.status);
-    this.scrollIntoView()
+    this.scrollIntoView();
   }
 
   setDirty(type: ChangeType) {
