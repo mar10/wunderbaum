@@ -28,7 +28,7 @@ module.exports = (grunt: any) => {
         // The following tools are run in order:
         run_test: { tasks: ["qunit:develop"] },
         check: {
-          branch: ["no-jquery-ts"],
+          branch: ["main"],
           canPush: true,
           clean: true,
           cmpVersion: "gte",
