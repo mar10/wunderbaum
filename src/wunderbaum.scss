@@ -13,6 +13,24 @@ $active-border-color: #dedede;
 $active-hover-color: #cbe8f6;
 $active-hover-border-color: #26a0da;
 
+/*
+ * Some nice colors
+ */
+$clr-black-olive: #2D342C;
+$clr-black: #1C1B19;
+$clr-bronze: #816540;
+$clr-gray: #868581;
+$clr-midnight-blue: #1E2E47;
+$clr-milk: #FCFCFC;
+$clr-patina-green: #29806D;
+$clr-petrol: #005C75;
+$clr-signal-blue: #1E5494;
+$clr-slate: #47423F;
+$clr-sunflower: #F7A600;
+$clr-translucent-green: #94BD31;
+$clr-translucent-red: #B5373B;
+$clr-umbra-gray: #56534C;
+
 $row-height: 20px;
 $header_height: $row-height;
 
@@ -104,14 +122,14 @@ div.wunderbaum {
     min-width: 1em;
     display: inline-block;  // fix vertical offset on Chrome?
     vertical-align: top;
-    text-overflow: ellipsis;
   }
 
   span.wb-col {
     position: absolute;
     display: inline-block;
+    text-overflow: ellipsis;
     // height: $row-height;
-    vertical-align: top;
+    // vertical-align: top;
   }
 
   @for $i from 1 through length($level-rainbow) {
