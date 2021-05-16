@@ -17,6 +17,7 @@ import { WunderbaumNode } from "./wb_node";
 import {
   ChangeType,
   default_debuglevel,
+  evalOption,
   NavigationMode,
   RENDER_PREFETCH,
   ROW_HEIGHT,
@@ -26,6 +27,7 @@ import {
 } from "./common";
 import { KeynavExtension } from "./wb_ext_keynav";
 import { LoggerExtension } from "./wb_ext_logger";
+import { extend } from "./util";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -50,10 +52,11 @@ export class Wunderbaum {
   readonly scrollContainer: HTMLElement;
 
   protected extensions: WunderbaumExtension[] = [];
-  protected keyMap: any = {};
-  protected refKeyMap: any = {};
-  protected viewNodes: Set<WunderbaumNode> = new Set();
-  protected rows: WunderbaumNode[] = [];
+  protected keyMap = new Map<string, WunderbaumNode>();
+  protected refKeyMap = new Map<string, Set<WunderbaumNode>>();
+  protected viewNodes = new Set<WunderbaumNode>();
+  // protected rows: WunderbaumNode[] = [];
+  // protected _rowCount = 0;
   activeNode: WunderbaumNode | null = null;
   focusNode: WunderbaumNode | null = null;
   options: WunderbaumOptions;
@@ -191,12 +194,43 @@ export class Wunderbaum {
     this.extensions.push(extension);
   }
 
-  /** */
+  /** Add node to tree's bookkeeping data structures. */
+  _registerNode(node: WunderbaumNode): void {
+    let key = node.key;
+    util.assert(key != null && !this.keyMap.has(key));
+    this.keyMap.set(key, node);
+    let rk = node.refKey;
+    if (rk) {
+      let rks = this.refKeyMap.get(rk);  // Set of nodes with this refKey
+      if (rks) {
+        rks.add(node);
+      } else {
+        this.refKeyMap.set(rk, new Set());
+      }
+    }
+  }
+
+  /** Remove node from tree's bookkeeping data structures. */
+  _unregisterNode(node: WunderbaumNode): void {
+    const rk = node.refKey;
+    if (rk) {
+      const rks = this.refKeyMap.get(rk);
+      if (rks && rks.delete(node) && !rks.size) {
+        // We just removed the last element
+        this.refKeyMap.delete(rk);
+      }
+    }
+    // mark as disposed
+    (node.tree as any) = null;
+    (node.parent as any) = null;
+  }
+
+  /** Call all hook methods of all registered extensions.*/
   protected _callHook(hook: keyof WunderbaumExtension, data: any = {}): any {
     let res;
     let d = util.extend(
       {},
-      { options: this.options, tree: this, result: undefined },
+      { tree: this, options: this.options, result: undefined },
       data
     );
 
@@ -209,6 +243,15 @@ export class Wunderbaum {
         res = d.result;
       }
     }
+    return res;
+  }
+
+  /** Call event if defined in options. */
+  _trigger(event: string, extra?: any): any {
+    let cb = this.options[event];
+    if (!cb) { return; }
+    let data = extend({}, { event: event, tree: this, options: this.options }, extra);
+    let res = cb.call(this, data);
     return res;
   }
 
@@ -237,13 +280,13 @@ export class Wunderbaum {
       bottomIdx =
         Math.floor(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-            ROW_HEIGHT
+          ROW_HEIGHT
         ) - 1;
     } else {
       bottomIdx =
         Math.ceil(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-            ROW_HEIGHT
+          ROW_HEIGHT
         ) - 1;
     }
     // TODO: start searching from active node
@@ -294,6 +337,19 @@ export class Wunderbaum {
     return res;
   }
 
+  /** */
+  count(visible = false) {
+    if (visible) { return this.viewNodes.size; }
+    return this.keyMap.size;
+  }
+
+  /** */
+  _check() {
+    let i = 0;
+    this.visit((n) => { i++; });
+    util.assert(this.keyMap.size === i);
+  }
+
   /** Find a node relative to another node.
    *
    * @param node
@@ -337,12 +393,15 @@ export class Wunderbaum {
         }
         break;
       case "right":
-        if( this.nav)
-        if (!node.expanded && (node.children || node.lazy)) {
-          node.setExpanded();
-          res = node;
-        } else if (node.children && node.children.length) {
-          res = node.children[0];
+        if (this.cellNavMode) {
+          throw new Error("Not implemented");
+        } else {
+          if (!node.expanded && (node.children || node.lazy)) {
+            node.setExpanded();
+            res = node;
+          } else if (node.children && node.children.length) {
+            res = node.children[0];
+          }
         }
         break;
       case "up":
@@ -607,7 +666,7 @@ export class Wunderbaum {
   }
 
   /** */
-  setModified(node: WunderbaumNode | null, change: ChangeType) {}
+  setModified(node: WunderbaumNode | null, change: ChangeType) { }
 
   /** Update column headers and width. */
   updateColumns(opts: any) {
@@ -680,6 +739,7 @@ export class Wunderbaum {
       startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
       endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
     });
+    this._trigger("update");
   }
 
   /** Call callback(node) for all nodes in hierarchical order (depth-first).

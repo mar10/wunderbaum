@@ -14,6 +14,7 @@ import * as util from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import {
   ChangeType,
+  evalOption,
   iconMap,
   KEY_TO_ACTION_MAP,
   NodeAnyCallback,
@@ -47,10 +48,10 @@ export class WunderbaumNode {
     util.assert(!parent || parent.tree === tree);
     this.tree = tree;
     this.parent = parent;
-    this.title = data.title || "?";
-    this.key =
-      data.key === undefined ? "" + ++WunderbaumNode.sequence : "" + data.key;
+    this.key = data.key == null ? "" + ++WunderbaumNode.sequence : "" + data.key;
+    this.title = data.title || "?" + this.key;
     // this.refKey = data.refKey;
+    tree._registerNode(this);
   }
 
   /**
@@ -59,6 +60,21 @@ export class WunderbaumNode {
    */
   toString() {
     return "WunderbaumNode@" + this.key + "<'" + this.title + "'>";
+  }
+
+  /** Return an option value. */
+  protected _getOpt(
+    name: string,
+    nodeObject: any = null,
+    treeOptions: any = null,
+    defaultValue: any = null,
+  ): any {
+    return evalOption(name, this, nodeObject || this, treeOptions || this.tree.options, defaultValue);
+  }
+
+  /** Call event if defined in options. */
+  protected _trigger(event: string, extra?: any): any {
+    return this.tree._trigger.call(this.tree, event, util.extend({ node: this }, extra));
   }
 
   addChild(node: WunderbaumNode, before?: WunderbaumNode) {
@@ -278,21 +294,21 @@ export class WunderbaumNode {
       if (!response.ok) {
         util.error(
           "GET " +
-            opts.remote +
-            " returned " +
-            response.status +
-            ", " +
-            response
+          opts.remote +
+          " returned " +
+          response.status +
+          ", " +
+          response
         );
       }
-      opts.receive.call(tree, response);
+      this._trigger("receive", { response: response });
       const data = await response.json();
 
       let prev = tree.enableUpdate(false);
       this.addChildren(data);
       tree.enableUpdate(prev);
     } catch (error) {
-      opts.error.call(tree, error);
+      this._trigger("error", { error: error });
     }
 
     if (opts.debugLevel >= 2) {
@@ -403,7 +419,7 @@ export class WunderbaumNode {
       // setFocus/setActive will scroll later (if autoScroll is specified)
       try {
         node.makeVisible({ scrollIntoView: false });
-      } catch (e) {} // #272
+      } catch (e) { } // #272
       if (options.activate === false) {
         node.setFocus();
         return Promise.resolve(this);
@@ -412,6 +428,15 @@ export class WunderbaumNode {
     }
     this.logWarning("Could not find related node '" + where + "'.");
     return Promise.resolve(this);
+  }
+
+  /** */
+  remove() {
+    const tree = this.tree;
+    this.visit((n) => {
+      n.removeMarkup();
+      tree._unregisterNode(n);
+    });
   }
 
   removeMarkup() {

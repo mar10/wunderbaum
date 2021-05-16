@@ -112,7 +112,7 @@ export const KEY_TO_ACTION_MAP: { [key: string]: string } = {
  * @param node passed to the callback
  * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
  * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
- * @param [defaultValue]
+ * @param defaultValue return this if nothing else matched
  *
  * @example
  * // Check for node.foo, tree,options.foo(), and tree.options.foo:
@@ -127,21 +127,20 @@ export function evalOption(
   treeOptions: any,
   defaultValue: any
 ): any {
-  var ctx,
+  let data,
     res,
     tree = node.tree,
     treeOpt = treeOptions[optionName],
     nodeOpt = nodeObject[optionName];
 
   if (typeof treeOpt === "function") {
-    ctx = {
+    data = {
       node: node,
       tree: tree,
-      // widget: tree.widget,
       options: tree.options,
       typeInfo: node.type ? tree.types[node.type] : {},
     };
-    res = treeOpt.call(tree, { type: optionName }, ctx);
+    res = treeOpt.call(tree, { type: optionName }, data);
     if (res == null) {
       res = nodeOpt;
     }
