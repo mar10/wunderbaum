@@ -3,57 +3,17 @@
 <head>
   <meta charset="utf-8">
   <title>Persisto Test Suite</title>
-  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.14.0.css">
+  <link rel="stylesheet" href="https://code.jquery.com/qunit/qunit-2.15.0.css">
 </head>
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
 
-  <form id="form1" action="">
-    <label>Title:<input name="title" type="text" value=" untrimmed " /></label><br>
-    <label>Details: <textarea name="details" rows="3" type="textarea" value=""></textarea></label><br>
-    <label>Favorite:
-      <input name="isFavorite" type="checkbox" value="" />
-    </label><br>
-    <label>Status:
-      <fieldset>
-        <label> <input name="status" type="radio" value="active" /> active </label><br>
-        <label> <input name="status" type="radio" value="done" checked="checked" /> done </label><br>
-        <label> <input name="status" type="radio" value="waiting" /> waiting </label>
-      </fieldset>
-    </label><br>
-    <label>Attributes:
-      <fieldset>
-        <label> <input name="attributes" type="checkbox" value="opt1" checked="" /> opt1 </label><br>
-        <label> <input name="attributes" type="checkbox" value="opt2" checked="" /> opt2 </label><br>
-        <label> <input name="attributes" type="checkbox" value="opt3"> opt3 </input></label>
-      </fieldset>
-    </label><br>
-    <label>Color:
-      <select name="color">
-        <option value="red">Red</option>
-        <option value="green" selected="selected">Green</option>
-        <option value="blue">Blue</option>
-      </select>
-    </label><br>
-    <label>Tags:
-      <select name="tags" multiple="multiple">
-        <option value="cool" selected="selected">Cool</option>
-        <option value="hot" selected="selected">Hot</option>
-        <option value="lame">Lame</option>
-      </select>
-    </label><br>
+  <div id="tree">
+  </div>
 
-    <label>Sub field:<input name="user.name" type="text" value="Joe" /></label><br>
-
-    <label>New field:<input name="title2" type="text" value="new" /></label><br>
-
-    <button type="submit">Submit</button>
-    <button type="reset">Reset</button>
-  </form>
-
-  <script src="https://code.jquery.com/qunit/qunit-2.14.0.js"></script>
-  <script src="../../dist/persisto.umd.js"> </script>
+  <script src="https://code.jquery.com/qunit/qunit-2.15.0.js"></script>
+  <script src="../../dist/wunderbaum.umd.js"> </script>
   <script src="test-core.js"> </script>
 </body>
 </html>

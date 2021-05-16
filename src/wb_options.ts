@@ -39,7 +39,7 @@ export interface WunderbaumOptions {
    * Pass `null` to disable remote synchronization.<br>
    * Default: `null`.
    */
-  remote?: any;
+  navigationMode?: NavigationMode;
   /**
    * Default values if no data is found in localStorage.
    *
@@ -51,11 +51,11 @@ export interface WunderbaumOptions {
    *
    * Automatically call [[readFromForm]] when users enter form data.
    */
-  attachForm?: HTMLFormElement|string;
+  attachForm?: HTMLFormElement | string;
   /**
    * Set status-dependant classes here.
    */
-  statusElement?: HTMLFormElement|string;
+  statusElement?: HTMLFormElement | string;
 
   /**
    * Commit changes after *X* milliseconds of inactivity.
@@ -83,7 +83,7 @@ export interface WunderbaumOptions {
    * never commit if the user enters keystrokes frequently.
    *
    * Default: `3000` milliseconds
-  */
+   */
   maxCommitDelay?: number;
   /**
    * Push commits after *X* milliseconds of inactivity.
@@ -113,7 +113,7 @@ export interface WunderbaumOptions {
    * Pass `null` to disable persistence.
    *
    * Default: `window.localStorage`
-  */
+   */
   storage?: any;
   /**
    * Verbosity level: 0:quiet, 1:normal, 2:verbose.
@@ -167,7 +167,7 @@ export interface WunderbaumOptions {
    * Possible values: 'ok', 'error', 'loading', 'status', 'modified'.
    * @category Callback
    */
-  status?: (status:string) => void;
+  status?: (status: string) => void;
   /**
    * Called after data was loaded from local storage.
    * @category Callback
