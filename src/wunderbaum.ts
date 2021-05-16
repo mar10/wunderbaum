@@ -17,7 +17,6 @@ import { WunderbaumNode } from "./wb_node";
 import {
   ChangeType,
   default_debuglevel,
-  evalOption,
   NavigationMode,
   RENDER_PREFETCH,
   ROW_HEIGHT,
@@ -58,11 +57,12 @@ export class Wunderbaum {
   // protected rows: WunderbaumNode[] = [];
   // protected _rowCount = 0;
   activeNode: WunderbaumNode | null = null;
+  activeColIdx = 0;
   focusNode: WunderbaumNode | null = null;
+  cellNavMode = false;
   options: WunderbaumOptions;
   enableFilter = false;
   _enableUpdate = true;
-  cellNavMode = false;
   /** Shared properties, referenced by `node.type`. */
   types: any = {};
   /** List of column definitions. */
@@ -101,6 +101,10 @@ export class Wunderbaum {
     delete opts.columns;
     this.types = opts.types || {};
     delete opts.types;
+
+    if (opts.navigationMode === NavigationMode.force || opts.navigationMode === NavigationMode.start) {
+      this.cellNavMode = true;
+    }
 
     // --- Create Markup
     if (typeof opts.element === "string") {
@@ -347,7 +351,8 @@ export class Wunderbaum {
   _check() {
     let i = 0;
     this.visit((n) => { i++; });
-    util.assert(this.keyMap.size === i);
+    if(this.keyMap.size !== i) {this.logError(`_check failed: ${this.keyMap.size} !== ${i}`)}
+    // util.assert(this.keyMap.size === i);
   }
 
   /** Find a node relative to another node.
@@ -386,23 +391,29 @@ export class Wunderbaum {
         });
         break;
       case "left":
-        if (node.expanded) {
-          node.setExpanded(false);
-        } else if (node.parent && node.parent.parent) {
+        if (node.parent && node.parent.parent) {
           res = node.parent;
         }
+        // if (node.expanded) {
+        //   node.setExpanded(false);
+        // } else if (node.parent && node.parent.parent) {
+        //   res = node.parent;
+        // }
         break;
       case "right":
-        if (this.cellNavMode) {
-          throw new Error("Not implemented");
-        } else {
-          if (!node.expanded && (node.children || node.lazy)) {
-            node.setExpanded();
-            res = node;
-          } else if (node.children && node.children.length) {
-            res = node.children[0];
-          }
+        if (node.children && node.children.length) {
+          res = node.children[0];
         }
+        // if (this.cellNavMode) {
+        //   throw new Error("Not implemented");
+        // } else {
+        //   if (!node.expanded && (node.children || node.lazy)) {
+        //     node.setExpanded();
+        //     res = node;
+        //   } else if (node.children && node.children.length) {
+        //     res = node.children[0];
+        //   }
+        // }
         break;
       case "up":
         res = this._getPrevNodeInView(node);
@@ -663,6 +674,37 @@ export class Wunderbaum {
       this.scrollContainer.scrollTop = newTop;
       this.updateViewport();
     }
+  }
+
+  /** */
+  setCellMode(flag = true) {
+    flag = !!flag;
+    // util.assert(this.cellNavMode);
+    // util.assert(0 <= colIdx && colIdx < this.columns.length);
+    if (flag === this.cellNavMode) { return; }
+    // if( flag ) {
+    // }else{
+    // }
+    this.activeColIdx = 0;
+    this.cellNavMode = flag;
+    this.treeElement.classList.toggle("wb-cell-mode", flag);
+    this.setModified(this.activeNode, ChangeType.row);
+  }
+
+  /** */
+  setColumn(colIdx: number) {
+    util.assert(this.cellNavMode);
+    util.assert(0 <= colIdx && colIdx < this.columns.length);
+    this.activeColIdx = colIdx;
+    // node.setActive(true, { column: tree.activeColIdx + 1 });
+    this.setModified(this.activeNode, ChangeType.row);
+    // Update `wb-active` class for all cell div
+    this.nodeListElement.childNodes.forEach(rowDiv => {
+      let i = 0;
+      rowDiv.childNodes.forEach(colDiv => {
+        (<HTMLElement>colDiv).classList.toggle("wb-active", i++ === colIdx);
+      });
+    });
   }
 
   /** */

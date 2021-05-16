@@ -396,23 +396,23 @@ export class WunderbaumNode {
     // Allow to pass 'ArrowLeft' instead of 'left'
     where = KEY_TO_ACTION_MAP[where] || where;
 
-    // Handle optional expand/collapse action for LEFT/RIGHT
-    switch (where) {
-      case "left":
-        if (this.expanded) {
-          return this.setExpanded(false);
-        }
-        break;
-      case "right":
-        if (!this.expanded && (this.children || this.lazy)) {
-          return this.setExpanded();
-        }
-        break;
-      case "firstCol":
-      case "lastCol":
-        this.logWarning("navigate(" + where + ") is not yet implmented");
-        break;
-    }
+    // // Handle optional expand/collapse action for LEFT/RIGHT
+    // switch (where) {
+    //   case "left":
+    //     if (this.expanded) {
+    //       return this.setExpanded(false);
+    //     }
+    //     break;
+    //   case "right":
+    //     if (!this.expanded && (this.children || this.lazy)) {
+    //       return this.setExpanded();
+    //     }
+    //     break;
+    //   case "firstCol":
+    //   case "lastCol":
+    //     this.logWarning("navigate(" + where + ") is not yet implmented");
+    //     break;
+    // }
     // Otherwise activate or focus the related node
     let node = this.findRelatedNode(where);
     if (node) {

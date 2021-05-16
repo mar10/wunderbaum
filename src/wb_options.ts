@@ -4,6 +4,8 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
+import { NavigationMode } from "./common";
+
 /**
  * Available options for [[PersistentObject]].
  *

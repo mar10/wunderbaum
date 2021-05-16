@@ -17,6 +17,7 @@ export type NodeAnyCallback = (node: WunderbaumNode) => any;
 
 export enum ChangeType {
   any = "any",
+  row = "row",
   structure = "structure",
   status = "status",
 }
@@ -75,7 +76,7 @@ export abstract class WunderbaumExtension {
 }
 
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_MAP: { [key: string]: string } = {
+export const KEY_TO_ACTION_MAP: { [key: string]: string; } = {
   " ": "toggleSelect",
   "+": "expand",
   Add: "expand",
@@ -152,3 +153,75 @@ export function evalOption(
   }
   return res;
 }
+
+
+/*******************************************************************************
+ *
+ */
+
+// var reNumUnit = /^([+-]?(?:\d+|\d*\.\d+))([a-z]*|%)$/; // split "1.5em" to ["1.5", "em"]
+
+/* Create a global embedded CSS style for the tree. */
+// export function defineHeadStyleElement(id: string, cssText: string) {
+//   id = "wunderbaum-style-" + id;
+//   var $headStyle = $("#" + id);
+
+//   if (!cssText) {
+//     $headStyle.remove();
+//     return null;
+//   }
+//   if (!$headStyle.length) {
+//     $headStyle = $("<style />")
+//       .attr("id", id)
+//       .addClass("fancytree-style")
+//       .prop("type", "text/css")
+//       .appendTo("head");
+//   }
+//   try {
+//     $headStyle.html(cssText);
+//   } catch (e) {
+//     // fix for IE 6-8
+//     $headStyle[0].styleSheet.cssText = cssText;
+//   }
+//   return $headStyle;
+// }
+
+/* Calculate the CSS rules that indent title spans. */
+// function renderLevelCss(
+//   containerId,
+//   depth,
+//   levelOfs,
+//   lineOfs,
+//   labelOfs,
+//   measureUnit
+// ) {
+//   var i,
+//     prefix = "#" + containerId + " span.fancytree-level-",
+//     rules = [];
+
+//   for (i = 0; i < depth; i++) {
+//     rules.push(
+//       prefix +
+//       (i + 1) +
+//       " span.fancytree-title { padding-left: " +
+//       (i * levelOfs + lineOfs) +
+//       measureUnit +
+//       "; }"
+//     );
+//   }
+//   // Some UI animations wrap the UL inside a DIV and set position:relative on both.
+//   // This breaks the left:0 and padding-left:nn settings of the title
+//   rules.push(
+//     "#" +
+//     containerId +
+//     " div.ui-effects-wrapper ul li span.fancytree-title, " +
+//     "#" +
+//     containerId +
+//     " li.fancytree-animating span.fancytree-title " + // #716
+//     "{ padding-left: " +
+//     labelOfs +
+//     measureUnit +
+//     "; position: static; width: auto; }"
+//   );
+//   return rules.join("\n");
+// }

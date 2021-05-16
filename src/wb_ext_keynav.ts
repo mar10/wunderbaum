@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { evalOption, WunderbaumExtension } from "./common";
+import { NavigationMode, WunderbaumExtension } from "./common";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
@@ -79,8 +79,49 @@ export class KeynavExtension extends WunderbaumExtension {
     //   event.preventDefault();
     //   return;
     // }
+
+    if (tree.cellNavMode) {
+
+    }
+
+    const navMode = opts.navigationMode;
+
+    // Pre-Evaluate expand/collapse action for LEFT/RIGHT
     switch (eventName) {
-      // switch (eventToString(event)) {
+      case "ArrowLeft":
+        if (tree.cellNavMode) {
+          if (tree.activeColIdx > 0) {
+            tree.setColumn(tree.activeColIdx - 1);
+            return
+          } else if (navMode !== NavigationMode.force) {
+            tree.setCellMode(false);
+            return
+          }
+        } else if (node.expanded) {
+          eventName = "Subtract";  // collapse
+        }
+        break;
+      case "ArrowRight":
+        if (tree.cellNavMode) {
+          if (tree.activeColIdx < tree.columns.length - 1) {
+            tree.setColumn(tree.activeColIdx + 1);
+            return
+          }
+        } else if (!node.expanded && (node.children || node.lazy)) {
+          eventName = "Add";  // expand
+        } else if (navMode === NavigationMode.allow) {
+          tree.setCellMode(true);
+          return
+        }
+        break;
+      // case "firstCol":
+      // case "lastCol":
+      //   node.logWarning("navigate(" + where + ") is not yet implemented");
+      //   break;
+    }
+
+    // Standard navigation
+    switch (eventName) {
       case "+":
       case "Add":
         // case "=": // 187: '+' @ Chrome, Safari
