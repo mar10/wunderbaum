@@ -17,6 +17,7 @@ import { WunderbaumNode } from "./wb_node";
 import {
   ChangeType,
   default_debuglevel,
+  NavigationMode,
   RENDER_PREFETCH,
   ROW_HEIGHT,
   TargetType,
@@ -55,9 +56,10 @@ export class Wunderbaum {
   protected rows: WunderbaumNode[] = [];
   activeNode: WunderbaumNode | null = null;
   focusNode: WunderbaumNode | null = null;
-  options: any;
+  options: WunderbaumOptions;
   enableFilter = false;
   _enableUpdate = true;
+  cellNavMode = false;
   /** Shared properties, referenced by `node.type`. */
   types: any = {};
   /** List of column definitions. */
@@ -73,7 +75,7 @@ export class Wunderbaum {
         debugLevel: default_debuglevel, // 0:quiet, 1:normal, 2:verbose
         columns: null,
         types: null,
-
+        navigationMode: NavigationMode.allow,
         // Events
         change: util.noop,
         error: util.noop,
@@ -212,8 +214,12 @@ export class Wunderbaum {
 
   /** Return the topmost visible node in the viewport */
   protected _firstNodeInView(complete = true) {
-    let topIdx = Math.floor(this.scrollContainer.scrollTop / ROW_HEIGHT);
-    let node: WunderbaumNode;
+    let topIdx: number, node: WunderbaumNode;
+    if (complete) {
+      topIdx = Math.ceil(this.scrollContainer.scrollTop / ROW_HEIGHT);
+    } else {
+      topIdx = Math.floor(this.scrollContainer.scrollTop / ROW_HEIGHT);
+    }
     // TODO: start searching from active node (reverse)
     this.visitRows((n) => {
       if (n._rowIdx === topIdx) {
@@ -226,11 +232,20 @@ export class Wunderbaum {
 
   /** Return the lowest visible node in the viewport */
   protected _lastNodeInView(complete = true) {
-    let bottomIdx = Math.floor(
-      (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-        ROW_HEIGHT
-    );
-    let node: WunderbaumNode;
+    let bottomIdx: number, node: WunderbaumNode;
+    if (complete) {
+      bottomIdx =
+        Math.floor(
+          (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
+            ROW_HEIGHT
+        ) - 1;
+    } else {
+      bottomIdx =
+        Math.ceil(
+          (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
+            ROW_HEIGHT
+        ) - 1;
+    }
     // TODO: start searching from active node
     this.visitRows((n) => {
       if (n._rowIdx === bottomIdx) {
@@ -322,6 +337,7 @@ export class Wunderbaum {
         }
         break;
       case "right":
+        if( this.nav)
         if (!node.expanded && (node.children || node.lazy)) {
           node.setExpanded();
           res = node;
@@ -337,20 +353,24 @@ export class Wunderbaum {
         break;
       case "pageDown":
         let bottomNode = this._lastNodeInView();
+        this.logDebug(where, this.focusNode, bottomNode);
 
-        if (this.activeNode !== bottomNode) {
+        if (this.focusNode !== bottomNode) {
           res = bottomNode;
         } else {
           res = this._getNextNodeInView(node, pageSize);
         }
         break;
       case "pageUp":
-        let topNode = this._firstNodeInView();
-
-        if (this.activeNode !== topNode) {
-          res = topNode;
+        if (this.focusNode && this.focusNode._rowIdx === 0) {
+          res = this.focusNode;
         } else {
-          res = this._getPrevNodeInView(node, pageSize);
+          let topNode = this._firstNodeInView();
+          if (this.focusNode !== topNode) {
+            res = topNode;
+          } else {
+            res = this._getPrevNodeInView(node, pageSize);
+          }
         }
         break;
       default:

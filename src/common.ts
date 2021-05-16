@@ -21,6 +21,13 @@ export enum ChangeType {
   status = "status",
 }
 
+export enum NavigationMode {
+  allow = "allow",
+  force = "force",
+  start = "start",
+  off = "off",
+}
+
 export enum TargetType {
   unknown = "",
   checkbox = "checkbox",

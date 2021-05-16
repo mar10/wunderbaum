@@ -39,7 +39,7 @@ export interface WunderbaumOptions {
    * Pass `null` to disable remote synchronization.<br>
    * Default: `null`.
    */
-  remote?: any;
+  navigationMode?: NavigationMode;
   /**
    * Default values if no data is found in localStorage.
    *
