@@ -455,13 +455,14 @@ export class WunderbaumNode {
     let checkboxSpan: HTMLElement;
     let iconSpan: HTMLElement;
     let expanderSpan: HTMLElement;
+    const activeColIdx = tree.cellNavMode ? tree.activeColIdx : null;
 
     //
     let rowClasses = ["wb-row"];
     this.expanded ? rowClasses.push("wb-expanded") : 0;
     this.lazy ? rowClasses.push("wb-lazy") : 0;
     this.selected ? rowClasses.push("wb-selected") : 0;
-    this === this.tree.activeNode ? rowClasses.push("wb-active") : 0;
+    this === tree.activeNode ? rowClasses.push("wb-active") : 0;
 
     if (rowDiv) {
       // Row markup already exists
@@ -477,6 +478,7 @@ export class WunderbaumNode {
 
       nodeElem = document.createElement("span");
       nodeElem.classList.add("wb-node", "wb-col");
+      if (activeColIdx === 0) { nodeElem.classList.add("wb-active"); }
       rowDiv.appendChild(nodeElem);
 
       checkboxSpan = document.createElement("i");
@@ -499,12 +501,15 @@ export class WunderbaumNode {
       nodeElem.appendChild(titleSpan);
 
       // Render columns
+      let colIdx = 0;
       for (let col of tree.columns) {
+        colIdx++;
         if (col.id === "*") {
           continue;
         }
         let colElem = document.createElement("span");
         colElem.classList.add("wb-col");
+        if (colIdx === activeColIdx) { nodeElem.classList.add("wb-active"); }
         colElem.style.left = col._ofsPx + "px";
         colElem.style.width = col._widthPx + "px";
         colElem.textContent = "" + col.id;

@@ -92,10 +92,10 @@ export class KeynavExtension extends WunderbaumExtension {
         if (tree.cellNavMode) {
           if (tree.activeColIdx > 0) {
             tree.setColumn(tree.activeColIdx - 1);
-            return
+            return;
           } else if (navMode !== NavigationMode.force) {
             tree.setCellMode(false);
-            return
+            return;
           }
         } else if (node.expanded) {
           eventName = "Subtract";  // collapse
@@ -105,13 +105,25 @@ export class KeynavExtension extends WunderbaumExtension {
         if (tree.cellNavMode) {
           if (tree.activeColIdx < tree.columns.length - 1) {
             tree.setColumn(tree.activeColIdx + 1);
-            return
           }
+          return;
         } else if (!node.expanded && (node.children || node.lazy)) {
           eventName = "Add";  // expand
         } else if (navMode === NavigationMode.allow) {
           tree.setCellMode(true);
-          return
+          return;
+        }
+        break;
+      case "Enter":
+        if (tree.cellNavMode && tree.activeColIdx === 0) {
+          node.setExpanded(!node.isExpanded());
+          return;
+        }
+        break;
+      case "Escape":
+        if (tree.cellNavMode) {
+          tree.setCellMode(false);
+          return;
         }
         break;
       // case "firstCol":

@@ -685,8 +685,11 @@ export class Wunderbaum {
     // if( flag ) {
     // }else{
     // }
-    this.activeColIdx = 0;
+    // this.activeColIdx = 0;
     this.cellNavMode = flag;
+    if( flag){
+      this.setColumn(0)
+    }
     this.treeElement.classList.toggle("wb-cell-mode", flag);
     this.setModified(this.activeNode, ChangeType.row);
   }
@@ -698,13 +701,20 @@ export class Wunderbaum {
     this.activeColIdx = colIdx;
     // node.setActive(true, { column: tree.activeColIdx + 1 });
     this.setModified(this.activeNode, ChangeType.row);
-    // Update `wb-active` class for all cell div
-    this.nodeListElement.childNodes.forEach(rowDiv => {
+    // Update `wb-active` class for all headers
+    for (const rowDiv of this.headerElement.children) {
       let i = 0;
-      rowDiv.childNodes.forEach(colDiv => {
+      for (const colDiv of rowDiv.children) {
         (<HTMLElement>colDiv).classList.toggle("wb-active", i++ === colIdx);
-      });
-    });
+      }
+    }
+    // Update `wb-active` class for all cell divs
+    for (const rowDiv of this.nodeListElement.children) {
+      let i = 0;
+      for (const colDiv of rowDiv.children) {
+        (<HTMLElement>colDiv).classList.toggle("wb-active", i++ === colIdx);
+      }
+    }
   }
 
   /** */

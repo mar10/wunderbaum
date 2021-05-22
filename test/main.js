@@ -45,9 +45,8 @@ document.querySelector("a#collapse-all").addEventListener("click", (event) => {
 function showStatus(tree, options) {
   const info = document.querySelector("#tree-info");
   const elemCount = document.querySelector(".wb-node-list").childElementCount;
-  const msg = `Nodes: ${tree.count()}, rows: ${tree.count(
-    true
-  )}, rendered: ${elemCount}`;
+  const msg = `Nodes: ${tree.count()}, rows: ${tree.count(true)}, rendered: ${elemCount}`
+    + `, `;
   // console.info(
   //   info,
   //   msg,

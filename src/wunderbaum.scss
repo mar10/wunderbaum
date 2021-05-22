@@ -4,35 +4,37 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
- /*
+/*
   * Some nice colors
   */
- $clr-black-olive: #2D342C;
- $clr-black: #1C1B19;
- $clr-bronze: #816540;
- $clr-gray: #868581;
- $clr-midnight-blue: #1E2E47;
- $clr-milk: #FCFCFC;
- $clr-patina-green: #29806D;
- $clr-petrol: #005C75;
- $clr-signal-blue: #1E5494;
- $clr-slate: #47423F;
- $clr-sunflower: #F7A600;
- $clr-translucent-green: #94BD31;
- $clr-translucent-red: #B5373B;
- $clr-umbra-gray: #56534C;
+$clr-black-olive: #2d342c;
+$clr-black: #1c1b19;
+$clr-bronze: #816540;
+$clr-gray: #868581;
+$clr-midnight-blue: #1e2e47;
+$clr-milk: #fcfcfc;
+$clr-patina-green: #29806d;
+$clr-petrol: #005c75;
+$clr-signal-blue: #1e5494;
+$clr-slate: #47423f;
+$clr-sunflower: #f7a600;
+$clr-translucent-green: #94bd31;
+$clr-translucent-red: #b5373b;
+$clr-umbra-gray: #56534c;
 
 $font-stack: Helvetica, sans-serif;
-$hover-color: #e5f3fb;
-$hover-border-color: #70c0e7;
+
+$hover-color: #f7f7f7;
+$hover-border-color: #dedede;
 $focus-border-color: #969da3;
-$active-color: #f7f7f7;
-$active-border-color: #dedede;
+$active-color: #e5f3fb;
+$active-cell-color: #26a0da;
+$active-border-color: #70c0e7;
 $active-hover-color: #cbe8f6;
 $active-hover-border-color: #26a0da;
 $background-color: $clr-milk;
 $active-column-color: $hover-color;
-$active-cell-color: #26a0da;
+$active-header-column-color: $active-color;
 
 $row-height: 20px;
 $header_height: $row-height;
@@ -41,25 +43,21 @@ $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
 
 div.wunderbaum {
-  height: 100%;  // fill parent container
+  height: 100%; // fill parent container
   box-sizing: border-box;
   margin: 1px;
   padding: 0;
   font-family: $font-stack;
   border: 1px solid gray;
-  overflow: hidden;  // avoid unwanted effects when auto-resizing
+  overflow: hidden; // avoid unwanted effects when auto-resizing
 
   div.wb-header {
     position: relative;
     height: $header-height;
     border-bottom: 1px solid gainsboro;
-    // background-color: honeydew;
     span.wb-col {
       font-weight: bold;
       &:hover {
-        background-color: $active-hover-color;
-      }
-      &.wb-active {
         background-color: $active-hover-color;
       }
       // &::after {
@@ -123,6 +121,7 @@ div.wunderbaum {
       }
     }
   }
+
   &.wb-cell-mode {
     div.wb-row {
       background-color: $background-color;
@@ -136,12 +135,16 @@ div.wunderbaum {
         }
       }
     }
+    div.wb-header {
+      span.wb-col.wb-active {
+        background-color: $active-hover-color;
+      }
+    }
   }
-
 
   span.wb-title {
     min-width: 1em;
-    display: inline-block;  // fix vertical offset on Chrome?
+    display: inline-block; // fix vertical offset on Chrome?
     vertical-align: top;
   }
 
