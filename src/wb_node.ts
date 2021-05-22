@@ -51,7 +51,9 @@ export class WunderbaumNode {
     this.key = data.key == null ? "" + ++WunderbaumNode.sequence : "" + data.key;
     this.title = data.title || "?" + this.key;
     // this.refKey = data.refKey;
-    tree._registerNode(this);
+    if (parent) {  // Don't register root node
+      tree._registerNode(this);
+    }
   }
 
   /**
