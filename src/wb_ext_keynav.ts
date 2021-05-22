@@ -115,7 +115,7 @@ export class KeynavExtension extends WunderbaumExtension {
         }
         break;
       case "Enter":
-        if (tree.cellNavMode && tree.activeColIdx === 0) {
+        if (tree.cellNavMode && tree.activeColIdx === 0 && node.isExpandable()) {
           node.setExpanded(!node.isExpanded());
           return;
         }

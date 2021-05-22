@@ -63,6 +63,7 @@ export class Wunderbaum {
   options: WunderbaumOptions;
   enableFilter = false;
   _enableUpdate = true;
+  lastQuicksearchTerm = "";
   /** Shared properties, referenced by `node.type`. */
   types: any = {};
   /** List of column definitions. */
@@ -149,7 +150,11 @@ export class Wunderbaum {
         node = info.node;
 
       if (node) {
-        node.setActive();
+        if( info.colIdx >= 0){
+          node.setActive(true, {colIdx:  info.colIdx});
+        }else {
+          node.setActive();
+        }
         if (info.type === TargetType.expander) {
           node.setExpanded(!node.isExpanded());
         } else if (info.type === TargetType.checkbox) {
@@ -351,7 +356,7 @@ export class Wunderbaum {
   _check() {
     let i = 0;
     this.visit((n) => { i++; });
-    if(this.keyMap.size !== i) {this.logError(`_check failed: ${this.keyMap.size} !== ${i}`)}
+    if (this.keyMap.size !== i) { this.logError(`_check failed: ${this.keyMap.size} !== ${i}`); }
     // util.assert(this.keyMap.size === i);
   }
 
@@ -480,7 +485,7 @@ export class Wunderbaum {
     let target = <Element>event.target,
       cl = target.classList,
       node = Wunderbaum.getNode(event.target),
-      res = { node: node, type: TargetType.unknown, column: undefined };
+      res = { node: node, type: TargetType.unknown, colDef: undefined, colIdx: 0 };
 
     if (cl.contains("wb-title")) {
       res.type = TargetType.title;
@@ -499,7 +504,8 @@ export class Wunderbaum {
         target.parentNode!.children,
         target
       );
-      res.column = node?.tree.columns[idx];
+      res.colIdx = idx;
+      res.colDef = node?.tree.columns[idx];
       // Somewhere near the title
       // } else if (event && event.target) {
       //   $target = $(event.target);
@@ -518,6 +524,7 @@ export class Wunderbaum {
       //     res.type = "expander";
       //   }
     }
+    this.log("Event", event, res);
     return res;
   }
   /** Return a string describing the affected node region for a mouse event.
@@ -687,8 +694,8 @@ export class Wunderbaum {
     // }
     // this.activeColIdx = 0;
     this.cellNavMode = flag;
-    if( flag){
-      this.setColumn(0)
+    if (flag) {
+      this.setColumn(0);
     }
     this.treeElement.classList.toggle("wb-cell-mode", flag);
     this.setModified(this.activeNode, ChangeType.row);

@@ -396,23 +396,6 @@ export class WunderbaumNode {
     // Allow to pass 'ArrowLeft' instead of 'left'
     where = KEY_TO_ACTION_MAP[where] || where;
 
-    // // Handle optional expand/collapse action for LEFT/RIGHT
-    // switch (where) {
-    //   case "left":
-    //     if (this.expanded) {
-    //       return this.setExpanded(false);
-    //     }
-    //     break;
-    //   case "right":
-    //     if (!this.expanded && (this.children || this.lazy)) {
-    //       return this.setExpanded();
-    //     }
-    //     break;
-    //   case "firstCol":
-    //   case "lastCol":
-    //     this.logWarning("navigate(" + where + ") is not yet implmented");
-    //     break;
-    // }
     // Otherwise activate or focus the related node
     let node = this.findRelatedNode(where);
     if (node) {
@@ -562,10 +545,17 @@ export class WunderbaumNode {
   }
 
   async setActive(flag: boolean = true, options?: any) {
-    let prev = this.tree.activeNode;
-    this.tree.activeNode = this;
+    const tree = this.tree;
+    let prev = tree.activeNode;
+    tree.activeNode = this;
     prev?.setDirty(ChangeType.status);
     this.setDirty(ChangeType.status);
+    if (options && options.colIdx != null && tree.cellNavMode) {
+      tree.setColumn(options.colIdx);
+    }
+    // requestAnimationFrame(() => {
+    //   this.scrollIntoView();
+    // })
     this.scrollIntoView();
   }
 
