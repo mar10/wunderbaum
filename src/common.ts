@@ -28,6 +28,11 @@ export enum NavigationMode {
   start = "start",
   off = "off",
 }
+export enum CellNavigationMode {
+  row = "row", 
+  cellNav = "cellNav", 
+  cellEdit = "cellEdit",
+}
 
 export enum TargetType {
   unknown = "",
@@ -38,6 +43,19 @@ export enum TargetType {
   prefix = "prefix",
   title = "title",
 }
+
+
+// Define which keys are handled by embedded <input> control, and should
+// *not* be passed to tree navigation handler in cell-edit mode:
+export const INPUT_KEYS = {
+  text: ["left", "right", "home", "end", "backspace"],
+  number: ["up", "down", "left", "right", "home", "end", "backspace"],
+  checkbox: [],
+  link: [],
+  radiobutton: ["up", "down"],
+  "select-one": ["up", "down"],
+  "select-multiple": ["up", "down"],
+};
 
 export let iconMap = {
   expanderExpanded: "bi bi-chevron-down",

@@ -98,7 +98,7 @@
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs:umd\"",
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
-    "dev": "concurrently \"http-server . -p 8080 -o /test \" \"nodemon\""
+    "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\""
   },
   "npmName": "wunderbaum",
   "npmFileMap": [

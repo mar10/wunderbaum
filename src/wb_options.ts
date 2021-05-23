@@ -36,10 +36,7 @@ import { NavigationMode } from "./common";
  */
 export interface WunderbaumOptions {
   /**
-   * URL for GET/PUT request to remote server.
-   *
-   * Pass `null` to disable remote synchronization.<br>
-   * Default: `null`.
+   * 
    */
   navigationMode?: NavigationMode;
   /**
