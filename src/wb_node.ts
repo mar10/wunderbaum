@@ -310,6 +310,7 @@ export class WunderbaumNode {
       this.addChildren(data);
       tree.enableUpdate(prev);
     } catch (error) {
+      this.logError("Error during load()", source, error);
       this._trigger("error", { error: error });
     }
 

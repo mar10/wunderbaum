@@ -45,10 +45,10 @@ export class Wunderbaum {
   readonly name: string;
 
   readonly element: HTMLElement;
-  readonly treeElement: HTMLElement;
+  // readonly treeElement: HTMLElement;
   readonly headerElement: HTMLElement;
-  readonly nodeListElement: HTMLElement;
   readonly scrollContainer: HTMLElement;
+  readonly nodeListElement: HTMLElement;
 
   protected extensions: WunderbaumExtension[] = [];
   protected keyMap = new Map<string, WunderbaumNode>();
@@ -80,6 +80,7 @@ export class Wunderbaum {
         columns: null,
         types: null,
         navigationMode: NavigationMode.allow,
+        showSpinner: false,
         // Events
         change: util.noop,
         error: util.noop,
@@ -98,7 +99,7 @@ export class Wunderbaum {
     this._registerExtension(new LoggerExtension(this));
 
     // --- Evaluate options
-    this.columns = opts.columns || [];
+    this.columns = opts.columns;
     delete opts.columns;
     this.types = opts.types || {};
     delete opts.types;
@@ -113,30 +114,61 @@ export class Wunderbaum {
     } else {
       this.element = opts.element;
     }
-    this.treeElement = <HTMLElement>(
-      this.element.querySelector("div.wunderbaum")
-    );
-    this.headerElement = <HTMLElement>(
-      this.treeElement.querySelector("div.wb-header")
-    );
-    this.scrollContainer = <HTMLElement>(
-      this.treeElement.querySelector("div.wb-scroll-container")
-    );
-    this.nodeListElement = <HTMLElement>(
-      this.scrollContainer.querySelector("div.wb-node-list")
-    );
-    if (!this.nodeListElement) {
-      alert("TODO: create markup");
+
+    // Attach tree instance to <div>
+    (<any>this.element)._wb_tree = this;
+
+    // Create header markup, or take it from the existing html
+
+    this.headerElement = this.element.querySelector("div.wb-header") as HTMLElement;
+
+    if (this.headerElement) {
+      // User existing header markup to define `this.columns`
+      util.assert(!this.columns, "`opts.columns` must not be set if markup already contains a header");
+      this.columns = [];
+      let rowElement = this.headerElement.querySelector("div.wb-row") as HTMLElement;
+      for (let colDiv of rowElement.querySelectorAll("div")) {
+        this.columns.push({
+          id: colDiv.dataset.id || null,
+          text: "" + colDiv.textContent,
+        });
+      }
+
+    } else if (this.columns) {
+      // We need a row div, the rest will be computed from `this.columns`
+      let coldivs = "<span class='wb-col'></span>".repeat(this.columns.length);
+      this.element.innerHTML = `
+        <div class='wb-header'>
+          <div class='wb-row'>
+            ${coldivs}
+          </div>
+        </div>`;
+      this.headerElement = this.element.querySelector("div.wb-header") as HTMLElement;
+      this.updateColumns({ render: false });
+
+    } else {
+      util.assert(false, "Either `opts.columns` or header markup must be defined");
     }
-    (<any>this.treeElement)._wb_tree = this;
+
+    //
+    this.element.innerHTML += `
+      <div class="wb-scroll-container">
+        <div class="wb-node-list"></div>
+      </div>`;
+    this.scrollContainer = this.element.querySelector("div.wb-scroll-container") as HTMLElement;
+    this.nodeListElement = this.scrollContainer.querySelector("div.wb-node-list") as HTMLElement;
 
     // --- Load initial data
     if (opts.source) {
-      this.nodeListElement.innerHTML =
-        "<progress class='spinner'>loading...</progress>";
+      if (opts.showSpinner) {
+        this.nodeListElement.innerHTML = "<progress class='spinner'>loading...</progress>";
+      }
       this.load(opts.source).finally(() => {
-        this.element.querySelector("progress.spinner")!.remove();
+        this.element.querySelector("progress.spinner")?.remove();
+        this.element.classList.remove("wb-initializing", "wb-skeleton");
       });
+      // }else{
+      //   this.element.classList.remove("wb-initializing", "wb-skeleton");
     }
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
@@ -150,9 +182,9 @@ export class Wunderbaum {
         node = info.node;
 
       if (node) {
-        if( info.colIdx >= 0){
-          node.setActive(true, {colIdx:  info.colIdx});
-        }else {
+        if (info.colIdx >= 0) {
+          node.setActive(true, { colIdx: info.colIdx });
+        } else {
           node.setActive();
         }
         if (info.type === TargetType.expander) {
@@ -172,7 +204,7 @@ export class Wunderbaum {
     //     // this.log("mouse", e.target);
     //   }
     // );
-    util.onEvent(this.treeElement, "keydown", null, (e) => {
+    util.onEvent(this.element, "keydown", null, (e) => {
       this._callHook("onKeyEvent", { tree: this, event: e });
     });
   }
@@ -633,6 +665,7 @@ export class Wunderbaum {
     return modified;
   }
 
+  /**Recalc and apply header columns from `this.columns`. */
   renderHeader() {
     let headerRow = this.headerElement.querySelector(".wb-row");
 
@@ -697,7 +730,7 @@ export class Wunderbaum {
     if (flag) {
       this.setColumn(0);
     }
-    this.treeElement.classList.toggle("wb-cell-mode", flag);
+    this.element.classList.toggle("wb-cell-mode", flag);
     this.setModified(this.activeNode, ChangeType.row);
   }
 
@@ -731,7 +764,7 @@ export class Wunderbaum {
   updateColumns(opts: any) {
     let modified = false;
     let minWidth = 4;
-    let vpWidth = this.treeElement.clientWidth;
+    let vpWidth = this.element.clientWidth;
     let totalWeight = 0;
     let fixedWidth = 0;
 
@@ -785,7 +818,7 @@ export class Wunderbaum {
   updateViewport() {
     let height = this.scrollContainer.clientHeight;
     let wantHeight =
-      this.treeElement.clientHeight - this.headerElement.clientHeight;
+      this.element.clientHeight - this.headerElement.clientHeight;
     let ofs = this.scrollContainer.scrollTop;
 
     if (Math.abs(height - wantHeight) > 1.0) {

@@ -29,8 +29,8 @@ export enum NavigationMode {
   off = "off",
 }
 export enum CellNavigationMode {
-  row = "row", 
-  cellNav = "cellNav", 
+  row = "row",
+  cellNav = "cellNav",
   cellEdit = "cellEdit",
 }
 
@@ -73,6 +73,18 @@ export let iconMap = {
   folderOpen: "bi bi-folder2-open",
   doc: "bi bi-file-earmark",
 };
+
+// export const TREE_TEMPLATE = `
+// <div class="wb-header">
+//   <div class="wb-row">
+//   </div>
+// </div>
+
+// <div class="wb-scroll-container">
+//   <div class="wb-node-list" style="height: 400px">
+//   </div>
+// </div>
+// `;
 
 export abstract class WunderbaumExtension {
   abstract name: string;
