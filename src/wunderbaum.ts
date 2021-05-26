@@ -77,6 +77,7 @@ export class Wunderbaum {
         source: null, // URL for GET/PUT, ajax options, or callback
         element: null,
         debugLevel: default_debuglevel, // 0:quiet, 1:normal, 2:verbose
+        headerHeightPx: 20,
         columns: null,
         types: null,
         navigationMode: NavigationMode.allow,
@@ -104,7 +105,10 @@ export class Wunderbaum {
     this.types = opts.types || {};
     delete opts.types;
 
-    if (opts.navigationMode === NavigationMode.force || opts.navigationMode === NavigationMode.start) {
+    if (
+      opts.navigationMode === NavigationMode.force ||
+      opts.navigationMode === NavigationMode.start
+    ) {
       this.cellNavMode = true;
     }
 
@@ -120,20 +124,26 @@ export class Wunderbaum {
 
     // Create header markup, or take it from the existing html
 
-    this.headerElement = this.element.querySelector("div.wb-header") as HTMLElement;
+    this.headerElement = this.element.querySelector(
+      "div.wb-header"
+    ) as HTMLElement;
 
     if (this.headerElement) {
       // User existing header markup to define `this.columns`
-      util.assert(!this.columns, "`opts.columns` must not be set if markup already contains a header");
+      util.assert(
+        !this.columns,
+        "`opts.columns` must not be set if markup already contains a header"
+      );
       this.columns = [];
-      let rowElement = this.headerElement.querySelector("div.wb-row") as HTMLElement;
+      let rowElement = this.headerElement.querySelector(
+        "div.wb-row"
+      ) as HTMLElement;
       for (let colDiv of rowElement.querySelectorAll("div")) {
         this.columns.push({
           id: colDiv.dataset.id || null,
           text: "" + colDiv.textContent,
         });
       }
-
     } else if (this.columns) {
       // We need a row div, the rest will be computed from `this.columns`
       let coldivs = "<span class='wb-col'></span>".repeat(this.columns.length);
@@ -143,11 +153,15 @@ export class Wunderbaum {
             ${coldivs}
           </div>
         </div>`;
-      this.headerElement = this.element.querySelector("div.wb-header") as HTMLElement;
+      this.headerElement = this.element.querySelector(
+        "div.wb-header"
+      ) as HTMLElement;
       this.updateColumns({ render: false });
-
     } else {
-      util.assert(false, "Either `opts.columns` or header markup must be defined");
+      util.assert(
+        false,
+        "Either `opts.columns` or header markup must be defined"
+      );
     }
 
     //
@@ -155,13 +169,18 @@ export class Wunderbaum {
       <div class="wb-scroll-container">
         <div class="wb-node-list"></div>
       </div>`;
-    this.scrollContainer = this.element.querySelector("div.wb-scroll-container") as HTMLElement;
-    this.nodeListElement = this.scrollContainer.querySelector("div.wb-node-list") as HTMLElement;
+    this.scrollContainer = this.element.querySelector(
+      "div.wb-scroll-container"
+    ) as HTMLElement;
+    this.nodeListElement = this.scrollContainer.querySelector(
+      "div.wb-node-list"
+    ) as HTMLElement;
 
     // --- Load initial data
     if (opts.source) {
       if (opts.showSpinner) {
-        this.nodeListElement.innerHTML = "<progress class='spinner'>loading...</progress>";
+        this.nodeListElement.innerHTML =
+          "<progress class='spinner'>loading...</progress>";
       }
       this.load(opts.source).finally(() => {
         this.element.querySelector("progress.spinner")?.remove();
@@ -242,7 +261,7 @@ export class Wunderbaum {
     this.keyMap.set(key, node);
     let rk = node.refKey;
     if (rk) {
-      let rks = this.refKeyMap.get(rk);  // Set of nodes with this refKey
+      let rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
       if (rks) {
         rks.add(node);
       } else {
@@ -290,8 +309,14 @@ export class Wunderbaum {
   /** Call event if defined in options. */
   _trigger(event: string, extra?: any): any {
     let cb = this.options[event];
-    if (!cb) { return; }
-    let data = extend({}, { event: event, tree: this, options: this.options }, extra);
+    if (!cb) {
+      return;
+    }
+    let data = extend(
+      {},
+      { event: event, tree: this, options: this.options },
+      extra
+    );
     let res = cb.call(this, data);
     return res;
   }
@@ -321,13 +346,13 @@ export class Wunderbaum {
       bottomIdx =
         Math.floor(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-          ROW_HEIGHT
+            ROW_HEIGHT
         ) - 1;
     } else {
       bottomIdx =
         Math.ceil(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-          ROW_HEIGHT
+            ROW_HEIGHT
         ) - 1;
     }
     // TODO: start searching from active node
@@ -380,15 +405,21 @@ export class Wunderbaum {
 
   /** */
   count(visible = false) {
-    if (visible) { return this.viewNodes.size; }
+    if (visible) {
+      return this.viewNodes.size;
+    }
     return this.keyMap.size;
   }
 
   /** */
   _check() {
     let i = 0;
-    this.visit((n) => { i++; });
-    if (this.keyMap.size !== i) { this.logError(`_check failed: ${this.keyMap.size} !== ${i}`); }
+    this.visit((n) => {
+      i++;
+    });
+    if (this.keyMap.size !== i) {
+      this.logError(`_check failed: ${this.keyMap.size} !== ${i}`);
+    }
     // util.assert(this.keyMap.size === i);
   }
 
@@ -517,7 +548,12 @@ export class Wunderbaum {
     let target = <Element>event.target,
       cl = target.classList,
       node = Wunderbaum.getNode(event.target),
-      res = { node: node, type: TargetType.unknown, colDef: undefined, colIdx: 0 };
+      res = {
+        node: node,
+        type: TargetType.unknown,
+        colDef: undefined,
+        colIdx: 0,
+      };
 
     if (cl.contains("wb-title")) {
       res.type = TargetType.title;
@@ -661,6 +697,7 @@ export class Wunderbaum {
     }
     // Resize tree container
     this.nodeListElement.style.height = "" + top + "px";
+    this.log("render()", this.nodeListElement.style.height);
     this.logTimeEnd(label);
     return modified;
   }
@@ -721,7 +758,9 @@ export class Wunderbaum {
     flag = !!flag;
     // util.assert(this.cellNavMode);
     // util.assert(0 <= colIdx && colIdx < this.columns.length);
-    if (flag === this.cellNavMode) { return; }
+    if (flag === this.cellNavMode) {
+      return;
+    }
     // if( flag ) {
     // }else{
     // }
@@ -758,7 +797,7 @@ export class Wunderbaum {
   }
 
   /** */
-  setModified(node: WunderbaumNode | null, change: ChangeType) { }
+  setModified(node: WunderbaumNode | null, change: ChangeType) {}
 
   /** Update column headers and width. */
   updateColumns(opts: any) {
@@ -817,13 +856,17 @@ export class Wunderbaum {
   /** Render all rows that are visible in the viewport. */
   updateViewport() {
     let height = this.scrollContainer.clientHeight;
-    let wantHeight =
-      this.element.clientHeight - this.headerElement.clientHeight;
+    // We cannot get the height for abolut positioned parent, so look at first col
+    // let headerHeight = this.headerElement.clientHeight
+    // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
+    const headerHeight = this.options.headerHeightPx;
+    let wantHeight = this.element.clientHeight - headerHeight;
     let ofs = this.scrollContainer.scrollTop;
 
     if (Math.abs(height - wantHeight) > 1.0) {
       this.log("resize", height, wantHeight);
       this.scrollContainer.style.height = wantHeight + "px";
+      height = wantHeight;
     }
 
     this.updateColumns({ render: false });

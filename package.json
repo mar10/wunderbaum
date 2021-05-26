@@ -2,7 +2,7 @@
   "name": "wunderbaum",
   "version": "0.0.1-0",
   "title": "A tree control.",
-  "description": "JavaScript tree control.",
+  "description": "JavaScript tree/grid/treegrid control.",
   "main": "dist/wunderbaum.umd.js",
   "types": "dist/wunderbaum.d.ts",
   "module": "dist/perrsisto.esm.min.js",
@@ -36,11 +36,10 @@
     "dist"
   ],
   "keywords": [
-    "ajax",
-    "cache",
-    "localStorage",
-    "sessionStorage",
-    "persistence"
+    "grid",
+    "tree",
+    "treegrid",
+    "typescript"
   ],
   "devDependencies": {
     "@rollup/plugin-typescript": "^6.1.0",

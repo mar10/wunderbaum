@@ -1,4 +1,7 @@
-# ![](docs/assets/tree_logo_32.png) wunderbaum-pre
+---
+title: wunderbaum
+---
+# ![](assets/tree_logo_32.png) wunderbaum-pre
 
 Incubator for [wunderbaum](https://github.com/mar10/wunderbaum).
 

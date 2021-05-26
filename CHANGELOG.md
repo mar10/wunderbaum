@@ -1,4 +1,8 @@
-# 1.0.0 / Unreleased
+# 3.0.0 / Unreleased
+
+First release.
+
+**Main Changes to [Fancytree](https://github.com/mar10/fancytree/):**
 
 - 'folder' is no longer a builtin type
 - Removed dependecy to jQuery

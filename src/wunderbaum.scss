@@ -37,7 +37,7 @@ $active-column-color: $hover-color;
 $active-header-column-color: $active-color;
 
 $row-height: 20px;
-$header_height: $row-height;
+$header-height: $row-height;
 
 $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
@@ -71,7 +71,7 @@ div.wunderbaum {
     scroll-behavior: smooth;
     position: relative;
     min-height: 4px;
-    // height: calc(100% - #{$header_height});  // didn't work. Using JS instead
+    // height: calc(100% - #{$header-height});  // didn't work. Using JS instead
     // padding: 0 4px;
 
     div.wb-row {
