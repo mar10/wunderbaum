@@ -40,7 +40,7 @@ module.exports = (grunt: any) => {
         tag: {},
         push: { tags: true, useFollowTags: true },
         githubRelease: {
-          repo: "mar10/persisto",
+          repo: "mar10/wunderbaum-pre",
           draft: false,
         },
         npmPublish: {},
