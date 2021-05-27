@@ -48,10 +48,12 @@ export class WunderbaumNode {
     util.assert(!parent || parent.tree === tree);
     this.tree = tree;
     this.parent = parent;
-    this.key = data.key == null ? "" + ++WunderbaumNode.sequence : "" + data.key;
+    this.key =
+      data.key == null ? "" + ++WunderbaumNode.sequence : "" + data.key;
     this.title = data.title || "?" + this.key;
     // this.refKey = data.refKey;
-    if (parent) {  // Don't register root node
+    if (parent) {
+      // Don't register root node
       tree._registerNode(this);
     }
   }
@@ -69,14 +71,24 @@ export class WunderbaumNode {
     name: string,
     nodeObject: any = null,
     treeOptions: any = null,
-    defaultValue: any = null,
+    defaultValue: any = null
   ): any {
-    return evalOption(name, this, nodeObject || this, treeOptions || this.tree.options, defaultValue);
+    return evalOption(
+      name,
+      this,
+      nodeObject || this,
+      treeOptions || this.tree.options,
+      defaultValue
+    );
   }
 
   /** Call event if defined in options. */
   protected _trigger(event: string, extra?: any): any {
-    return this.tree._trigger.call(this.tree, event, util.extend({ node: this }, extra));
+    return this.tree._trigger.call(
+      this.tree,
+      event,
+      util.extend({ node: this }, extra)
+    );
   }
 
   addChild(node: WunderbaumNode, before?: WunderbaumNode) {
@@ -296,11 +308,11 @@ export class WunderbaumNode {
       if (!response.ok) {
         util.error(
           "GET " +
-          opts.remote +
-          " returned " +
-          response.status +
-          ", " +
-          response
+            opts.remote +
+            " returned " +
+            response.status +
+            ", " +
+            response
         );
       }
       this._trigger("receive", { response: response });
@@ -405,7 +417,7 @@ export class WunderbaumNode {
       // setFocus/setActive will scroll later (if autoScroll is specified)
       try {
         node.makeVisible({ scrollIntoView: false });
-      } catch (e) { } // #272
+      } catch (e) {} // #272
       if (options.activate === false) {
         node.setFocus();
         return Promise.resolve(this);
@@ -464,7 +476,9 @@ export class WunderbaumNode {
 
       nodeElem = document.createElement("span");
       nodeElem.classList.add("wb-node", "wb-col");
-      if (activeColIdx === 0) { nodeElem.classList.add("wb-active"); }
+      if (activeColIdx === 0) {
+        nodeElem.classList.add("wb-active");
+      }
       rowDiv.appendChild(nodeElem);
 
       checkboxSpan = document.createElement("i");
@@ -495,7 +509,9 @@ export class WunderbaumNode {
         }
         let colElem = document.createElement("span");
         colElem.classList.add("wb-col");
-        if (colIdx === activeColIdx) { nodeElem.classList.add("wb-active"); }
+        if (colIdx === activeColIdx) {
+          nodeElem.classList.add("wb-active");
+        }
         colElem.style.left = col._ofsPx + "px";
         colElem.style.width = col._widthPx + "px";
         colElem.textContent = "" + col.id;

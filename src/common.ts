@@ -44,7 +44,6 @@ export enum TargetType {
   title = "title",
 }
 
-
 // Define which keys are handled by embedded <input> control, and should
 // *not* be passed to tree navigation handler in cell-edit mode:
 export const INPUT_KEYS = {
@@ -106,7 +105,7 @@ export abstract class WunderbaumExtension {
 }
 
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_MAP: { [key: string]: string; } = {
+export const KEY_TO_ACTION_MAP: { [key: string]: string } = {
   " ": "toggleSelect",
   "+": "expand",
   Add: "expand",
@@ -183,7 +182,6 @@ export function evalOption(
   }
   return res;
 }
-
 
 /*******************************************************************************
  *

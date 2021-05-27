@@ -5,8 +5,13 @@
  */
 
 /** Readable names for `MouseEvent.button` */
-export const MOUSE_BUTTONS: { [key: number]: string; } = {
-  0: "", 1: "left", 2: "middle", 3: "right", 4: "back", 5: "forward"
+export const MOUSE_BUTTONS: { [key: number]: string } = {
+  0: "",
+  1: "left",
+  2: "middle",
+  3: "right",
+  4: "back",
+  5: "forward",
 };
 
 export const MAX_INT = 9007199254740991;
@@ -24,7 +29,7 @@ export class Deferred {
   private resolvedValue: any;
   private rejectedError: any;
 
-  constructor() { }
+  constructor() {}
 
   resolve(value?: any) {
     if (this.status) {
@@ -266,7 +271,7 @@ export function isArray(obj: any) {
 }
 
 /** A dummy function that does nothing ('no operation'). */
-export function noop(...args: any[]): any { }
+export function noop(...args: any[]): any {}
 
 export function ready(fn: any) {
   if (document.readyState === "loading") {

@@ -36,7 +36,7 @@ import { NavigationMode } from "./common";
  */
 export interface WunderbaumOptions {
   /**
-   * 
+   *
    */
   navigationMode?: NavigationMode;
   /**

@@ -81,7 +81,6 @@ export class KeynavExtension extends WunderbaumExtension {
     // }
 
     if (tree.cellNavMode) {
-
     }
 
     const navMode = opts.navigationMode;
@@ -98,7 +97,7 @@ export class KeynavExtension extends WunderbaumExtension {
             return;
           }
         } else if (node.expanded) {
-          eventName = "Subtract";  // collapse
+          eventName = "Subtract"; // collapse
         }
         break;
       case "ArrowRight":
@@ -108,14 +107,18 @@ export class KeynavExtension extends WunderbaumExtension {
           }
           return;
         } else if (!node.expanded && (node.children || node.lazy)) {
-          eventName = "Add";  // expand
+          eventName = "Add"; // expand
         } else if (navMode === NavigationMode.allow) {
           tree.setCellMode(true);
           return;
         }
         break;
       case "Enter":
-        if (tree.cellNavMode && tree.activeColIdx === 0 && node.isExpandable()) {
+        if (
+          tree.cellNavMode &&
+          tree.activeColIdx === 0 &&
+          node.isExpandable()
+        ) {
           node.setExpanded(!node.isExpanded());
           return;
         }
