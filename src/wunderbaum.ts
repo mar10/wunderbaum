@@ -17,6 +17,8 @@ import { WunderbaumNode } from "./wb_node";
 import {
   ChangeType,
   default_debuglevel,
+  makeNodeTitleStartMatcher,
+  MatcherType,
   NavigationMode,
   RENDER_PREFETCH,
   ROW_HEIGHT,
@@ -63,6 +65,7 @@ export class Wunderbaum {
   options: WunderbaumOptions;
   enableFilter = false;
   _enableUpdate = true;
+  lastQuicksearchTime = 0;
   lastQuicksearchTerm = "";
   /** Shared properties, referenced by `node.type`. */
   types: any = {};
@@ -82,6 +85,7 @@ export class Wunderbaum {
         types: null,
         navigationMode: NavigationMode.allow,
         showSpinner: false,
+        quicksearch: true,
         // Events
         change: util.noop,
         error: util.noop,
@@ -421,6 +425,64 @@ export class Wunderbaum {
       this.logError(`_check failed: ${this.keyMap.size} !== ${i}`);
     }
     // util.assert(this.keyMap.size === i);
+  }
+
+  /**Find all nodes that matches condition.
+   *
+   * @param match title string to search for, or a
+   *     callback function that returns `true` if a node is matched.
+   * @see [[WunderbaumNode.findAll]]
+   */
+  findAll(match: string | MatcherType) {
+    return this.root.findAll(match);
+  }
+
+  /**Find first node that matches condition.
+   *
+   * @param match title string to search for, or a
+   *     callback function that returns `true` if a node is matched.
+   * @see [[WunderbaumNode.findFirst]]
+   */
+  findFirst(match: string | MatcherType) {
+    return this.root.findFirst(match);
+  }
+
+  /** Find the next visible node that starts with `match`, starting at `startNode`
+   * and wrap-around at the end.
+   */
+  findNextNode(
+    match: string | MatcherType,
+    startNode?: WunderbaumNode | null
+  ): WunderbaumNode | null {
+    //, visibleOnly) {
+    let res: WunderbaumNode | null = null,
+      firstNode = this.getFirstChild()!;
+
+    let matcher =
+      typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
+    startNode = startNode || firstNode;
+
+    function _checkNode(n: WunderbaumNode) {
+      // console.log("_check " + n)
+      if (matcher(n)) {
+        res = n;
+      }
+      if (res || n === startNode) {
+        return false;
+      }
+    }
+    this.visitRows(_checkNode, {
+      start: startNode,
+      includeSelf: false,
+    });
+    // Wrap around search
+    if (!res && startNode !== firstNode) {
+      this.visitRows(_checkNode, {
+        start: firstNode,
+        includeSelf: true,
+      });
+    }
+    return res;
   }
 
   /** Find a node relative to another node.

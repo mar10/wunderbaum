@@ -17,10 +17,13 @@ import {
   evalOption,
   iconMap,
   KEY_TO_ACTION_MAP,
+  makeNodeTitleMatcher,
+  MatcherType,
   NodeAnyCallback,
   ROW_HEIGHT,
 } from "./common";
 import { Deferred } from "./deferred";
+import { isFunction } from "./util";
 
 export class WunderbaumNode {
   static sequence = 0;
@@ -123,13 +126,48 @@ export class WunderbaumNode {
     });
   }
 
+  /**Find all nodes that match condition (excluding self).
+   *
+   * @param {string | function(node)} match title string to search for, or a
+   *     callback function that returns `true` if a node is matched.
+   */
+  findAll(match: string | MatcherType): WunderbaumNode[] {
+    const matcher = isFunction(match)
+      ? <MatcherType>match
+      : makeNodeTitleMatcher(<string>match);
+    const res: WunderbaumNode[] = [];
+    this.visit((n) => {
+      if (matcher(n)) {
+        res.push(n);
+      }
+    });
+    return res;
+  }
+
+  /**Find first node that matches condition (excluding self).
+   *
+   * @param match title string to search for, or a
+   *     callback function that returns `true` if a node is matched.
+   */
+  findFirst(match: string | MatcherType): WunderbaumNode | null {
+    const matcher = isFunction(match)
+      ? <MatcherType>match
+      : makeNodeTitleMatcher(<string>match);
+    let res = null;
+    this.visit((n) => {
+      if (matcher(n)) {
+        res = n;
+        return false;
+      }
+    });
+    return res;
+  }
+
   /** Find a node relative to self.
    *
-   * @param {number|string} where The keyCode that would normally trigger this move,
+   * @param where The keyCode that would normally trigger this move,
    *		or a keyword ('down', 'first', 'last', 'left', 'parent', 'right', 'up').
-
-
-  */
+   */
   findRelatedNode(where: string, includeHidden = false) {
     return this.tree.findRelatedNode(this, where, includeHidden);
   }

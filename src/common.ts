@@ -8,6 +8,7 @@ import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 
 export type WunderbaumOptions = any;
+export type MatcherType = (node: WunderbaumNode) => boolean;
 
 export const default_debuglevel = 2; // Replaced by rollup script
 export const ROW_HEIGHT = 24;
@@ -72,18 +73,6 @@ export let iconMap = {
   folderOpen: "bi bi-folder2-open",
   doc: "bi bi-file-earmark",
 };
-
-// export const TREE_TEMPLATE = `
-// <div class="wb-header">
-//   <div class="wb-row">
-//   </div>
-// </div>
-
-// <div class="wb-scroll-container">
-//   <div class="wb-node-list" style="height: 400px">
-//   </div>
-// </div>
-// `;
 
 export abstract class WunderbaumExtension {
   abstract name: string;
@@ -181,6 +170,22 @@ export function evalOption(
     res = defaultValue; // no option set at all: return default
   }
   return res;
+}
+
+/** */
+export function makeNodeTitleMatcher(s: string): MatcherType {
+  s = s.toLowerCase();
+  return function (node: WunderbaumNode) {
+    return node.title.toLowerCase().indexOf(s) >= 0;
+  };
+}
+
+/** */
+export function makeNodeTitleStartMatcher(s: string): MatcherType {
+  const reMatch = new RegExp("^" + s, "i");
+  return function (node: WunderbaumNode) {
+    return reMatch.test(node.title);
+  };
 }
 
 /*******************************************************************************
