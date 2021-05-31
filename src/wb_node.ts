@@ -484,8 +484,13 @@ export class WunderbaumNode {
   }
 
   render(opts: any) {
+    const ICON_WIDTH = 20;
+    const EXTRA_PAD = 30;
+
     let tree = this.tree;
-    let elem: HTMLElement, nodeElem: HTMLElement;
+    let columns = tree.columns;
+    let elem: HTMLElement;
+    let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
     let titleSpan: HTMLElement;
     let checkboxSpan: HTMLElement;
@@ -502,10 +507,11 @@ export class WunderbaumNode {
 
     if (rowDiv) {
       // Row markup already exists
-      titleSpan = <HTMLElement>rowDiv.querySelector("span.wb-title");
-      expanderSpan = <HTMLElement>rowDiv.querySelector("i.wb-expander");
-      checkboxSpan = <HTMLElement>rowDiv.querySelector("i.wb-checkbox");
-      iconSpan = <HTMLElement>rowDiv.querySelector("i.wb-icon");
+      nodeElem = rowDiv.querySelector("span.wb-node") as HTMLElement;
+      titleSpan = nodeElem.querySelector("span.wb-title") as HTMLElement;
+      expanderSpan = nodeElem.querySelector("i.wb-expander") as HTMLElement;
+      checkboxSpan = nodeElem.querySelector("i.wb-checkbox") as HTMLElement;
+      iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
     } else {
       rowDiv = document.createElement("div");
       // rowDiv.classList.add("wb-row");
@@ -514,46 +520,56 @@ export class WunderbaumNode {
 
       nodeElem = document.createElement("span");
       nodeElem.classList.add("wb-node", "wb-col");
-      if (activeColIdx === 0) {
-        nodeElem.classList.add("wb-active");
-      }
       rowDiv.appendChild(nodeElem);
+
+      let ofsTitlePx = 0;
 
       checkboxSpan = document.createElement("i");
       nodeElem.appendChild(checkboxSpan);
+      ofsTitlePx += ICON_WIDTH;
 
       for (let i = this.getLevel() - 1; i > 0; i--) {
         elem = document.createElement("i");
         elem.classList.add("wb-indent");
         nodeElem.appendChild(elem);
+        ofsTitlePx += ICON_WIDTH;
       }
 
       expanderSpan = document.createElement("i");
       nodeElem.appendChild(expanderSpan);
+      ofsTitlePx += ICON_WIDTH;
 
       iconSpan = document.createElement("i");
       nodeElem.appendChild(iconSpan);
+      ofsTitlePx += ICON_WIDTH;
 
       titleSpan = document.createElement("span");
       titleSpan.classList.add("wb-title");
       nodeElem.appendChild(titleSpan);
 
+      // Store the width of leading icons with the node, so we can calculate
+      // the width of the embedded title span later
+      (<any>nodeElem)._ofsTitlePx = ofsTitlePx;
+
       // Render columns
       let colIdx = 0;
-      for (let col of tree.columns) {
+      for (let col of columns) {
         colIdx++;
+
+        let colElem;
         if (col.id === "*") {
-          continue;
+          colElem = nodeElem;
+        } else {
+          colElem = document.createElement("span");
+          colElem.classList.add("wb-col");
+          colElem.textContent = "" + col.id;
+          rowDiv.appendChild(colElem);
         }
-        let colElem = document.createElement("span");
-        colElem.classList.add("wb-col");
         if (colIdx === activeColIdx) {
-          nodeElem.classList.add("wb-active");
+          colElem.classList.add("wb-active");
         }
         colElem.style.left = col._ofsPx + "px";
         colElem.style.width = col._widthPx + "px";
-        colElem.textContent = "" + col.id;
-        rowDiv.appendChild(colElem);
       }
     }
 
@@ -589,6 +605,19 @@ export class WunderbaumNode {
       }
     }
     titleSpan.textContent = this.title;
+    // Set the width of the title span, so overflow ellipsis work
+    titleSpan.style.width =
+      columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
+
+    // this.log(
+    //   "render",
+    //   titleSpan,
+    //   columns[0]._widthPx,
+    //   (<any>nodeElem)._ofsTitlePx,
+    //   titleSpan.offsetLeft,
+    //   titleSpan.offsetWidth,
+    //   titleSpan.offsetParent
+    // );
 
     // Attach to DOM as late as possible
     if (!this._rowElem) {

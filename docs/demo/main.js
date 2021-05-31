@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     debugLevel: 5,
     types: {},
     columns: [
-      { id: "*", title: "Name", width: "300px" },
+      { id: "*", title: "Name", width: "280px" },
       { id: "id1", title: "a", width: 2 },
       { id: "id2", title: "b" },
     ],

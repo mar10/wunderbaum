@@ -152,6 +152,9 @@ div.wunderbaum {
     min-width: 1em;
     display: inline-block; // fix vertical offset on Chrome?
     vertical-align: top;
+    overflow-x: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
   }
 
   span.wb-col {
