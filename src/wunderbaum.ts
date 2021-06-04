@@ -118,7 +118,7 @@ export class Wunderbaum {
 
     // --- Create Markup
     if (typeof opts.element === "string") {
-      this.element = <HTMLElement>document.querySelector(opts.element);
+      this.element = document.querySelector(opts.element) as HTMLElement;
     } else {
       this.element = opts.element;
     }
@@ -157,10 +157,10 @@ export class Wunderbaum {
             ${coldivs}
           </div>
         </div>`;
-      this.headerElement = this.element.querySelector(
-        "div.wb-header"
-      ) as HTMLElement;
-      this.updateColumns({ render: false });
+      // this.headerElement = this.element.querySelector(
+      //   "div.wb-header"
+      // ) as HTMLElement;
+      // this.updateColumns({ render: false });
     } else {
       util.assert(
         false,
@@ -179,6 +179,10 @@ export class Wunderbaum {
     this.nodeListElement = this.scrollContainer.querySelector(
       "div.wb-node-list"
     ) as HTMLElement;
+    this.headerElement = this.element.querySelector(
+      "div.wb-header"
+    ) as HTMLElement;
+    this.updateColumns({ render: false });
 
     // --- Load initial data
     if (opts.source) {
@@ -843,17 +847,18 @@ export class Wunderbaum {
     // node.setActive(true, { column: tree.activeColIdx + 1 });
     this.setModified(this.activeNode, ChangeType.row);
     // Update `wb-active` class for all headers
-    for (const rowDiv of this.headerElement.children) {
+    for (let rowDiv of this.headerElement.children) {
+      // for (let rowDiv of document.querySelector("div.wb-header").children) {
       let i = 0;
-      for (const colDiv of rowDiv.children) {
-        (<HTMLElement>colDiv).classList.toggle("wb-active", i++ === colIdx);
+      for (let colDiv of rowDiv.children) {
+        (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
       }
     }
     // Update `wb-active` class for all cell divs
-    for (const rowDiv of this.nodeListElement.children) {
+    for (let rowDiv of this.nodeListElement.children) {
       let i = 0;
-      for (const colDiv of rowDiv.children) {
-        (<HTMLElement>colDiv).classList.toggle("wb-active", i++ === colIdx);
+      for (let colDiv of rowDiv.children) {
+        (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
       }
     }
   }

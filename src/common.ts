@@ -6,6 +6,7 @@
 
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
+import { escapeRegExp } from "./util";
 
 export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
@@ -174,7 +175,7 @@ export function evalOption(
 
 /** */
 export function makeNodeTitleMatcher(s: string): MatcherType {
-  s = s.toLowerCase();
+  s = escapeRegExp(s.toLowerCase());
   return function (node: WunderbaumNode) {
     return node.title.toLowerCase().indexOf(s) >= 0;
   };
@@ -182,6 +183,7 @@ export function makeNodeTitleMatcher(s: string): MatcherType {
 
 /** */
 export function makeNodeTitleStartMatcher(s: string): MatcherType {
+  s = escapeRegExp(s);
   const reMatch = new RegExp("^" + s, "i");
   return function (node: WunderbaumNode) {
     return reMatch.test(node.title);

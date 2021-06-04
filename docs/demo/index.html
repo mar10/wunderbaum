@@ -6,97 +6,13 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <title>Test | Wunderbaum</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" type="text/css" media="screen" href="../../dist/wunderbaum.css" />
+
+  <link rel="stylesheet" media="screen" href="../../dist/wunderbaum.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="style.css" />
+
   <script defer src="../../dist/wunderbaum.umd.js"></script>
   <script defer src="main.js"></script>
-  <style>
-    body {
-      /* height: 100%; */
-
-      /* font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif; */
-      /*A more traditional Garamond-based serif */
-      /* font-family: "Palatino Linotype", Palatino, Palladio, "URW Palladio L", "Book Antiqua", Baskerville, "Bookman Old Style", "Bitstream Charter", "Nimbus Roman No9 L", Garamond, "Apple Garamond", "ITC Garamond Narrow", "New Century Schoolbook", "Century Schoolbook", "Century Schoolbook L", Georgia, serif; */
-      /*The Helvetica/Arial-based sans serif */
-      /* font-family: Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif; */
-      /*The Verdana-based sans serif */
-      /* font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif; */
-      /*The Trebuchet-based sans serif */
-      font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans", "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
-      /*The heavier "Impact" sans serif */
-      /* font-family: Impact, Haettenschweiler, "Franklin Gothic Bold", Charcoal, "Helvetica Inserat", "Bitstream Vera Sans Bold", "Arial Black", sans-serif; */
-
-      color: darkslategray;
-
-    }
-
-
-    * {
-      box-sizing: border-box;
-      padding: 0;
-      margin: 0;
-      overflow: hidden;  /* prevent scrollbars, which would break `100vh` */
-    }
-
-    div.grid-wrapper {
-      display: grid;
-      width: 100vw;
-      height: 100vh;
-      grid-template-columns: 1fr 4fr;
-      grid-template-rows: 3em 5em auto 5em 1em;
-      background-color: rgb(240, 229, 207);
-      padding: 8px;
-      grid-gap: 2px;
-    }
-
-    div.grid-wrapper div.menu {
-      grid-column: 1 / span 2;
-      grid-row: 1;
-    }
-
-    div.grid-wrapper nav.nav {
-      grid-column: 1;
-      grid-row: 2 / 4;
-    }
-
-    div.grid-wrapper section.header {
-      background-color: whitesmoke;
-      grid-column: 2;
-      grid-row: 2;
-    }
-    div.grid-wrapper main.view {
-      background-color: white;
-      grid-column: 2;
-      grid-row: 3;
-    }
-
-    div.grid-wrapper section.footer {
-      background-color: whitesmoke;
-      grid-column: 2;
-      grid-row: 4;
-    }
-
-    div.grid-wrapper div.statbar {
-      grid-column: 1 / span 2;
-      grid-row: 5;
-      text-align: right;
-      font-size: 80%;
-    }
-
-    div#demo-tree {
-      height: 100%; /* fill parent container */
-    }
-/*
-    div.wunderbaum.wb-skeleton.wb-initializing {
-      background-image: url(data:image/png;base64,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);
-      background-repeat: no-repeat;
-    }
-*/
-  </style>
-
-  <style id="wunderbaum-style-1">
-
-  </style>
 </head>
 
 <body>
@@ -118,52 +34,7 @@
     <main class="view">
       <div id="demo-tree">
         <div class="wunderbaum wb-skeleton" tabindex="0">
-<!--
-          <div class="wb-header">
-            <div class="wb-row">
-              <span class="wb-col">
-                <i class="wb-checkbox bi bi-check2-square"></i>
-                <i class="wb-indent"></i>
-                <i class="wb-indent"></i>
-                <i class="wb-indent"></i>
-                Name
-              </span>
-              <span class="wb-col"> col 1.1 </span>
-              <span class="wb-col"> col 1.2 </span>
-            </div>
-          </div>
-
-          <div class="wb-scroll-container">
-            <div class="wb-node-list" style="height: 400px">
-              <div class="wb-row wb-last-sib wb-expanded wb-selected" style="top: 132px">
-                <span class="wb-node wb-col">
-                  <i class="wb-checkbox bi bi-check2-square"></i>
-                  <i class="wb-indent"></i>
-                  <i class="wb-expander bi bi-dash-square"></i>
-                  <i class="wb-icon bi bi-folder"></i>
-                  <span class="wb-title">Node 1</span>
-                </span>
-                <span class="wb-col"> col 1.1 </span>
-                <span class="wb-col"> col 1.2 </span>
-              </div>
-              <div class="wb-row wb-last-sib wb-selected" style="top: 148px">
-                <span class="wb-col">
-                  <span class="wb-checkbox">X</span>
-                </span>
-                <span class="wb-node wb-col">
-                  <i class="wb-indent"></i>
-                  <i class="wb-expander bi bi-plus-square"></i>
-                  <i class="wb-icon bi bi-file-earmark"></i>
-                  <span class="wb-title">Node 1</span>
-                </span>
-                <span class="wb-col"> col 2.1 </span>
-                <span class="wb-col"> col 2.2 </span>
-              </div>
-            </div>
-          </div>
         </div>
--->
-      </div>
     </main>
 
     <section class="footer">

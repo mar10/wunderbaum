@@ -167,33 +167,9 @@ export function error(msg: string) {
   throw new Error(msg);
 }
 
-/** Convert a keydown or mouse event to a canonical string like 'ctrl+a',
- * 'ctrl+shift+f2', 'shift+leftdblclick'.
- *
- * This is especially handy for switch-statements in event handlers.
- *
- * @param {event}
- * @returns {string}
- *
- * @example
-
-switch( $.ui.fancytree.eventToString(event) ) {
-  case "-":
-    tree.nodeSetExpanded(ctx, false);
-    break;
-  case "shift+return":
-    tree.nodeSetActive(ctx, true);
-    break;
-  case "down":
-    res = node.navigate(event.which, activate);
-    break;
-  default:
-    handled = false;
+export function escapeRegExp(s: string) {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 }
-if( handled ){
-  event.preventDefault();
-}
-*/
 
 const IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
 

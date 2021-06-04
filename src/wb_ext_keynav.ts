@@ -20,7 +20,7 @@ export class KeynavExtension extends WunderbaumExtension {
     let event = data.event,
       eventName = eventToString(event),
       focusNode,
-      node = <WunderbaumNode>data.node,
+      node = data.node as WunderbaumNode,
       tree = this.tree,
       opts = data.options,
       handled = true,
@@ -38,7 +38,8 @@ export class KeynavExtension extends WunderbaumExtension {
 
     if (
       opts.quicksearch &&
-      eventName.length === 1
+      eventName.length === 1 &&
+      /^\w$/.test(eventName)
       // && !$target.is(":input:enabled")
     ) {
       // Allow to search for longer streaks if typed in quickly
