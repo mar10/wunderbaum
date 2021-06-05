@@ -94,19 +94,18 @@ export function onEvent(
   selector: string | null,
   handler: (e: Event) => boolean | void
 ): void {
-  if (typeof rootElem === "string") {
-    rootElem = <HTMLElement>document.querySelector(rootElem);
-  }
+  rootElem = elemFromSelector(rootElem);
+
   eventNames.split(" ").forEach((evn) => {
     (<HTMLElement>rootElem).addEventListener(evn, function (e) {
       if (!selector) {
         return handler(e); // no event delegation
       } else if (e.target) {
-        let elem = <HTMLElement>e.target;
+        let elem = e.target as HTMLElement;
         if (elem.matches(selector)) {
           return handler(e);
         }
-        elem = <HTMLElement>elem.closest(selector);
+        elem = elem.closest(selector) as HTMLElement;
         if (elem) {
           return handler(e);
         }
@@ -120,9 +119,8 @@ export function toggleClass(
   classname: string,
   force?: boolean
 ): void {
-  if (typeof element === "string") {
-    element = <HTMLElement>document.querySelector(element);
-  }
+  element = elemFromSelector(element);
+
   switch (force) {
     case true:
       element.classList.add(classname);
@@ -266,4 +264,12 @@ export function type(obj: any) {
     .call(obj)
     .replace(/^\[object (.+)\]$/, "$1")
     .toLowerCase();
+}
+
+/** Return HtmlElement from selector or cast existing element. */
+export function elemFromSelector(obj: string | Element): HTMLElement {
+  if (typeof obj === "string") {
+    return document.querySelector(obj) as HTMLElement;
+  }
+  return obj as HTMLElement;
 }

@@ -27,13 +27,16 @@
       Nav
     </nav>
     <section class="header">
+      <label for="filterQuery">Filter</label>
+      <input id="filterQuery" type="search" placeholder="Enter a query">
+      <br>
       <a id="expand-all" href="#">Expand all</a>
       &mdash; <a id="collapse-all" href="#">Collapse all</a>
     </section>
 
     <main class="view">
       <div id="demo-tree">
-        <div class="wunderbaum wb-skeleton" tabindex="0">
+        <div class="wunderbaum wb-skeleton wb-initializing" tabindex="0">
         </div>
     </main>
 

@@ -46,11 +46,11 @@ export class Wunderbaum {
   readonly root: WunderbaumNode;
   readonly name: string;
 
-  readonly element: HTMLElement;
-  // readonly treeElement: HTMLElement;
-  readonly headerElement: HTMLElement;
-  readonly scrollContainer: HTMLElement;
-  readonly nodeListElement: HTMLElement;
+  readonly element: HTMLDivElement;
+  // readonly treeElement: HTMLDivElement;
+  readonly headerElement: HTMLDivElement;
+  readonly scrollContainer: HTMLDivElement;
+  readonly nodeListElement: HTMLDivElement;
 
   protected extensions: WunderbaumExtension[] = [];
   protected keyMap = new Map<string, WunderbaumNode>();
@@ -117,11 +117,7 @@ export class Wunderbaum {
     }
 
     // --- Create Markup
-    if (typeof opts.element === "string") {
-      this.element = document.querySelector(opts.element) as HTMLElement;
-    } else {
-      this.element = opts.element;
-    }
+    this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
 
     // Attach tree instance to <div>
     (<any>this.element)._wb_tree = this;
@@ -130,7 +126,7 @@ export class Wunderbaum {
 
     this.headerElement = this.element.querySelector(
       "div.wb-header"
-    ) as HTMLElement;
+    ) as HTMLDivElement;
 
     if (this.headerElement) {
       // User existing header markup to define `this.columns`
@@ -141,7 +137,7 @@ export class Wunderbaum {
       this.columns = [];
       let rowElement = this.headerElement.querySelector(
         "div.wb-row"
-      ) as HTMLElement;
+      ) as HTMLDivElement;
       for (let colDiv of rowElement.querySelectorAll("div")) {
         this.columns.push({
           id: colDiv.dataset.id || null,
@@ -175,13 +171,13 @@ export class Wunderbaum {
       </div>`;
     this.scrollContainer = this.element.querySelector(
       "div.wb-scroll-container"
-    ) as HTMLElement;
+    ) as HTMLDivElement;
     this.nodeListElement = this.scrollContainer.querySelector(
       "div.wb-node-list"
-    ) as HTMLElement;
+    ) as HTMLDivElement;
     this.headerElement = this.element.querySelector(
       "div.wb-header"
-    ) as HTMLElement;
+    ) as HTMLDivElement;
     this.updateColumns({ render: false });
 
     // --- Load initial data
@@ -192,7 +188,7 @@ export class Wunderbaum {
       }
       this.load(opts.source).finally(() => {
         this.element.querySelector("progress.spinner")?.remove();
-        this.element.classList.remove("wb-initializing", "wb-skeleton");
+        this.element.classList.remove("wb-initializing"); //, "wb-skeleton");
       });
       // }else{
       //   this.element.classList.remove("wb-initializing", "wb-skeleton");
