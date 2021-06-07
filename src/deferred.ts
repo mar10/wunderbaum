@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/persisto)
  */
 
-type promiseCallbackType = (val: any) => void;
+type PromiseCallbackType = (val: any) => void;
 type finallyCallbackType = () => void;
 
 /**
@@ -36,11 +36,11 @@ export class Deferred {
     return this._promise;
   }
   /** Call [[Promise.then]] on the embedded promise instance.*/
-  then(cb: promiseCallbackType) {
+  then(cb: PromiseCallbackType) {
     return this._promise.then(cb);
   }
   /** Call [[Promise.catch]] on the embedded promise instance.*/
-  catch(cb: promiseCallbackType) {
+  catch(cb: PromiseCallbackType) {
     return this._promise.catch(cb);
   }
   /** Call [[Promise.finally]] on the embedded promise instance.*/

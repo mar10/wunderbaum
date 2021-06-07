@@ -6,22 +6,41 @@
 
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
-import { escapeRegExp } from "./util";
+import { escapeRegExp, extend } from "./util";
 
 export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
 
-export const default_debuglevel = 2; // Replaced by rollup script
+export const DEFAULT_DEBUGLEVEL = 2; // Replaced by rollup script
 export const ROW_HEIGHT = 24;
 export const RENDER_PREFETCH = 5;
+export const TEST_IMG = new RegExp(/\.|\//); // strings are considered image urls if they contain '.' or '/'
+export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
+export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
+
+export type NodeVisitResponse = "skip" | boolean | void;
+export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
+
+export type NodeFilterResponse = "skip" | "branch" | boolean | void;
+export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
+
+export type ExtensionsDict = { [key: string]: WunderbaumExtension };
 
 export enum ChangeType {
   any = "any",
   row = "row",
   structure = "structure",
   status = "status",
+}
+
+export enum NodeStatusType {
+  ok = "ok",
+  loading = "loading",
+  error = "error",
+  nodata = "nodata",
+  // paging = "paging",
 }
 
 export enum NavigationMode {
@@ -76,26 +95,73 @@ export let iconMap = {
 };
 
 export abstract class WunderbaumExtension {
-  abstract name: string;
+  public enabled = true;
+  readonly name: string;
   readonly tree: Wunderbaum;
+  readonly treeOpts: any;
+  readonly extensionOpts: any;
 
-  constructor(tree: Wunderbaum) {
+  constructor(tree: Wunderbaum, name: string, defaults: any) {
     this.tree = tree;
+    this.name = name;
+    this.treeOpts = tree.options;
+    // Merge extension default and explicit options into `tree.options.EXTNAME`
+    // tree.options[name] ??= {};
+    if (this.treeOpts[name] === undefined) {
+      this.treeOpts[name] = this.extensionOpts = extend({}, defaults);
+    } else {
+      // TODO: do we break existing object instance references here?
+      this.extensionOpts = extend({}, defaults, tree.options[name]);
+      tree.options[name] = this.extensionOpts;
+    }
+    this.enabled = !!this.getOption("enabled");
   }
 
-  // init(tree: Wunderbaum) {
-  //   super(tree)
-  // }
+  /** Called on tree (re)init after all extensions are added, but before loading.*/
+  init() {
+    this.tree.element.classList.add("wb-ext-" + this.name);
+  }
+
+  protected callEvent(name: string, extra?: any): any {
+    let func = this.extensionOpts[name];
+    if (func) {
+      return func.call(
+        this.tree,
+        extend(
+          {
+            event: this.name + "." + name,
+          },
+          extra
+        )
+      );
+    }
+  }
+
+  getOption(name: string): any {
+    return this.extensionOpts[name];
+  }
+
+  setOption(name: string, value: any): void {
+    this.extensionOpts[name] = value;
+  }
+
+  setEnabled(flag = true) {
+    this.enabled = !!flag;
+  }
+
   onKeyEvent(data: any): boolean | undefined {
     return;
   }
+
   onRender(data: any): boolean | undefined {
     return;
   }
 }
 
+export const KEY_NODATA = "__not_found__";
+
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_MAP: { [key: string]: string } = {
+export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   " ": "toggleSelect",
   "+": "expand",
   Add: "expand",
@@ -194,12 +260,12 @@ export function makeNodeTitleStartMatcher(s: string): MatcherType {
  *
  */
 
-// var reNumUnit = /^([+-]?(?:\d+|\d*\.\d+))([a-z]*|%)$/; // split "1.5em" to ["1.5", "em"]
+// let reNumUnit = /^([+-]?(?:\d+|\d*\.\d+))([a-z]*|%)$/; // split "1.5em" to ["1.5", "em"]
 
 /* Create a global embedded CSS style for the tree. */
 // export function defineHeadStyleElement(id: string, cssText: string) {
 //   id = "wunderbaum-style-" + id;
-//   var $headStyle = $("#" + id);
+//   let $headStyle = $("#" + id);
 
 //   if (!cssText) {
 //     $headStyle.remove();
@@ -230,7 +296,7 @@ export function makeNodeTitleStartMatcher(s: string): MatcherType {
 //   labelOfs,
 //   measureUnit
 // ) {
-//   var i,
+//   let i,
 //     prefix = "#" + containerId + " span.fancytree-level-",
 //     rules = [];
 

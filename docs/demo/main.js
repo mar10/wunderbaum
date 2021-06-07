@@ -11,7 +11,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
       { id: "id1", title: "a", width: 2 },
       { id: "id2", title: "b" },
     ],
-
+    filter: {
+      attachInput: "input#filterQuery",
+    },
     change: function (data) {
       console.log("change", arguments);
     },

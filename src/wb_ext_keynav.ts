@@ -10,10 +10,8 @@ import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 
 export class KeynavExtension extends WunderbaumExtension {
-  name = "keynav";
-
   constructor(tree: Wunderbaum) {
-    super(tree);
+    super(tree, "keynav", {});
   }
 
   onKeyEvent(data: any): boolean | undefined {

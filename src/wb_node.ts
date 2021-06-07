@@ -16,10 +16,13 @@ import {
   ChangeType,
   evalOption,
   iconMap,
-  KEY_TO_ACTION_MAP,
+  KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
   MatcherType,
   NodeAnyCallback,
+  NodeStatusType,
+  NodeVisitCallback,
+  NodeVisitResponse,
   ROW_HEIGHT,
 } from "./common";
 import { Deferred } from "./deferred";
@@ -40,12 +43,19 @@ export class WunderbaumNode {
   public expanded: boolean = false;
   public selected: boolean = false;
   public type?: string;
-  statusNodeType?: string;
-  subMatchCount = 0;
-  match = false;
+  // --- Node Status ---
+  public statusNodeType?: string;
+  _isLoading = false;
+  _errorInfo: any | null = null;
+  // --- FILTER ---
+  public match?: boolean; // Added and removed by filter code
+  public subMatchCount?: number = 0;
+  public subMatchBadge?: HTMLElement;
+  public titleWithHighlight?: string;
+  public _filterAutoExpanded?: boolean;
 
   _rowIdx: number | undefined = 0;
-  _rowElem: HTMLElement | undefined = undefined;
+  _rowElem: HTMLDivElement | undefined = undefined;
 
   constructor(tree: Wunderbaum, parent: WunderbaumNode, data: any) {
     util.assert(!parent || parent.tree === tree);
@@ -86,12 +96,8 @@ export class WunderbaumNode {
   }
 
   /** Call event if defined in options. */
-  protected _trigger(event: string, extra?: any): any {
-    return this.tree._trigger.call(
-      this.tree,
-      event,
-      util.extend({ node: this }, extra)
-    );
+  callEvent(event: string, extra?: any): any {
+    return this.tree.callEvent(event, util.extend({ node: this }, extra));
   }
 
   addChild(node: WunderbaumNode, before?: WunderbaumNode) {
@@ -102,6 +108,7 @@ export class WunderbaumNode {
     } else {
       this.children.push(node);
     }
+    return node;
   }
 
   /** . */
@@ -116,7 +123,7 @@ export class WunderbaumNode {
         node.addChildren(d.children);
       }
     }
-    this.tree.setModified(this, ChangeType.structure);
+    this.tree.setModified(ChangeType.structure, this);
   }
 
   /** */
@@ -142,6 +149,30 @@ export class WunderbaumNode {
       }
     });
     return res;
+  }
+
+  /** Return the direct child with a given key, index or null. */
+  findDirectChild(
+    ptr: number | string | WunderbaumNode
+  ): WunderbaumNode | null {
+    let i,
+      l,
+      cl = this.children;
+
+    if (!cl) return null;
+    if (typeof ptr === "string") {
+      for (i = 0, l = cl.length; i < l; i++) {
+        if (cl[i].key === ptr) {
+          return cl[i];
+        }
+      }
+    } else if (typeof ptr === "number") {
+      return cl[ptr];
+    } else if (ptr.parent === this) {
+      // Return null if `ptr` is not a direct child
+      return ptr;
+    }
+    return null;
   }
 
   /**Find first node that matches condition (excluding self).
@@ -202,7 +233,7 @@ export class WunderbaumNode {
    * @param includeSelf Include the node itself.
    */
   getParentList(includeRoot = false, includeSelf = false) {
-    var l = [],
+    let l = [],
       dtn = includeSelf ? this : this.parent;
     while (dtn) {
       if (includeRoot || dtn.parent) {
@@ -226,7 +257,7 @@ export class WunderbaumNode {
     // part = part || "title";
     // separator = separator || "/";
 
-    var val,
+    let val,
       path: string[] = [],
       isFunc = typeof part === "function";
 
@@ -291,7 +322,7 @@ export class WunderbaumNode {
    * whether the node is scrolled into the visible part of the screen.
    */
   isVisible() {
-    var i,
+    let i,
       l,
       n,
       hasFilter = this.tree.enableFilter,
@@ -353,7 +384,7 @@ export class WunderbaumNode {
             response
         );
       }
-      this._trigger("receive", { response: response });
+      this.callEvent("receive", { response: response });
       const data = await response.json();
 
       let prev = tree.enableUpdate(false);
@@ -361,7 +392,7 @@ export class WunderbaumNode {
       tree.enableUpdate(prev);
     } catch (error) {
       this.logError("Error during load()", source, error);
-      this._trigger("error", { error: error });
+      this.callEvent("error", { error: error });
     }
 
     if (opts.debugLevel >= 2) {
@@ -405,7 +436,7 @@ export class WunderbaumNode {
    *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
    */
   async makeVisible(opts: any) {
-    var i,
+    let i,
       dfd = new Deferred(),
       deferreds = [],
       parents = this.getParentList(false, false),
@@ -447,7 +478,7 @@ export class WunderbaumNode {
    */
   async navigate(where: string, options?: any) {
     // Allow to pass 'ArrowLeft' instead of 'left'
-    where = KEY_TO_ACTION_MAP[where] || where;
+    where = KEY_TO_ACTION_DICT[where] || where;
 
     // Otherwise activate or focus the related node
     let node = this.findRelatedNode(where);
@@ -674,6 +705,105 @@ export class WunderbaumNode {
     this.setDirty(ChangeType.status);
   }
 
+  /** Show node status (ok, loading, error, nodata) using styles and a dummy child node.
+   */
+  setStatus(
+    status: NodeStatusType,
+    message?: string,
+    details?: string
+  ): WunderbaumNode | null {
+    let tree = this.tree;
+    let statusNode: WunderbaumNode | null = null;
+
+    const _clearStatusNode = () => {
+      // Remove dedicated dummy node, if any
+      let children = this.children;
+
+      if (children && children.length && children[0].isStatusNode()) {
+        children[0].remove();
+      }
+    };
+
+    const _setStatusNode = (data: any, type: NodeStatusType) => {
+      // Create/modify the dedicated dummy node for 'loading...' or
+      // 'error!' status. (only called for direct child of the invisible
+      // system root)
+      let children = this.children;
+      let firstChild = children ? children[0] : null;
+
+      if (firstChild && firstChild.isStatusNode()) {
+        statusNode = firstChild;
+        util.extend(firstChild, data);
+        firstChild.statusNodeType = type;
+        // tree._callHook("nodeRenderTitle", firstChild);
+        tree.setModified(ChangeType.row, statusNode);
+      } else {
+        this.addChildren([data]);
+        statusNode = this.children![0];
+        // tree._callHook("treeStructureChanged", ctx, "setStatusNode");
+        statusNode.statusNodeType = type;
+        tree.setModified(ChangeType.structure);
+        // tree.render();
+      }
+      return statusNode;
+    };
+
+    switch (status) {
+      case "ok":
+        _clearStatusNode();
+        this._isLoading = false;
+        this._errorInfo = null;
+        break;
+      case "loading":
+        if (!this.parent) {
+          _setStatusNode(
+            {
+              title:
+                tree.options.strings.loading +
+                (message ? " (" + message + ")" : ""),
+              // icon: true,  // needed for 'loding' icon
+              checkbox: false,
+              tooltip: details,
+            },
+            status
+          );
+        }
+        this._isLoading = true;
+        this._errorInfo = null;
+        break;
+      case "error":
+        _setStatusNode(
+          {
+            title:
+              tree.options.strings.loadError +
+              (message ? " (" + message + ")" : ""),
+            // icon: false,
+            checkbox: false,
+            tooltip: details,
+          },
+          status
+        );
+        this._isLoading = false;
+        this._errorInfo = { message: message, details: details };
+        break;
+      case "nodata":
+        _setStatusNode(
+          {
+            title: message || tree.options.strings.noData,
+            // icon: false,
+            checkbox: false,
+            tooltip: details,
+          },
+          status
+        );
+        this._isLoading = false;
+        this._errorInfo = null;
+        break;
+      default:
+        util.error("invalid node status " + status);
+    }
+    return statusNode;
+  }
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
    * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
    * Return false if iteration was stopped.
@@ -683,9 +813,9 @@ export class WunderbaumNode {
    *     its children only.
    */
   visit(
-    callback: (node: WunderbaumNode) => any,
+    callback: NodeVisitCallback,
     includeSelf: boolean = false
-  ): any {
+  ): NodeVisitResponse {
     let i,
       l,
       res: any = true,
@@ -712,11 +842,10 @@ export class WunderbaumNode {
    * Stop iteration, if callback() returns false.<br>
    * Return false if iteration was stopped.
    *
-   * @param {function} callback the callback function.
-   *     Return false to stop iteration, return "skip" to skip this node and children only.
+   * @param callback the callback function. Return false to stop iteration
    */
   visitParents(
-    callback: (node: WunderbaumNode) => boolean | undefined,
+    callback: (node: WunderbaumNode) => boolean | void,
     includeSelf: boolean = false
   ): boolean {
     if (includeSelf && callback(this) === false) {
@@ -740,7 +869,7 @@ export class WunderbaumNode {
    *     Return false to stop iteration.
    */
   visitSiblings(
-    callback: (node: WunderbaumNode) => boolean | undefined,
+    callback: (node: WunderbaumNode) => boolean | void,
     includeSelf: boolean = false
   ): boolean {
     let i,
@@ -757,5 +886,11 @@ export class WunderbaumNode {
       }
     }
     return true;
+  }
+  /**
+   * [ext-filter] Return true if this node is matched by current filter (or no filter is active).
+   */
+  isMatched() {
+    return !(this.tree.enableFilter && !this.match);
   }
 }

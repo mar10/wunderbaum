@@ -9,10 +9,8 @@ import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 
 export class LoggerExtension extends WunderbaumExtension {
-  name = "logger";
-
   constructor(tree: Wunderbaum) {
-    super(tree);
+    super(tree, "logger", {});
   }
 
   onKeyEvent(data: any): boolean | undefined {

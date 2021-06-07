@@ -16,7 +16,8 @@ import { WunderbaumNode } from "./wb_node";
 // import { PersistoOptions } from "./wb_options";
 import {
   ChangeType,
-  default_debuglevel,
+  DEFAULT_DEBUGLEVEL,
+  ExtensionsDict,
   makeNodeTitleStartMatcher,
   MatcherType,
   NavigationMode,
@@ -29,9 +30,11 @@ import {
 import { KeynavExtension } from "./wb_ext_keynav";
 import { LoggerExtension } from "./wb_ext_logger";
 import { extend } from "./util";
+import { FilterExtension } from "./wb_ext_filter";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
+const MAX_CHANGED_NODES = 10;
 
 /**
  * A persistent plain object or array.
@@ -53,24 +56,40 @@ export class Wunderbaum {
   readonly nodeListElement: HTMLDivElement;
 
   protected extensions: WunderbaumExtension[] = [];
+  protected extensionDict: ExtensionsDict = {};
+  // protected extensionMap = new Map<string, WunderbaumExtension>();
+
+  /** Merged options from constructor args and tree- and extension defaults. */
+  public options: WunderbaumOptions;
+
   protected keyMap = new Map<string, WunderbaumNode>();
   protected refKeyMap = new Map<string, Set<WunderbaumNode>>();
   protected viewNodes = new Set<WunderbaumNode>();
   // protected rows: WunderbaumNode[] = [];
   // protected _rowCount = 0;
-  activeNode: WunderbaumNode | null = null;
-  activeColIdx = 0;
-  focusNode: WunderbaumNode | null = null;
-  cellNavMode = false;
-  options: WunderbaumOptions;
-  enableFilter = false;
+
+  public activeNode: WunderbaumNode | null = null;
+  public focusNode: WunderbaumNode | null = null;
   _enableUpdate = true;
-  lastQuicksearchTime = 0;
-  lastQuicksearchTerm = "";
+
   /** Shared properties, referenced by `node.type`. */
-  types: any = {};
+  public types: any = {};
   /** List of column definitions. */
-  columns: any[] = [];
+  public columns: any[] = [];
+
+  // Modification Status
+  protected changedSince = 0;
+  protected changes = new Set<ChangeType>();
+  protected changedNodes = new Set<WunderbaumNode>();
+
+  // --- FILTER ---
+  public enableFilter = false;
+
+  // --- KEYNAV ---
+  public activeColIdx = 0;
+  public cellNavMode = false;
+  public lastQuicksearchTime = 0;
+  public lastQuicksearchTerm = "";
 
   // ready: Promise<any>;
 
@@ -78,18 +97,22 @@ export class Wunderbaum {
     let opts = (this.options = util.extend(
       {
         source: null, // URL for GET/PUT, ajax options, or callback
-        element: null,
-        debugLevel: default_debuglevel, // 0:quiet, 1:normal, 2:verbose
+        element: null, // <div class="wunderbaum">
+        debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:normal, 2:verbose
         headerHeightPx: 20,
+        rowHeightPx: ROW_HEIGHT,
         columns: null,
         types: null,
-        navigationMode: NavigationMode.allow,
+        escapeTitles: true,
         showSpinner: false,
+        // --- KeyNav ---
+        navigationMode: NavigationMode.allow,
         quicksearch: true,
         // Events
         change: util.noop,
         error: util.noop,
         receive: util.noop,
+        enhanceTitle: util.noop,
       },
       options
     ));
@@ -101,6 +124,7 @@ export class Wunderbaum {
     });
 
     this._registerExtension(new KeynavExtension(this));
+    this._registerExtension(new FilterExtension(this));
     this._registerExtension(new LoggerExtension(this));
 
     // --- Evaluate options
@@ -180,6 +204,8 @@ export class Wunderbaum {
     ) as HTMLDivElement;
     this.updateColumns({ render: false });
 
+    this._initExtensions();
+
     // --- Load initial data
     if (opts.source) {
       if (opts.showSpinner) {
@@ -256,6 +282,15 @@ export class Wunderbaum {
   /** */
   protected _registerExtension(extension: WunderbaumExtension): void {
     this.extensions.push(extension);
+    this.extensionDict[extension.name] = extension;
+    // this.extensionMap.set(extension.name, extension);
+  }
+
+  /** Called on tree (re)init after markup is created, before loading. */
+  protected _initExtensions(): void {
+    for (let ext of this.extensions) {
+      ext.init();
+    }
   }
 
   /** Add node to tree's bookkeeping data structures. */
@@ -311,18 +346,12 @@ export class Wunderbaum {
   }
 
   /** Call event if defined in options. */
-  _trigger(event: string, extra?: any): any {
-    let cb = this.options[event];
-    if (!cb) {
-      return;
+  callEvent(name: string, extra?: any): any {
+    let func = this.options[name];
+    if (func) {
+      let res = func.call(this, extend({ event: name, tree: this }, extra));
+      return res;
     }
-    let data = extend(
-      {},
-      { event: event, tree: this, options: this.options },
-      extra
-    );
-    let res = cb.call(this, data);
-    return res;
   }
 
   /** Return the topmost visible node in the viewport */
@@ -395,6 +424,23 @@ export class Wunderbaum {
       { reverse: false, start: node || this.getActiveNode() }
     );
     return node;
+  }
+
+  getOption(name: string): any {
+    if (name.indexOf(".") === -1) {
+      return this.options[name];
+    }
+    const parts = name.split(".");
+    return this.options[parts[0]][parts[1]];
+  }
+
+  setOption(name: string, value: any): void {
+    if (name.indexOf(".") === -1) {
+      this.options[name] = value;
+    }
+    const parts = name.split(".");
+    const ext = this.extensionDict[parts[0]];
+    ext!.setOption(parts[1], value);
   }
 
   /** */
@@ -832,7 +878,7 @@ export class Wunderbaum {
       this.setColumn(0);
     }
     this.element.classList.toggle("wb-cell-mode", flag);
-    this.setModified(this.activeNode, ChangeType.row);
+    this.setModified(ChangeType.row, this.activeNode);
   }
 
   /** */
@@ -841,7 +887,7 @@ export class Wunderbaum {
     util.assert(0 <= colIdx && colIdx < this.columns.length);
     this.activeColIdx = colIdx;
     // node.setActive(true, { column: tree.activeColIdx + 1 });
-    this.setModified(this.activeNode, ChangeType.row);
+    this.setModified(ChangeType.row, this.activeNode);
     // Update `wb-active` class for all headers
     for (let rowDiv of this.headerElement.children) {
       // for (let rowDiv of document.querySelector("div.wb-header").children) {
@@ -860,7 +906,33 @@ export class Wunderbaum {
   }
 
   /** */
-  setModified(node: WunderbaumNode | null, change: ChangeType) {}
+  setModified(change: ChangeType, options?: any): void;
+
+  /** */
+  setModified(
+    change: ChangeType,
+    node?: WunderbaumNode | any,
+    options?: any
+  ): void {
+    if (!(node instanceof WunderbaumNode)) {
+      options = node;
+    }
+    if (!this.changedSince) {
+      this.changedSince = Date.now();
+    }
+    this.changes.add(change);
+    if (change === ChangeType.structure) {
+      this.changedNodes.clear();
+    } else if (node && !this.changes.has(ChangeType.structure)) {
+      if (this.changedNodes.size < MAX_CHANGED_NODES) {
+        this.changedNodes.add(node);
+      } else {
+        this.changes.add(ChangeType.structure);
+        this.changedNodes.clear();
+      }
+    }
+    this.log("setModified(" + change + ")", node);
+  }
 
   /** Update column headers and width. */
   updateColumns(opts: any) {
@@ -937,7 +1009,7 @@ export class Wunderbaum {
       startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
       endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
     });
-    this._trigger("update");
+    this.callEvent("update");
   }
 
   /** Call callback(node) for all nodes in hierarchical order (depth-first).
@@ -1124,5 +1196,33 @@ export class Wunderbaum {
       this.logDebug("enableUpdate(false)...");
     }
     return !flag; // return previous value
+  }
+
+  /* ---------------------------------------------------------------------------
+   * FILTER
+   * -------------------------------------------------------------------------*/
+  /**
+   * [ext-filter] Reset the filter.
+   *
+   * @requires [[FilterExtension]]
+   */
+  clearFilter() {
+    return (this.extensionDict.filter as FilterExtension).clearFilter();
+  }
+  /**
+   * [ext-filter] Return true if a filter is currently applied.
+   *
+   * @requires [[FilterExtension]]
+   */
+  isFilterActive() {
+    return !!this.enableFilter;
+  }
+  /**
+   * [ext-filter] Re-apply current filter.
+   *
+   * @requires [[FilterExtension]]
+   */
+  updateFilter() {
+    return (this.extensionDict.filter as FilterExtension).updateFilter();
   }
 }

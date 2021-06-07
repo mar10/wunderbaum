@@ -16,14 +16,25 @@ export const MOUSE_BUTTONS: { [key: number]: string } = {
 
 export const MAX_INT = 9007199254740991;
 
-type promiseCallbackType = (val: any) => void;
+const REX_HTML = /[&<>"'/]/g; // Escape those characters
+const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
+const ENTITY_MAP: { [key: string]: string } = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;",
+  "/": "&#x2F;",
+};
+
+type PromiseCallbackType = (val: any) => void;
 
 /**
- * Deferred is a ES6 Promise, that exposes the resolve() method
+ * A ES6 Promise, that exposes the resolve() method.
  */
 export class Deferred {
-  private thens: promiseCallbackType[] = [];
-  private catches: promiseCallbackType[] = [];
+  private thens: PromiseCallbackType[] = [];
+  private catches: PromiseCallbackType[] = [];
 
   private status = "";
   private resolvedValue: any;
@@ -75,7 +86,7 @@ export class Deferred {
  * Bind event handler using event delegation.
  *
  * E.g. handle all 'input' events for input and textarea elements of a given
- * form
+ * form:
  * ```ts
  * onEvent("#form_1", "input", "input,textarea", function (e: Event) {
  *   console.log(e.type, e.target);
@@ -86,7 +97,6 @@ export class Deferred {
  * @param eventNames
  * @param selector (pass null if no event delegation is needed)
  * @param handler
- * @param bind
  */
 export function onEvent(
   rootElem: HTMLElement | string,
@@ -94,7 +104,7 @@ export function onEvent(
   selector: string | null,
   handler: (e: Event) => boolean | void
 ): void {
-  rootElem = elemFromSelector(rootElem);
+  rootElem = elemFromSelector(rootElem)!;
 
   eventNames.split(" ").forEach((evn) => {
     (<HTMLElement>rootElem).addEventListener(evn, function (e) {
@@ -114,12 +124,24 @@ export function onEvent(
   });
 }
 
+export function escapeRegex(s: string) {
+  return (s + "").replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+}
+
+export function extractHtmlText(s: string) {
+  if (s.indexOf(">") >= 0) {
+    error("not implemented");
+    // return $("<div/>").html(s).text();
+  }
+  return s;
+}
+
 export function toggleClass(
   element: HTMLElement | string,
   classname: string,
   force?: boolean
 ): void {
-  element = elemFromSelector(element);
+  element = elemFromSelector(element)!;
 
   switch (force) {
     case true:
@@ -132,7 +154,8 @@ export function toggleClass(
       element.classList.toggle(classname);
   }
 }
-/**
+
+/*
  * jQuery Shims
  * http://youmightnotneedjquery.com
  */
@@ -172,7 +195,7 @@ export function escapeRegExp(s: string) {
 const IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
 
 export function eventToString(event: Event) {
-  var key = (<KeyboardEvent>event).key,
+  let key = (<KeyboardEvent>event).key,
     // which = (<KeyboardEvent>event).keyCode,
     et = event.type,
     s = [];
@@ -212,6 +235,14 @@ export function assert(cond: boolean, msg?: string) {
   }
 }
 
+/** Convert `<`, `>`, `&`, `"`, `'`, and `/` to the equivalent entities.
+ */
+export function escapeHtml(s: string): string {
+  return ("" + s).replace(REX_HTML, function (s) {
+    return ENTITY_MAP[s];
+  });
+}
+
 export function extend(...args: any[]) {
   for (let i = 1; i < args.length; i++) {
     let arg = args[i];
@@ -223,6 +254,10 @@ export function extend(...args: any[]) {
   }
   return args[0];
 }
+
+// export function overrideMethod(class:any, method:string, func:callable) {
+//   return ;
+// }
 
 export function isEmptyObject(obj: any) {
   // let name;
@@ -266,8 +301,44 @@ export function type(obj: any) {
     .toLowerCase();
 }
 
-/** Return HtmlElement from selector or cast existing element. */
-export function elemFromSelector(obj: string | Element): HTMLElement {
+export const debounce = <T extends (...args: any[]) => any>(
+  callback: T,
+  delay: number
+) => {
+  let timeout: ReturnType<typeof setTimeout>;
+
+  return (...args: Parameters<T>): ReturnType<T> => {
+    let result: any;
+    timeout && clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      result = callback(...args);
+    }, delay);
+    return result;
+  };
+};
+
+// export const debouncePromise = <F extends (...args: any[]) => any>(
+//   func: F,
+//   delay: number
+// ) => {
+//   let timeout: ReturnType<typeof setTimeout>;
+
+//   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
+//     new Promise((resolve) => {
+//       if (timeout) {
+//         clearTimeout(timeout);
+//       }
+//       timeout = setTimeout(() => resolve(func(...args)), delay);
+//     });
+// };
+
+/**
+ * Return HtmlElement from selector or cast existing element.
+ */
+export function elemFromSelector(obj: string | Element): HTMLElement | null {
+  if (!obj) {
+    return null; //(null as unknown) as HTMLElement;
+  }
   if (typeof obj === "string") {
     return document.querySelector(obj) as HTMLElement;
   }
