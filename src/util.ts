@@ -4,6 +4,8 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
+import { FunctionType } from "./common";
+
 /** Readable names for `MouseEvent.button` */
 export const MOUSE_BUTTONS: { [key: number]: string } = {
   0: "",
@@ -17,7 +19,7 @@ export const MOUSE_BUTTONS: { [key: number]: string } = {
 export const MAX_INT = 9007199254740991;
 
 const REX_HTML = /[&<>"'/]/g; // Escape those characters
-const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
+// const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
 const ENTITY_MAP: { [key: string]: string } = {
   "&": "&amp;",
   "<": "&lt;",
@@ -343,4 +345,47 @@ export function elemFromSelector(obj: string | Element): HTMLElement | null {
     return document.querySelector(obj) as HTMLElement;
   }
   return obj as HTMLElement;
+}
+
+/** Return a wrapped handler method, that provides `this._super`.
+ *
+ * @example
+  // Implement `opts.createNode` event to add the 'draggable' attribute
+  overrideMethod(ctx.options, "createNode", (event, data) => {
+    // Default processing if any
+    this._super.apply(this, arguments);
+    // Add 'draggable' attribute
+    data.node.span.draggable = true;
+  });
+  */
+export function overrideMethod(
+  instance: any,
+  methodName: string,
+  handler: FunctionType,
+  ctx?: any
+) {
+  let prevSuper: FunctionType,
+    prevSuperApply: FunctionType,
+    self = ctx || instance,
+    prevFunc = instance[methodName],
+    _super = (...args: any[]) => {
+      return prevFunc.apply(self, args);
+    },
+    _superApply = (argsArray: any[]) => {
+      return prevFunc.apply(self, argsArray);
+    };
+
+  let wrapper = (...args: any[]) => {
+    try {
+      prevSuper = self._super;
+      prevSuperApply = self._superApply;
+      self._super = _super;
+      self._superApply = _superApply;
+      return handler.apply(self, args);
+    } finally {
+      self._super = prevSuper;
+      self._superApply = prevSuperApply;
+    }
+  };
+  instance[methodName] = wrapper;
 }

@@ -1,6 +1,5 @@
 document.addEventListener("DOMContentLoaded", function (event) {
   let tree = new mar10.Wunderbaum({
-    // element: document.querySelector("#demo-tree"),
     element: document.querySelector(".wunderbaum"),
     source:
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
@@ -22,7 +21,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
       document.querySelector("#tree-info").textContent = "todo";
     },
     update: function (data) {
-      console.log("update", arguments);
+      // console.log("update", arguments);
       showStatus(this);
     },
   });

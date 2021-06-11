@@ -32,7 +32,7 @@ export class FilterExtension extends WunderbaumExtension {
       mode: "dimm",
       fuzzy: false,
     });
-    tree.log("options", tree.options);
+    // tree.log("options", tree.options);
     // this.attachQueryInput();
   }
 
@@ -46,9 +46,9 @@ export class FilterExtension extends WunderbaumExtension {
         "input",
         null,
         debounce((e) => {
-          this.tree.log("query", e);
+          // this.tree.log("query", e);
           this.filterNodes(this.queryInput!.value.trim(), {});
-        }, 1000)
+        }, 700)
       );
     }
   }
@@ -321,7 +321,7 @@ export class FilterExtension extends WunderbaumExtension {
     tree.enableFilter = false;
     this.lastFilterArgs = null;
     tree.element.classList.remove(
-      "wb-ext-filter",
+      // "wb-ext-filter",
       "wb-ext-filter-dimm",
       "wb-ext-filter-hide"
     );

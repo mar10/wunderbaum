@@ -18,6 +18,8 @@ export const TEST_IMG = new RegExp(/\.|\//); // strings are considered image url
 export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
 export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
+export type FunctionType = (...args: any[]) => any;
+
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 
 export type NodeVisitResponse = "skip" | boolean | void;

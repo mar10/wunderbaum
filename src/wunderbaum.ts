@@ -243,7 +243,7 @@ export class Wunderbaum {
         }
       }
       // if(e.target.classList.)
-      this.log("click", info);
+      // this.log("click", info);
     });
     // util.onEvent(
     //   this.treeElement,
@@ -805,7 +805,7 @@ export class Wunderbaum {
     }
     // Resize tree container
     this.nodeListElement.style.height = "" + top + "px";
-    this.log("render()", this.nodeListElement.style.height);
+    // this.log("render()", this.nodeListElement.style.height);
     this.logTimeEnd(label);
     return modified;
   }
@@ -931,7 +931,7 @@ export class Wunderbaum {
         this.changedNodes.clear();
       }
     }
-    this.log("setModified(" + change + ")", node);
+    // this.log("setModified(" + change + ")", node);
   }
 
   /** Update column headers and width. */

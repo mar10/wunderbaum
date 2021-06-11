@@ -24,6 +24,7 @@ $clr-umbra-gray: #56534c;
 
 $font-stack: Helvetica, sans-serif;
 
+$node-text-color: #56534c;
 $hover-color: #f7f7f7;
 $hover-border-color: #dedede;
 $focus-border-color: #969da3;
@@ -35,6 +36,8 @@ $active-hover-border-color: #26a0da;
 $background-color: $clr-milk;
 $active-column-color: $hover-color;
 $active-header-column-color: $active-color;
+$filter-dimm-color: #dedede;
+$filter-submatch-color: #868581;
 
 $row-height: 20px;
 $header-height: $row-height;
@@ -48,6 +51,7 @@ div.wunderbaum {
   margin: 1px;
   padding: 0;
   font-family: $font-stack;
+  color: $node-text-color;
   border: 1px solid gray;
   overflow: hidden; // avoid unwanted effects when auto-resizing
 
@@ -63,6 +67,11 @@ div.wunderbaum {
       // &::after {
       //   content: "|";
       // }
+    }
+    div.wb-row {
+      span.wb-col.wb-active {
+        background-color: $active-hover-color;
+      }
     }
   }
 
@@ -141,9 +150,17 @@ div.wunderbaum {
         }
       }
     }
-    div.wb-header div.wb-row {
-      span.wb-col.wb-active {
-        background-color: $active-hover-color;
+  }
+
+  &.wb-ext-filter {
+    &.wb-ext-filter-dimm div.wb-node-list div.wb-row {
+      color: $filter-dimm-color;
+      &.wb-submatch {
+        color: $filter-submatch-color;
+      }
+      &.wb-match {
+        // color: color.adjust($node-text-color, $whiteness: 30%);
+        color: $node-text-color;
       }
     }
   }

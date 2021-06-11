@@ -536,6 +536,11 @@ export class WunderbaumNode {
     this.selected ? rowClasses.push("wb-selected") : 0;
     this === tree.activeNode ? rowClasses.push("wb-active") : 0;
 
+    this.match ? rowClasses.push("wb-match") : 0;
+    this.subMatchCount ? rowClasses.push("wb-submatch") : 0;
+    // TODO: no need to hide!
+    !(this.match || this.subMatchCount) ? rowClasses.push("wb-hide") : 0;
+
     if (rowDiv) {
       // Row markup already exists
       nodeElem = rowDiv.querySelector("span.wb-node") as HTMLElement;
@@ -577,6 +582,8 @@ export class WunderbaumNode {
       titleSpan = document.createElement("span");
       titleSpan.classList.add("wb-title");
       nodeElem.appendChild(titleSpan);
+
+      this.callEvent("enhanceTitle", { titleSpan: titleSpan });
 
       // Store the width of leading icons with the node, so we can calculate
       // the width of the embedded title span later
