@@ -12,6 +12,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     ],
     filter: {
       attachInput: "input#filterQuery",
+      // mode: "dimm",
     },
     change: function (data) {
       console.log("change", arguments);
@@ -47,12 +48,10 @@ document.querySelector("a#collapse-all").addEventListener("click", (event) => {
 function showStatus(tree, options) {
   const info = document.querySelector("#tree-info");
   const elemCount = document.querySelector(".wb-node-list").childElementCount;
-  const msg = `Nodes: ${tree.count().toLocaleString()}, rows: ${tree.count(true).toLocaleString()}, rendered: ${elemCount}`
-    + `, `;
-  // console.info(
-  //   info,
-  //   msg,
-  // );
+  const msg =
+    `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
+      .count(true)
+      .toLocaleString()}, rendered: ${elemCount}` + `, `;
   info.textContent = msg;
-  tree._check()
+  tree._check();
 }

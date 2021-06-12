@@ -29,8 +29,9 @@ export class FilterExtension extends WunderbaumExtension {
   constructor(tree: Wunderbaum) {
     super(tree, "filter", {
       attachInput: null,
-      mode: "dimm",
       fuzzy: false,
+      highlight: true,
+      mode: "hide",
     });
     // tree.log("options", tree.options);
     // this.attachQueryInput();
@@ -140,7 +141,7 @@ export class FilterExtension extends WunderbaumExtension {
       };
     }
 
-    tree.enableFilter = true;
+    tree.filterMode = opts.mode;
     this.lastFilterArgs = arguments;
 
     prevEnableUpdate = tree.enableUpdate(false);
@@ -261,7 +262,7 @@ export class FilterExtension extends WunderbaumExtension {
   updateFilter() {
     let tree = this.tree;
     if (
-      tree.enableFilter &&
+      tree.filterMode &&
       this.lastFilterArgs &&
       tree.options.filter.autoApply
     ) {
@@ -294,7 +295,7 @@ export class FilterExtension extends WunderbaumExtension {
     tree.visit((node) => {
       if (node.match && node._rowElem) {
         // #491, #601
-        let titleElem = node._rowElem.querySelector(">span.wb-title")!;
+        let titleElem = node._rowElem.querySelector("span.wb-title")!;
         if (escapeTitles) {
           titleElem.textContent = node.title;
         } else {
@@ -318,7 +319,7 @@ export class FilterExtension extends WunderbaumExtension {
       }
       delete node._filterAutoExpanded;
     });
-    tree.enableFilter = false;
+    tree.filterMode = null;
     this.lastFilterArgs = null;
     tree.element.classList.remove(
       // "wb-ext-filter",

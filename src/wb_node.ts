@@ -325,7 +325,7 @@ export class WunderbaumNode {
     let i,
       l,
       n,
-      hasFilter = this.tree.enableFilter,
+      hasFilter = this.tree.filterMode === "hide",
       parents = this.getParentList(false, false);
 
     // TODO: check $(n.span).is(":visible")
@@ -642,7 +642,13 @@ export class WunderbaumNode {
         iconSpan.className = "wb-icon " + iconMap.doc;
       }
     }
-    titleSpan.textContent = this.title;
+    if (this.titleWithHighlight) {
+      titleSpan.innerHTML = this.titleWithHighlight;
+    } else if (tree.options.escapeTitles) {
+      titleSpan.textContent = this.title;
+    } else {
+      titleSpan.innerHTML = this.title;
+    }
     // Set the width of the title span, so overflow ellipsis work
     titleSpan.style.width =
       columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
@@ -898,6 +904,6 @@ export class WunderbaumNode {
    * [ext-filter] Return true if this node is matched by current filter (or no filter is active).
    */
   isMatched() {
-    return !(this.tree.enableFilter && !this.match);
+    return !(this.tree.filterMode && !this.match);
   }
 }

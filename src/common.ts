@@ -25,6 +25,7 @@ export type NodeAnyCallback = (node: WunderbaumNode) => any;
 export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 
+export type FilterModeType = null | "dimm" | "hide";
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 

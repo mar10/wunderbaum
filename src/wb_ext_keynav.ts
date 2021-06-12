@@ -58,9 +58,6 @@ export class KeynavExtension extends WunderbaumExtension {
       return;
     }
 
-    // if (tree.cellNavMode) {
-    // }
-
     const navMode = opts.navigationMode;
 
     // Pre-Evaluate expand/collapse action for LEFT/RIGHT

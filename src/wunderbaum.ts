@@ -18,6 +18,7 @@ import {
   ChangeType,
   DEFAULT_DEBUGLEVEL,
   ExtensionsDict,
+  FilterModeType,
   makeNodeTitleStartMatcher,
   MatcherType,
   NavigationMode,
@@ -83,7 +84,7 @@ export class Wunderbaum {
   protected changedNodes = new Set<WunderbaumNode>();
 
   // --- FILTER ---
-  public enableFilter = false;
+  public filterMode: FilterModeType = null;
 
   // --- KEYNAV ---
   public activeColIdx = 0;
@@ -1051,7 +1052,7 @@ export class Wunderbaum {
       siblingOfs = 0,
       skipFirstNode = opts.includeSelf === false,
       includeHidden = !!opts.includeHidden,
-      checkFilter = !includeHidden && this.enableFilter,
+      checkFilter = !includeHidden && this.filterMode === "hide",
       node: WunderbaumNode = opts.start || this.root.children![0];
 
     parent = node.parent;
@@ -1215,7 +1216,7 @@ export class Wunderbaum {
    * @requires [[FilterExtension]]
    */
   isFilterActive() {
-    return !!this.enableFilter;
+    return !!this.filterMode;
   }
   /**
    * [ext-filter] Re-apply current filter.
