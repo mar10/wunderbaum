@@ -64,10 +64,10 @@
     "forceConsistentCasingInFileNames": true, /* Disallow inconsistently-cased references to the same file. */
 
   },
-  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.spec.ts"],
+  "exclude": ["node_modules", "dist", "docs", "**/*.test.ts", "**/*.spec.ts"],
 
   "typedocOptions": {
-    "entryPoints": ["src/wunderbaum.ts", "src/wb_node.ts", "src/wb_options.ts"],
+    "entryPoints": ["src/wunderbaum.ts", "src/wb_node.ts", "src/wb_options.ts", "src/common.ts", "src/util.ts"],
     "out": "docs/api",
     "excludePrivate": true,
     "excludeProtected": true,

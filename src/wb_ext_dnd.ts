@@ -4,26 +4,14 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 import * as util from "./util";
-import {
-  debounce,
-  elemFromSelector,
-  escapeHtml,
-  escapeRegex,
-  extend,
-  extractHtmlText,
-  onEvent,
-} from "./util";
+import { EventCallbackType, onEvent } from "./util";
+import { getNode } from "./common";
 import { Wunderbaum } from "./wunderbaum";
-import { KEY_NODATA, NodeFilterCallback, WunderbaumExtension } from "./common";
-import { WunderbaumNode } from "./wb_node";
-
-const START_MARKER = "\uFFF7";
-const END_MARKER = "\uFFF8";
-const RE_START_MARKER = new RegExp(escapeRegex(START_MARKER), "g");
-const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
+import { WunderbaumExtension } from "./wb_extension_base";
 
 export class DndExtension extends WunderbaumExtension {
-  //   public queryInput?: HTMLInputElement;
+  public dropMarkerElem?: HTMLElement;
+
   constructor(tree: Wunderbaum) {
     super(tree, "dnd", {
       autoExpandMS: 1500, // Expand nodes after n milliseconds of hovering
@@ -58,7 +46,69 @@ export class DndExtension extends WunderbaumExtension {
       dragLeave: util.noop, // Callback(targetNode, data)
     });
   }
+
   init() {
     super.init();
+
+    // Store the current scroll parent, which may be the tree
+    // container, any enclosing div, or the document.
+    // #761: scrollParent() always needs a container child
+    // $temp = $("<span>").appendTo(this.$container);
+    // this.$scrollParent = $temp.scrollParent();
+    // $temp.remove();
+    const tree = this.tree;
+    const dndOpts = tree.options.dnd;
+
+    // this.dropMarkerElem = document.querySelector("#wb-drop-marker");
+    // if (!this.dropMarkerElem) {
+    //   this.dropMarkerElem = $("<div id='fancytree-drop-marker'></div>")
+    //     .hide()
+    //     .css({
+    //       "z-index": 1000,
+    //       // Drop marker should not steal dragenter/dragover events:
+    //       "pointer-events": "none",
+    //     })
+    //     .prependTo(dndOpts.dropMarkerParent);
+    //   if (glyph) {
+    //     FT.setSpanIcon(
+    //       $dropMarker[0],
+    //       glyph.map._addClass,
+    //       glyph.map.dropMarker
+    //     );
+    //   }
+    // }
+    // $dropMarker.toggleClass("fancytree-rtl", !!opts.rtl);
+
+    // Enable drag support if dragStart() is specified:
+    if (dndOpts.dragStart) {
+      onEvent(
+        tree.element,
+        "dragstart drag dragend",
+        (<EventCallbackType>this.onDragEvent).bind(this)
+      );
+    }
+    // Enable drop support if dragEnter() is specified:
+    if (dndOpts.dragEnter) {
+      onEvent(
+        tree.element,
+        "dragenter dragover dragleave drop",
+        (<EventCallbackType>this.onDropEvent).bind(this)
+      );
+    }
+  }
+
+  protected onDragEvent(e: DragEvent) {
+    const node = getNode(e);
+    this.tree.log("onDragEvent." + e.type + " " + node, e);
+    return true;
+  }
+
+  protected onDropEvent(e: DragEvent) {
+    // const isLink = event.dataTransfer.types.includes("text/uri-list");
+    if (e.type === "dragenter" || e.type === "dragover") {
+      e.preventDefault(); // Drop operation is denied by default
+    }
+    const node = getNode(e);
+    this.tree.log("onDropEvent." + e.type + " " + node, e);
   }
 }

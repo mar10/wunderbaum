@@ -4,8 +4,8 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { WunderbaumExtension } from "./common";
 import { eventToString, overrideMethod } from "./util";
+import { WunderbaumExtension } from "./wb_extension_base";
 import { Wunderbaum } from "./wunderbaum";
 
 export class LoggerExtension extends WunderbaumExtension {

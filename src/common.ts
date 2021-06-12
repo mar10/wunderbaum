@@ -4,9 +4,9 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
+import { assert, escapeRegex } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
-import { escapeRegExp, extend } from "./util";
 
 export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
@@ -18,8 +18,6 @@ export const TEST_IMG = new RegExp(/\.|\//); // strings are considered image url
 export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
 export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
-export type FunctionType = (...args: any[]) => any;
-
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 
 export type NodeVisitResponse = "skip" | boolean | void;
@@ -29,7 +27,7 @@ export type FilterModeType = null | "dimm" | "hide";
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 
-export type ExtensionsDict = { [key: string]: WunderbaumExtension };
+export type DndModeType = "before" | "after" | "over";
 
 export enum ChangeType {
   any = "any",
@@ -96,70 +94,6 @@ export let iconMap = {
   folderOpen: "bi bi-folder2-open",
   doc: "bi bi-file-earmark",
 };
-
-export abstract class WunderbaumExtension {
-  public enabled = true;
-  readonly name: string;
-  readonly tree: Wunderbaum;
-  readonly treeOpts: any;
-  readonly extensionOpts: any;
-
-  constructor(tree: Wunderbaum, name: string, defaults: any) {
-    this.tree = tree;
-    this.name = name;
-    this.treeOpts = tree.options;
-    // Merge extension default and explicit options into `tree.options.EXTNAME`
-    // tree.options[name] ??= {};
-    if (this.treeOpts[name] === undefined) {
-      this.treeOpts[name] = this.extensionOpts = extend({}, defaults);
-    } else {
-      // TODO: do we break existing object instance references here?
-      this.extensionOpts = extend({}, defaults, tree.options[name]);
-      tree.options[name] = this.extensionOpts;
-    }
-    this.enabled = !!this.getOption("enabled");
-  }
-
-  /** Called on tree (re)init after all extensions are added, but before loading.*/
-  init() {
-    this.tree.element.classList.add("wb-ext-" + this.name);
-  }
-
-  protected callEvent(name: string, extra?: any): any {
-    let func = this.extensionOpts[name];
-    if (func) {
-      return func.call(
-        this.tree,
-        extend(
-          {
-            event: this.name + "." + name,
-          },
-          extra
-        )
-      );
-    }
-  }
-
-  getOption(name: string): any {
-    return this.extensionOpts[name];
-  }
-
-  setOption(name: string, value: any): void {
-    this.extensionOpts[name] = value;
-  }
-
-  setEnabled(flag = true) {
-    this.enabled = !!flag;
-  }
-
-  onKeyEvent(data: any): boolean | undefined {
-    return;
-  }
-
-  onRender(data: any): boolean | undefined {
-    return;
-  }
-}
 
 export const KEY_NODATA = "__not_found__";
 
@@ -242,9 +176,79 @@ export function evalOption(
   return res;
 }
 
+/** Return a WunderbaumNode instance from element, event.
+ *
+ * @param  el
+ */
+export function getNode(el: Element | Event): WunderbaumNode | null {
+  if (!el) {
+    return null;
+  } else if (el instanceof WunderbaumNode) {
+    return el;
+  } else if ((<Event>el).target !== undefined) {
+    el = (<Event>el).target! as Element; // el was an Event
+  }
+  // `el` is a WunderbaumNode instance
+  while (el) {
+    if ((<any>el)._wb_node) {
+      return (<any>el)._wb_node as WunderbaumNode;
+    }
+    el = (<Element>el).parentElement!; //.parentNode;
+  }
+  return null;
+}
+/** Return a Wunderbaum instance, from element, index, or event.
+ *
+ * @example
+ * getTree();  // Get first Wunderbaum instance on page
+ * getTree(1);  // Get second Wunderbaum instance on page
+ * getTree(event);  // Get tree for this mouse- or keyboard event
+ * getTree("foo");  // Get tree for this `tree.options.name`
+ * getTree("#tree");  // Get tree for this matching element
+ */
+export function getTree(
+  el?: Element | Event | number | string | WunderbaumNode
+): Wunderbaum | null {
+  if (el instanceof Wunderbaum) {
+    return el;
+  } else if (el instanceof WunderbaumNode) {
+    return el.tree;
+  }
+  if (el === undefined) {
+    el = 0; // get first tree
+  }
+  if (typeof el === "number") {
+    el = document.querySelectorAll(".wunderbaum")[el]; // el was an integer: return nth element
+  } else if (typeof el === "string") {
+    // Search all trees for matching name
+    for (let treeElem of document.querySelectorAll(".wunderbaum")) {
+      const tree = (<any>treeElem)._wb_tree;
+      if (tree && tree.name === el) {
+        return tree;
+      }
+    }
+    // Search by selector
+    el = document.querySelector(el)!;
+    if (!el) {
+      return null;
+    }
+  } else if ((<Event>el).target) {
+    el = (<Event>el).target as Element;
+  }
+  assert(el instanceof Element);
+  if (!(<HTMLElement>el).matches(".wunderbaum")) {
+    el = (<HTMLElement>el).closest(".wunderbaum")!;
+  }
+
+  if (el && (<any>el)._wb_tree) {
+    return (<any>el)._wb_tree;
+  }
+  return null;
+}
+
 /** */
 export function makeNodeTitleMatcher(s: string): MatcherType {
-  s = escapeRegExp(s.toLowerCase());
+  s = escapeRegex(s.toLowerCase());
   return function (node: WunderbaumNode) {
     return node.title.toLowerCase().indexOf(s) >= 0;
   };
@@ -252,80 +256,9 @@ export function makeNodeTitleMatcher(s: string): MatcherType {
 
 /** */
 export function makeNodeTitleStartMatcher(s: string): MatcherType {
-  s = escapeRegExp(s);
+  s = escapeRegex(s);
   const reMatch = new RegExp("^" + s, "i");
   return function (node: WunderbaumNode) {
     return reMatch.test(node.title);
   };
 }
-
-/*******************************************************************************
- *
- */
-
-// let reNumUnit = /^([+-]?(?:\d+|\d*\.\d+))([a-z]*|%)$/; // split "1.5em" to ["1.5", "em"]
-
-/* Create a global embedded CSS style for the tree. */
-// export function defineHeadStyleElement(id: string, cssText: string) {
-//   id = "wunderbaum-style-" + id;
-//   let $headStyle = $("#" + id);
-
-//   if (!cssText) {
-//     $headStyle.remove();
-//     return null;
-//   }
-//   if (!$headStyle.length) {
-//     $headStyle = $("<style />")
-//       .attr("id", id)
-//       .addClass("fancytree-style")
-//       .prop("type", "text/css")
-//       .appendTo("head");
-//   }
-//   try {
-//     $headStyle.html(cssText);
-//   } catch (e) {
-//     // fix for IE 6-8
-//     $headStyle[0].styleSheet.cssText = cssText;
-//   }
-//   return $headStyle;
-// }
-
-/* Calculate the CSS rules that indent title spans. */
-// function renderLevelCss(
-//   containerId,
-//   depth,
-//   levelOfs,
-//   lineOfs,
-//   labelOfs,
-//   measureUnit
-// ) {
-//   let i,
-//     prefix = "#" + containerId + " span.fancytree-level-",
-//     rules = [];
-
-//   for (i = 0; i < depth; i++) {
-//     rules.push(
-//       prefix +
-//       (i + 1) +
-//       " span.fancytree-title { padding-left: " +
-//       (i * levelOfs + lineOfs) +
-//       measureUnit +
-//       "; }"
-//     );
-//   }
-//   // Some UI animations wrap the UL inside a DIV and set position:relative on both.
-//   // This breaks the left:0 and padding-left:nn settings of the title
-//   rules.push(
-//     "#" +
-//     containerId +
-//     " div.ui-effects-wrapper ul li span.fancytree-title, " +
-//     "#" +
-//     containerId +
-//     " li.fancytree-animating span.fancytree-title " + // #716
-//     "{ padding-left: " +
-//     labelOfs +
-//     measureUnit +
-//     "; position: static; width: auto; }"
-//   );
-//   return rules.join("\n");
-// }

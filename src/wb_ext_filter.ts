@@ -13,9 +13,10 @@ import {
   extractHtmlText,
   onEvent,
 } from "./util";
+import { KEY_NODATA, NodeFilterCallback } from "./common";
 import { Wunderbaum } from "./wunderbaum";
-import { KEY_NODATA, NodeFilterCallback, WunderbaumExtension } from "./common";
 import { WunderbaumNode } from "./wb_node";
+import { WunderbaumExtension } from "./wb_extension_base";
 
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -49,7 +50,6 @@ export class FilterExtension extends WunderbaumExtension {
       onEvent(
         this.queryInput,
         "input",
-        null,
         debounce((e) => {
           // this.tree.log("query", e);
           this.filterNodes(this.queryInput!.value.trim(), {});

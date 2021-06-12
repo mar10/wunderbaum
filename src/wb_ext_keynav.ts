@@ -4,10 +4,11 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavigationMode, WunderbaumExtension } from "./common";
+import { NavigationMode } from "./common";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
+import { WunderbaumExtension } from "./wb_extension_base";
 
 export class KeynavExtension extends WunderbaumExtension {
   constructor(tree: Wunderbaum) {

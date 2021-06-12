@@ -11,7 +11,8 @@ document.addEventListener("DOMContentLoaded", function (event) {
       { id: "id2", title: "b" },
     ],
     dnd: {
-      dragStart: ()=>{return true}
+      dragStart: (e)=>{return true},
+      dragEnter: (e)=>{return true},
     },
     filter: {
       attachInput: "input#filterQuery",

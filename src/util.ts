@@ -4,8 +4,6 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { FunctionType } from "./common";
-
 /** Readable names for `MouseEvent.button` */
 export const MOUSE_BUTTONS: { [key: number]: string } = {
   0: "",
@@ -19,7 +17,7 @@ export const MOUSE_BUTTONS: { [key: number]: string } = {
 export const MAX_INT = 9007199254740991;
 
 const REX_HTML = /[&<>"'/]/g; // Escape those characters
-// const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
+const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
 const ENTITY_MAP: { [key: string]: string } = {
   "&": "&amp;",
   "<": "&lt;",
@@ -29,6 +27,8 @@ const ENTITY_MAP: { [key: string]: string } = {
   "/": "&#x2F;",
 };
 
+export type FunctionType = (...args: any[]) => any;
+export type EventCallbackType = (e: Event) => boolean | void;
 type PromiseCallbackType = (val: any) => void;
 
 /**
@@ -85,7 +85,20 @@ export class Deferred {
 }
 
 /**
- * Bind event handler using event delegation.
+ * Bind one or more event handlers directly to an [[Element]].
+ *
+ * @param element HTMLElement or selector
+ * @param eventNames
+ * @param handler
+ */
+export function onEvent(
+  rootElem: HTMLElement | string,
+  eventNames: string,
+  handler: EventCallbackType
+): void;
+
+/**
+ * Bind one or more event handlers using event delegation.
  *
  * E.g. handle all 'input' events for input and textarea elements of a given
  * form:
@@ -97,25 +110,41 @@ export class Deferred {
  *
  * @param element HTMLElement or selector
  * @param eventNames
- * @param selector (pass null if no event delegation is needed)
+ * @param selector
  * @param handler
  */
 export function onEvent(
   rootElem: HTMLElement | string,
   eventNames: string,
-  selector: string | null,
-  handler: (e: Event) => boolean | void
+  selector: string,
+  handler: EventCallbackType
+): void;
+
+export function onEvent(
+  rootElem: HTMLElement | string,
+  eventNames: string,
+  selectorOrHandler: string | EventCallbackType,
+  handlerOrNone?: EventCallbackType
 ): void {
+  let selector: string | null, handler: EventCallbackType;
   rootElem = elemFromSelector(rootElem)!;
+
+  if (handlerOrNone) {
+    selector = selectorOrHandler as string;
+    handler = handlerOrNone!;
+  } else {
+    selector = "";
+    handler = selectorOrHandler as EventCallbackType;
+  }
 
   eventNames.split(" ").forEach((evn) => {
     (<HTMLElement>rootElem).addEventListener(evn, function (e) {
       if (!selector) {
-        return handler(e); // no event delegation
+        return handler!(e); // no event delegation
       } else if (e.target) {
         let elem = e.target as HTMLElement;
-        if (elem.matches(selector)) {
-          return handler(e);
+        if (elem.matches(selector as string)) {
+          return handler!(e);
         }
         elem = elem.closest(selector) as HTMLElement;
         if (elem) {
@@ -126,8 +155,26 @@ export function onEvent(
   });
 }
 
+/** Convert `<`, `>`, `&`, `"`, `'`, and `/` to the equivalent entities. */
+export function escapeHtml(s: string): string {
+  return ("" + s).replace(REX_HTML, function (s) {
+    return ENTITY_MAP[s];
+  });
+}
+
+// export function escapeRegExp(s: string) {
+//   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
+// }
+
 export function escapeRegex(s: string) {
   return (s + "").replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+}
+
+/** Convert `<`, `>`, `"`, `'`, and `/` (but not `&`) to the equivalent entities. */
+export function escapeTooltip(s: string): string {
+  return ("" + s).replace(REX_TOOLTIP, function (s) {
+    return ENTITY_MAP[s];
+  });
 }
 
 export function extractHtmlText(s: string) {
@@ -190,10 +237,6 @@ export function error(msg: string) {
   throw new Error(msg);
 }
 
-export function escapeRegExp(s: string) {
-  return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-}
-
 const IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
 
 export function eventToString(event: Event) {
@@ -235,14 +278,6 @@ export function assert(cond: boolean, msg?: string) {
     msg = msg || "Assertion failed.";
     throw new Error(msg);
   }
-}
-
-/** Convert `<`, `>`, `&`, `"`, `'`, and `/` to the equivalent entities.
- */
-export function escapeHtml(s: string): string {
-  return ("" + s).replace(REX_HTML, function (s) {
-    return ENTITY_MAP[s];
-  });
 }
 
 export function extend(...args: any[]) {

@@ -12,12 +12,15 @@
 
 import "./wunderbaum.scss";
 import * as util from "./util";
-import { WunderbaumNode } from "./wb_node";
-// import { PersistoOptions } from "./wb_options";
+import { FilterExtension } from "./wb_ext_filter";
+import { KeynavExtension } from "./wb_ext_keynav";
+import { LoggerExtension } from "./wb_ext_logger";
+import { DndExtension } from "./wb_ext_dnd";
+import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
+
 import {
   ChangeType,
   DEFAULT_DEBUGLEVEL,
-  ExtensionsDict,
   FilterModeType,
   makeNodeTitleStartMatcher,
   MatcherType,
@@ -25,14 +28,9 @@ import {
   RENDER_PREFETCH,
   ROW_HEIGHT,
   TargetType,
-  WunderbaumExtension,
   WunderbaumOptions,
 } from "./common";
-import { FilterExtension } from "./wb_ext_filter";
-import { KeynavExtension } from "./wb_ext_keynav";
-import { LoggerExtension } from "./wb_ext_logger";
-import { DndExtension } from "./wb_ext_dnd";
-import { extend } from "./util";
+import { WunderbaumNode } from "./wb_node";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -98,6 +96,7 @@ export class Wunderbaum {
   constructor(options: WunderbaumOptions) {
     let opts = (this.options = util.extend(
       {
+        name: null,
         source: null, // URL for GET/PUT, ajax options, or callback
         element: null, // <div class="wunderbaum">
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:normal, 2:verbose
@@ -256,7 +255,7 @@ export class Wunderbaum {
     //     // this.log("mouse", e.target);
     //   }
     // );
-    util.onEvent(this.element, "keydown", null, (e) => {
+    util.onEvent(this.element, "keydown", (e) => {
       this._callHook("onKeyEvent", { tree: this, event: e });
     });
   }
@@ -352,7 +351,10 @@ export class Wunderbaum {
   callEvent(name: string, extra?: any): any {
     let func = this.options[name];
     if (func) {
-      let res = func.call(this, extend({ event: name, tree: this }, extra));
+      let res = func.call(
+        this,
+        util.extend({ event: name, tree: this }, extra)
+      );
       return res;
     }
   }
