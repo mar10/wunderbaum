@@ -107,9 +107,18 @@ div.wunderbaum {
           border-color: $active-hover-border-color;
         }
       }
+      &.wb-active.wb-selected {
+        background-color: $active-hover-color;
+        &:hover {
+          background-color: $active-hover-color;
+        }
+      }
     }
-    span.wb-node :first-of-type {
-      margin-left: 8px; // leftmost icon gets a little margin
+    span.wb-node {
+      user-select: none;
+      &:first-of-type {
+        margin-left: 8px; // leftmost icon gets a little margin
+      }
     }
 
     i.wb-checkbox,

@@ -588,6 +588,9 @@ export class WunderbaumNode {
       // Store the width of leading icons with the node, so we can calculate
       // the width of the embedded title span later
       (<any>nodeElem)._ofsTitlePx = ofsTitlePx;
+      if (tree.options.dnd.dragStart) {
+        nodeElem.draggable = true;
+      }
 
       // Render columns
       let colIdx = 0;

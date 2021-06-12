@@ -28,10 +28,11 @@ import {
   WunderbaumExtension,
   WunderbaumOptions,
 } from "./common";
+import { FilterExtension } from "./wb_ext_filter";
 import { KeynavExtension } from "./wb_ext_keynav";
 import { LoggerExtension } from "./wb_ext_logger";
+import { DndExtension } from "./wb_ext_dnd";
 import { extend } from "./util";
-import { FilterExtension } from "./wb_ext_filter";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -111,9 +112,9 @@ export class Wunderbaum {
         quicksearch: true,
         // Events
         change: util.noop,
+        enhanceTitle: util.noop,
         error: util.noop,
         receive: util.noop,
-        enhanceTitle: util.noop,
       },
       options
     ));
@@ -126,6 +127,7 @@ export class Wunderbaum {
 
     this._registerExtension(new KeynavExtension(this));
     this._registerExtension(new FilterExtension(this));
+    this._registerExtension(new DndExtension(this));
     this._registerExtension(new LoggerExtension(this));
 
     // --- Evaluate options

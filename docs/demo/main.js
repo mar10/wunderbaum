@@ -10,6 +10,9 @@ document.addEventListener("DOMContentLoaded", function (event) {
       { id: "id1", title: "a", width: 2 },
       { id: "id2", title: "b" },
     ],
+    dnd: {
+      dragStart: ()=>{return true}
+    },
     filter: {
       attachInput: "input#filterQuery",
       // mode: "dimm",

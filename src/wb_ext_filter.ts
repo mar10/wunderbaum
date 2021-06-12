@@ -28,13 +28,17 @@ export class FilterExtension extends WunderbaumExtension {
 
   constructor(tree: Wunderbaum) {
     super(tree, "filter", {
-      attachInput: null,
-      fuzzy: false,
-      highlight: true,
-      mode: "hide",
+      autoApply: true, // Re-apply last filter if lazy data is loaded
+      autoExpand: false, // Expand all branches that contain matches while filtered
+      counter: true, // Show a badge with number of matching child nodes near parent icons
+      fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
+      hideExpandedCounter: true, // Hide counter badge if parent is expanded
+      hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
+      highlight: true, // Highlight matches by wrapping inside <mark> tags
+      leavesOnly: false, // Match end nodes only
+      mode: "hide", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+      nodata: true, // Display a 'no data' status node if result is empty
     });
-    // tree.log("options", tree.options);
-    // this.attachQueryInput();
   }
 
   init() {
