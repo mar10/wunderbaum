@@ -97,7 +97,7 @@
     "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
     "build:format": "prettier src -w",
     "build": "npm run build:format && npm run build:js -s && npm run build:minjs -s && npm run build:types -s && npm run docs",
-    "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs:umd\"",
+    "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
     "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\""

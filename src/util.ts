@@ -273,7 +273,7 @@ export function eventToString(event: Event) {
   return s.join("+");
 }
 
-export function assert(cond: boolean, msg?: string) {
+export function assert(cond: any, msg?: string) {
   if (!cond) {
     msg = msg || "Assertion failed.";
     throw new Error(msg);

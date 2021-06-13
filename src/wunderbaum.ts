@@ -109,11 +109,15 @@ export class Wunderbaum {
         // --- KeyNav ---
         navigationMode: NavigationMode.allow,
         quicksearch: true,
-        // Events
+        // --- Events ---
         change: util.noop,
         enhanceTitle: util.noop,
         error: util.noop,
         receive: util.noop,
+        // --- Strings ---
+        strings: {
+          noData: "No data",
+        },
       },
       options
     ));
@@ -132,6 +136,10 @@ export class Wunderbaum {
     // --- Evaluate options
     this.columns = opts.columns;
     delete opts.columns;
+    if (!this.columns) {
+      this.columns = [{ title: this.name, width: "*" }];
+    }
+
     this.types = opts.types || {};
     delete opts.types;
 
@@ -144,6 +152,9 @@ export class Wunderbaum {
 
     // --- Create Markup
     this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
+    util.assert(!!this.element, `Invalid 'element' option: ${opts.element}`);
+
+    this.element.classList.add("wunderbaum");
 
     // Attach tree instance to <div>
     (<any>this.element)._wb_tree = this;
@@ -260,23 +271,74 @@ export class Wunderbaum {
     });
   }
 
-  /** */
-  public static getTree(idxOrIdOrSelector?: any): Wunderbaum | null {
-    idxOrIdOrSelector = idxOrIdOrSelector || ".wunderbaum";
-    let elem = document.querySelector(idxOrIdOrSelector);
-    return <Wunderbaum>(<any>elem!)._wb_tree;
+  /** Return a Wunderbaum instance, from element, index, or event.
+   *
+   * @example
+   * getTree();  // Get first Wunderbaum instance on page
+   * getTree(1);  // Get second Wunderbaum instance on page
+   * getTree(event);  // Get tree for this mouse- or keyboard event
+   * getTree("foo");  // Get tree for this `tree.options.name`
+   * getTree("#tree");  // Get tree for this matching element
+   */
+  public static getTree(
+    el?: Element | Event | number | string | WunderbaumNode
+  ): Wunderbaum | null {
+    if (el instanceof Wunderbaum) {
+      return el;
+    } else if (el instanceof WunderbaumNode) {
+      return el.tree;
+    }
+    if (el === undefined) {
+      el = 0; // get first tree
+    }
+    if (typeof el === "number") {
+      el = document.querySelectorAll(".wunderbaum")[el]; // el was an integer: return nth element
+    } else if (typeof el === "string") {
+      // Search all trees for matching name
+      for (let treeElem of document.querySelectorAll(".wunderbaum")) {
+        const tree = (<any>treeElem)._wb_tree;
+        if (tree && tree.name === el) {
+          return tree;
+        }
+      }
+      // Search by selector
+      el = document.querySelector(el)!;
+      if (!el) {
+        return null;
+      }
+    } else if ((<Event>el).target) {
+      el = (<Event>el).target as Element;
+    }
+    util.assert(el instanceof Element);
+    if (!(<HTMLElement>el).matches(".wunderbaum")) {
+      el = (<HTMLElement>el).closest(".wunderbaum")!;
+    }
+
+    if (el && (<any>el)._wb_tree) {
+      return (<any>el)._wb_tree;
+    }
+    return null;
   }
 
-  /** */
-  public static getNode(obj: any): WunderbaumNode | null {
-    if (obj instanceof Event) {
-      obj = obj.target;
+  /** Return a WunderbaumNode instance from element, event.
+   *
+   * @param  el
+   */
+  public static getNode(el: Element | Event): WunderbaumNode | null {
+    if (!el) {
+      return null;
+    } else if (el instanceof WunderbaumNode) {
+      return el;
+    } else if ((<Event>el).target !== undefined) {
+      el = (<Event>el).target! as Element; // el was an Event
     }
-    if (obj instanceof Element) {
-      let nodeElem = obj.closest("div.wb-row");
-      if (nodeElem) {
-        return <WunderbaumNode>(<any>nodeElem!)._wb_node;
+    // `el` is a DOM element
+    // let nodeElem = obj.closest("div.wb-row");
+    while (el) {
+      if ((<any>el)._wb_node) {
+        return (<any>el)._wb_node as WunderbaumNode;
       }
+      el = (<Element>el).parentElement!; //.parentNode;
     }
     return null;
   }
@@ -660,7 +722,7 @@ export class Wunderbaum {
   getEventTarget(event: Event) {
     let target = <Element>event.target,
       cl = target.classList,
-      node = Wunderbaum.getNode(event.target),
+      node = Wunderbaum.getNode(target),
       res = {
         node: node,
         type: TargetType.unknown,
@@ -1074,7 +1136,12 @@ export class Wunderbaum {
         if (node === stopNode!) {
           return false;
         }
-        if (checkFilter && !node.match && !node.subMatchCount) {
+        if (
+          checkFilter &&
+          !node.statusNodeType &&
+          !node.match &&
+          !node.subMatchCount
+        ) {
           continue;
         }
         if (!skipFirstNode && callback(node) === false) {

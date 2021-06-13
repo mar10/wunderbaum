@@ -4,8 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { assert, escapeRegex } from "./util";
-import { Wunderbaum } from "./wunderbaum";
+import { escapeRegex } from "./util";
 import { WunderbaumNode } from "./wb_node";
 
 export type WunderbaumOptions = any;
@@ -174,76 +173,6 @@ export function evalOption(
     res = defaultValue; // no option set at all: return default
   }
   return res;
-}
-
-/** Return a WunderbaumNode instance from element, event.
- *
- * @param  el
- */
-export function getNode(el: Element | Event): WunderbaumNode | null {
-  if (!el) {
-    return null;
-  } else if (el instanceof WunderbaumNode) {
-    return el;
-  } else if ((<Event>el).target !== undefined) {
-    el = (<Event>el).target! as Element; // el was an Event
-  }
-  // `el` is a WunderbaumNode instance
-  while (el) {
-    if ((<any>el)._wb_node) {
-      return (<any>el)._wb_node as WunderbaumNode;
-    }
-    el = (<Element>el).parentElement!; //.parentNode;
-  }
-  return null;
-}
-/** Return a Wunderbaum instance, from element, index, or event.
- *
- * @example
- * getTree();  // Get first Wunderbaum instance on page
- * getTree(1);  // Get second Wunderbaum instance on page
- * getTree(event);  // Get tree for this mouse- or keyboard event
- * getTree("foo");  // Get tree for this `tree.options.name`
- * getTree("#tree");  // Get tree for this matching element
- */
-export function getTree(
-  el?: Element | Event | number | string | WunderbaumNode
-): Wunderbaum | null {
-  if (el instanceof Wunderbaum) {
-    return el;
-  } else if (el instanceof WunderbaumNode) {
-    return el.tree;
-  }
-  if (el === undefined) {
-    el = 0; // get first tree
-  }
-  if (typeof el === "number") {
-    el = document.querySelectorAll(".wunderbaum")[el]; // el was an integer: return nth element
-  } else if (typeof el === "string") {
-    // Search all trees for matching name
-    for (let treeElem of document.querySelectorAll(".wunderbaum")) {
-      const tree = (<any>treeElem)._wb_tree;
-      if (tree && tree.name === el) {
-        return tree;
-      }
-    }
-    // Search by selector
-    el = document.querySelector(el)!;
-    if (!el) {
-      return null;
-    }
-  } else if ((<Event>el).target) {
-    el = (<Event>el).target as Element;
-  }
-  assert(el instanceof Element);
-  if (!(<HTMLElement>el).matches(".wunderbaum")) {
-    el = (<HTMLElement>el).closest(".wunderbaum")!;
-  }
-
-  if (el && (<any>el)._wb_tree) {
-    return (<any>el)._wb_tree;
-  }
-  return null;
 }
 
 /** */

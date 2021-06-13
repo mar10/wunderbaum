@@ -43,6 +43,8 @@ export class WunderbaumNode {
   public expanded: boolean = false;
   public selected: boolean = false;
   public type?: string;
+  /** Additional classes added to `div.wb-row`. */
+  public extraClasses = new Set<string>();
   // --- Node Status ---
   public statusNodeType?: string;
   _isLoading = false;
@@ -65,8 +67,9 @@ export class WunderbaumNode {
       data.key == null ? "" + ++WunderbaumNode.sequence : "" + data.key;
     this.title = data.title || "?" + this.key;
     // this.refKey = data.refKey;
-    if (parent) {
-      // Don't register root node
+    this.statusNodeType = data.statusNodeType;
+    if (parent && !data.statusNodeType) {
+      // Don't register root node or status nodes
       tree._registerNode(this);
     }
   }
@@ -100,30 +103,126 @@ export class WunderbaumNode {
     return this.tree.callEvent(event, util.extend({ node: this }, extra));
   }
 
-  addChild(node: WunderbaumNode, before?: WunderbaumNode) {
-    if (this.children == null) {
-      this.children = [node];
-    } else if (before) {
-      util.assert(false);
-    } else {
-      this.children.push(node);
+  // addChild(node: WunderbaumNode, before?: WunderbaumNode) {
+  //   if (this.children == null) {
+  //     this.children = [node];
+  //   } else if (before) {
+  //     util.assert(false);
+  //   } else {
+  //     this.children.push(node);
+  //   }
+  //   return node;
+  // }
+
+  // /** . */
+  // addChildren(data: any) {
+  //   util.assert(util.isArray(data));
+  //   for (let i = 0; i < data.length; i++) {
+  //     let d = data[i];
+  //     let node = new WunderbaumNode(this.tree, this, d);
+
+  //     this.addChild(node);
+  //     if (d.children) {
+  //       node.addChildren(d.children);
+  //     }
+  //   }
+  //   this.tree.setModified(ChangeType.structure, this);
+  // }
+  /**
+   * Append (or insert) a list of child nodes.
+   *
+   * Tip: pass `insertBefore`
+   * @param {NodeData[]} children array of child node definitions (also single child accepted)
+   * @param  child node (or key or index of such).
+   *     If omitted, the new children are appended.
+   * @returns first child added
+   */
+  addChildren(
+    children: any,
+    insertBefore?: WunderbaumNode | string | number
+  ): WunderbaumNode {
+    let pos,
+      firstNode = null,
+      nodeList = [];
+
+    if (util.isPlainObject(children)) {
+      children = [children];
     }
-    return node;
+    if (!this.children) {
+      this.children = [];
+    }
+    for (let i = 0, l = children.length; i < l; i++) {
+      nodeList.push(new WunderbaumNode(this.tree, this, children[i]));
+    }
+    firstNode = nodeList[0];
+    if (insertBefore == null) {
+      this.children = this.children.concat(nodeList);
+    } else {
+      // Returns null if insertBefore is not a direct child:
+      insertBefore = this.findDirectChild(insertBefore)!;
+      pos = this.children.indexOf(insertBefore);
+      util.assert(pos >= 0, "insertBefore must be an existing child");
+      // insert nodeList after children[pos]
+      this.children.splice(pos, 0, ...nodeList);
+    }
+    // if (origFirstChild && !insertBefore) {
+    //   // #708: Fast path -- don't render every child of root, just the new ones!
+    //   // #723, #729: but only if it's appended to an existing child list
+    //   for (let i = 0, l = nodeList.length; i < l; i++) {
+    //     nodeList[i].render(); // New nodes were never rendered before
+    //   }
+    //   // Adjust classes where status may have changed
+    //   // Has a first child
+    //   if (origFirstChild !== this.getFirstChild()) {
+    //     // Different first child -- recompute classes
+    //     origFirstChild.renderStatus();
+    //   }
+    //   if (origLastChild !== this.getLastChild()) {
+    //     // Different last child -- recompute classes
+    //     origLastChild.renderStatus();
+    //   }
+    // } else if (!this.parent || this.parent.ul || this.tr) {
+    //   // render if the parent was rendered (or this is a root node)
+    //   this.render();
+    // }
+
+    // TODO:
+    // if (this.tree.options.selectMode === 3) {
+    //   this.fixSelection3FromEndNodes();
+    // }
+    // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
+    this.tree.setModified(ChangeType.structure, this);
+    return firstNode;
   }
 
-  /** . */
-  addChildren(data: any) {
-    util.assert(util.isArray(data));
-    for (let i = 0; i < data.length; i++) {
-      let d = data[i];
-      let node = new WunderbaumNode(this.tree, this, d);
-
-      this.addChild(node);
-      if (d.children) {
-        node.addChildren(d.children);
-      }
+  /**
+   * Append or prepend a node, or append a child node.
+   *
+   * This a convenience function that calls addChildren()
+   *
+   * @param {NodeData} node node definition
+   * @param [mode=child] 'before', 'after', 'firstChild', or 'child' ('over' is a synonym for 'child')
+   * @returns new node
+   */
+  addNode(node: any, mode?: string): WunderbaumNode {
+    if (mode === undefined || mode === "over") {
+      mode = "child";
     }
-    this.tree.setModified(ChangeType.structure, this);
+    switch (mode) {
+      case "after":
+        return this.parent.addChildren(node, this.getNextSibling()!);
+      case "before":
+        return this.parent.addChildren(node, this);
+      case "firstChild":
+        // Insert before the first child if any
+        let insertBefore = this.children ? this.children[0] : undefined;
+        return this.addChildren(node, insertBefore);
+      case "child":
+      case "over":
+        return this.addChildren(node);
+    }
+    util.assert(false, "Invalid mode: " + mode);
+    return (<unknown>undefined) as WunderbaumNode;
   }
 
   /** */
@@ -155,13 +254,11 @@ export class WunderbaumNode {
   findDirectChild(
     ptr: number | string | WunderbaumNode
   ): WunderbaumNode | null {
-    let i,
-      l,
-      cl = this.children;
+    let cl = this.children;
 
     if (!cl) return null;
     if (typeof ptr === "string") {
-      for (i = 0, l = cl.length; i < l; i++) {
+      for (let i = 0, l = cl.length; i < l; i++) {
         if (cl[i].key === ptr) {
           return cl[i];
         }
@@ -204,10 +301,17 @@ export class WunderbaumNode {
   }
 
   /** Return the first child node or null.
-   * @returns {FancytreeNode | null}
+   * @returns {WunderbaumNode | null}
    */
   getFirstChild() {
     return this.children ? this.children[0] : null;
+  }
+
+  /** Return the last child node or null.
+   * @returns {WunderbaumNode | null}
+   */
+  getLastChild() {
+    return this.children ? this.children[this.children.length - 1] : null;
   }
 
   /** Return node depth (starting with 1 for top level nodes). */
@@ -221,13 +325,20 @@ export class WunderbaumNode {
     }
     return i;
   }
-  /** Return the parent node (null for the system root node).
-   * @returns {FancytreeNode | null}
-   */
-  getParent() {
+
+  /** Return the successor node (under the same parent) or null. */
+  getNextSibling(): WunderbaumNode | null {
+    let ac = this.parent.children!;
+    let idx = ac.indexOf(this);
+    return ac[idx + 1] || null;
+  }
+
+  /** Return the parent node (null for the system root node). */
+  getParent(): WunderbaumNode | null {
     // TODO: return null for top-level nodes?
     return this.parent;
   }
+
   /** Return an array of all parent nodes (top-down).
    * @param includeRoot Include the invisible system root node.
    * @param includeSelf Include the node itself.
@@ -271,6 +382,13 @@ export class WunderbaumNode {
       return undefined; // TODO remove this line
     }, includeSelf);
     return path.join(separator);
+  }
+
+  /** Return the predecessor node (under the same parent) or null. */
+  getPrevSibling(): WunderbaumNode | null {
+    let ac = this.parent.children!;
+    let idx = ac.indexOf(this);
+    return ac[idx - 1] || null;
   }
 
   /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
@@ -371,6 +489,16 @@ export class WunderbaumNode {
 
     if (opts.debugLevel >= 2) {
       console.time(this + ".load");
+    }
+    if (util.isPlainObject(source)) {
+      util.assert(
+        source.children,
+        "If `source` is an object, it must have a `children` property"
+      );
+      let prev = tree.enableUpdate(false);
+      this.addChildren(source.children);
+      tree.enableUpdate(prev);
+      return;
     }
     try {
       const response = await fetch(source, { method: "GET" });
@@ -740,24 +868,27 @@ export class WunderbaumNode {
       }
     };
 
-    const _setStatusNode = (data: any, type: NodeStatusType) => {
+    const _setStatusNode = (data: any) => {
       // Create/modify the dedicated dummy node for 'loading...' or
       // 'error!' status. (only called for direct child of the invisible
       // system root)
       let children = this.children;
       let firstChild = children ? children[0] : null;
+      util.assert(data.statusNodeType);
 
       if (firstChild && firstChild.isStatusNode()) {
         statusNode = firstChild;
         util.extend(firstChild, data);
-        firstChild.statusNodeType = type;
+        firstChild.statusNodeType = data.statusNodeType;
         // tree._callHook("nodeRenderTitle", firstChild);
         tree.setModified(ChangeType.row, statusNode);
       } else {
-        this.addChildren([data]);
-        statusNode = this.children![0];
+        statusNode = new WunderbaumNode(tree, this, data);
+        this.addNode(statusNode, "firstChild");
+        // this.addChildren([data]);
+        // statusNode = this.children![0];
         // tree._callHook("treeStructureChanged", ctx, "setStatusNode");
-        statusNode.statusNodeType = type;
+        // statusNode.statusNodeType = type;
         tree.setModified(ChangeType.structure);
         // tree.render();
       }
@@ -772,46 +903,40 @@ export class WunderbaumNode {
         break;
       case "loading":
         if (!this.parent) {
-          _setStatusNode(
-            {
-              title:
-                tree.options.strings.loading +
-                (message ? " (" + message + ")" : ""),
-              // icon: true,  // needed for 'loding' icon
-              checkbox: false,
-              tooltip: details,
-            },
-            status
-          );
+          _setStatusNode({
+            statusNodeType: status,
+            title:
+              tree.options.strings.loading +
+              (message ? " (" + message + ")" : ""),
+            // icon: true,  // needed for 'loding' icon
+            checkbox: false,
+            tooltip: details,
+          });
         }
         this._isLoading = true;
         this._errorInfo = null;
         break;
       case "error":
-        _setStatusNode(
-          {
-            title:
-              tree.options.strings.loadError +
-              (message ? " (" + message + ")" : ""),
-            // icon: false,
-            checkbox: false,
-            tooltip: details,
-          },
-          status
-        );
+        _setStatusNode({
+          statusNodeType: status,
+          title:
+            tree.options.strings.loadError +
+            (message ? " (" + message + ")" : ""),
+          // icon: false,
+          checkbox: false,
+          tooltip: details,
+        });
         this._isLoading = false;
         this._errorInfo = { message: message, details: details };
         break;
       case "nodata":
-        _setStatusNode(
-          {
-            title: message || tree.options.strings.noData,
-            // icon: false,
-            checkbox: false,
-            tooltip: details,
-          },
-          status
-        );
+        _setStatusNode({
+          statusNodeType: status,
+          title: message || tree.options.strings.noData,
+          // icon: false,
+          checkbox: false,
+          tooltip: details,
+        });
         this._isLoading = false;
         this._errorInfo = null;
         break;

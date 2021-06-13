@@ -5,7 +5,6 @@
  */
 import * as util from "./util";
 import { EventCallbackType, onEvent } from "./util";
-import { getNode } from "./common";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 
@@ -98,7 +97,7 @@ export class DndExtension extends WunderbaumExtension {
   }
 
   protected onDragEvent(e: DragEvent) {
-    const node = getNode(e);
+    const node = Wunderbaum.getNode(e);
     this.tree.log("onDragEvent." + e.type + " " + node, e);
     return true;
   }
@@ -108,7 +107,7 @@ export class DndExtension extends WunderbaumExtension {
     if (e.type === "dragenter" || e.type === "dragover") {
       e.preventDefault(); // Drop operation is denied by default
     }
-    const node = getNode(e);
+    const node = Wunderbaum.getNode(e);
     this.tree.log("onDropEvent." + e.type + " " + node, e);
   }
 }

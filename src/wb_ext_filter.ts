@@ -13,7 +13,7 @@ import {
   extractHtmlText,
   onEvent,
 } from "./util";
-import { KEY_NODATA, NodeFilterCallback } from "./common";
+import { KEY_NODATA, NodeFilterCallback, NodeStatusType } from "./common";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
@@ -212,25 +212,25 @@ export class FilterExtension extends WunderbaumExtension {
     treeOpts.autoCollapse = prevAutoCollapse;
 
     if (count === 0 && opts.nodata && hideMode) {
-      statusNode = opts.nodata;
-      if (typeof statusNode === "function") {
-        statusNode = statusNode();
-      }
-      if (statusNode === true) {
-        statusNode = {};
-      } else if (typeof statusNode === "string") {
-        statusNode = { title: statusNode };
-      }
-      statusNode = extend(
-        {
-          statusNodeType: "nodata",
-          key: KEY_NODATA,
-          title: treeOpts.strings.noData,
-        },
-        statusNode
-      );
-
-      tree.root.addChild(statusNode).match = true;
+      // statusNode = opts.nodata;
+      // if (typeof statusNode === "function") {
+      //   statusNode = statusNode();
+      // }
+      // if (statusNode === true) {
+      //   statusNode = {};
+      // } else if (typeof statusNode === "string") {
+      //   statusNode = { title: statusNode };
+      // }
+      // statusNode = extend(
+      //   {
+      //     statusNodeType: "nodata",
+      //     key: KEY_NODATA,
+      //     title: treeOpts.strings.noData,
+      //   },
+      //   statusNode
+      // );
+      // tree.root.addChild(statusNode).match = true;
+      tree.root.setStatus(NodeStatusType.nodata);
     }
     // Redraw whole tree
     // tree._callHook("treeStructureChanged", this, "applyFilter");
