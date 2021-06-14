@@ -49,6 +49,8 @@ export class WunderbaumNode {
   public statusNodeType?: string;
   _isLoading = false;
   _errorInfo: any | null = null;
+  public colspan?: boolean; // If true, title is streched over all columns
+  public center?: boolean; // If true, title is centered
   // --- FILTER ---
   public match?: boolean; // Added and removed by filter code
   public subMatchCount?: number = 0;
@@ -114,85 +116,55 @@ export class WunderbaumNode {
   //   return node;
   // }
 
-  // /** . */
-  // addChildren(data: any) {
-  //   util.assert(util.isArray(data));
-  //   for (let i = 0; i < data.length; i++) {
-  //     let d = data[i];
-  //     let node = new WunderbaumNode(this.tree, this, d);
-
-  //     this.addChild(node);
-  //     if (d.children) {
-  //       node.addChildren(d.children);
-  //     }
-  //   }
-  //   this.tree.setModified(ChangeType.structure, this);
-  // }
   /**
    * Append (or insert) a list of child nodes.
    *
-   * Tip: pass `insertBefore`
-   * @param {NodeData[]} children array of child node definitions (also single child accepted)
+   * Tip: pass `{ before: 0 }` to prepend children
+   * @param {NodeData[]} nodeData array of child node definitions (also single child accepted)
    * @param  child node (or key or index of such).
    *     If omitted, the new children are appended.
    * @returns first child added
    */
-  addChildren(
-    children: any,
-    insertBefore?: WunderbaumNode | string | number
-  ): WunderbaumNode {
-    let pos,
-      firstNode = null,
+  addChildren(nodeData: any, options?: any): WunderbaumNode {
+    let insertBefore: WunderbaumNode | string | number = options
+        ? options.before
+        : null,
+      // redraw = options ? options.redraw !== false : true,
       nodeList = [];
 
-    if (util.isPlainObject(children)) {
-      children = [children];
+    if (util.isPlainObject(nodeData)) {
+      nodeData = [nodeData];
     }
+    for (let child of nodeData) {
+      let subChildren = child.children;
+      delete child.children;
+
+      let n = new WunderbaumNode(this.tree, this, child);
+      nodeList.push(n);
+      if (subChildren) {
+        n.addChildren(subChildren, { redraw: false });
+      }
+    }
+
     if (!this.children) {
-      this.children = [];
-    }
-    for (let i = 0, l = children.length; i < l; i++) {
-      nodeList.push(new WunderbaumNode(this.tree, this, children[i]));
-    }
-    firstNode = nodeList[0];
-    if (insertBefore == null) {
+      this.children = nodeList;
+    } else if (insertBefore == null) {
       this.children = this.children.concat(nodeList);
     } else {
       // Returns null if insertBefore is not a direct child:
       insertBefore = this.findDirectChild(insertBefore)!;
-      pos = this.children.indexOf(insertBefore);
+      let pos = this.children.indexOf(insertBefore);
       util.assert(pos >= 0, "insertBefore must be an existing child");
       // insert nodeList after children[pos]
       this.children.splice(pos, 0, ...nodeList);
     }
-    // if (origFirstChild && !insertBefore) {
-    //   // #708: Fast path -- don't render every child of root, just the new ones!
-    //   // #723, #729: but only if it's appended to an existing child list
-    //   for (let i = 0, l = nodeList.length; i < l; i++) {
-    //     nodeList[i].render(); // New nodes were never rendered before
-    //   }
-    //   // Adjust classes where status may have changed
-    //   // Has a first child
-    //   if (origFirstChild !== this.getFirstChild()) {
-    //     // Different first child -- recompute classes
-    //     origFirstChild.renderStatus();
-    //   }
-    //   if (origLastChild !== this.getLastChild()) {
-    //     // Different last child -- recompute classes
-    //     origLastChild.renderStatus();
-    //   }
-    // } else if (!this.parent || this.parent.ul || this.tr) {
-    //   // render if the parent was rendered (or this is a root node)
-    //   this.render();
-    // }
-
     // TODO:
     // if (this.tree.options.selectMode === 3) {
     //   this.fixSelection3FromEndNodes();
     // }
     // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
     this.tree.setModified(ChangeType.structure, this);
-    return firstNode;
+    return nodeList[0];
   }
 
   /**
@@ -204,22 +176,24 @@ export class WunderbaumNode {
    * @param [mode=child] 'before', 'after', 'firstChild', or 'child' ('over' is a synonym for 'child')
    * @returns new node
    */
-  addNode(node: any, mode?: string): WunderbaumNode {
+  addNode(nodeData: any, mode?: string): WunderbaumNode {
     if (mode === undefined || mode === "over") {
       mode = "child";
     }
     switch (mode) {
       case "after":
-        return this.parent.addChildren(node, this.getNextSibling()!);
+        return this.parent.addChildren(nodeData, {
+          before: this.getNextSibling(),
+        });
       case "before":
-        return this.parent.addChildren(node, this);
+        return this.parent.addChildren(nodeData, { before: this });
       case "firstChild":
         // Insert before the first child if any
-        let insertBefore = this.children ? this.children[0] : undefined;
-        return this.addChildren(node, insertBefore);
+        // let insertBefore = this.children ? this.children[0] : undefined;
+        return this.addChildren(nodeData, { before: 0 });
       case "child":
       case "over":
-        return this.addChildren(node);
+        return this.addChildren(nodeData);
     }
     util.assert(false, "Invalid mode: " + mode);
     return (<unknown>undefined) as WunderbaumNode;
@@ -667,7 +641,7 @@ export class WunderbaumNode {
     this.match ? rowClasses.push("wb-match") : 0;
     this.subMatchCount ? rowClasses.push("wb-submatch") : 0;
     // TODO: no need to hide!
-    !(this.match || this.subMatchCount) ? rowClasses.push("wb-hide") : 0;
+    // !(this.match || this.subMatchCount) ? rowClasses.push("wb-hide") : 0;
 
     if (rowDiv) {
       // Row markup already exists

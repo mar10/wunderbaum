@@ -31,6 +31,7 @@ import {
   WunderbaumOptions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
+import { Deferred } from "./deferred";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -91,7 +92,7 @@ export class Wunderbaum {
   public lastQuicksearchTime = 0;
   public lastQuicksearchTerm = "";
 
-  // ready: Promise<any>;
+  readonly ready: Promise<any>;
 
   constructor(options: WunderbaumOptions) {
     let opts = (this.options = util.extend(
@@ -122,6 +123,9 @@ export class Wunderbaum {
       options
     ));
 
+    const readyDeferred = new Deferred();
+    this.ready = readyDeferred.promise();
+
     this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
     this.root = new WunderbaumNode(this, <WunderbaumNode>(<unknown>null), {
       key: "__root__",
@@ -137,7 +141,7 @@ export class Wunderbaum {
     this.columns = opts.columns;
     delete opts.columns;
     if (!this.columns) {
-      this.columns = [{ title: this.name, width: "*" }];
+      this.columns = [{ id: "*", title: this.name, width: "*" }];
     }
 
     this.types = opts.types || {};
@@ -225,12 +229,21 @@ export class Wunderbaum {
         this.nodeListElement.innerHTML =
           "<progress class='spinner'>loading...</progress>";
       }
-      this.load(opts.source).finally(() => {
-        this.element.querySelector("progress.spinner")?.remove();
-        this.element.classList.remove("wb-initializing"); //, "wb-skeleton");
-      });
+      this.load(opts.source)
+        .then(() => {
+          readyDeferred.resolve();
+        })
+        .catch((error) => {
+          readyDeferred.reject(error);
+        })
+        .finally(() => {
+          this.element.querySelector("progress.spinner")?.remove();
+          this.element.classList.remove("wb-initializing");
+        });
       // }else{
       //   this.element.classList.remove("wb-initializing", "wb-skeleton");
+    } else {
+      readyDeferred.resolve();
     }
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
