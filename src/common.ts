@@ -39,7 +39,7 @@ export enum NodeStatusType {
   ok = "ok",
   loading = "loading",
   error = "error",
-  nodata = "nodata",
+  noData = "noData",
   // paging = "paging",
 }
 
@@ -78,6 +78,11 @@ export const INPUT_KEYS = {
 };
 
 export let iconMap = {
+  error: "bi bi-exclamation-triangle",
+  // loading: "bi bi-hourglass-split",
+  loading: "bi bi-arrow-repeat wb-spin",
+  // noData: "bi bi-search",
+  noData: "bi bi-question-circle",
   expanderExpanded: "bi bi-chevron-down",
   // expanderExpanded: "bi bi-dash-square",
   expanderCollapsed: "bi bi-chevron-right",

@@ -495,6 +495,7 @@ export class WunderbaumNode {
     } catch (error) {
       this.logError("Error during load()", source, error);
       this.callEvent("error", { error: error });
+      this.setStatus(NodeStatusType.error, "" + error);
     }
 
     if (opts.debugLevel >= 2) {
@@ -628,7 +629,7 @@ export class WunderbaumNode {
     let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
     let titleSpan: HTMLElement;
-    let checkboxSpan: HTMLElement;
+    let checkboxSpan: HTMLElement | null = null;
     let iconSpan: HTMLElement;
     let expanderSpan: HTMLElement;
     const activeColIdx = tree.cellNavMode ? tree.activeColIdx : null;
@@ -639,6 +640,11 @@ export class WunderbaumNode {
     this.lazy ? rowClasses.push("wb-lazy") : 0;
     this.selected ? rowClasses.push("wb-selected") : 0;
     this === tree.activeNode ? rowClasses.push("wb-active") : 0;
+    this._errorInfo ? rowClasses.push("wb-error") : 0;
+    this._isLoading ? rowClasses.push("wb-loading") : 0;
+    this.statusNodeType
+      ? rowClasses.push("wb-status-" + this.statusNodeType)
+      : 0;
 
     this.match ? rowClasses.push("wb-match") : 0;
     this.subMatchCount ? rowClasses.push("wb-submatch") : 0;
@@ -743,7 +749,9 @@ export class WunderbaumNode {
       }
     }
     if (iconSpan) {
-      if (this.expanded) {
+      if (this.statusNodeType) {
+        iconSpan.className = "wb-icon " + iconMap[this.statusNodeType];
+      } else if (this.expanded) {
         iconSpan.className = "wb-icon " + iconMap.folderOpen;
       } else if (this.children) {
         iconSpan.className = "wb-icon " + iconMap.folder;
@@ -827,7 +835,7 @@ export class WunderbaumNode {
     this.setDirty(ChangeType.status);
   }
 
-  /** Show node status (ok, loading, error, nodata) using styles and a dummy child node.
+  /** Show node status (ok, loading, error, noData) using styles and a dummy child node.
    */
   setStatus(
     status: NodeStatusType,
@@ -880,6 +888,7 @@ export class WunderbaumNode {
         this._errorInfo = null;
         break;
       case "loading":
+        // If this is the invisible root, add a visible top-level node
         if (!this.parent) {
           _setStatusNode({
             statusNodeType: status,
@@ -888,6 +897,7 @@ export class WunderbaumNode {
               (message ? " (" + message + ")" : ""),
             // icon: true,  // needed for 'loding' icon
             checkbox: false,
+            colspan: true,
             tooltip: details,
           });
         }
@@ -902,17 +912,19 @@ export class WunderbaumNode {
             (message ? " (" + message + ")" : ""),
           // icon: false,
           checkbox: false,
+          colspan: true,
           tooltip: details,
         });
         this._isLoading = false;
         this._errorInfo = { message: message, details: details };
         break;
-      case "nodata":
+      case "noData":
         _setStatusNode({
           statusNodeType: status,
           title: message || tree.options.strings.noData,
           // icon: false,
           checkbox: false,
+          colspan: true,
           tooltip: details,
         });
         this._isLoading = false;

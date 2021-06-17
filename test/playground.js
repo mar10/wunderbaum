@@ -10,12 +10,13 @@ const tree = new Wunderbaum({
   // columns: [{title: "test"}],
   name: "Playground",
   // showSpinner: true,
-  source: {
-    children: [
-      { title: "Node 1", children: [{ title: "Node 1.1" }] },
-      { title: "Node 2" },
-    ],
-  },
+  source: "https://hurz",
+  // source: {
+  //   children: [
+  //     { title: "Node 1", children: [{ title: "Node 1.1" }] },
+  //     { title: "Node 2" },
+  //   ],
+  // },
 });
 
 console.log(`Created  ${tree}`);

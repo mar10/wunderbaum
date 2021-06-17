@@ -72,9 +72,8 @@ div.grid-wrapper div.statbar {
 div#demo-tree {
   /* fill parent container */
   height: 100%;
+  /* Leave some space for the blue focus outline */
   padding: 5px;
-  /* margin: 4px; */
-  /* margin: 3px; */
 }
 
 /* Show tree skeleton while initializing. */

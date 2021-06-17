@@ -56,7 +56,7 @@ function showStatus(tree, options) {
   const msg =
     `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
       .count(true)
-      .toLocaleString()}, rendered: ${elemCount}` + `, `;
+      .toLocaleString()}, rendered: ${elemCount}` + `.`;
   info.textContent = msg;
   tree._check();
 }

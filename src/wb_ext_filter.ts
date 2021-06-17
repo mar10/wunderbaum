@@ -38,7 +38,7 @@ export class FilterExtension extends WunderbaumExtension {
       highlight: true, // Highlight matches by wrapping inside <mark> tags
       leavesOnly: false, // Match end nodes only
       mode: "hide", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
-      nodata: true, // Display a 'no data' status node if result is empty
+      noData: true, // Display a 'no data' status node if result is empty
     });
   }
 
@@ -211,8 +211,8 @@ export class FilterExtension extends WunderbaumExtension {
     });
     treeOpts.autoCollapse = prevAutoCollapse;
 
-    if (count === 0 && opts.nodata && hideMode) {
-      // statusNode = opts.nodata;
+    if (count === 0 && opts.noData && hideMode) {
+      // statusNode = opts.noData;
       // if (typeof statusNode === "function") {
       //   statusNode = statusNode();
       // }
@@ -223,14 +223,14 @@ export class FilterExtension extends WunderbaumExtension {
       // }
       // statusNode = extend(
       //   {
-      //     statusNodeType: "nodata",
+      //     statusNodeType: "noData",
       //     key: KEY_NODATA,
       //     title: treeOpts.strings.noData,
       //   },
       //   statusNode
       // );
       // tree.root.addChild(statusNode).match = true;
-      tree.root.setStatus(NodeStatusType.nodata);
+      tree.root.setStatus(NodeStatusType.noData);
     }
     // Redraw whole tree
     // tree._callHook("treeStructureChanged", this, "applyFilter");

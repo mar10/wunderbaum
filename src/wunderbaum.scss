@@ -25,6 +25,7 @@ $clr-umbra-gray: #56534c;
 $font-stack: Helvetica, sans-serif;
 
 $node-text-color: #56534c;
+$error-color: #b5373b;
 $hover-color: #f7f7f7;
 $hover-border-color: #dedede;
 $focus-border-color: #969da3;
@@ -118,6 +119,13 @@ div.wunderbaum {
           background-color: $active-hover-color;
         }
       }
+      &.wb-loading {
+        font-style: italic;
+      }
+      &.wb-error,
+      &.wb-status-error {
+        color: $error-color;
+      }
     }
     span.wb-node {
       user-select: none;
@@ -142,6 +150,9 @@ div.wunderbaum {
       &::before {
         content: "\00a0";
       }
+    }
+    i.wb-icon.wb-spin {
+      animation: wb-spin 2s linear infinite;
     }
   }
 
@@ -194,5 +205,14 @@ div.wunderbaum {
     i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
       background: nth($level-rainbow, $i);
     }
+  }
+}
+
+@keyframes wb-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(1turn);
   }
 }

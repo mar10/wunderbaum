@@ -118,6 +118,8 @@ export class Wunderbaum {
         receive: util.noop,
         // --- Strings ---
         strings: {
+          loadError: "Error",
+          loading: "Loading&hellip;",
           noData: "No data",
         },
       },
@@ -148,6 +150,10 @@ export class Wunderbaum {
     this.types = opts.types || {};
     delete opts.types;
 
+    if (this.columns.length === 1) {
+      opts.navigationMode = NavigationMode.off;
+    }
+
     if (
       opts.navigationMode === NavigationMode.force ||
       opts.navigationMode === NavigationMode.start
@@ -160,7 +166,7 @@ export class Wunderbaum {
     util.assert(!!this.element, `Invalid 'element' option: ${opts.element}`);
 
     this.element.classList.add("wunderbaum");
-    if( !this.element.getAttribute("tabindex") ) {
+    if (!this.element.getAttribute("tabindex")) {
       this.element.tabIndex = 0;
     }
 
