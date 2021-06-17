@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function (event) {
     source:
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
+    // checkbox: false,
     types: {},
     columns: [
       { id: "*", title: "Name", width: "280px" },

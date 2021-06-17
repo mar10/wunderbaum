@@ -55,6 +55,11 @@ div.wunderbaum {
   border: 1px solid gray;
   overflow: hidden; // avoid unwanted effects when auto-resizing
 
+  // &:focus,
+  // &:focus-within {
+  //   border-color: $active-border-color;
+  // }
+
   div.wb-header {
     position: relative;
     height: $header-height;

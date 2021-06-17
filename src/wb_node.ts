@@ -621,6 +621,8 @@ export class WunderbaumNode {
     const EXTRA_PAD = 30;
 
     let tree = this.tree;
+    let treeOpts = tree.options;
+    let checkbox = treeOpts.checkbox !== false;
     let columns = tree.columns;
     let elem: HTMLElement;
     let nodeElem: HTMLElement;
@@ -662,9 +664,11 @@ export class WunderbaumNode {
 
       let ofsTitlePx = 0;
 
-      checkboxSpan = document.createElement("i");
-      nodeElem.appendChild(checkboxSpan);
-      ofsTitlePx += ICON_WIDTH;
+      if (checkbox) {
+        checkboxSpan = document.createElement("i");
+        nodeElem.appendChild(checkboxSpan);
+        ofsTitlePx += ICON_WIDTH;
+      }
 
       for (let i = this.getLevel() - 1; i > 0; i--) {
         elem = document.createElement("i");

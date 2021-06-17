@@ -107,6 +107,7 @@ export class Wunderbaum {
         types: null,
         escapeTitles: true,
         showSpinner: false,
+        checkbox: true,
         // --- KeyNav ---
         navigationMode: NavigationMode.allow,
         quicksearch: true,
@@ -159,6 +160,9 @@ export class Wunderbaum {
     util.assert(!!this.element, `Invalid 'element' option: ${opts.element}`);
 
     this.element.classList.add("wunderbaum");
+    if( !this.element.getAttribute("tabindex") ) {
+      this.element.tabIndex = 0;
+    }
 
     // Attach tree instance to <div>
     (<any>this.element)._wb_tree = this;
