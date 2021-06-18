@@ -25,7 +25,7 @@ import {
   makeNodeTitleStartMatcher,
   MatcherType,
   NavigationMode,
-  RENDER_PREFETCH,
+  RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
   TargetType,
   WunderbaumOptions,
@@ -1096,8 +1096,8 @@ export class Wunderbaum {
 
     this.updateColumns({ render: false });
     this.render({
-      startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_PREFETCH),
-      endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_PREFETCH),
+      startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_MAX_PREFETCH),
+      endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_MAX_PREFETCH),
     });
     this.callEvent("update");
   }

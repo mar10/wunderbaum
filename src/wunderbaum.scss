@@ -29,6 +29,7 @@ $error-color: #b5373b;
 $hover-color: #f7f7f7;
 $hover-border-color: #dedede;
 $focus-border-color: #969da3;
+$grid-color: #dedede;
 $active-color: #e5f3fb;
 $active-cell-color: #26a0da;
 $active-border-color: #70c0e7;
@@ -51,7 +52,11 @@ div.wunderbaum {
   box-sizing: border-box;
   margin: 1px;
   padding: 0;
+
   font-family: $font-stack;
+  font-size: 14px;
+  // line-height: 20px;
+
   color: $node-text-color;
   border: 1px solid gray;
   overflow: hidden; // avoid unwanted effects when auto-resizing
@@ -92,14 +97,16 @@ div.wunderbaum {
     div.wb-row {
       position: absolute;
       width: 100%;
-      height: $row-height;
+      height: $row-height + 2;
+      line-height: $row-height - 1;
       border: 1px solid transparent;
-      // &.wb-active {
-      //   font-weight: bold;
+      border-bottom: 1px solid $grid-color;
+      // &:last-of-type {
+      //   border-bottom: 1px solid transparent;
       // }
-      &.wb-selected {
-        font-style: italic;
-      }
+      // &.wb-selected {
+      //   font-style: italic;
+      // }
       &:hover {
         background-color: $hover-color;
         border-color: $hover-border-color;
@@ -129,9 +136,9 @@ div.wunderbaum {
     }
     span.wb-node {
       user-select: none;
-      &:first-of-type {
-        margin-left: 8px; // leftmost icon gets a little margin
-      }
+      // &:first-of-type {
+      //   margin-left: 8px; // leftmost icon gets a little margin
+      // }
     }
 
     i.wb-checkbox,
@@ -197,8 +204,13 @@ div.wunderbaum {
     position: absolute;
     display: inline-block;
     text-overflow: ellipsis;
+    padding: 0 4px;
     // height: $row-height;
     // vertical-align: top;
+    border-right: 1px solid $grid-color;
+    &:last-of-type {
+      border-right: none;
+    }
   }
 
   @for $i from 1 through length($level-rainbow) {
