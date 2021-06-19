@@ -3,8 +3,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
    * Navigation
    */
   let navTree = new mar10.Wunderbaum({
-    name: "navigation",
-    header: false,
+    id: "navigation",
+    header: "Wunderbaum",
     element: document.querySelector("#nav-tree"),
     types: {
       link: { icon: "bi bi-link-45deg" },
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
    * Demo Tree
    */
   let tree = new mar10.Wunderbaum({
-    name: "demo",
+    id: "demo",
     element: document.querySelector("#demo-tree"),
     source:
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",

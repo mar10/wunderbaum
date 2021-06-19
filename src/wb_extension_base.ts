@@ -11,30 +11,30 @@ export type ExtensionsDict = { [key: string]: WunderbaumExtension };
 
 export abstract class WunderbaumExtension {
   public enabled = true;
-  readonly name: string;
+  readonly id: string;
   readonly tree: Wunderbaum;
   readonly treeOpts: any;
   readonly extensionOpts: any;
 
-  constructor(tree: Wunderbaum, name: string, defaults: any) {
+  constructor(tree: Wunderbaum, id: string, defaults: any) {
     this.tree = tree;
-    this.name = name;
+    this.id = id;
     this.treeOpts = tree.options;
     // Merge extension default and explicit options into `tree.options.EXTNAME`
     // tree.options[name] ??= {};
-    if (this.treeOpts[name] === undefined) {
-      this.treeOpts[name] = this.extensionOpts = util.extend({}, defaults);
+    if (this.treeOpts[id] === undefined) {
+      this.treeOpts[id] = this.extensionOpts = util.extend({}, defaults);
     } else {
       // TODO: do we break existing object instance references here?
-      this.extensionOpts = util.extend({}, defaults, tree.options[name]);
-      tree.options[name] = this.extensionOpts;
+      this.extensionOpts = util.extend({}, defaults, tree.options[id]);
+      tree.options[id] = this.extensionOpts;
     }
     this.enabled = !!this.getOption("enabled");
   }
 
   /** Called on tree (re)init after all extensions are added, but before loading.*/
   init() {
-    this.tree.element.classList.add("wb-ext-" + this.name);
+    this.tree.element.classList.add("wb-ext-" + this.id);
   }
 
   protected callEvent(name: string, extra?: any): any {
@@ -44,7 +44,7 @@ export abstract class WunderbaumExtension {
         this.tree,
         util.extend(
           {
-            event: this.name + "." + name,
+            event: this.id + "." + name,
           },
           extra
         )

@@ -49,7 +49,7 @@ export class Wunderbaum {
 
   /** The invisible root node, that holds all visible top level nodes. */
   readonly root: WunderbaumNode;
-  readonly name: string;
+  readonly id: string;
 
   readonly element: HTMLDivElement;
   // readonly treeElement: HTMLDivElement;
@@ -98,10 +98,11 @@ export class Wunderbaum {
   constructor(options: WunderbaumOptions) {
     let opts = (this.options = util.extend(
       {
-        name: null,
+        id: null,
         source: null, // URL for GET/PUT, ajax options, or callback
         element: null, // <div class="wunderbaum">
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:normal, 2:verbose
+        header: null, // Show/hide header (pass bool or string)
         headerHeightPx: 20,
         rowHeightPx: ROW_HEIGHT,
         columns: null,
@@ -130,7 +131,7 @@ export class Wunderbaum {
     const readyDeferred = new Deferred();
     this.ready = readyDeferred.promise();
 
-    this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
+    this.id = opts.id || "wb_" + ++Wunderbaum.sequence;
     this.root = new WunderbaumNode(this, <WunderbaumNode>(<unknown>null), {
       key: "__root__",
       // title: "__root__",
@@ -144,8 +145,9 @@ export class Wunderbaum {
     // --- Evaluate options
     this.columns = opts.columns;
     delete opts.columns;
+    let defaultName = typeof opts.header === "string" ? opts.header : this.id;
     if (!this.columns) {
-      this.columns = [{ id: "*", title: this.name, width: "*" }];
+      this.columns = [{ id: "*", title: defaultName, width: "*" }];
     }
 
     this.types = opts.types || {};
@@ -374,7 +376,7 @@ export class Wunderbaum {
   /** */
   protected _registerExtension(extension: WunderbaumExtension): void {
     this.extensions.push(extension);
-    this.extensionDict[extension.name] = extension;
+    this.extensionDict[extension.id] = extension;
     // this.extensionMap.set(extension.name, extension);
   }
 
@@ -812,7 +814,7 @@ export class Wunderbaum {
    * @internal
    */
   toString() {
-    return "Wunderbaum<'" + this.name + "'>";
+    return "Wunderbaum<'" + this.id + "'>";
   }
 
   /* Log to console if opts.debugLevel >= 1 */
