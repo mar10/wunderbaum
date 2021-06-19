@@ -56,6 +56,7 @@ div.grid-wrapper main.view {
   background-color: white;
   grid-column: 2;
   grid-row: 3;
+  padding: 8px;
 }
 
 div.grid-wrapper section.footer {
@@ -75,8 +76,8 @@ div#demo-tree,
 div#nav-tree {
   /* fill parent container */
   height: 100%;
-  /* Leave some space for the blue focus outline */
-  padding: 5px;
+  /* Leave some space for the blue focus outline
+  padding: 5px; */
 }
 
 /* Show tree skeleton while initializing. */

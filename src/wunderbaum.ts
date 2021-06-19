@@ -25,6 +25,7 @@ import {
   makeNodeTitleStartMatcher,
   MatcherType,
   NavigationMode,
+  NodeStatusType,
   RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
   TargetType,
@@ -52,7 +53,7 @@ export class Wunderbaum {
 
   readonly element: HTMLDivElement;
   // readonly treeElement: HTMLDivElement;
-  readonly headerElement: HTMLDivElement;
+  readonly headerElement: HTMLDivElement | null;
   readonly scrollContainer: HTMLDivElement;
   readonly nodeListElement: HTMLDivElement;
 
@@ -179,6 +180,9 @@ export class Wunderbaum {
       "div.wb-header"
     ) as HTMLDivElement;
 
+    let wantHeader =
+      opts.header == null ? this.columns.length > 1 : !!opts.header;
+
     if (this.headerElement) {
       // User existing header markup to define `this.columns`
       util.assert(
@@ -195,7 +199,7 @@ export class Wunderbaum {
           text: "" + colDiv.textContent,
         });
       }
-    } else if (this.columns) {
+    } else if (wantHeader) {
       // We need a row div, the rest will be computed from `this.columns`
       let coldivs = "<span class='wb-col'></span>".repeat(this.columns.length);
       this.element.innerHTML = `
@@ -204,15 +208,9 @@ export class Wunderbaum {
             ${coldivs}
           </div>
         </div>`;
-      // this.headerElement = this.element.querySelector(
-      //   "div.wb-header"
-      // ) as HTMLElement;
       // this.updateColumns({ render: false });
     } else {
-      util.assert(
-        false,
-        "Either `opts.columns` or header markup must be defined"
-      );
+      this.element.innerHTML = ``;
     }
 
     //
@@ -230,6 +228,10 @@ export class Wunderbaum {
       "div.wb-header"
     ) as HTMLDivElement;
     this.updateColumns({ render: false });
+
+    if (this.columns.length > 1) {
+      this.element.classList.add("wb-grid");
+    }
 
     this._initExtensions();
 
@@ -266,6 +268,9 @@ export class Wunderbaum {
       let info = this.getEventTarget(e),
         node = info.node;
 
+      if (this.callEvent("click", { node: node, info: info }) === false) {
+        return false;
+      }
       if (node) {
         if (info.colIdx >= 0) {
           node.setActive(true, { colIdx: info.colIdx });
@@ -902,6 +907,9 @@ export class Wunderbaum {
 
   /**Recalc and apply header columns from `this.columns`. */
   renderHeader() {
+    if (!this.headerElement) {
+      return;
+    }
     let headerRow = this.headerElement.querySelector(".wb-row");
 
     if (!headerRow) {
@@ -979,11 +987,13 @@ export class Wunderbaum {
     // node.setActive(true, { column: tree.activeColIdx + 1 });
     this.setModified(ChangeType.row, this.activeNode);
     // Update `wb-active` class for all headers
-    for (let rowDiv of this.headerElement.children) {
-      // for (let rowDiv of document.querySelector("div.wb-header").children) {
-      let i = 0;
-      for (let colDiv of rowDiv.children) {
-        (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
+    if (this.headerElement) {
+      for (let rowDiv of this.headerElement.children) {
+        // for (let rowDiv of document.querySelector("div.wb-header").children) {
+        let i = 0;
+        for (let colDiv of rowDiv.children) {
+          (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
+        }
       }
     }
     // Update `wb-active` class for all cell divs
@@ -1022,6 +1032,14 @@ export class Wunderbaum {
       }
     }
     // this.log("setModified(" + change + ")", node);
+  }
+
+  setStatus(
+    status: NodeStatusType,
+    message?: string,
+    details?: string
+  ): WunderbaumNode | null {
+    return this.root.setStatus(status, message, details);
   }
 
   /** Update column headers and width. */

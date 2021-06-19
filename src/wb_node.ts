@@ -38,6 +38,7 @@ const NODE_PROPS = new Set<string>([
   "refKey",
   "selected",
   "title",
+  "tooltip",
   "type",
 ]);
 
@@ -56,6 +57,7 @@ export class WunderbaumNode {
   public expanded: boolean = false;
   public selected: boolean = false;
   public type?: string;
+  public tooltip?: string;
   /** Additional classes added to `div.wb-row`. */
   public extraClasses = new Set<string>();
   /** Custom data that was passed to the constructor */
@@ -138,17 +140,6 @@ export class WunderbaumNode {
   callEvent(event: string, extra?: any): any {
     return this.tree.callEvent(event, util.extend({ node: this }, extra));
   }
-
-  // addChild(node: WunderbaumNode, before?: WunderbaumNode) {
-  //   if (this.children == null) {
-  //     this.children = [node];
-  //   } else if (before) {
-  //     util.assert(false);
-  //   } else {
-  //     this.children.push(node);
-  //   }
-  //   return node;
-  // }
 
   /**
    * Append (or insert) a list of child nodes.
@@ -1054,6 +1045,7 @@ export class WunderbaumNode {
         });
         this._isLoading = false;
         this._errorInfo = null;
+        statusNode!.match = true;
         break;
       default:
         util.error("invalid node status " + status);

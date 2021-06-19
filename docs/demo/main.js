@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
    */
   let navTree = new mar10.Wunderbaum({
     name: "navigation",
+    header: false,
     element: document.querySelector("#nav-tree"),
     types: {
       link: { icon: "bi bi-link-45deg" },
@@ -18,7 +19,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     checkbox: false,
     click: (e) => {
       if (e.node.type === "link") {
-        window.open(e.node.href)
+        window.open(e.node.data.href)
       }
     },
   });
@@ -85,7 +86,7 @@ document.querySelector("a#collapse-all").addEventListener("click", (event) => {
 
 function showStatus(tree, options) {
   const info = document.querySelector("#tree-info");
-  const elemCount = document.querySelector(".wb-node-list").childElementCount;
+  const elemCount = document.querySelector("#demo-tree .wb-node-list").childElementCount;
   const msg =
     `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
       .count(true)

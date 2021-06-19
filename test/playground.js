@@ -17,7 +17,7 @@ const tree = new Wunderbaum({
   source: {
     children: [
       { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
-      { title: "Node 2", selected: true, icon: "bi bi-alert" },
+      { title: "Node 2", selected: true, icon: "bi bi-book" },
       { title: "Node 3", type: "book" },
     ],
   },
