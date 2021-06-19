@@ -28,6 +28,19 @@ import {
 import { Deferred } from "./deferred";
 import { isFunction } from "./util";
 
+/** Top-level properties that can be passed with `data`. */
+const NODE_PROPS = new Set<string>([
+  "classes",
+  "expanded",
+  "icon",
+  "key",
+  "lazy",
+  "refKey",
+  "selected",
+  "title",
+  "type",
+]);
+
 export class WunderbaumNode {
   static sequence = 0;
 
@@ -45,6 +58,8 @@ export class WunderbaumNode {
   public type?: string;
   /** Additional classes added to `div.wb-row`. */
   public extraClasses = new Set<string>();
+  /** Custom data that was passed to the constructor */
+  public data: any = {};
   // --- Node Status ---
   public statusNodeType?: string;
   _isLoading = false;
@@ -63,14 +78,33 @@ export class WunderbaumNode {
 
   constructor(tree: Wunderbaum, parent: WunderbaumNode, data: any) {
     util.assert(!parent || parent.tree === tree);
+    util.assert(!data.children);
     this.tree = tree;
     this.parent = parent;
-    this.key =
-      data.key == null ? "" + ++WunderbaumNode.sequence : "" + data.key;
-    this.title = data.title || "?" + this.key;
-    // this.refKey = data.refKey;
-    this.statusNodeType = data.statusNodeType;
-    if (parent && !data.statusNodeType) {
+    this.key = "" + (data.key ?? ++WunderbaumNode.sequence);
+    this.title = "" + (data.title ?? "<" + this.key + ">");
+
+    data.refKey != null ? (this.refKey = "" + data.refKey) : 0;
+    data.statusNodeType != null
+      ? (this.statusNodeType = "" + data.statusNodeType)
+      : 0;
+    data.type != null ? (this.type = "" + data.type) : 0;
+    this.expanded = data.expanded === true;
+    this.lazy = data.lazy === true;
+    this.selected = data.selected === true;
+    if (data.classes) {
+      for (const c in data.classes.split()) {
+        this.extraClasses.add(c);
+      }
+    }
+    // Store custom fields as `node.data`
+    for (const [key, value] of Object.entries(data)) {
+      if (!NODE_PROPS.has(key)) {
+        this.data[key] = value;
+      }
+    }
+
+    if (parent && !this.statusNodeType) {
       // Don't register root node or status nodes
       tree._registerNode(this);
     }
@@ -127,8 +161,8 @@ export class WunderbaumNode {
    */
   addChildren(nodeData: any, options?: any): WunderbaumNode {
     let insertBefore: WunderbaumNode | string | number = options
-      ? options.before
-      : null,
+        ? options.before
+        : null,
       // redraw = options ? options.redraw !== false : true,
       nodeList = [];
 
@@ -482,11 +516,11 @@ export class WunderbaumNode {
       if (!response.ok) {
         util.error(
           "GET " +
-          opts.remote +
-          " returned " +
-          response.status +
-          ", " +
-          response
+            opts.remote +
+            " returned " +
+            response.status +
+            ", " +
+            response
         );
       }
       this.callEvent("receive", { response: response });
@@ -592,7 +626,7 @@ export class WunderbaumNode {
       // setFocus/setActive will scroll later (if autoScroll is specified)
       try {
         node.makeVisible({ scrollIntoView: false });
-      } catch (e) { } // #272
+      } catch (e) {} // #272
       if (options.activate === false) {
         node.setFocus();
         return Promise.resolve(this);
@@ -692,21 +726,24 @@ export class WunderbaumNode {
     }
     // allow customization
     icon = this._resolveOption("icon", icon);
-    this.log("_createIcon: " + icon)
-    if (icon.indexOf("<") >= 0) { // HTML
+    // this.log("_createIcon: " + icon);
+    if (icon.indexOf("<") >= 0) {
+      // HTML
       iconSpan = util.elementFromHtml(icon);
-    } else if (icon.indexOf(".") >= 0) { // Image URL
+    } else if (icon.indexOf(".") >= 0) {
+      // Image URL
       iconSpan = util.elementFromHtml(`<img src="${icon}">`);
-    } else { // Class name
+    } else {
+      // Class name
       iconSpan = document.createElement("i");
       iconSpan.className = "wb-icon " + icon;
     }
     parentElem.appendChild(iconSpan);
-    this.log("_createIcon: ", iconSpan)
+    // this.log("_createIcon: ", iconSpan);
     return iconSpan;
   }
 
-  render(opts: any) {
+  render(opts?: any) {
     const ICON_WIDTH = 20;
     const EXTRA_PAD = 30;
 
@@ -777,8 +814,6 @@ export class WunderbaumNode {
       ofsTitlePx += ICON_WIDTH;
 
       iconSpan = this._createIcon(nodeElem);
-      // iconSpan = document.createElement("i");
-      // nodeElem.appendChild(iconSpan);
       ofsTitlePx += ICON_WIDTH;
 
       titleSpan = document.createElement("span");
@@ -1023,6 +1058,7 @@ export class WunderbaumNode {
       default:
         util.error("invalid node status " + status);
     }
+    this.render();
     return statusNode;
   }
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>

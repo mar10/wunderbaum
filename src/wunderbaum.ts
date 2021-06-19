@@ -132,7 +132,7 @@ export class Wunderbaum {
     this.name = opts.name || "wb_" + ++Wunderbaum.sequence;
     this.root = new WunderbaumNode(this, <WunderbaumNode>(<unknown>null), {
       key: "__root__",
-      name: "__root__",
+      // title: "__root__",
     });
 
     this._registerExtension(new KeynavExtension(this));

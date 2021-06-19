@@ -148,7 +148,7 @@ div.wunderbaum {
       width: 1.1em;
       display: inline-block;
       height: $row-height;
-      margin-right: 3px;
+      // margin-right: 3px;
       // font-size: small;
       // vertical-align: middle;
     }
@@ -159,6 +159,9 @@ div.wunderbaum {
       }
     }
     i.wb-icon.wb-spin {
+      height: unset; // don't wobble
+      width: unset;
+      padding: 0 3px;
       animation: wb-spin 2s linear infinite;
     }
   }

@@ -5,7 +5,7 @@
  */
 
 /** Readable names for `MouseEvent.button` */
-export const MOUSE_BUTTONS: { [key: number]: string; } = {
+export const MOUSE_BUTTONS: { [key: number]: string } = {
   0: "",
   1: "left",
   2: "middle",
@@ -18,7 +18,7 @@ export const MAX_INT = 9007199254740991;
 
 const REX_HTML = /[&<>"'/]/g; // Escape those characters
 const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
-const ENTITY_MAP: { [key: string]: string; } = {
+const ENTITY_MAP: { [key: string]: string } = {
   "&": "&amp;",
   "<": "&lt;",
   ">": "&gt;",
@@ -42,7 +42,7 @@ export class Deferred {
   private resolvedValue: any;
   private rejectedError: any;
 
-  constructor() { }
+  constructor() {}
 
   resolve(value?: any) {
     if (this.status) {
@@ -237,8 +237,8 @@ export function error(msg: string) {
   throw new Error(msg);
 }
 
-export function elementFromHtml(html:string):HTMLElement {
-  const t = document.createElement('template');
+export function elementFromHtml(html: string): HTMLElement {
+  const t = document.createElement("template");
   t.innerHTML = html.trim();
   return t.content.firstElementChild as HTMLElement;
 }
@@ -327,7 +327,7 @@ export function isArray(obj: any) {
 }
 
 /** A dummy function that does nothing ('no operation'). */
-export function noop(...args: any[]): any { }
+export function noop(...args: any[]): any {}
 
 export function ready(fn: any) {
   if (document.readyState === "loading") {
