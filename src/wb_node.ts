@@ -50,7 +50,7 @@ export class WunderbaumNode {
   _isLoading = false;
   _errorInfo: any | null = null;
   public colspan?: boolean; // If true, title is streched over all columns
-  public center?: boolean; // If true, title is centered
+  // public center?: boolean; // If true, title is centered
   // --- FILTER ---
   public match?: boolean; // Added and removed by filter code
   public subMatchCount?: number = 0;
@@ -127,8 +127,8 @@ export class WunderbaumNode {
    */
   addChildren(nodeData: any, options?: any): WunderbaumNode {
     let insertBefore: WunderbaumNode | string | number = options
-        ? options.before
-        : null,
+      ? options.before
+      : null,
       // redraw = options ? options.redraw !== false : true,
       nodeList = [];
 
@@ -200,7 +200,7 @@ export class WunderbaumNode {
   }
 
   /** */
-  expandAll(flag: boolean = true) {
+  async expandAll(flag: boolean = true) {
     this.visit((node) => {
       node.setExpanded(flag);
     });
@@ -461,8 +461,8 @@ export class WunderbaumNode {
     let tree = this.tree;
     let opts = tree.options;
 
-    if (opts.debugLevel >= 2) {
-      console.time(this + ".load");
+    if (util.isArray(source)) {
+      source = { children: source };
     }
     if (util.isPlainObject(source)) {
       util.assert(
@@ -474,16 +474,19 @@ export class WunderbaumNode {
       tree.enableUpdate(prev);
       return;
     }
+    if (opts.debugLevel >= 2) {
+      console.time(this + ".load");
+    }
     try {
       const response = await fetch(source, { method: "GET" });
       if (!response.ok) {
         util.error(
           "GET " +
-            opts.remote +
-            " returned " +
-            response.status +
-            ", " +
-            response
+          opts.remote +
+          " returned " +
+          response.status +
+          ", " +
+          response
         );
       }
       this.callEvent("receive", { response: response });
@@ -589,7 +592,7 @@ export class WunderbaumNode {
       // setFocus/setActive will scroll later (if autoScroll is specified)
       try {
         node.makeVisible({ scrollIntoView: false });
-      } catch (e) {} // #272
+      } catch (e) { } // #272
       if (options.activate === false) {
         node.setFocus();
         return Promise.resolve(this);
@@ -615,6 +618,92 @@ export class WunderbaumNode {
       this._rowElem.remove();
       this._rowElem = undefined;
     }
+  }
+
+  /** Return an option value that has a default, but may be overridden by a
+   * callback or a node instance attribute.
+   *
+   * Evaluation sequence:
+   *
+   * If `tree.options.<optionName>` is a callback that returns something, use that.
+   * Else if `node.<optionName>` is defined, use that.
+   * Else if `tree.options.<optionName>` is a value, use that.
+   * Else use `defaultValue`.
+   *
+   * @param optionName name of the option property (on node and tree)
+   * @param node passed to the callback
+   * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
+   * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
+   * @param defaultValue return this if nothing else matched
+   *
+   * @example
+   * // Check for node.foo, tree,options.foo(), and tree.options.foo:
+   * evalOption("foo", node, node, tree.options);
+   * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
+   * evalOption("bar", node, node.data, tree.options.qux);
+   */
+  protected _resolveOption(name: string, defaultValue?: any) {
+    let tree = this.tree;
+    let opts = tree.options;
+
+    // Lookup `name` in options dict
+    if (name.indexOf(".") >= 0) {
+      [opts, name] = name.split(".");
+    }
+    let value = opts[name]; // ?? defaultValue;
+
+    // A callback resolver always takes precedence
+    if (typeof value === "function") {
+      let res = value.call(tree, {
+        type: "resolve",
+        tree: tree,
+        node: this,
+        // typeInfo: this.type ? tree.types[this.type] : {},
+      });
+      if (res !== undefined) {
+        return res;
+      }
+    }
+    // If this node has an explicit local setting, use it:
+    if ((<any>this)[name] !== undefined) {
+      return (<any>this)[name];
+    }
+    // Use value from type definition if defined
+    let typeInfo = this.type ? tree.types[this.type] : undefined;
+    let res = typeInfo ? typeInfo[name] : undefined;
+    if (res !== undefined) {
+      return res;
+    }
+    // Use value from value options dict, fallback do default
+    return value ?? defaultValue;
+  }
+
+  protected _createIcon(parentElem: HTMLElement): HTMLElement {
+    let icon, iconSpan;
+
+    if (this.statusNodeType) {
+      icon = (<any>iconMap)[this.statusNodeType];
+    } else if (this.expanded) {
+      icon = iconMap.folderOpen;
+    } else if (this.children) {
+      icon = iconMap.folder;
+    } else {
+      icon = iconMap.doc;
+    }
+    // allow customization
+    icon = this._resolveOption("icon", icon);
+    this.log("_createIcon: " + icon)
+    if (icon.indexOf("<") >= 0) { // HTML
+      iconSpan = util.elementFromHtml(icon);
+    } else if (icon.indexOf(".") >= 0) { // Image URL
+      iconSpan = util.elementFromHtml(`<img src="${icon}">`);
+    } else { // Class name
+      iconSpan = document.createElement("i");
+      iconSpan.className = "wb-icon " + icon;
+    }
+    parentElem.appendChild(iconSpan);
+    this.log("_createIcon: ", iconSpan)
+    return iconSpan;
   }
 
   render(opts: any) {
@@ -687,8 +776,9 @@ export class WunderbaumNode {
       nodeElem.appendChild(expanderSpan);
       ofsTitlePx += ICON_WIDTH;
 
-      iconSpan = document.createElement("i");
-      nodeElem.appendChild(iconSpan);
+      iconSpan = this._createIcon(nodeElem);
+      // iconSpan = document.createElement("i");
+      // nodeElem.appendChild(iconSpan);
       ofsTitlePx += ICON_WIDTH;
 
       titleSpan = document.createElement("span");
@@ -748,17 +838,17 @@ export class WunderbaumNode {
         checkboxSpan.className = "wb-checkbox " + iconMap.checkUnchecked;
       }
     }
-    if (iconSpan) {
-      if (this.statusNodeType) {
-        iconSpan.className = "wb-icon " + iconMap[this.statusNodeType];
-      } else if (this.expanded) {
-        iconSpan.className = "wb-icon " + iconMap.folderOpen;
-      } else if (this.children) {
-        iconSpan.className = "wb-icon " + iconMap.folder;
-      } else {
-        iconSpan.className = "wb-icon " + iconMap.doc;
-      }
-    }
+    // if (iconSpan) {
+    //   if (this.statusNodeType) {
+    //     iconSpan.className = "wb-icon " + iconMap[this.statusNodeType];
+    //   } else if (this.expanded) {
+    //     iconSpan.className = "wb-icon " + iconMap.folderOpen;
+    //   } else if (this.children) {
+    //     iconSpan.className = "wb-icon " + iconMap.folder;
+    //   } else {
+    //     iconSpan.className = "wb-icon " + iconMap.doc;
+    //   }
+    // }
     if (this.titleWithHighlight) {
       titleSpan.innerHTML = this.titleWithHighlight;
     } else if (tree.options.escapeTitles) {

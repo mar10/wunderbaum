@@ -41,13 +41,15 @@ div.grid-wrapper div.menu {
 
 div.grid-wrapper nav.nav {
   grid-column: 1;
-  grid-row: 2 / 4;
+  grid-row: 2 / 5;
+  padding: 8px;
 }
 
 div.grid-wrapper section.header {
   background-color: whitesmoke;
   grid-column: 2;
   grid-row: 2;
+  padding: 8px;
 }
 
 div.grid-wrapper main.view {
@@ -69,7 +71,8 @@ div.grid-wrapper div.statbar {
   font-size: 80%;
 }
 
-div#demo-tree {
+div#demo-tree,
+div#nav-tree {
   /* fill parent container */
   height: 100%;
   /* Leave some space for the blue focus outline */

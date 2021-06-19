@@ -534,7 +534,7 @@ export class Wunderbaum {
   }
 
   /** */
-  expandAll(flag: boolean = true) {
+  async expandAll(flag: boolean = true) {
     let tag = this.logTime("expandAll(" + flag + ")");
     let prev = this.enableUpdate(false);
     let res = this.root.expandAll(flag);

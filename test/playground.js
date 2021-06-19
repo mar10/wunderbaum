@@ -23,6 +23,7 @@ console.log(`Created  ${tree}`);
 
 tree.ready.then(() => {
   console.log(`${tree} is ready.`);
+  tree.root.setStatus("loading")
 }).catch((err)=>{
   console.error(`${tree} init failed.`, err);
 });

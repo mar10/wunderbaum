@@ -1,6 +1,34 @@
-document.addEventListener("DOMContentLoaded", function (event) {
+document.addEventListener("DOMContentLoaded", (event) => {
+  /* ---------------------------------------------------------------------------
+   * Navigation
+   */
+  let navTree = new mar10.Wunderbaum({
+    name: "navigation",
+    element: document.querySelector("#nav-tree"),
+    types: {
+      link: { icon: "bi bi-link-45deg" },
+    },
+    source: [
+      {
+        type: "link",
+        title: "home",
+        href: "https://github.com/mar10/wunderbaum",
+      },
+    ],
+    checkbox: false,
+    click: (e) => {
+      if (e.node.type === "link") {
+        window.open(e.node.href)
+      }
+    },
+  });
+
+  /* ---------------------------------------------------------------------------
+   * Demo Tree
+   */
   let tree = new mar10.Wunderbaum({
-    element: document.querySelector(".wunderbaum"),
+    name: "demo",
+    element: document.querySelector("#demo-tree"),
     source:
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
@@ -12,8 +40,12 @@ document.addEventListener("DOMContentLoaded", function (event) {
       { id: "id2", title: "b" },
     ],
     dnd: {
-      dragStart: (e)=>{return true},
-      dragEnter: (e)=>{return true},
+      dragStart: (e) => {
+        return true;
+      },
+      dragEnter: (e) => {
+        return true;
+      },
     },
     filter: {
       attachInput: "input#filterQuery",
@@ -33,18 +65,19 @@ document.addEventListener("DOMContentLoaded", function (event) {
   });
 });
 
+/* ---------------------------------------------------------------------------
+ * Demo Behavior
+ */
 document.querySelector("a#expand-all").addEventListener("click", (event) => {
-  let tree = mar10.Wunderbaum.getTree();
+  let tree = mar10.Wunderbaum.getTree("demo");
   console.time("expandAll");
-  tree.expandAll();
-  console.timeEnd("expandAll");
-  // tree.expandAll().done(()=>{
-  //   console.timeEnd("expandAll")
-  // })
+  tree.expandAll().then(() => {
+    console.timeEnd("expandAll");
+  });
 });
 
 document.querySelector("a#collapse-all").addEventListener("click", (event) => {
-  let tree = mar10.Wunderbaum.getTree();
+  let tree = mar10.Wunderbaum.getTree("demo");
   console.time("collapseAll");
   tree.expandAll(false);
   console.timeEnd("collapseAll");
