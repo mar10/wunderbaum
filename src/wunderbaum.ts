@@ -101,7 +101,7 @@ export class Wunderbaum {
         id: null,
         source: null, // URL for GET/PUT, ajax options, or callback
         element: null, // <div class="wunderbaum">
-        debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:normal, 2:verbose
+        debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
         header: null, // Show/hide header (pass bool or string)
         headerHeightPx: 20,
         rowHeightPx: ROW_HEIGHT,
@@ -121,7 +121,8 @@ export class Wunderbaum {
         // --- Strings ---
         strings: {
           loadError: "Error",
-          loading: "Loading&hellip;",
+          loading: "Loading...",
+          // loading: "Loading&hellip;",
           noData: "No data",
         },
       },
@@ -307,7 +308,7 @@ export class Wunderbaum {
    * getTree();  // Get first Wunderbaum instance on page
    * getTree(1);  // Get second Wunderbaum instance on page
    * getTree(event);  // Get tree for this mouse- or keyboard event
-   * getTree("foo");  // Get tree for this `tree.options.name`
+   * getTree("foo");  // Get tree for this `tree.options.id`
    * getTree("#tree");  // Get tree for this matching element
    */
   public static getTree(
@@ -324,10 +325,10 @@ export class Wunderbaum {
     if (typeof el === "number") {
       el = document.querySelectorAll(".wunderbaum")[el]; // el was an integer: return nth element
     } else if (typeof el === "string") {
-      // Search all trees for matching name
+      // Search all trees for matching ID
       for (let treeElem of document.querySelectorAll(".wunderbaum")) {
         const tree = (<any>treeElem)._wb_tree;
-        if (tree && tree.name === el) {
+        if (tree && tree.id === el) {
           return tree;
         }
       }
@@ -377,7 +378,7 @@ export class Wunderbaum {
   protected _registerExtension(extension: WunderbaumExtension): void {
     this.extensions.push(extension);
     this.extensionDict[extension.id] = extension;
-    // this.extensionMap.set(extension.name, extension);
+    // this.extensionMap.set(extension.id, extension);
   }
 
   /** Called on tree (re)init after markup is created, before loading. */
@@ -416,6 +417,8 @@ export class Wunderbaum {
     // mark as disposed
     (node.tree as any) = null;
     (node.parent as any) = null;
+    // node.title = "DISPOSED: " + node.title
+    this.viewNodes.delete(node);
   }
 
   /** Call all hook methods of all registered extensions.*/
@@ -696,7 +699,7 @@ export class Wunderbaum {
         break;
       case "pageDown":
         let bottomNode = this._lastNodeInView();
-        this.logDebug(where, this.focusNode, bottomNode);
+        // this.logDebug(where, this.focusNode, bottomNode);
 
         if (this.focusNode !== bottomNode) {
           res = bottomNode;
@@ -717,7 +720,7 @@ export class Wunderbaum {
         }
         break;
       default:
-        this.logWarning("Unknown relation '" + where + "'.");
+        this.logWarn("Unknown relation '" + where + "'.");
     }
     return res;
   }
@@ -797,7 +800,7 @@ export class Wunderbaum {
       //     res.type = "expander";
       //   }
     }
-    this.log("Event", event, res);
+    // this.log("Event", event, res);
     return res;
   }
   /** Return a string describing the affected node region for a mouse event.
@@ -817,13 +820,8 @@ export class Wunderbaum {
     return "Wunderbaum<'" + this.id + "'>";
   }
 
-  /* Log to console if opts.debugLevel >= 1 */
-  log(...args: any[]) {
-    if (this.options.debugLevel >= 1) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.log.apply(console, args);
-    }
-  }
+  /** Alias for `logDebug` */
+  log = this.logDebug; // Alias
 
   /** Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
@@ -835,13 +833,23 @@ export class Wunderbaum {
 
   /** Log error to console. */
   logError(...args: any[]) {
-    Array.prototype.unshift.call(args, this.toString());
-    console.error.apply(console, args);
+    if (this.options.debugLevel >= 1) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.error.apply(console, args);
+    }
+  }
+
+  /* Log to console if opts.debugLevel >= 3 */
+  logInfo(...args: any[]) {
+    if (this.options.debugLevel >= 3) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.info.apply(console, args);
+    }
   }
 
   /** @internal */
   logTime(label: string): string {
-    if (this.options.debugLevel >= 1) {
+    if (this.options.debugLevel >= 4) {
       console.time(label);
     }
     return label;
@@ -849,28 +857,28 @@ export class Wunderbaum {
 
   /** @internal */
   logTimeEnd(label: string): void {
-    if (this.options.debugLevel >= 1) {
+    if (this.options.debugLevel >= 4) {
       console.timeEnd(label);
     }
   }
 
-  /** Log to console if opts.debugLevel >= 4 */
-  logWarning(...args: any[]) {
-    if (this.options.debugLevel >= 1) {
+  /** Log to console if opts.debugLevel >= 2 */
+  logWarn(...args: any[]) {
+    if (this.options.debugLevel >= 2) {
       Array.prototype.unshift.call(args, this.toString());
       console.warn.apply(console, args);
     }
   }
 
   /** */
-  render(opts: any): boolean {
+  render(opts?: any): boolean {
     let label = this.logTime("render");
     let idx = 0;
     let top = 0;
     let height = ROW_HEIGHT;
     let modified = false;
-    let start = opts.startIdx;
-    let end = opts.endIdx;
+    let start = opts?.startIdx;
+    let end = opts?.endIdx;
     let obsoleteViewNodes = this.viewNodes;
 
     this.viewNodes = new Set();
@@ -1093,7 +1101,7 @@ export class Wunderbaum {
     if (modified) {
       this.renderHeader();
       if (opts.render !== false) {
-        this.render({});
+        this.render();
       }
     }
   }
@@ -1109,7 +1117,7 @@ export class Wunderbaum {
     let ofs = this.scrollContainer.scrollTop;
 
     if (Math.abs(height - wantHeight) > 1.0) {
-      this.log("resize", height, wantHeight);
+      // this.log("resize", height, wantHeight);
       this.scrollContainer.style.height = wantHeight + "px";
       height = wantHeight;
     }
@@ -1222,7 +1230,7 @@ export class Wunderbaum {
       siblingOfs = 1; //
 
       if (!parent && opts.wrap) {
-        this.log("visitRows(): wrap around");
+        this.logDebug("visitRows(): wrap around");
         util.assert(opts.start, "`wrap` option requires `start`");
         stopNode = opts.start;
         opts.wrap = false;
@@ -1303,11 +1311,9 @@ export class Wunderbaum {
     }
     this._enableUpdate = flag;
     if (flag) {
-      this.logDebug("enableUpdate(true): redraw "); //, this._dirtyRoots);
-      // this._callHook("treeStructureChanged", this, "enableUpdate");
+      this.logDebug("enableUpdate(true): redraw...");
       this.updateViewport();
     } else {
-      // 	this._dirtyRoots = null;
       this.logDebug("enableUpdate(false)...");
     }
     return !flag; // return previous value

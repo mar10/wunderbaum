@@ -31,7 +31,7 @@ export class KeynavExtension extends WunderbaumExtension {
       if (focusNode) {
         focusNode.setFocus();
         node = tree.getFocusNode()!;
-        node.logDebug("Keydown force focus on active node");
+        node.logInfo("Keydown force focus on active node");
       }
     }
 
@@ -107,7 +107,7 @@ export class KeynavExtension extends WunderbaumExtension {
         break;
       // case "firstCol":
       // case "lastCol":
-      //   node.logWarning("navigate(" + where + ") is not yet implemented");
+      //   node.logWarn("navigate(" + where + ") is not yet implemented");
       //   break;
     }
 

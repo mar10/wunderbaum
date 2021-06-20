@@ -98,7 +98,7 @@ export class DndExtension extends WunderbaumExtension {
 
   protected onDragEvent(e: DragEvent) {
     const node = Wunderbaum.getNode(e);
-    this.tree.log("onDragEvent." + e.type + " " + node, e);
+    this.tree.logDebug("onDragEvent." + e.type + " " + node, e);
     return true;
   }
 
@@ -108,6 +108,6 @@ export class DndExtension extends WunderbaumExtension {
       e.preventDefault(); // Drop operation is denied by default
     }
     const node = Wunderbaum.getNode(e);
-    this.tree.log("onDropEvent." + e.type + " " + node, e);
+    this.tree.logDebug("onDropEvent." + e.type + " " + node, e);
   }
 }

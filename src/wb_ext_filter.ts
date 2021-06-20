@@ -80,7 +80,7 @@ export class FilterExtension extends WunderbaumExtension {
     // Default to 'match title substring (case insensitive)'
     if (typeof filter === "string") {
       if (filter === "") {
-        tree.logWarning(
+        tree.logInfo(
           "Passing an empty string as a filter is handled as clearFilter()."
         );
         this.clearFilter();
@@ -163,10 +163,11 @@ export class FilterExtension extends WunderbaumExtension {
       delete node.titleWithHighlight;
       node.subMatchCount = 0;
     });
-    statusNode = tree.root.findDirectChild(KEY_NODATA);
-    if (statusNode) {
-      statusNode.remove();
-    }
+    // statusNode = tree.root.findDirectChild(KEY_NODATA);
+    // if (statusNode) {
+    //   statusNode.remove();
+    // }
+    tree.setStatus(NodeStatusType.ok);
 
     // Adjust node.hide, .match, and .subMatchCount properties
     treeOpts.autoCollapse = false; // #528
@@ -212,31 +213,13 @@ export class FilterExtension extends WunderbaumExtension {
     treeOpts.autoCollapse = prevAutoCollapse;
 
     if (count === 0 && opts.noData && hideMode) {
-      // statusNode = opts.noData;
-      // if (typeof statusNode === "function") {
-      //   statusNode = statusNode();
-      // }
-      // if (statusNode === true) {
-      //   statusNode = {};
-      // } else if (typeof statusNode === "string") {
-      //   statusNode = { title: statusNode };
-      // }
-      // statusNode = extend(
-      //   {
-      //     statusNodeType: "noData",
-      //     key: KEY_NODATA,
-      //     title: treeOpts.strings.noData,
-      //   },
-      //   statusNode
-      // );
-      // tree.root.addChild(statusNode).match = true;
       tree.root.setStatus(NodeStatusType.noData);
     }
     // Redraw whole tree
-    // tree._callHook("treeStructureChanged", this, "applyFilter");
-    // tree.render();
     tree.enableUpdate(prevEnableUpdate);
-    tree.log("Filter '" + match + "' took " + (Date.now() - start) + "ms");
+    tree.logInfo(
+      `Filter '${match}' found ${count} nodes in ${Date.now() - start} ms.`
+    );
     return count;
   }
 
@@ -272,7 +255,7 @@ export class FilterExtension extends WunderbaumExtension {
     ) {
       this._applyFilterImpl.apply(this, <any>this.lastFilterArgs);
     } else {
-      tree.logWarning("updateFilter(): no filter active.");
+      tree.logWarn("updateFilter(): no filter active.");
     }
   }
 
@@ -284,14 +267,15 @@ export class FilterExtension extends WunderbaumExtension {
    */
   clearFilter() {
     let tree = this.tree,
-      statusNode = tree.root.findDirectChild(KEY_NODATA),
+      // statusNode = tree.root.findDirectChild(KEY_NODATA),
       escapeTitles = tree.options.escapeTitles,
       // enhanceTitle = tree.options.enhanceTitle,
       prevEnableUpdate = tree.enableUpdate(false);
 
-    if (statusNode) {
-      statusNode.remove();
-    }
+    // if (statusNode) {
+    //   statusNode.remove();
+    // }
+    tree.setStatus(NodeStatusType.ok);
     // we also counted root node's subMatchCount
     delete tree.root.match;
     delete tree.root.subMatchCount;

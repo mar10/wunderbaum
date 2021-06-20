@@ -503,6 +503,7 @@ export class WunderbaumNode {
       console.time(this + ".load");
     }
     try {
+      this.setStatus(NodeStatusType.loading);
       const response = await fetch(source, { method: "GET" });
       if (!response.ok) {
         util.error(
@@ -516,6 +517,7 @@ export class WunderbaumNode {
       }
       this.callEvent("receive", { response: response });
       const data = await response.json();
+      this.setStatus(NodeStatusType.ok);
 
       let prev = tree.enableUpdate(false);
       this.addChildren(data);
@@ -524,6 +526,7 @@ export class WunderbaumNode {
       this.logError("Error during load()", source, error);
       this.callEvent("error", { error: error });
       this.setStatus(NodeStatusType.error, "" + error);
+      throw error;
     }
 
     if (opts.debugLevel >= 2) {
@@ -531,13 +534,8 @@ export class WunderbaumNode {
     }
   }
 
-  /* Log to console if opts.debugLevel >= 1 */
-  log(...args: any[]) {
-    if (this.tree.options.debugLevel >= 1) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.log.apply(console, args);
-    }
-  }
+  /** Alias for `logDebug` */
+  log = this.logDebug; // Alias
 
   /* Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
@@ -546,19 +544,28 @@ export class WunderbaumNode {
       console.log.apply(console, args);
     }
   }
-
-  /* Log warning to console if opts.debugLevel >= 1 */
-  logWarning(...args: any[]) {
+  /* Log error to console. */
+  logError(...args: any[]) {
     if (this.tree.options.debugLevel >= 1) {
       Array.prototype.unshift.call(args, this.toString());
-      console.warn.apply(console, args);
+      console.error.apply(console, args);
     }
   }
 
-  /* Log error to console. */
-  logError(...args: any[]) {
-    Array.prototype.unshift.call(args, this.toString());
-    console.error.apply(console, args);
+  /* Log to console if opts.debugLevel >= 3 */
+  logInfo(...args: any[]) {
+    if (this.tree.options.debugLevel >= 3) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.info.apply(console, args);
+    }
+  }
+
+  /* Log warning to console if opts.debugLevel >= 2 */
+  logWarn(...args: any[]) {
+    if (this.tree.options.debugLevel >= 2) {
+      Array.prototype.unshift.call(args, this.toString());
+      console.warn.apply(console, args);
+    }
   }
 
   /** Expand all parents and optionally scroll into visible area as neccessary.
@@ -624,17 +631,19 @@ export class WunderbaumNode {
       }
       return node.setActive();
     }
-    this.logWarning("Could not find related node '" + where + "'.");
+    this.logWarn("Could not find related node '" + where + "'.");
     return Promise.resolve(this);
   }
 
   /** */
   remove() {
     const tree = this.tree;
+    const pos = this.parent.children!.indexOf(this);
+    this.parent.children!.splice(pos, 1);
     this.visit((n) => {
       n.removeMarkup();
       tree._unregisterNode(n);
-    });
+    }, true);
   }
 
   removeMarkup() {
@@ -930,7 +939,7 @@ export class WunderbaumNode {
       this.tree.updateViewport();
     } else if (this._rowElem) {
       // otherwise not in viewport, so no need to render
-      this.render({});
+      this.render();
     }
   }
 
@@ -985,14 +994,15 @@ export class WunderbaumNode {
         // tree._callHook("nodeRenderTitle", firstChild);
         tree.setModified(ChangeType.row, statusNode);
       } else {
-        statusNode = new WunderbaumNode(tree, this, data);
-        this.addNode(statusNode, "firstChild");
+        // statusNode = new WunderbaumNode(tree, this, data);
+        // this.addNode(statusNode, "firstChild");
+        statusNode = this.addNode(data, "firstChild");
+        statusNode.match = true;
         // this.addChildren([data]);
         // statusNode = this.children![0];
         // tree._callHook("treeStructureChanged", ctx, "setStatusNode");
         // statusNode.statusNodeType = type;
         tree.setModified(ChangeType.structure);
-        // tree.render();
       }
       return statusNode;
     };
@@ -1045,12 +1055,13 @@ export class WunderbaumNode {
         });
         this._isLoading = false;
         this._errorInfo = null;
-        statusNode!.match = true;
         break;
       default:
         util.error("invalid node status " + status);
     }
-    this.render();
+    // this.parent ? this.render() : 0;
+    // statusNode ? statusNode!.render() : 0;
+    tree.updateViewport();
     return statusNode;
   }
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
