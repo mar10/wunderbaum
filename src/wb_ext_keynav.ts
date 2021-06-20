@@ -107,7 +107,7 @@ export class KeynavExtension extends WunderbaumExtension {
         break;
       // case "firstCol":
       // case "lastCol":
-      //   node.logWarning("navigate(" + where + ") is not yet implemented");
+      //   node.logWarn("navigate(" + where + ") is not yet implemented");
       //   break;
     }
 

@@ -11,8 +11,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
     source: [
       {
+        title: "GitHub Project",
         type: "link",
-        title: "home",
+        href: "https://github.com/mar10/wunderbaum",
+      },
+      {
+        title: "Tutorial",
+        type: "link",
+        href: "https://github.com/mar10/wunderbaum",
+      },
+      {
+        title: "API Documentation",
+        type: "link",
         href: "https://github.com/mar10/wunderbaum",
       },
     ],
@@ -64,25 +74,25 @@ document.addEventListener("DOMContentLoaded", (event) => {
       showStatus(this);
     },
   });
-});
+  /* ---------------------------------------------------------------------------
+   * Demo Behavior
+   */
+  document.querySelector("a#expand-all").addEventListener("click", (event) => {
+    // let tree = mar10.Wunderbaum.getTree("demo");
+    console.time("expandAll");
+    tree.expandAll().then(() => {
+      console.timeEnd("expandAll");
+    });
+  });
 
-/* ---------------------------------------------------------------------------
- * Demo Behavior
- */
-document.querySelector("a#expand-all").addEventListener("click", (event) => {
-  let tree = mar10.Wunderbaum.getTree("demo");
-  console.time("expandAll");
-  tree.expandAll().then(() => {
-    console.timeEnd("expandAll");
+  document.querySelector("a#collapse-all").addEventListener("click", (event) => {
+    // let tree = mar10.Wunderbaum.getTree("demo");
+    console.time("collapseAll");
+    tree.expandAll(false);
+    console.timeEnd("collapseAll");
   });
 });
 
-document.querySelector("a#collapse-all").addEventListener("click", (event) => {
-  let tree = mar10.Wunderbaum.getTree("demo");
-  console.time("collapseAll");
-  tree.expandAll(false);
-  console.timeEnd("collapseAll");
-});
 
 function showStatus(tree, options) {
   const info = document.querySelector("#tree-info");

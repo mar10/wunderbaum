@@ -10,7 +10,7 @@ import { WunderbaumNode } from "./wb_node";
 export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
 
-export const DEFAULT_DEBUGLEVEL = 2; // Replaced by rollup script
+export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
 export const ROW_HEIGHT = 20;
 export const RENDER_MIN_PREFETCH = 5;
 export const RENDER_MAX_PREFETCH = 5;
