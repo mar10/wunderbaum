@@ -503,6 +503,7 @@ export class WunderbaumNode {
       console.time(this + ".load");
     }
     try {
+      this.setStatus(NodeStatusType.loading);
       const response = await fetch(source, { method: "GET" });
       if (!response.ok) {
         util.error(
@@ -516,6 +517,7 @@ export class WunderbaumNode {
       }
       this.callEvent("receive", { response: response });
       const data = await response.json();
+      this.setStatus(NodeStatusType.ok);
 
       let prev = tree.enableUpdate(false);
       this.addChildren(data);
@@ -524,6 +526,7 @@ export class WunderbaumNode {
       this.logError("Error during load()", source, error);
       this.callEvent("error", { error: error });
       this.setStatus(NodeStatusType.error, "" + error);
+      throw error;
     }
 
     if (opts.debugLevel >= 2) {
@@ -1000,7 +1003,6 @@ export class WunderbaumNode {
         // tree._callHook("treeStructureChanged", ctx, "setStatusNode");
         // statusNode.statusNodeType = type;
         tree.setModified(ChangeType.structure);
-        // tree.render();
       }
       return statusNode;
     };
@@ -1059,6 +1061,7 @@ export class WunderbaumNode {
     }
     // this.parent ? this.render() : 0;
     // statusNode ? statusNode!.render() : 0;
+    tree.updateViewport();
     return statusNode;
   }
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>

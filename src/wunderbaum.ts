@@ -121,7 +121,8 @@ export class Wunderbaum {
         // --- Strings ---
         strings: {
           loadError: "Error",
-          loading: "Loading&hellip;",
+          loading: "Loading...",
+          // loading: "Loading&hellip;",
           noData: "No data",
         },
       },

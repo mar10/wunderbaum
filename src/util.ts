@@ -394,7 +394,7 @@ export function elemFromSelector(obj: string | Element): HTMLElement | null {
   // Implement `opts.createNode` event to add the 'draggable' attribute
   overrideMethod(ctx.options, "createNode", (event, data) => {
     // Default processing if any
-    this._super.apply(this, arguments);
+    this._super.apply(this, event, data);
     // Add 'draggable' attribute
     data.node.span.draggable = true;
   });

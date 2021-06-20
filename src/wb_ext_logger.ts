@@ -18,11 +18,12 @@ export class LoggerExtension extends WunderbaumExtension {
 
   init() {
     let tree = this.tree;
-    overrideMethod(tree, "callEvent", (name, extra) => {
+    let prefix = this.prefix;
+    overrideMethod(tree, "callEvent", function (name, extra) {
       let start = Date.now();
       (<any>tree)._superApply(arguments);
       console.info(
-        `${this.prefix}: callEvent('${name}') took ${Date.now() - start} ms.`
+        `${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`
       );
     });
   }
