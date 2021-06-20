@@ -14,14 +14,14 @@ const tree = new Wunderbaum({
     book: { icon: "bi bi-book" },
   },
   // showSpinner: true,
-  source: "https://hurz",
-  // source: {
-  //   children: [
-  //     { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
-  //     { title: "Node 2", selected: true, icon: "bi bi-book" },
-  //     { title: "Node 3", type: "book" },
-  //   ],
-  // },
+  // source: "https://hurz",
+  source: {
+    children: [
+      { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
+      { title: "Node 2", selected: true, icon: "test.png" },
+      { title: "Node 3", type: "book" },
+    ],
+  },
 });
 
 console.log(`Created  ${tree}`);

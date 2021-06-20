@@ -526,17 +526,46 @@ export class Wunderbaum {
     return node;
   }
 
-  getOption(name: string): any {
-    if (name.indexOf(".") === -1) {
-      return this.options[name];
+  /**
+   * Return `tree.option.NAME` (also resolving if this is a callback).
+   *
+   * See also [[WunderbaumNode.getOption()]] to consider `node.NAME` setting and
+   * `tree.types[node.type].NAME`.
+   *
+   * @param name options name (use dot natation to acces exension option, e.g. `filter.mode`)
+   */
+  getOption(name: string, defaultValue?: any): any {
+    let opts = this.options;
+
+    // Lookup `name` in options dict
+    if (name.indexOf(".") >= 0) {
+      [opts, name] = name.split(".");
     }
-    const parts = name.split(".");
-    return this.options[parts[0]][parts[1]];
+    let value = opts[name]; // ?? defaultValue;
+
+    // A callback resolver always takes precedence
+    if (typeof value === "function") {
+      value = value({ type: "resolve", tree: this });
+    }
+    // Use value from value options dict, fallback do default
+    return value ?? defaultValue;
   }
 
+  /**
+   *
+   * @param name
+   * @param value
+   */
   setOption(name: string, value: any): void {
     if (name.indexOf(".") === -1) {
       this.options[name] = value;
+      // switch (name) {
+      //   case value:
+      //     break;
+      //   default:
+      //     break;
+      // }
+      return;
     }
     const parts = name.split(".");
     const ext = this.extensionDict[parts[0]];

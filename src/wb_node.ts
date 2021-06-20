@@ -6,15 +6,10 @@
 
 import "./wunderbaum.scss";
 import * as util from "./util";
-// import { PersistoOptions } from "./wb_options";
-
-// const class_prefix = "wb-";
-// const node_props: string[] = ["title", "key", "refKey"];
 
 import { Wunderbaum } from "./wunderbaum";
 import {
   ChangeType,
-  evalOption,
   iconMap,
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
@@ -53,6 +48,9 @@ export class WunderbaumNode {
   public readonly key: string;
   public readonly refKey: string | undefined = undefined;
   public children: WunderbaumNode[] | null = null;
+  public checkbox?: boolean;
+  public colspan?: boolean;
+  public icon?: boolean | string;
   public lazy: boolean = false;
   public expanded: boolean = false;
   public selected: boolean = false;
@@ -66,8 +64,6 @@ export class WunderbaumNode {
   public statusNodeType?: string;
   _isLoading = false;
   _errorInfo: any | null = null;
-  public colspan?: boolean; // If true, title is streched over all columns
-  // public center?: boolean; // If true, title is centered
   // --- FILTER ---
   public match?: boolean; // Added and removed by filter code
   public subMatchCount?: number = 0;
@@ -91,12 +87,15 @@ export class WunderbaumNode {
       ? (this.statusNodeType = "" + data.statusNodeType)
       : 0;
     data.type != null ? (this.type = "" + data.type) : 0;
+    data.checkbox != null ? (this.checkbox = !!data.checkbox) : 0;
+    data.colspan != null ? (this.colspan = !!data.colspan) : 0;
     this.expanded = data.expanded === true;
+    data.icon != null ? (this.icon = data.icon) : 0;
     this.lazy = data.lazy === true;
     this.selected = data.selected === true;
     if (data.classes) {
-      for (const c in data.classes.split()) {
-        this.extraClasses.add(c);
+      for (const c of data.classes.split(" ")) {
+        this.extraClasses.add(c.trim());
       }
     }
     // Store custom fields as `node.data`
@@ -120,21 +119,21 @@ export class WunderbaumNode {
     return "WunderbaumNode@" + this.key + "<'" + this.title + "'>";
   }
 
-  /** Return an option value. */
-  protected _getOpt(
-    name: string,
-    nodeObject: any = null,
-    treeOptions: any = null,
-    defaultValue: any = null
-  ): any {
-    return evalOption(
-      name,
-      this,
-      nodeObject || this,
-      treeOptions || this.tree.options,
-      defaultValue
-    );
-  }
+  // /** Return an option value. */
+  // protected _getOpt(
+  //   name: string,
+  //   nodeObject: any = null,
+  //   treeOptions: any = null,
+  //   defaultValue: any = null
+  // ): any {
+  //   return evalOption(
+  //     name,
+  //     this,
+  //     nodeObject || this,
+  //     treeOptions || this.tree.options,
+  //     defaultValue
+  //   );
+  // }
 
   /** Call event if defined in options. */
   callEvent(event: string, extra?: any): any {
@@ -173,7 +172,7 @@ export class WunderbaumNode {
 
     if (!this.children) {
       this.children = nodeList;
-    } else if (insertBefore == null) {
+    } else if (insertBefore == null || this.children.length === 0) {
       this.children = this.children.concat(nodeList);
     } else {
       // Returns null if insertBefore is not a direct child:
@@ -676,7 +675,7 @@ export class WunderbaumNode {
    * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
    * evalOption("bar", node, node.data, tree.options.qux);
    */
-  protected _resolveOption(name: string, defaultValue?: any) {
+  protected getOption(name: string, defaultValue?: any) {
     let tree = this.tree;
     let opts = tree.options;
 
@@ -712,10 +711,15 @@ export class WunderbaumNode {
     return value ?? defaultValue;
   }
 
-  protected _createIcon(parentElem: HTMLElement): HTMLElement {
-    let icon, iconSpan;
-
-    if (this.statusNodeType) {
+  protected _createIcon(parentElem: HTMLElement): HTMLElement | null {
+    let iconSpan;
+    let icon = this.getOption("icon");
+    if (icon === false) {
+      return null;
+    }
+    if (typeof icon === "string") {
+      // Callback returned an icon definition
+    } else if (this.statusNodeType) {
       icon = (<any>iconMap)[this.statusNodeType];
     } else if (this.expanded) {
       icon = iconMap.folderOpen;
@@ -724,8 +728,7 @@ export class WunderbaumNode {
     } else {
       icon = iconMap.doc;
     }
-    // allow customization
-    icon = this._resolveOption("icon", icon);
+
     // this.log("_createIcon: " + icon);
     if (icon.indexOf("<") >= 0) {
       // HTML
@@ -748,15 +751,14 @@ export class WunderbaumNode {
     const EXTRA_PAD = 30;
 
     let tree = this.tree;
-    let treeOpts = tree.options;
-    let checkbox = treeOpts.checkbox !== false;
+    let checkbox = this.getOption("checkbox") !== false;
     let columns = tree.columns;
     let elem: HTMLElement;
     let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
     let titleSpan: HTMLElement;
     let checkboxSpan: HTMLElement | null = null;
-    let iconSpan: HTMLElement;
+    let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement;
     const activeColIdx = tree.cellNavMode ? tree.activeColIdx : null;
 
@@ -814,7 +816,9 @@ export class WunderbaumNode {
       ofsTitlePx += ICON_WIDTH;
 
       iconSpan = this._createIcon(nodeElem);
-      ofsTitlePx += ICON_WIDTH;
+      if (iconSpan) {
+        ofsTitlePx += ICON_WIDTH;
+      }
 
       titleSpan = document.createElement("span");
       titleSpan.classList.add("wb-title");
@@ -852,6 +856,7 @@ export class WunderbaumNode {
     }
 
     rowDiv.className = rowClasses.join(" ");
+    rowDiv.classList.add(...this.extraClasses);
     // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
     rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
 
@@ -873,17 +878,7 @@ export class WunderbaumNode {
         checkboxSpan.className = "wb-checkbox " + iconMap.checkUnchecked;
       }
     }
-    // if (iconSpan) {
-    //   if (this.statusNodeType) {
-    //     iconSpan.className = "wb-icon " + iconMap[this.statusNodeType];
-    //   } else if (this.expanded) {
-    //     iconSpan.className = "wb-icon " + iconMap.folderOpen;
-    //   } else if (this.children) {
-    //     iconSpan.className = "wb-icon " + iconMap.folder;
-    //   } else {
-    //     iconSpan.className = "wb-icon " + iconMap.doc;
-    //   }
-    // }
+
     if (this.titleWithHighlight) {
       titleSpan.innerHTML = this.titleWithHighlight;
     } else if (tree.options.escapeTitles) {
@@ -894,16 +889,6 @@ export class WunderbaumNode {
     // Set the width of the title span, so overflow ellipsis work
     titleSpan.style.width =
       columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
-
-    // this.log(
-    //   "render",
-    //   titleSpan,
-    //   columns[0]._widthPx,
-    //   (<any>nodeElem)._ofsTitlePx,
-    //   titleSpan.offsetLeft,
-    //   titleSpan.offsetWidth,
-    //   titleSpan.offsetParent
-    // );
 
     // Attach to DOM as late as possible
     if (!this._rowElem) {
@@ -985,31 +970,21 @@ export class WunderbaumNode {
       // system root)
       let children = this.children;
       let firstChild = children ? children[0] : null;
-      util.assert(data.statusNodeType);
 
-      if (firstChild && firstChild.isStatusNode()) {
-        statusNode = firstChild;
-        util.extend(firstChild, data);
-        firstChild.statusNodeType = data.statusNodeType;
-        // tree._callHook("nodeRenderTitle", firstChild);
-        tree.setModified(ChangeType.row, statusNode);
-      } else {
-        // statusNode = new WunderbaumNode(tree, this, data);
-        // this.addNode(statusNode, "firstChild");
-        statusNode = this.addNode(data, "firstChild");
-        statusNode.match = true;
-        // this.addChildren([data]);
-        // statusNode = this.children![0];
-        // tree._callHook("treeStructureChanged", ctx, "setStatusNode");
-        // statusNode.statusNodeType = type;
-        tree.setModified(ChangeType.structure);
-      }
+      util.assert(data.statusNodeType);
+      util.assert(!firstChild || !firstChild.isStatusNode());
+
+      statusNode = this.addNode(data, "firstChild");
+      statusNode.match = true;
+      tree.setModified(ChangeType.structure);
+
       return statusNode;
     };
 
+    _clearStatusNode();
+
     switch (status) {
       case "ok":
-        _clearStatusNode();
         this._isLoading = false;
         this._errorInfo = null;
         break;
@@ -1021,7 +996,6 @@ export class WunderbaumNode {
             title:
               tree.options.strings.loading +
               (message ? " (" + message + ")" : ""),
-            // icon: true,  // needed for 'loding' icon
             checkbox: false,
             colspan: true,
             tooltip: details,
@@ -1036,9 +1010,9 @@ export class WunderbaumNode {
           title:
             tree.options.strings.loadError +
             (message ? " (" + message + ")" : ""),
-          // icon: false,
           checkbox: false,
           colspan: true,
+          // classes: "wb-center",
           tooltip: details,
         });
         this._isLoading = false;
@@ -1048,7 +1022,6 @@ export class WunderbaumNode {
         _setStatusNode({
           statusNodeType: status,
           title: message || tree.options.strings.noData,
-          // icon: false,
           checkbox: false,
           colspan: true,
           tooltip: details,
@@ -1059,8 +1032,6 @@ export class WunderbaumNode {
       default:
         util.error("invalid node status " + status);
     }
-    // this.parent ? this.render() : 0;
-    // statusNode ? statusNode!.render() : 0;
     tree.updateViewport();
     return statusNode;
   }
