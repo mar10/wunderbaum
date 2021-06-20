@@ -8,7 +8,7 @@ import { Wunderbaum } from "../dist/wunderbaum.esm.js";
 const tree = new Wunderbaum({
   element: "#tree",
   id: "Playground",
-  header: TextTrackCue,
+  // header: "Playground",
   // columns: [{title: "test"}],
   types: {
     book: {icon: "bi bi-book"},

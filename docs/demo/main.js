@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
    */
   let navTree = new mar10.Wunderbaum({
     id: "navigation",
-    header: "Wunderbaum",
+    // header: "Wunderbaum",
     element: document.querySelector("#nav-tree"),
     types: {
       link: { icon: "bi bi-link-45deg" },
