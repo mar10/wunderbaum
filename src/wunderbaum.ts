@@ -541,7 +541,7 @@ export class Wunderbaum {
     if (name.indexOf(".") >= 0) {
       [opts, name] = name.split(".");
     }
-    let value = opts[name]; // ?? defaultValue;
+    let value = opts[name];
 
     // A callback resolver always takes precedence
     if (typeof value === "function") {

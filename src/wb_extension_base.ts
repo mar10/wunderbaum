@@ -20,8 +20,7 @@ export abstract class WunderbaumExtension {
     this.tree = tree;
     this.id = id;
     this.treeOpts = tree.options;
-    // Merge extension default and explicit options into `tree.options.EXTNAME`
-    // tree.options[name] ??= {};
+
     if (this.treeOpts[id] === undefined) {
       this.treeOpts[id] = this.extensionOpts = util.extend({}, defaults);
     } else {
@@ -29,7 +28,7 @@ export abstract class WunderbaumExtension {
       this.extensionOpts = util.extend({}, defaults, tree.options[id]);
       tree.options[id] = this.extensionOpts;
     }
-    this.enabled = !!this.getOption("enabled");
+    this.enabled = this.getOption("enabled", true);
   }
 
   /** Called on tree (re)init after all extensions are added, but before loading.*/
@@ -52,8 +51,8 @@ export abstract class WunderbaumExtension {
     }
   }
 
-  getOption(name: string): any {
-    return this.extensionOpts[name];
+  getOption(name: string, defaultValue?: any): any {
+    return this.extensionOpts[name] ?? defaultValue;
   }
 
   setOption(name: string, value: any): void {
@@ -61,7 +60,8 @@ export abstract class WunderbaumExtension {
   }
 
   setEnabled(flag = true) {
-    this.enabled = !!flag;
+    return this.setOption("enabled", !!flag);
+    // this.enabled = !!flag;
   }
 
   onKeyEvent(data: any): boolean | undefined {

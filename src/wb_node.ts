@@ -675,7 +675,7 @@ export class WunderbaumNode {
    * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
    * evalOption("bar", node, node.data, tree.options.qux);
    */
-  protected getOption(name: string, defaultValue?: any) {
+  getOption(name: string, defaultValue?: any) {
     let tree = this.tree;
     let opts = tree.options;
 
@@ -904,6 +904,11 @@ export class WunderbaumNode {
   async setActive(flag: boolean = true, options?: any) {
     const tree = this.tree;
     let prev = tree.activeNode;
+
+    if (prev !== this) {
+      this.callEvent("activate", { prevNode: prev });
+    }
+
     tree.activeNode = this;
     prev?.setDirty(ChangeType.status);
     this.setDirty(ChangeType.status);
@@ -941,7 +946,11 @@ export class WunderbaumNode {
   }
 
   setSelected(flag: boolean = true, options?: any) {
-    this.selected = flag;
+    const prev = this.selected;
+    if (!!flag !== prev) {
+      this.callEvent("select", { flag: flag });
+    }
+    this.selected = !!flag;
     this.setDirty(ChangeType.status);
   }
 

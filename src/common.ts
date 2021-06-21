@@ -127,60 +127,60 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   Subtract: "collapse",
 };
 
-/** Return an option value that has a default, but may be overridden by a
- * callback or a node instance attribute.
- *
- * Evaluation sequence:
- *
- * If `tree.options.<optionName>` is a callback that returns something, use that.
- * Else if `node.<optionName>` is defined, use that.
- * Else if `tree.options.<optionName>` is a value, use that.
- * Else use `defaultValue`.
- *
- * @param optionName name of the option property (on node and tree)
- * @param node passed to the callback
- * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
- * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
- * @param defaultValue return this if nothing else matched
- *
- * @example
- * // Check for node.foo, tree,options.foo(), and tree.options.foo:
- * evalOption("foo", node, node, tree.options);
- * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
- * evalOption("bar", node, node.data, tree.options.qux);
- */
-export function evalOption(
-  optionName: string,
-  node: WunderbaumNode,
-  nodeObject: any,
-  treeOptions: any,
-  defaultValue: any
-): any {
-  let data,
-    res,
-    tree = node.tree,
-    treeOpt = treeOptions[optionName],
-    nodeOpt = nodeObject[optionName];
+// /** Return an option value that has a default, but may be overridden by a
+//  * callback or a node instance attribute.
+//  *
+//  * Evaluation sequence:
+//  *
+//  * If `tree.options.<optionName>` is a callback that returns something, use that.
+//  * Else if `node.<optionName>` is defined, use that.
+//  * Else if `tree.options.<optionName>` is a value, use that.
+//  * Else use `defaultValue`.
+//  *
+//  * @param optionName name of the option property (on node and tree)
+//  * @param node passed to the callback
+//  * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
+//  * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
+//  * @param defaultValue return this if nothing else matched
+//  *
+//  * @example
+//  * // Check for node.foo, tree,options.foo(), and tree.options.foo:
+//  * evalOption("foo", node, node, tree.options);
+//  * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
+//  * evalOption("bar", node, node.data, tree.options.qux);
+//  */
+// export function evalOption(
+//   optionName: string,
+//   node: WunderbaumNode,
+//   nodeObject: any,
+//   treeOptions: any,
+//   defaultValue: any
+// ): any {
+//   let data,
+//     res,
+//     tree = node.tree,
+//     treeOpt = treeOptions[optionName],
+//     nodeOpt = nodeObject[optionName];
 
-  if (typeof treeOpt === "function") {
-    data = {
-      node: node,
-      tree: tree,
-      options: tree.options,
-      typeInfo: node.type ? tree.types[node.type] : {},
-    };
-    res = treeOpt.call(tree, { type: optionName }, data);
-    if (res == null) {
-      res = nodeOpt;
-    }
-  } else {
-    res = nodeOpt == null ? treeOpt : nodeOpt;
-  }
-  if (res == null) {
-    res = defaultValue; // no option set at all: return default
-  }
-  return res;
-}
+//   if (typeof treeOpt === "function") {
+//     data = {
+//       node: node,
+//       tree: tree,
+//       options: tree.options,
+//       typeInfo: node.type ? tree.types[node.type] : {},
+//     };
+//     res = treeOpt.call(tree, { type: optionName }, data);
+//     if (res == null) {
+//       res = nodeOpt;
+//     }
+//   } else {
+//     res = nodeOpt == null ? treeOpt : nodeOpt;
+//   }
+//   if (res == null) {
+//     res = defaultValue; // no option set at all: return default
+//   }
+//   return res;
+// }
 
 /** */
 export function makeNodeTitleMatcher(s: string): MatcherType {

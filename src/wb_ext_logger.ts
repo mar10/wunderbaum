@@ -4,12 +4,13 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { eventToString, overrideMethod } from "./util";
+import { overrideMethod } from "./util";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { Wunderbaum } from "./wunderbaum";
 
 export class LoggerExtension extends WunderbaumExtension {
   readonly prefix: string;
+  protected ignoreEvents = new Set<string>();
 
   constructor(tree: Wunderbaum) {
     super(tree, "logger", {});
@@ -17,15 +18,28 @@ export class LoggerExtension extends WunderbaumExtension {
   }
 
   init() {
-    let tree = this.tree;
-    let prefix = this.prefix;
-    overrideMethod(tree, "callEvent", function (name, extra) {
-      let start = Date.now();
-      (<any>tree)._superApply(arguments);
-      console.info(
-        `${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`
-      );
-    });
+    const tree = this.tree;
+
+    this.ignoreEvents.add("enhanceTitle");
+
+    if (tree.getOption("debugLevel") >= 4) {
+      // const self = this;
+      const ignoreEvents = this.ignoreEvents;
+      const prefix = this.prefix;
+
+      overrideMethod(tree, "callEvent", function (name, extra) {
+        if (ignoreEvents.has(name)) {
+          return (<any>tree)._superApply(arguments);
+        }
+        let start = Date.now();
+        const res = (<any>tree)._superApply(arguments);
+        console.info(
+          `${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`,
+          arguments[1]
+        );
+        return res;
+      });
+    }
   }
 
   onKeyEvent(data: any): boolean | undefined {
