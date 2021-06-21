@@ -33,7 +33,7 @@ export class LoggerExtension extends WunderbaumExtension {
         }
         let start = Date.now();
         const res = (<any>tree)._superApply(arguments);
-        console.info(
+        console.debug(
           `${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`,
           arguments[1]
         );
@@ -44,7 +44,7 @@ export class LoggerExtension extends WunderbaumExtension {
 
   onKeyEvent(data: any): boolean | undefined {
     // this.tree.logInfo("onKeyEvent", eventToString(data.event), data);
-    console.info(`${this.prefix}: onKeyEvent()`, data);
+    console.debug(`${this.prefix}: onKeyEvent()`, data);
     return;
   }
 }

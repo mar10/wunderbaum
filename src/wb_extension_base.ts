@@ -36,20 +36,20 @@ export abstract class WunderbaumExtension {
     this.tree.element.classList.add("wb-ext-" + this.id);
   }
 
-  protected callEvent(name: string, extra?: any): any {
-    let func = this.extensionOpts[name];
-    if (func) {
-      return func.call(
-        this.tree,
-        util.extend(
-          {
-            event: this.id + "." + name,
-          },
-          extra
-        )
-      );
-    }
-  }
+  // protected callEvent(name: string, extra?: any): any {
+  //   let func = this.extensionOpts[name];
+  //   if (func) {
+  //     return func.call(
+  //       this.tree,
+  //       util.extend(
+  //         {
+  //           event: this.id + "." + name,
+  //         },
+  //         extra
+  //       )
+  //     );
+  //   }
+  // }
 
   getOption(name: string, defaultValue?: any): any {
     return this.extensionOpts[name] ?? defaultValue;

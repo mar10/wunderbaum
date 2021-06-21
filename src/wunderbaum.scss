@@ -41,6 +41,8 @@ $active-header-column-color: $active-color;
 $filter-dimm-color: #dedede;
 $filter-submatch-color: #868581;
 
+$icon-width: 16px;
+$icon-height: 16px;
 $row-height: 20px;
 $header-height: $row-height;
 
@@ -150,6 +152,11 @@ div.wunderbaum {
       // margin-right: 3px;
       // font-size: small;
       // vertical-align: middle;
+    }
+    img.wb-icon {
+      width: $icon-width;
+      height: $icon-height;
+      margin-top: 2px;
     }
     i.wb-indent {
       // border-left: 1px solid gray;

@@ -271,14 +271,16 @@ export class Wunderbaum {
       let info = this.getEventTarget(e),
         node = info.node;
 
-      if (this.callEvent("click", { node: node, info: info }) === false) {
+      if (
+        this.callEvent("click", { node: node, info: info, event: e }) === false
+      ) {
         return false;
       }
       if (node) {
         if (info.colIdx >= 0) {
-          node.setActive(true, { colIdx: info.colIdx });
+          node.setActive(true, { colIdx: info.colIdx, event: e });
         } else {
-          node.setActive();
+          node.setActive(true, { event: e });
         }
         if (info.type === TargetType.expander) {
           node.setExpanded(!node.isExpanded());
@@ -299,6 +301,21 @@ export class Wunderbaum {
     // );
     util.onEvent(this.element, "keydown", (e) => {
       this._callHook("onKeyEvent", { tree: this, event: e });
+    });
+    util.onEvent(this.element, "focusin focusout", (e) => {
+      const flag = e.type === "focusin";
+      this.callEvent("focus", { flag: flag, event: e });
+      if (flag && !this.activeNode) {
+        setTimeout(() => {
+          if (!this.activeNode) {
+            const firstNode = this.getFirstChild();
+            if (firstNode && !firstNode?.isStatusNode()) {
+              firstNode.logInfo("Activate on focus");
+              firstNode.setActive(true, { event: e });
+            }
+          }
+        }, 10);
+      }
     });
   }
 
@@ -444,13 +461,10 @@ export class Wunderbaum {
 
   /** Call event if defined in options. */
   callEvent(name: string, extra?: any): any {
-    let func = this.options[name];
+    const [p, n] = name.split(".");
+    let func = n ? this.options[p][n] : this.options[p];
     if (func) {
-      let res = func.call(
-        this,
-        util.extend({ event: name, tree: this }, extra)
-      );
-      return res;
+      return func.call(this, util.extend({ name: name, tree: this }, extra));
     }
   }
 
@@ -799,13 +813,14 @@ export class Wunderbaum {
         node!.hasChildren() === false ? TargetType.prefix : TargetType.expander;
     } else if (cl.contains("wb-checkbox")) {
       res.type = TargetType.checkbox;
-    } else if (cl.contains("wb-icon") || cl.contains("wb-custom-icon")) {
+    } else if (cl.contains("wb-icon")) {
+      //|| cl.contains("wb-custom-icon")) {
       res.type = TargetType.icon;
     } else if (cl.contains("wb-node")) {
       res.type = TargetType.title;
     } else if (cl.contains("wb-col")) {
       res.type = TargetType.column;
-      let idx = Array.prototype.indexOf.call(
+      const idx = Array.prototype.indexOf.call(
         target.parentNode!.children,
         target
       );

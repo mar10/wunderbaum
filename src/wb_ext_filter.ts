@@ -13,7 +13,7 @@ import {
   extractHtmlText,
   onEvent,
 } from "./util";
-import { KEY_NODATA, NodeFilterCallback, NodeStatusType } from "./common";
+import { NodeFilterCallback, NodeStatusType } from "./common";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
@@ -64,7 +64,6 @@ export class FilterExtension extends WunderbaumExtension {
     _opts: any
   ) {
     let match,
-      statusNode,
       temp,
       prevEnableUpdate,
       start = Date.now(),

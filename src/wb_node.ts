@@ -19,6 +19,7 @@ import {
   NodeVisitCallback,
   NodeVisitResponse,
   ROW_HEIGHT,
+  TEST_IMG,
 } from "./common";
 import { Deferred } from "./deferred";
 import { isFunction } from "./util";
@@ -136,8 +137,8 @@ export class WunderbaumNode {
   // }
 
   /** Call event if defined in options. */
-  callEvent(event: string, extra?: any): any {
-    return this.tree.callEvent(event, util.extend({ node: this }, extra));
+  callEvent(name: string, extra?: any): any {
+    return this.tree.callEvent(name, util.extend({ node: this }, extra));
   }
 
   /**
@@ -719,6 +720,7 @@ export class WunderbaumNode {
     }
     if (typeof icon === "string") {
       // Callback returned an icon definition
+      // icon = icon.trim()
     } else if (this.statusNodeType) {
       icon = (<any>iconMap)[this.statusNodeType];
     } else if (this.expanded) {
@@ -733,9 +735,9 @@ export class WunderbaumNode {
     if (icon.indexOf("<") >= 0) {
       // HTML
       iconSpan = util.elementFromHtml(icon);
-    } else if (icon.indexOf(".") >= 0) {
+    } else if (TEST_IMG.test(icon)) {
       // Image URL
-      iconSpan = util.elementFromHtml(`<img src="${icon}">`);
+      iconSpan = util.elementFromHtml(`<img src="${icon}" class="wb-icon">`);
     } else {
       // Class name
       iconSpan = document.createElement("i");
@@ -906,7 +908,7 @@ export class WunderbaumNode {
     let prev = tree.activeNode;
 
     if (prev !== this) {
-      this.callEvent("activate", { prevNode: prev });
+      this.callEvent("activate", { flag: flag, prevNode: prev });
     }
 
     tree.activeNode = this;
