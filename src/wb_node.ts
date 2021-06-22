@@ -755,6 +755,7 @@ export class WunderbaumNode {
     let tree = this.tree;
     let checkbox = this.getOption("checkbox") !== false;
     let columns = tree.columns;
+    let typeInfo = this.type ? tree.types[this.type] : null;
     let elem: HTMLElement;
     let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
@@ -857,8 +858,11 @@ export class WunderbaumNode {
       }
     }
 
-    rowDiv.className = rowClasses.join(" ");
-    rowDiv.classList.add(...this.extraClasses);
+    // rowDiv.className = rowClasses.join(" ");
+    rowDiv.classList.add(...rowClasses, ...this.extraClasses);
+    if (typeInfo && typeInfo.classes) {
+      rowDiv.classList.add(...typeInfo.classes);
+    }
     // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
     rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
 

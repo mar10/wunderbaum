@@ -185,23 +185,41 @@ export function extractHtmlText(s: string) {
   return s;
 }
 
-export function toggleClass(
-  element: HTMLElement | string,
-  classname: string,
-  force?: boolean
-): void {
-  element = elemFromSelector(element)!;
+// export function toggleClass(
+//   element: HTMLElement | string,
+//   classname: string,
+//   force?: boolean
+// ): void {
+//   element = elemFromSelector(element)!;
 
-  switch (force) {
-    case true:
-      element.classList.add(classname);
-      break;
-    case false:
-      element.classList.remove(classname);
-      break;
-    default:
-      element.classList.toggle(classname);
+//   switch (force) {
+//     case true:
+//       element.classList.add(classname);
+//       break;
+//     case false:
+//       element.classList.remove(classname);
+//       break;
+//     default:
+//       element.classList.toggle(classname);
+//   }
+// }
+
+/** Convert an Array or space-separated string to a Set. */
+export function toSet(val: any): Set<string> {
+  if (val instanceof Set) {
+    return val;
   }
+  if (typeof val === "string") {
+    let set = new Set<string>();
+    for (const c of val.split(" ")) {
+      set.add(c.trim());
+    }
+    return set;
+  }
+  if (Array.isArray(val)) {
+    return new Set<string>(...val);
+  }
+  throw new Error("Cannot convert to Set<string>: " + val);
 }
 
 /*

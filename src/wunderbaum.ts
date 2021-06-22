@@ -153,6 +153,12 @@ export class Wunderbaum {
 
     this.types = opts.types || {};
     delete opts.types;
+    // Convert `TYPE.classes` to a Set
+    for (let t of Object.values(this.types) as any) {
+      if (t.classes) {
+        t.classes = util.toSet(t.classes);
+      }
+    }
 
     if (this.columns.length === 1) {
       opts.navigationMode = NavigationMode.off;
