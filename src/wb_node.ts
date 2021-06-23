@@ -837,29 +837,31 @@ export class WunderbaumNode {
       }
 
       // Render columns
-      let colIdx = 0;
-      for (let col of columns) {
-        colIdx++;
+      if (!this.colspan && columns.length > 1) {
+        let colIdx = 0;
+        for (let col of columns) {
+          colIdx++;
 
-        let colElem;
-        if (col.id === "*") {
-          colElem = nodeElem;
-        } else {
-          colElem = document.createElement("span");
-          colElem.classList.add("wb-col");
-          colElem.textContent = "" + col.id;
-          rowDiv.appendChild(colElem);
+          let colElem;
+          if (col.id === "*") {
+            colElem = nodeElem;
+          } else {
+            colElem = document.createElement("span");
+            colElem.classList.add("wb-col");
+            colElem.textContent = "" + col.id;
+            rowDiv.appendChild(colElem);
+          }
+          if (colIdx === activeColIdx) {
+            colElem.classList.add("wb-active");
+          }
+          colElem.style.left = col._ofsPx + "px";
+          colElem.style.width = col._widthPx + "px";
         }
-        if (colIdx === activeColIdx) {
-          colElem.classList.add("wb-active");
-        }
-        colElem.style.left = col._ofsPx + "px";
-        colElem.style.width = col._widthPx + "px";
       }
     }
 
-    // rowDiv.className = rowClasses.join(" ");
-    rowDiv.classList.add(...rowClasses, ...this.extraClasses);
+    rowDiv.className = rowClasses.join(" "); // Reset prev. classes
+    rowDiv.classList.add(...this.extraClasses);
     if (typeInfo && typeInfo.classes) {
       rowDiv.classList.add(...typeInfo.classes);
     }
@@ -893,8 +895,14 @@ export class WunderbaumNode {
       titleSpan.innerHTML = this.title;
     }
     // Set the width of the title span, so overflow ellipsis work
-    titleSpan.style.width =
-      columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
+    if (this.colspan) {
+      let vpWidth = tree.element.clientWidth;
+      titleSpan.style.width =
+        vpWidth - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
+    } else {
+      titleSpan.style.width =
+        columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
+    }
 
     // Attach to DOM as late as possible
     if (!this._rowElem) {
