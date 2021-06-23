@@ -918,9 +918,24 @@ export class WunderbaumNode {
   async setActive(flag: boolean = true, options?: any) {
     const tree = this.tree;
     let prev = tree.activeNode;
+    const retrigger = options?.retrigger;
+    const noEvent = options?.noEvent;
 
-    if (prev !== this) {
-      this.callEvent("activate", { flag: flag, prevNode: prev });
+    if (!noEvent) {
+      if (flag) {
+        if (prev !== this || retrigger) {
+          if (prev?.callEvent("deactivate", { nextNode: this }) === false) {
+            return;
+          }
+          if (this.callEvent("activate", { prevNode: prev }) === false) {
+            tree.activeNode = null;
+            prev?.setDirty(ChangeType.status);
+            return;
+          }
+        }
+      } else if (prev === this || retrigger) {
+        this.callEvent("deactivate", { nextNode: null });
+      }
     }
 
     tree.activeNode = this;

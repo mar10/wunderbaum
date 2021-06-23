@@ -18,10 +18,19 @@ const tree = new Wunderbaum({
   source: {
     children: [
       { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
-      { title: "Node 2", selected: true, icon: "../docs/assets/favicon/favicon-16x16.png" 
+      { title: "Node 2", selected: true, icon: "../docs/assets/favicon/favicon-16x16.png"
     , children: [{title: "book2", type: "book"}]},
       { title: "Node 3", type: "book" },
     ],
+  },
+  click: (e) => {
+    // return false
+  },
+  deactivate: (e) => {
+    // return false
+  },
+  activate: (e) => {
+    // return false
   },
 });
 
