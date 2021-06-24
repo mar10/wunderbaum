@@ -110,6 +110,7 @@ export class Wunderbaum {
         escapeTitles: true,
         showSpinner: false,
         checkbox: true,
+        minExpandLevel: 0,
         // --- KeyNav ---
         navigationMode: NavigationMode.allow,
         quicksearch: true,
@@ -297,17 +298,18 @@ export class Wunderbaum {
       // if(e.target.classList.)
       // this.log("click", info);
     });
-    // util.onEvent(
-    //   this.treeElement,
-    //   "mousemove",
-    //   "div.wb-header span.wb-col",
-    //   (e) => {
-    //     // this.log("mouse", e.target);
-    //   }
-    // );
+
+    util.onEvent(this.nodeListElement, "input", "div.wb-row", (e) => {
+      let info = this.getEventTarget(e),
+        node = info.node;
+
+      this.callEvent("change", { node: node, info: info, event: e }) === false;
+    });
+
     util.onEvent(this.element, "keydown", (e) => {
       this._callHook("onKeyEvent", { tree: this, event: e });
     });
+
     util.onEvent(this.element, "focusin focusout", (e) => {
       const flag = e.type === "focusin";
       this.callEvent("focus", { flag: flag, event: e });
@@ -921,7 +923,7 @@ export class Wunderbaum {
   }
 
   /** */
-  render(opts?: any): boolean {
+  protected render(opts?: any): boolean {
     let label = this.logTime("render");
     let idx = 0;
     let top = 0;
@@ -947,6 +949,7 @@ export class Wunderbaum {
         modified = true;
       }
       if (idx < start || idx > end) {
+        node.callEvent("discard");
         node.removeMarkup();
       } else {
         // if (!node._rowElem || prevIdx != idx) {
@@ -956,6 +959,7 @@ export class Wunderbaum {
       top += height;
     });
     for (let prevNode of obsoleteViewNodes) {
+      prevNode.callEvent("discard");
       prevNode.removeMarkup();
     }
     // Resize tree container

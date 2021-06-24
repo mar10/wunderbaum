@@ -6,6 +6,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     id: "navigation",
     // header: "Wunderbaum",
     element: document.querySelector("#nav-tree"),
+    checkbox: false,
+    minexpandLevel: 1,
     types: {
       link: { icon: "bi bi-link-45deg" },
     },
@@ -26,7 +28,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         href: "https://github.com/mar10/wunderbaum",
       },
     ],
-    checkbox: false,
     click: (e) => {
       if (e.node.type === "link") {
         window.open(e.node.data.href)
@@ -44,6 +45,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
     // checkbox: false,
+    // minExpandLevel: 1,
     types: {},
     columns: [
       { id: "*", title: "Name", width: "280px" },

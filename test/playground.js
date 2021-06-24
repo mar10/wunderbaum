@@ -5,11 +5,17 @@
 
 import { Wunderbaum } from "../dist/wunderbaum.esm.js";
 
+function elementFromHtml(html) {
+  const t = document.createElement("template");
+  t.innerHTML = html.trim();
+  return t.content.firstElementChild;
+}
+
 const tree = new Wunderbaum({
   element: "#tree",
   id: "Playground",
   // header: "Playground",
-  // columns: [{title: "test"}],
+  columns: [{ title: "test", id: "*" }, { title: "toast" }],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
   },
@@ -18,19 +24,27 @@ const tree = new Wunderbaum({
   source: {
     children: [
       { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
-      { title: "Node 2", selected: true, icon: "../docs/assets/favicon/favicon-16x16.png"
-    , children: [{title: "book2", type: "book"}]},
+      {
+        title: "Node 2", selected: true, icon: "../docs/assets/favicon/favicon-16x16.png",
+        children: [
+          { title: "book2", type: "book" },
+          { title: "book2", type: "book" },
+        ]
+      },
       { title: "Node 3", type: "book" },
     ],
   },
+  activate: (e) => {
+  },
   click: (e) => {
-    // return false
   },
   deactivate: (e) => {
-    // return false
   },
-  activate: (e) => {
-    // return false
+  discard: (e) => {
+  },
+  renderColumns: (e) => {
+
+    e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
   },
 });
 

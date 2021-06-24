@@ -753,16 +753,18 @@ export class WunderbaumNode {
     const EXTRA_PAD = 30;
 
     let tree = this.tree;
+    let treeOptions = tree.options;
     let checkbox = this.getOption("checkbox") !== false;
     let columns = tree.columns;
     let typeInfo = this.type ? tree.types[this.type] : null;
+    let level = this.getLevel();
     let elem: HTMLElement;
     let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
     let titleSpan: HTMLElement;
     let checkboxSpan: HTMLElement | null = null;
     let iconSpan: HTMLElement | null;
-    let expanderSpan: HTMLElement;
+    let expanderSpan: HTMLElement | null = null;
     const activeColIdx = tree.cellNavMode ? tree.activeColIdx : null;
 
     //
@@ -807,16 +809,18 @@ export class WunderbaumNode {
         ofsTitlePx += ICON_WIDTH;
       }
 
-      for (let i = this.getLevel() - 1; i > 0; i--) {
+      for (let i = level - 1; i > 0; i--) {
         elem = document.createElement("i");
         elem.classList.add("wb-indent");
         nodeElem.appendChild(elem);
         ofsTitlePx += ICON_WIDTH;
       }
 
-      expanderSpan = document.createElement("i");
-      nodeElem.appendChild(expanderSpan);
-      ofsTitlePx += ICON_WIDTH;
+      if (level > treeOptions.minExpandLevel) {
+        expanderSpan = document.createElement("i");
+        nodeElem.appendChild(expanderSpan);
+        ofsTitlePx += ICON_WIDTH;
+      }
 
       iconSpan = this._createIcon(nodeElem);
       if (iconSpan) {
@@ -839,6 +843,7 @@ export class WunderbaumNode {
       // Render columns
       if (!this.colspan && columns.length > 1) {
         let colIdx = 0;
+        let colElems = [];
         for (let col of columns) {
           colIdx++;
 
@@ -856,7 +861,13 @@ export class WunderbaumNode {
           }
           colElem.style.left = col._ofsPx + "px";
           colElem.style.width = col._widthPx + "px";
+          colElems.push(colElem);
         }
+        this.callEvent("renderColumns", {
+          typeInfo: typeInfo,
+          colInfo: columns,
+          colElems: colElems,
+        });
       }
     }
 
@@ -903,6 +914,8 @@ export class WunderbaumNode {
       titleSpan.style.width =
         columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
     }
+
+    this.callEvent("renderNode", {});
 
     // Attach to DOM as late as possible
     if (!this._rowElem) {
