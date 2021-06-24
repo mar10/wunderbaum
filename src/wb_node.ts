@@ -853,7 +853,7 @@ export class WunderbaumNode {
           } else {
             colElem = document.createElement("span");
             colElem.classList.add("wb-col");
-            colElem.textContent = "" + col.id;
+            // colElem.textContent = "" + col.id;
             rowDiv.appendChild(colElem);
           }
           if (colIdx === activeColIdx) {

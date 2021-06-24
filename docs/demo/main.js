@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // header: "Wunderbaum",
     element: document.querySelector("#nav-tree"),
     checkbox: false,
-    minexpandLevel: 1,
+    minExpandLevel: 1,
     types: {
       link: { icon: "bi bi-link-45deg" },
     },
@@ -25,7 +25,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
       {
         title: "API Documentation",
         type: "link",
-        href: "https://github.com/mar10/wunderbaum",
+        href: "../api",
+        // href: "https://github.com/mar10/wunderbaum",
       },
     ],
     click: (e) => {

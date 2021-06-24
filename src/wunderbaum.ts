@@ -147,8 +147,8 @@ export class Wunderbaum {
     // --- Evaluate options
     this.columns = opts.columns;
     delete opts.columns;
-    let defaultName = typeof opts.header === "string" ? opts.header : this.id;
     if (!this.columns) {
+      let defaultName = typeof opts.header === "string" ? opts.header : this.id;
       this.columns = [{ id: "*", title: defaultName, width: "*" }];
     }
 
@@ -806,12 +806,14 @@ export class Wunderbaum {
   getEventTarget(event: Event) {
     let target = <Element>event.target,
       cl = target.classList,
+      parentCol = target.closest(".wb-col"),
       node = Wunderbaum.getNode(target),
       res = {
         node: node,
         type: TargetType.unknown,
         colDef: undefined,
         colIdx: 0,
+        colId: null,
       };
 
     if (cl.contains("wb-title")) {
@@ -826,16 +828,17 @@ export class Wunderbaum {
       res.type = TargetType.icon;
     } else if (cl.contains("wb-node")) {
       res.type = TargetType.title;
-    } else if (cl.contains("wb-col")) {
+    } else if (parentCol) {
       res.type = TargetType.column;
       const idx = Array.prototype.indexOf.call(
-        target.parentNode!.children,
-        target
+        parentCol.parentNode!.children,
+        parentCol
       );
       res.colIdx = idx;
       res.colDef = node?.tree.columns[idx];
+      res.colId = res.colDef?.id;
       // Somewhere near the title
-      // } else if (event && event.target) {
+    } else if (target) {
       //   $target = $(event.target);
       //   if ($target.is("ul[role=group]")) {
       //     // #nnn: Clicking right to a node may hit the surrounding UL

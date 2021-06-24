@@ -15,7 +15,10 @@ const tree = new Wunderbaum({
   element: "#tree",
   id: "Playground",
   // header: "Playground",
-  columns: [{ title: "test", id: "*" }, { title: "toast" }],
+  columns: [
+    { title: "test", id: "*" },
+    { title: "Fav", id: "favorite", width: "30px" },
+  ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
   },
@@ -25,25 +28,22 @@ const tree = new Wunderbaum({
     children: [
       { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
       {
-        title: "Node 2", selected: true, icon: "../docs/assets/favicon/favicon-16x16.png",
+        title: "Node 2",
+        selected: true,
+        icon: "../docs/assets/favicon/favicon-16x16.png",
         children: [
           { title: "book2", type: "book" },
           { title: "book2", type: "book" },
-        ]
+        ],
       },
       { title: "Node 3", type: "book" },
     ],
   },
-  activate: (e) => {
-  },
-  click: (e) => {
-  },
-  deactivate: (e) => {
-  },
-  discard: (e) => {
-  },
+  activate: (e) => {},
+  click: (e) => {},
+  deactivate: (e) => {},
+  discard: (e) => {},
   renderColumns: (e) => {
-
     e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
   },
 });
