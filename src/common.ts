@@ -11,7 +11,9 @@ export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
 
 export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
-export const ROW_HEIGHT = 20;
+export const ROW_HEIGHT = 22;
+export const ICON_WIDTH = 20;
+export const ROW_EXTRA_PAD = 7; // 2x $col-padding-x + 3px rounding errors
 export const RENDER_MIN_PREFETCH = 5;
 export const RENDER_MAX_PREFETCH = 5;
 export const TEST_IMG = new RegExp(/\.|\//); // strings are considered image urls if they contain '.' or '/'

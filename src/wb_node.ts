@@ -11,6 +11,7 @@ import { Wunderbaum } from "./wunderbaum";
 import {
   ChangeType,
   iconMap,
+  ICON_WIDTH,
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
   MatcherType,
@@ -18,6 +19,7 @@ import {
   NodeStatusType,
   NodeVisitCallback,
   NodeVisitResponse,
+  ROW_EXTRA_PAD,
   ROW_HEIGHT,
   TEST_IMG,
 } from "./common";
@@ -749,9 +751,6 @@ export class WunderbaumNode {
   }
 
   render(opts?: any) {
-    const ICON_WIDTH = 20;
-    const EXTRA_PAD = 30;
-
     let tree = this.tree;
     let treeOptions = tree.options;
     let checkbox = this.getOption("checkbox") !== false;
@@ -909,10 +908,13 @@ export class WunderbaumNode {
     if (this.colspan) {
       let vpWidth = tree.element.clientWidth;
       titleSpan.style.width =
-        vpWidth - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
+        vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
     } else {
       titleSpan.style.width =
-        columns[0]._widthPx - (<any>nodeElem)._ofsTitlePx - EXTRA_PAD + "px";
+        columns[0]._widthPx -
+        (<any>nodeElem)._ofsTitlePx -
+        ROW_EXTRA_PAD +
+        "px";
     }
 
     this.callEvent("renderNode", {});

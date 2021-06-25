@@ -103,7 +103,7 @@ export class Wunderbaum {
         element: null, // <div class="wunderbaum">
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
         header: null, // Show/hide header (pass bool or string)
-        headerHeightPx: 20,
+        headerHeightPx: ROW_HEIGHT,
         rowHeightPx: ROW_HEIGHT,
         columns: null,
         types: null,
@@ -237,7 +237,7 @@ export class Wunderbaum {
     this.headerElement = this.element.querySelector(
       "div.wb-header"
     ) as HTMLDivElement;
-    this.updateColumns({ render: false });
+
 
     if (this.columns.length > 1) {
       this.element.classList.add("wb-grid");
@@ -261,12 +261,21 @@ export class Wunderbaum {
         .finally(() => {
           this.element.querySelector("progress.spinner")?.remove();
           this.element.classList.remove("wb-initializing");
+          // this.updateViewport();
         });
       // }else{
       //   this.element.classList.remove("wb-initializing", "wb-skeleton");
     } else {
+          // this.updateViewport();
       readyDeferred.resolve();
     }
+
+    // TODO: This is sometimes required, because this.element.clientWidth
+    //       has a wrong value at start???
+    setTimeout(() => {
+      this.updateViewport();
+    }, 50);
+
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
       this.updateViewport();
@@ -297,6 +306,7 @@ export class Wunderbaum {
       }
       // if(e.target.classList.)
       // this.log("click", info);
+
     });
 
     util.onEvent(this.nodeListElement, "input", "div.wb-row", (e) => {
@@ -501,13 +511,13 @@ export class Wunderbaum {
       bottomIdx =
         Math.floor(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-            ROW_HEIGHT
+          ROW_HEIGHT
         ) - 1;
     } else {
       bottomIdx =
         Math.ceil(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-            ROW_HEIGHT
+          ROW_HEIGHT
         ) - 1;
     }
     // TODO: start searching from active node
@@ -1155,6 +1165,9 @@ export class Wunderbaum {
       ofsPx += col._widthPx;
     }
     // Every column has now a calculated `_ofsPx` and `_widthPx`
+    // this.logInfo("UC", this.columns, vpWidth, this.element.clientWidth, this.element);
+    // console.trace();
+    // util.error("BREAK");
     if (modified) {
       this.renderHeader();
       if (opts.render !== false) {

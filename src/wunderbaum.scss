@@ -41,10 +41,19 @@ $active-header-column-color: $active-color;
 $filter-dimm-color: #dedede;
 $filter-submatch-color: #868581;
 
-$icon-width: 16px;
+$row-outer-height: 22px;
+$row-inner-height: 20px; // outer height minus border size
+$row-padding-y: ($row-outer-height - $row-inner-height) / 2;
+$col-padding-x: 2px; // on each side within span.wb-col
+
+$icon-outer-height: $row-inner-height;
+$icon-outer-width: 20px;
 $icon-height: 16px;
-$row-height: 20px;
-$header-height: $row-height;
+$icon-width: 16px;
+$icon-padding-y: ($icon-outer-height - $icon-height) / 2;
+$icon-padding-x: ($icon-outer-width - $icon-width) / 2;
+
+$header-height: $row-outer-height;
 
 $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
@@ -68,26 +77,6 @@ div.wunderbaum {
   //   border-color: $active-border-color;
   // }
 
-  div.wb-header {
-    position: relative;
-    height: $header-height;
-    border-bottom: 1px solid gainsboro;
-    span.wb-col {
-      font-weight: bold;
-      &:hover {
-        background-color: $active-hover-color;
-      }
-      // &::after {
-      //   content: "|";
-      // }
-    }
-    div.wb-row {
-      span.wb-col.wb-active {
-        background-color: $active-hover-color;
-      }
-    }
-  }
-
   div.wb-scroll-container {
     overflow: auto;
     scroll-behavior: smooth;
@@ -95,81 +84,102 @@ div.wunderbaum {
     min-height: 4px;
     // height: calc(100% - #{$header-height});  // didn't work. Using JS instead
     // padding: 0 4px;
+  }
 
-    div.wb-row {
-      position: absolute;
-      width: 100%;
-      height: $row-height + 2;
-      line-height: $row-height - 1;
-      border: 1px solid transparent;
-      // &:last-of-type {
-      //   border-bottom: 1px solid transparent;
-      // }
-      // &.wb-selected {
-      //   font-style: italic;
-      // }
+  div.wb-row {
+    position: absolute;
+    width: 100%;
+    height: $row-outer-height;
+    line-height: $row-outer-height;
+    border: 1px solid transparent;
+    // &:last-of-type {
+    //   border-bottom: 1px solid transparent;
+    // }
+    // &.wb-selected {
+    //   font-style: italic;
+    // }
+    &:hover {
+      background-color: $hover-color;
+      border-color: $hover-border-color;
+    }
+    &.wb-active,
+    &.wb-selected {
+      background-color: $active-color;
+      border-color: $active-border-color;
       &:hover {
-        background-color: $hover-color;
-        border-color: $hover-border-color;
-      }
-      &.wb-active,
-      &.wb-selected {
-        background-color: $active-color;
-        border-color: $active-border-color;
-        &:hover {
-          background-color: $active-hover-color;
-          border-color: $active-hover-border-color;
-        }
-      }
-      &.wb-active.wb-selected {
         background-color: $active-hover-color;
-        &:hover {
-          background-color: $active-hover-color;
-        }
-      }
-      &.wb-loading {
-        font-style: italic;
-      }
-      &.wb-error,
-      &.wb-status-error {
-        color: $error-color;
+        border-color: $active-hover-border-color;
       }
     }
-    span.wb-node {
-      user-select: none;
-      // &:first-of-type {
-      //   margin-left: 8px; // leftmost icon gets a little margin
-      // }
+    &.wb-active.wb-selected {
+      background-color: $active-hover-color;
+      &:hover {
+        background-color: $active-hover-color;
+      }
     }
+    &.wb-loading {
+      font-style: italic;
+    }
+    &.wb-error,
+    &.wb-status-error {
+      color: $error-color;
+    }
+  }
 
-    i.wb-checkbox,
-    i.wb-expander,
-    i.wb-icon,
-    i.wb-indent {
-      width: 1.1em;
-      display: inline-block;
-      height: $row-height;
-      // margin-right: 3px;
-      // font-size: small;
-      // vertical-align: middle;
+  span.wb-col {
+    position: absolute;
+    display: inline-block;
+    text-overflow: ellipsis;
+    height: $row-inner-height;
+    line-height: $row-inner-height;
+    padding: 0 $col-padding-x;
+    // height: $row-outer-height;
+    // vertical-align: top;
+    &:last-of-type {
+      border-right: none;
     }
-    img.wb-icon {
-      width: $icon-width;
-      height: $icon-height;
-      margin-top: 2px;
+  }
+
+  span.wb-node {
+    user-select: none;
+    // &:first-of-type {
+    //   margin-left: 8px; // leftmost icon gets a little margin
+    // }
+  }
+
+  i.wb-checkbox,
+  i.wb-expander,
+  i.wb-icon,
+  i.wb-indent {
+    height: $icon-outer-height;
+    width: $icon-outer-width;
+    padding: $icon-padding-y $icon-padding-x;
+    display: inline-block;
+    // margin-right: 3px;
+    // font-size: small;
+    // vertical-align: middle;
+  }
+  /* Fix Bootstrap Icon alignment */
+  i.bi::before {
+    vertical-align: baseline;
+  }
+  img.wb-icon {
+    width: $icon-width;
+    height: $icon-height;
+    padding: $icon-padding-y $icon-padding-x;
+    // margin-top: $icon-padding-y;
+  }
+  i.wb-indent {
+    // border-left: 1px solid gray;
+    &::before {
+      content: "\00a0";
     }
-    i.wb-indent {
-      // border-left: 1px solid gray;
-      &::before {
-        content: "\00a0";
-      }
-    }
-    i.wb-icon.wb-spin {
-      height: unset; // Prevent wobble
-      width: unset;
-      padding: 0 3px;
-      animation: wb-spin 2s linear infinite;
-    }
+  }
+  i.wb-icon.wb-spin {
+    height: unset; // Prevent wobble
+    width: unset;
+    padding: 0 3px;
+    animation: wb-spin 2s linear infinite;
   }
 
   span.wb-title {
@@ -179,18 +189,6 @@ div.wunderbaum {
     overflow-x: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-  }
-
-  span.wb-col {
-    position: absolute;
-    display: inline-block;
-    text-overflow: ellipsis;
-    padding: 0 4px;
-    // height: $row-height;
-    // vertical-align: top;
-    &:last-of-type {
-      border-right: none;
-    }
   }
 
   /*
@@ -235,6 +233,28 @@ div.wunderbaum {
     @for $i from 1 through length($level-rainbow) {
       i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
         background: nth($level-rainbow, $i);
+      }
+    }
+  }
+
+  // --- HEADER ---
+
+  div.wb-header {
+    position: relative;
+    height: $header-height;
+    border-bottom: 1px solid gainsboro;
+    span.wb-col {
+      font-weight: bold;
+      &:hover {
+        background-color: $active-hover-color;
+      }
+      // &::after {
+      //   content: "|";
+      // }
+    }
+    div.wb-row {
+      span.wb-col.wb-active {
+        background-color: $active-hover-color;
       }
     }
   }
