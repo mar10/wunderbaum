@@ -238,7 +238,6 @@ export class Wunderbaum {
       "div.wb-header"
     ) as HTMLDivElement;
 
-
     if (this.columns.length > 1) {
       this.element.classList.add("wb-grid");
     }
@@ -266,7 +265,7 @@ export class Wunderbaum {
       // }else{
       //   this.element.classList.remove("wb-initializing", "wb-skeleton");
     } else {
-          // this.updateViewport();
+      // this.updateViewport();
       readyDeferred.resolve();
     }
 
@@ -306,7 +305,6 @@ export class Wunderbaum {
       }
       // if(e.target.classList.)
       // this.log("click", info);
-
     });
 
     util.onEvent(this.nodeListElement, "input", "div.wb-row", (e) => {
@@ -511,13 +509,13 @@ export class Wunderbaum {
       bottomIdx =
         Math.floor(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-          ROW_HEIGHT
+            ROW_HEIGHT
         ) - 1;
     } else {
       bottomIdx =
         Math.ceil(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-          ROW_HEIGHT
+            ROW_HEIGHT
         ) - 1;
     }
     // TODO: start searching from active node
