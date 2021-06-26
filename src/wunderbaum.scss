@@ -27,6 +27,7 @@ $font-stack: Helvetica, sans-serif;
 $node-text-color: #56534c;
 $error-color: #b5373b;
 $hover-color: #f7f7f7;
+$alternate-color: #fdfdfd;
 $hover-border-color: $hover-color; // #dedede;
 $focus-border-color: #969da3;
 $grid-color: #dedede;
@@ -79,7 +80,7 @@ div.wunderbaum {
   div.wb-scroll-container {
     position: relative;
     overflow: auto;
-    scroll-behavior: smooth;
+    // scroll-behavior: smooth;
     min-height: 4px;
     // height: calc(100% - #{$header-height});  // didn't work. Using JS instead
     // padding: 0 4px;
@@ -245,6 +246,10 @@ div.wunderbaum {
         }
       }
     }
+    &.wb-alternate div.wb-node-list {
+      div.wb-row:nth-of-type(even) { 
+        background-color: $alternate-color;
+    }}
   }
 
   /* --- FILTER --- */

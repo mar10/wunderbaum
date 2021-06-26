@@ -262,8 +262,6 @@ export class Wunderbaum {
           this.element.classList.remove("wb-initializing");
           // this.updateViewport();
         });
-      // }else{
-      //   this.element.classList.remove("wb-initializing", "wb-skeleton");
     } else {
       // this.updateViewport();
       readyDeferred.resolve();

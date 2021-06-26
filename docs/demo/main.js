@@ -49,7 +49,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // minExpandLevel: 1,
     types: {},
     columns: [
-      { id: "*", title: "Name", width: "280px" },
+      { id: "*", title: "Name", width: "250px" },
       { id: "id1", title: "a", width: 2 },
       { id: "id2", title: "b" },
     ],

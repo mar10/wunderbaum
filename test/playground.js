@@ -44,6 +44,7 @@ const tree = new Wunderbaum({
   deactivate: (e) => {},
   discard: (e) => {},
   renderColumns: (e) => {
+    this.log(e.name, e)
     e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
   },
 });
