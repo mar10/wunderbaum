@@ -627,8 +627,8 @@ export class WunderbaumNode {
       try {
         node.makeVisible({ scrollIntoView: false });
       } catch (e) {} // #272
-      if (options.activate === false) {
-        node.setFocus();
+      node.setFocus();
+      if (options?.activate === false) {
         return Promise.resolve(this);
       }
       return node.setActive(true, { event: options?.event });
@@ -772,6 +772,7 @@ export class WunderbaumNode {
     this.lazy ? rowClasses.push("wb-lazy") : 0;
     this.selected ? rowClasses.push("wb-selected") : 0;
     this === tree.activeNode ? rowClasses.push("wb-active") : 0;
+    this === tree.focusNode ? rowClasses.push("wb-focus") : 0;
     this._errorInfo ? rowClasses.push("wb-error") : 0;
     this._isLoading ? rowClasses.push("wb-loading") : 0;
     this.statusNodeType

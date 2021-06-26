@@ -106,8 +106,13 @@ div.wunderbaum {
         // border-color: $active-hover-border-color;
       }
     }
+    &.wb-focus:not(.wb-active) {
+      border-style: dotted;
+      border-color: $active-border-color;
+    }
     &.wb-active {
       // background-color: $active-hover-color;
+      border-style: solid;
       border-color: $active-border-color;
       &:hover {
         // background-color: $active-hover-color;
@@ -128,7 +133,7 @@ div.wunderbaum {
   div.wb-header {
     position: relative;
     height: $header-height;
-    border-bottom: 1px solid gainsboro;
+    border-bottom: 1px solid $grid-color;
     padding: 0 2px;
     span.wb-col {
       font-weight: bold;
@@ -145,8 +150,7 @@ div.wunderbaum {
     height: $row-inner-height;
     line-height: $row-inner-height;
     padding: 0 $col-padding-x;
-    // height: $row-outer-height;
-    // vertical-align: top;
+    border-right: 1px solid $grid-color;
     &:last-of-type {
       border-right: none;
     }
@@ -167,10 +171,8 @@ div.wunderbaum {
     width: $icon-outer-width;
     padding: $icon-padding-y $icon-padding-x;
     display: inline-block;
-    // margin-right: 3px;
-    // font-size: small;
-    // vertical-align: middle;
   }
+
   /* Fix Bootstrap Icon alignment */
   i.bi::before {
     vertical-align: baseline;
@@ -223,7 +225,7 @@ div.wunderbaum {
         border-bottom-color: $active-border-color;
       }
       span.wb-col {
-        border-right-color: $grid-color;
+        border-right: 1px solid $grid-color;
       }
     }
     &.wb-cell-mode {

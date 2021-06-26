@@ -23,7 +23,7 @@ export class KeynavExtension extends WunderbaumExtension {
       tree = this.tree,
       opts = data.options,
       handled = true,
-      activate = !(event.ctrlKey || !opts.autoActivate);
+      activate = !event.ctrlKey || opts.autoActivate;
 
     // Set focus to active (or first node) if no other node has the focus yet
     if (!node) {
@@ -146,7 +146,7 @@ export class KeynavExtension extends WunderbaumExtension {
       case "Control+Home":
       case "PageDown":
       case "PageUp":
-        node.navigate(eventName, { activate: true, event: event });
+        node.navigate(eventName, { activate: activate, event: event });
         break;
       default:
         handled = false;
