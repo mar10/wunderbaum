@@ -28,7 +28,7 @@ import {
   NodeStatusType,
   RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
-  TargetType,
+  TargetType as NodeRegion,
   WunderbaumOptions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
@@ -281,7 +281,7 @@ export class Wunderbaum {
       this.updateViewport();
     });
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
-      let info = this.getEventTarget(e),
+      let info = Wunderbaum.getEventInfo(e),
         node = info.node;
 
       if (
@@ -295,9 +295,9 @@ export class Wunderbaum {
         } else {
           node.setActive(true, { event: e });
         }
-        if (info.type === TargetType.expander) {
+        if (info.region === NodeRegion.expander) {
           node.setExpanded(!node.isExpanded());
-        } else if (info.type === TargetType.checkbox) {
+        } else if (info.region === NodeRegion.checkbox) {
           node.setSelected(!node.isSelected());
         }
       }
@@ -306,13 +306,15 @@ export class Wunderbaum {
     });
 
     util.onEvent(this.nodeListElement, "input", "div.wb-row", (e) => {
-      let info = this.getEventTarget(e),
+      let info = Wunderbaum.getEventInfo(e),
         node = info.node;
 
-      this.callEvent("change", { node: node, info: info, event: e }) === false;
+      return this.callEvent("change", { node: node, info: info, event: e });
     });
 
     util.onEvent(this.element, "keydown", (e) => {
+      // let info = Wunderbaum.getEventInfo(e),
+      //   node = info.node;
       this._callHook("onKeyEvent", { tree: this, event: e });
     });
 
@@ -803,75 +805,66 @@ export class Wunderbaum {
     return this.focusNode;
   }
 
-  /** Return a {node: FancytreeNode, type: TYPE} object for a mouse event.
+  /** Return a {node: FancytreeNode, region: TYPE} object for a mouse event.
    *
    * @param {Event} event Mouse event, e.g. click, ...
-   * @returns {object} Return a {node: FancytreeNode, type: TYPE} object
+   * @returns {object} Return a {node: FancytreeNode, region: TYPE} object
    *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
    */
-  getEventTarget(event: Event) {
+  static getEventInfo(event: Event) {
     let target = <Element>event.target,
       cl = target.classList,
       parentCol = target.closest(".wb-col"),
       node = Wunderbaum.getNode(target),
       res = {
         node: node,
-        type: TargetType.unknown,
+        region: NodeRegion.unknown,
         colDef: undefined,
-        colIdx: 0,
-        colId: null,
+        colIdx: -1,
+        colId: undefined,
       };
 
     if (cl.contains("wb-title")) {
-      res.type = TargetType.title;
+      res.region = NodeRegion.title;
     } else if (cl.contains("wb-expander")) {
-      res.type =
-        node!.hasChildren() === false ? TargetType.prefix : TargetType.expander;
+      res.region =
+        node!.hasChildren() === false ? NodeRegion.prefix : NodeRegion.expander;
     } else if (cl.contains("wb-checkbox")) {
-      res.type = TargetType.checkbox;
+      res.region = NodeRegion.checkbox;
     } else if (cl.contains("wb-icon")) {
       //|| cl.contains("wb-custom-icon")) {
-      res.type = TargetType.icon;
+      res.region = NodeRegion.icon;
     } else if (cl.contains("wb-node")) {
-      res.type = TargetType.title;
+      res.region = NodeRegion.title;
     } else if (parentCol) {
-      res.type = TargetType.column;
+      res.region = NodeRegion.column;
       const idx = Array.prototype.indexOf.call(
         parentCol.parentNode!.children,
         parentCol
       );
       res.colIdx = idx;
-      res.colDef = node?.tree.columns[idx];
-      res.colId = res.colDef?.id;
+    } else {
       // Somewhere near the title
-    } else if (target) {
-      //   $target = $(event.target);
-      //   if ($target.is("ul[role=group]")) {
-      //     // #nnn: Clicking right to a node may hit the surrounding UL
-      //     tree = res.node && res.node.tree;
-      //     (tree || FT).debug("Ignoring click on outer UL.");
-      //     res.node = null;
-      //   } else if ($target.closest(".wb-title").length) {
-      //     // #228: clicking an embedded element inside a title
-      //     res.type = "title";
-      //   } else if ($target.closest(".wb-checkbox").length) {
-      //     // E.g. <svg> inside checkbox span
-      //     res.type = "checkbox";
-      //   } else if ($target.closest(".wb-expander").length) {
-      //     res.type = "expander";
-      //   }
+      console.warn("getEventInfo(): not found", event, res);
+      return res;
     }
+    if (res.colIdx === -1) {
+      res.colIdx = 0;
+    }
+    res.colDef = node!.tree.columns[res.colIdx];
+    res.colDef != null ? (res.colId = (<any>res.colDef).id) : 0;
     // this.log("Event", event, res);
     return res;
   }
-  /** Return a string describing the affected node region for a mouse event.
-   *
-   * @param {Event} event Mouse event, e.g. click, mousemove, ...
-   * @returns {string} 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
-   */
-  getEventTargetType(event: Event) {
-    return this.getEventTarget(event).type;
-  }
+
+  // /** Return a string describing the affected node region for a mouse event.
+  //  *
+  //  * @param {Event} event Mouse event, e.g. click, mousemove, ...
+  //  * @returns {string} 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
+  //  */
+  // getEventNodeRegion(event: Event) {
+  //   return this.getEventInfo(event).region;
+  // }
 
   /**
    * Return readable string representation for this instance.

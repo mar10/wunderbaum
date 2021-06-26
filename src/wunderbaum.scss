@@ -247,9 +247,10 @@ div.wunderbaum {
       }
     }
     &.wb-alternate div.wb-node-list {
-      div.wb-row:nth-of-type(even) { 
+      div.wb-row:nth-of-type(even) {
         background-color: $alternate-color;
-    }}
+      }
+    }
   }
 
   /* --- FILTER --- */
