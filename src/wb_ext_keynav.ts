@@ -53,7 +53,7 @@ export class KeynavExtension extends WunderbaumExtension {
         tree.getActiveNode()
       );
       if (matchNode) {
-        matchNode.setActive();
+        matchNode.setActive(true, { event: event });
       }
       event.preventDefault();
       return;
@@ -129,11 +129,11 @@ export class KeynavExtension extends WunderbaumExtension {
         if (node.getOption("checkbox")) {
           node.setSelected(!node.isSelected());
         } else {
-          node.setActive();
+          node.setActive(true, { event: event });
         }
         break;
       case "Enter":
-        node.setActive(true);
+        node.setActive(true, { event: event });
         break;
       case "ArrowDown":
       case "ArrowLeft":
@@ -146,7 +146,7 @@ export class KeynavExtension extends WunderbaumExtension {
       case "Control+Home":
       case "PageDown":
       case "PageUp":
-        node.navigate(eventName, activate);
+        node.navigate(eventName, { activate: true, event: event });
         break;
       default:
         handled = false;

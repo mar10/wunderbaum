@@ -4,9 +4,13 @@
 ### Feature Classes
 
 - `wb-alternate`
+- `wb-error`
+- `wb-grid`
 - `wb-initializing`
+- `wb-loading`
 - `wb-rainbow`
 - `wb-skeleton`
+- `wb-status-STATUS`, e.g. `wb-status-error`
 
 # CSS Tips
 ```css

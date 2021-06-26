@@ -631,7 +631,7 @@ export class WunderbaumNode {
         node.setFocus();
         return Promise.resolve(this);
       }
-      return node.setActive();
+      return node.setActive(true, { event: options?.event });
     }
     this.logWarn("Could not find related node '" + where + "'.");
     return Promise.resolve(this);
@@ -937,19 +937,30 @@ export class WunderbaumNode {
     const noEvent = options?.noEvent;
 
     if (!noEvent) {
+      let orgEvent = options?.event;
       if (flag) {
         if (prev !== this || retrigger) {
-          if (prev?.callEvent("deactivate", { nextNode: this }) === false) {
+          if (
+            prev?.callEvent("deactivate", {
+              nextNode: this,
+              orgEvent: orgEvent,
+            }) === false
+          ) {
             return;
           }
-          if (this.callEvent("activate", { prevNode: prev }) === false) {
+          if (
+            this.callEvent("activate", {
+              prevNode: prev,
+              orgEvent: orgEvent,
+            }) === false
+          ) {
             tree.activeNode = null;
             prev?.setDirty(ChangeType.status);
             return;
           }
         }
       } else if (prev === this || retrigger) {
-        this.callEvent("deactivate", { nextNode: null });
+        this.callEvent("deactivate", { nextNode: null, orgEvent: orgEvent });
       }
     }
 
