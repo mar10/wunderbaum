@@ -2,7 +2,8 @@
   "types": {
     "folder": {"icon": "bi bi-folder"},
     "book": {"icon": "bi bi-book"},
-    "computer": {"icon": "bi bi-computer"},
+    "computer": {"icon": "bi bi-laptop"},
+    "music": {"icon": "bi bi-disc"},
     "phone": {"icon": "bi bi-phone"}
   },
   "children": [

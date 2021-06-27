@@ -904,7 +904,7 @@ export class Wunderbaum {
   /** @internal */
   logTime(label: string): string {
     if (this.options.debugLevel >= 4) {
-      console.time(label);
+      console.time(this + ": " + label);
     }
     return label;
   }
@@ -912,7 +912,7 @@ export class Wunderbaum {
   /** @internal */
   logTimeEnd(label: string): void {
     if (this.options.debugLevel >= 4) {
-      console.timeEnd(label);
+      console.timeEnd(this + ": " + label);
     }
   }
 

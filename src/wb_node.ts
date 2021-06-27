@@ -483,56 +483,71 @@ export class WunderbaumNode {
     return this.statusNodeType === "paging";
   }
 
-  /** Download  data from the cloud, then call `.update()`. */
-  async load(source: any) {
-    let tree = this.tree;
-    let opts = tree.options;
+  protected _loadSource(source: any) {
+    const tree = this.tree;
 
     if (util.isArray(source)) {
       source = { children: source };
     }
-    if (util.isPlainObject(source)) {
-      util.assert(
-        source.children,
-        "If `source` is an object, it must have a `children` property"
-      );
-      let prev = tree.enableUpdate(false);
-      this.addChildren(source.children);
-      tree.enableUpdate(prev);
-      return;
+    util.assert(util.isPlainObject(source));
+    util.assert(
+      source.children,
+      "If `source` is an object, it must have a `children` property"
+    );
+    let prev = tree.enableUpdate(false);
+    if (source.types) {
+      // TODO: convert types.classes to Set()
+      util.extend(tree.types, source.types);
     }
-    if (opts.debugLevel >= 2) {
-      console.time(this + ".load");
-    }
-    try {
-      this.setStatus(NodeStatusType.loading);
-      const response = await fetch(source, { method: "GET" });
-      if (!response.ok) {
-        util.error(
-          "GET " +
-            opts.remote +
-            " returned " +
-            response.status +
-            ", " +
-            response
-        );
-      }
-      this.callEvent("receive", { response: response });
-      const data = await response.json();
-      this.setStatus(NodeStatusType.ok);
+    this.addChildren(source.children);
+    tree.enableUpdate(prev);
+  }
 
-      let prev = tree.enableUpdate(false);
-      this.addChildren(data);
-      tree.enableUpdate(prev);
+  /** Download  data from the cloud, then call `.update()`. */
+  async load(source: any) {
+    let timerLabel: string;
+    const tree = this.tree;
+    const opts = tree.options;
+
+    try {
+      timerLabel = tree.logTime(this + ".load()");
+      if (util.isArray(source)) {
+        source = { children: source };
+      }
+
+      if (util.isPlainObject(source) && !source.url) {
+        this._loadSource(source);
+      } else {
+        const url = typeof source === "string" ? source : source.url;
+
+        this.setStatus(NodeStatusType.loading);
+        const response = await fetch(url, { method: "GET" });
+        if (!response.ok) {
+          util.error(
+            "GET " +
+              opts.remote +
+              " returned " +
+              response.status +
+              ", " +
+              response
+          );
+        }
+        const data = await response.json();
+        // Let caller modify the parsed JSON response:
+        this.callEvent("receive", { response: data });
+        this.setStatus(NodeStatusType.ok);
+
+        this._loadSource(data);
+      }
     } catch (error) {
       this.logError("Error during load()", source, error);
       this.callEvent("error", { error: error });
       this.setStatus(NodeStatusType.error, "" + error);
       throw error;
-    }
-
-    if (opts.debugLevel >= 2) {
-      console.timeEnd(this + ".load");
+    } finally {
+      if (opts.debugLevel >= 2) {
+        tree.logTimeEnd(timerLabel!);
+      }
     }
   }
 

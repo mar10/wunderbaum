@@ -221,7 +221,7 @@ div.wunderbaum {
     }
     div.wb-node-list div.wb-row {
       border-bottom-color: $grid-color;
-      &:hover {
+      &:hover:not(.wb-active):not(.wb-selected) {
         background-color: $hover-color;
         border-color: $hover-border-color;
       }
