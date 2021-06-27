@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     ],
     click: (e) => {
       if (e.node.type === "link") {
-        window.open(e.node.data.href)
+        window.open(e.node.data.href);
       }
     },
   });
@@ -51,9 +51,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // minExpandLevel: 1,
     types: {},
     columns: [
-      { id: "*", title: "Name", width: "250px" },
-      { id: "id1", title: "a", width: 2 },
-      { id: "id2", title: "b" },
+      { id: "*", title: "Product", width: "250px" },
+      { id: "author", title: "Author", width: "200px" },
+      { id: "year", title: "Year", width: "50px", classes: "wb-helper-right" },
+      { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-right" },
+      { id: "price", title: "Price ($)", width: "50px", classes: "wb-helper-right" },
+      { id: "details", title: "Details", width: "*" },
     ],
     dnd: {
       dragStart: (e) => {
@@ -67,15 +70,34 @@ document.addEventListener("DOMContentLoaded", (event) => {
       attachInput: "input#filterQuery",
       // mode: "dimm",
     },
-    change: function (data) {
-      console.log("change", arguments);
+    change: function (e) {
+      console.log(e.name, this, arguments);
     },
-    render: function (data) {
-      console.log("render", this, arguments);
-      document.querySelector("#tree-info").textContent = "todo";
+    // render: function (e) {
+    //   console.log(e.name, this, arguments);
+    //   document.querySelector("#tree-info").textContent = "todo";
+    // },
+    renderColumns: function (e) {
+      console.log(e.name, this, arguments);
+      const node = e.node;
+      if (node.type === "folder") {
+        return;
+      }
+      // Skip first column
+      for (let i = 1; i < e.colInfo.length; i++) {
+        let elem = e.colElems[i];
+        let info = e.colInfo[i];
+        // Assumption: we named type.id === node.data.NAME
+        elem.textContent = node.data[info.id];
+        //
+        elem.setAttribute("contenteditable", true);
+        // TODO: this should be standard:
+        info.classes ? elem.classList.add(...info.classes.split(" ")) : 0;
+      }
+      // document.querySelector("#tree-info").textContent = "todo";
     },
-    update: function (data) {
-      // console.log("update", arguments);
+    update: function (e) {
+      console.log(e.name, this, arguments);
       showStatus(this);
     },
   });

@@ -274,6 +274,17 @@ div.wunderbaum {
       }
     }
   }
+
+  /* --- TOOL CLASSES --- */
+  .wb-helper-center {
+    text-align: center;
+  }
+  .wb-helper-right {
+    text-align: right;
+  }
+  .wb-helper-invalid {
+    color: $error-color;
+  }
 } // div.wunderbaum
 
 @keyframes wb-spin {
