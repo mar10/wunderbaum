@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
    */
   let navTree = new mar10.Wunderbaum({
     id: "navigation",
-    // header: "Wunderbaum",
+    header: "Wunderbaum",
     element: document.querySelector("#nav-tree"),
     checkbox: false,
     minExpandLevel: 1,
@@ -43,7 +43,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     id: "demo",
     element: document.querySelector("#demo-tree"),
     source:
-      "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+      "../assets/ajax-tree-products.json",
+    // source:
+    //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
     // checkbox: false,
     // minExpandLevel: 1,
