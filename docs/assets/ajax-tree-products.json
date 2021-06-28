@@ -1,10 +1,10 @@
 {
   "types": {
-    "folder": {"icon": "bi bi-folder"},
-    "book": {"icon": "bi bi-book"},
-    "computer": {"icon": "bi bi-laptop"},
-    "music": {"icon": "bi bi-disc"},
-    "phone": {"icon": "bi bi-phone"}
+    "folder": { "icon": "bi bi-folder" },
+    "book": { "icon": "bi bi-book" },
+    "computer": { "icon": "bi bi-laptop" },
+    "music": { "icon": "bi bi-disc" },
+    "phone": { "icon": "bi bi-phone" }
   },
   "children": [
     {
@@ -223,6 +223,6 @@
         }
       ]
     },
-    { "title": "More...", "type": "folder", "lazy": true}
+    { "title": "More...", "type": "folder", "lazy": true }
   ]
 }

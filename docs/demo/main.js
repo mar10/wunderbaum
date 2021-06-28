@@ -71,14 +71,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
       // mode: "dimm",
     },
     change: function (e) {
-      console.log(e.name, this, arguments);
+      console.log(e.name, e);
     },
     // render: function (e) {
-    //   console.log(e.name, this, arguments);
+    //   console.log(e.name, e);
     //   document.querySelector("#tree-info").textContent = "todo";
     // },
     renderColumns: function (e) {
-      console.log(e.name, this, arguments);
+      console.log(e.name, e);
       const node = e.node;
       if (node.type === "folder") {
         return;
@@ -97,7 +97,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       // document.querySelector("#tree-info").textContent = "todo";
     },
     update: function (e) {
-      console.log(e.name, this, arguments);
+      console.log(e.name, e);
       showStatus(this);
     },
   });

@@ -213,10 +213,12 @@ div.wunderbaum {
           &:hover {
             background-color: $active-header-column-color;
           }
-          &.wb-active {
-            background-color: $active-hover-color;
-          }
         }
+      }
+    }
+    &.wb-cell-mode div.wb-header div.wb-row span.wb-col {
+      &.wb-active {
+        background-color: $active-hover-color;
       }
     }
     div.wb-node-list div.wb-row {
@@ -274,18 +276,19 @@ div.wunderbaum {
       }
     }
   }
-
-  /* --- TOOL CLASSES --- */
-  .wb-helper-center {
-    text-align: center;
-  }
-  .wb-helper-right {
-    text-align: right;
-  }
-  .wb-helper-invalid {
-    color: $error-color;
-  }
 } // div.wunderbaum
+
+/* --- TOOL CLASSES --- */
+
+.wb-helper-center {
+  text-align: center;
+}
+.wb-helper-right {
+  text-align: right;
+}
+.wb-helper-invalid {
+  color: $error-color;
+}
 
 @keyframes wb-spin {
   0% {
