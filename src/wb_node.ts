@@ -766,12 +766,12 @@ export class WunderbaumNode {
   }
 
   render(opts?: any) {
-    let tree = this.tree;
-    let treeOptions = tree.options;
-    let checkbox = this.getOption("checkbox") !== false;
-    let columns = tree.columns;
-    let typeInfo = this.type ? tree.types[this.type] : null;
-    let level = this.getLevel();
+    const tree = this.tree;
+    const treeOptions = tree.options;
+    const checkbox = this.getOption("checkbox") !== false;
+    const columns = tree.columns;
+    const typeInfo = this.type ? tree.types[this.type] : null;
+    const level = this.getLevel();
     let elem: HTMLElement;
     let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
@@ -780,6 +780,8 @@ export class WunderbaumNode {
     let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement | null = null;
     const activeColIdx = tree.cellNavMode ? tree.activeColIdx : null;
+    let colElems: HTMLElement[];
+    const isNew = !rowDiv;
 
     //
     let rowClasses = ["wb-row"];
@@ -806,6 +808,9 @@ export class WunderbaumNode {
       expanderSpan = nodeElem.querySelector("i.wb-expander") as HTMLElement;
       checkboxSpan = nodeElem.querySelector("i.wb-checkbox") as HTMLElement;
       iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
+      colElems = (<unknown>(
+        rowDiv.querySelectorAll("span.wb-col")
+      )) as HTMLElement[];
     } else {
       rowDiv = document.createElement("div");
       // rowDiv.classList.add("wb-row");
@@ -856,9 +861,9 @@ export class WunderbaumNode {
       }
 
       // Render columns
+      colElems = [];
       if (!this.colspan && columns.length > 1) {
         let colIdx = 0;
-        let colElems = [];
         for (let col of columns) {
           colIdx++;
 
@@ -878,11 +883,6 @@ export class WunderbaumNode {
           colElem.style.width = col._widthPx + "px";
           colElems.push(colElem);
         }
-        this.callEvent("renderColumns", {
-          typeInfo: typeInfo,
-          colInfo: columns,
-          colElems: colElems,
-        });
       }
     }
 
@@ -933,7 +933,20 @@ export class WunderbaumNode {
         "px";
     }
 
-    this.callEvent("renderNode", {});
+    if (this.statusNodeType) {
+      this.callEvent("renderStatusNode", {
+        isNew: isNew,
+        nodeElem: nodeElem,
+      });
+    } else {
+      this.callEvent("renderNode", {
+        isNew: isNew,
+        nodeElem: nodeElem,
+        typeInfo: typeInfo,
+        colInfo: columns,
+        colElems: colElems,
+      });
+    }
 
     // Attach to DOM as late as possible
     if (!this._rowElem) {

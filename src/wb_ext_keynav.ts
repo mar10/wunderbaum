@@ -27,7 +27,16 @@ export class KeynavExtension extends WunderbaumExtension {
 
     // Set focus to active (or first node) if no other node has the focus yet
     if (!node) {
-      focusNode = tree.getActiveNode() || tree.getFirstChild();
+      const activeNode = tree.getActiveNode();
+      const firstNode = tree.getFirstChild();
+
+      if (!activeNode && firstNode && eventName === "ArrowDown") {
+        firstNode.logInfo("Keydown force focus on active node");
+        firstNode.setActive();
+        return;
+      }
+
+      focusNode = activeNode || firstNode;
       if (focusNode) {
         focusNode.setFocus();
         node = tree.getFocusNode()!;

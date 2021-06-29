@@ -10,7 +10,11 @@ import { Wunderbaum } from "./wunderbaum";
 
 export class LoggerExtension extends WunderbaumExtension {
   readonly prefix: string;
-  protected ignoreEvents = new Set<string>();
+  protected ignoreEvents = new Set<string>([
+    "enhanceTitle",
+    "renderNode",
+    "discard",
+  ]);
 
   constructor(tree: Wunderbaum) {
     super(tree, "logger", {});
@@ -20,7 +24,7 @@ export class LoggerExtension extends WunderbaumExtension {
   init() {
     const tree = this.tree;
 
-    this.ignoreEvents.add("enhanceTitle");
+    // this.ignoreEvents.add();
 
     if (tree.getOption("debugLevel") >= 4) {
       // const self = this;

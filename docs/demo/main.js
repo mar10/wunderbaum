@@ -77,8 +77,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     //   console.log(e.name, e);
     //   document.querySelector("#tree-info").textContent = "todo";
     // },
-    renderColumns: function (e) {
-      console.log(e.name, e);
+    renderNode: function (e) {
+      console.log(e.name, e.isNew, e);
       const node = e.node;
       if (node.type === "folder") {
         return;
@@ -90,7 +90,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         // Assumption: we named type.id === node.data.NAME
         elem.textContent = node.data[info.id];
         //
-        elem.setAttribute("contenteditable", true);
+        // elem.setAttribute("contenteditable", true);
         // TODO: this should be standard:
         info.classes ? elem.classList.add(...info.classes.split(" ")) : 0;
       }
