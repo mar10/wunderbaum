@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavigationMode } from "./common";
+import { NavigationMode, TAG_NAME_ALLOWED_KEYS } from "./common";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
@@ -23,16 +23,36 @@ export class KeynavExtension extends WunderbaumExtension {
       tree = this.tree,
       opts = data.options,
       handled = true,
-      activate = !(event.ctrlKey || !opts.autoActivate);
+      activate = !event.ctrlKey || opts.autoActivate;
 
     // Set focus to active (or first node) if no other node has the focus yet
     if (!node) {
-      focusNode = tree.getActiveNode() || tree.getFirstChild();
+      const activeNode = tree.getActiveNode();
+      const firstNode = tree.getFirstChild();
+
+      if (!activeNode && firstNode && eventName === "ArrowDown") {
+        firstNode.logInfo("Keydown force focus on active node");
+        firstNode.setActive();
+        return;
+      }
+
+      focusNode = activeNode || firstNode;
       if (focusNode) {
         focusNode.setFocus();
         node = tree.getFocusNode()!;
         node.logInfo("Keydown force focus on active node");
       }
+    }
+    // If the event target is an input element or `contenteditable="true"`,
+    // we ignore it as navigation command
+    const input =
+      event.target && event.target.closest("input,[contenteditable]");
+    let tagName = input?.tagName;
+    tagName === "INPUT" ? (tagName += "." + input.type) : 0;
+    if (tagName && TAG_NAME_ALLOWED_KEYS[tagName].indexOf(eventName) === -1) {
+      // E.g. inside a checkbox, still handle cursor keys, ...
+      node.logDebug("onKeyEvent: ignored keystroke inside", tagName);
+      return;
     }
 
     if (
@@ -146,7 +166,7 @@ export class KeynavExtension extends WunderbaumExtension {
       case "Control+Home":
       case "PageDown":
       case "PageUp":
-        node.navigate(eventName, { activate: true, event: event });
+        node.navigate(eventName, { activate: activate, event: event });
         break;
       default:
         handled = false;

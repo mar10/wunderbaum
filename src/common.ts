@@ -129,6 +129,11 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   Subtract: "collapse",
 };
 
+/** Lookup key codes that trigger grid navigation, even when inside an input element. */
+export const TAG_NAME_ALLOWED_KEYS: { [key: string]: string[] } = {
+  SPAN: ["ArrowDown", "ArrowUp"],
+};
+
 /** */
 export function makeNodeTitleMatcher(s: string): MatcherType {
   s = escapeRegex(s.toLowerCase());

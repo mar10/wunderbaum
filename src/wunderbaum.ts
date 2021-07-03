@@ -306,32 +306,31 @@ export class Wunderbaum {
     });
 
     util.onEvent(this.nodeListElement, "input", "div.wb-row", (e) => {
-      let info = Wunderbaum.getEventInfo(e),
-        node = info.node;
+      const info = Wunderbaum.getEventInfo(e);
+      const node = info.node;
 
       return this.callEvent("change", { node: node, info: info, event: e });
     });
 
     util.onEvent(this.element, "keydown", (e) => {
-      // let info = Wunderbaum.getEventInfo(e),
-      //   node = info.node;
-      this._callHook("onKeyEvent", { tree: this, event: e });
+      this._callHook("onKeyEvent", { event: e });
     });
 
     util.onEvent(this.element, "focusin focusout", (e) => {
       const flag = e.type === "focusin";
+
       this.callEvent("focus", { flag: flag, event: e });
-      if (flag && !this.activeNode) {
-        setTimeout(() => {
-          if (!this.activeNode) {
-            const firstNode = this.getFirstChild();
-            if (firstNode && !firstNode?.isStatusNode()) {
-              firstNode.logInfo("Activate on focus");
-              firstNode.setActive(true, { event: e });
-            }
-          }
-        }, 10);
-      }
+      // if (flag && !this.activeNode ) {
+      //   setTimeout(() => {
+      //     if (!this.activeNode) {
+      //       const firstNode = this.getFirstChild();
+      //       if (firstNode && !firstNode?.isStatusNode()) {
+      //         firstNode.logInfo("Activate on focus", e);
+      //         firstNode.setActive(true, { event: e });
+      //       }
+      //     }
+      //   }, 10);
+      // }
     });
   }
 
@@ -904,7 +903,7 @@ export class Wunderbaum {
   /** @internal */
   logTime(label: string): string {
     if (this.options.debugLevel >= 4) {
-      console.time(label);
+      console.time(this + ": " + label);
     }
     return label;
   }
@@ -912,7 +911,7 @@ export class Wunderbaum {
   /** @internal */
   logTimeEnd(label: string): void {
     if (this.options.debugLevel >= 4) {
-      console.timeEnd(label);
+      console.timeEnd(this + ": " + label);
     }
   }
 
