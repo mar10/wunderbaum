@@ -4,6 +4,14 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
         <style>
           * {box-sizing: border-box;}
+        span.wb-node:hover::before {
+color: red;
+            content: url(../docs/assets/drop_marker_insert_16x64.png);
+            position: absolute;
+            left: 20px;
+            top: 12px;
+            z-index: 10;
+        }
         </style>
 
         <script defer type="module" src="playground.js"></script>

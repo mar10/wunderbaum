@@ -40,6 +40,28 @@ const NODE_PROPS = new Set<string>([
   "type",
 ]);
 
+const NODE_ATTRS = new Set([
+  "checkbox",
+  "expanded",
+  "extraClasses",
+  "folder",
+  "icon",
+  "iconTooltip",
+  "key",
+  "lazy",
+  "partsel",
+  "radiogroup",
+  "refKey",
+  "selected",
+  "statusNodeType",
+  "title",
+  "tooltip",
+  "type",
+  "unselectable",
+  "unselectableIgnore",
+  "unselectableStatus",
+]);
+
 export class WunderbaumNode {
   static sequence = 0;
 
@@ -669,6 +691,62 @@ export class WunderbaumNode {
       this._rowElem.remove();
       this._rowElem = undefined;
     }
+  }
+
+  /** Convert node (or whole branch) into a plain object.
+   *
+   * The result is compatible with node.addChildren().
+   *
+   * @param include child nodes
+   * @param callback(dict, node) is called for every node, in order to allow
+   *     modifications.
+   *     Return `false` to ignore this node or `"skip"` to include this node
+   *     without its children.
+   * @returns {NodeData}
+   */
+  toDict(recursive = false, callback?: any): any {
+    var i,
+      l,
+      node,
+      res,
+      dict: any = {},
+      self = this;
+
+    util.each(NODE_ATTRS, (i: number, a: string) => {
+      if ((<any>this)[a] || (<any>this)[a] === false) {
+        dict[a] = (<any>this)[a];
+      }
+    });
+    if (!util.isEmptyObject(this.data)) {
+      dict.data = util.extend({}, this.data);
+      if (util.isEmptyObject(dict.data)) {
+        delete dict.data;
+      }
+    }
+    if (callback) {
+      res = callback(dict, self);
+      if (res === false) {
+        return false; // Don't include this node nor its children
+      }
+      if (res === "skip") {
+        recursive = false; // Include this node, but not the children
+      }
+    }
+    if (recursive) {
+      if (util.isArray(this.children)) {
+        dict.children = [];
+        for (i = 0, l = this.children!.length; i < l; i++) {
+          node = this.children![i];
+          if (!node.isStatusNode()) {
+            res = node.toDict(true, callback);
+            if (res !== false) {
+              dict.children.push(res);
+            }
+          }
+        }
+      }
+    }
+    return dict;
   }
 
   /** Return an option value that has a default, but may be overridden by a

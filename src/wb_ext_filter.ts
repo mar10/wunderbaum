@@ -150,7 +150,7 @@ export class FilterExtension extends WunderbaumExtension {
     prevEnableUpdate = tree.enableUpdate(false);
 
     tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
-    tree.element.classList.toggle("wb-ext-filter-dimm", !hideMode);
+    tree.element.classList.toggle("wb-ext-filter-dim", !hideMode);
     tree.element.classList.toggle(
       "wb-ext-filter-hide-expanders",
       !!opts.hideExpanders
@@ -223,7 +223,7 @@ export class FilterExtension extends WunderbaumExtension {
   }
 
   /**
-   * [ext-filter] Dimm or hide nodes.
+   * [ext-filter] Dim or hide nodes.
    *
    * @param {boolean} [opts={autoExpand: false, leavesOnly: false}]
    */
@@ -232,7 +232,7 @@ export class FilterExtension extends WunderbaumExtension {
   }
 
   /**
-   * [ext-filter] Dimm or hide whole branches.
+   * [ext-filter] Dim or hide whole branches.
    *
    * @param {boolean} [opts={autoExpand: false}]
    */
@@ -310,7 +310,7 @@ export class FilterExtension extends WunderbaumExtension {
     this.lastFilterArgs = null;
     tree.element.classList.remove(
       // "wb-ext-filter",
-      "wb-ext-filter-dimm",
+      "wb-ext-filter-dim",
       "wb-ext-filter-hide"
     );
     // tree._callHook("treeStructureChanged", this, "clearFilter");

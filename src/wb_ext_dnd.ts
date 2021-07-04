@@ -8,6 +8,8 @@ import { EventCallbackType, onEvent } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 
+const nodeMimeType = "application/x-fancytree-node";
+
 export class DndExtension extends WunderbaumExtension {
   public dropMarkerElem?: HTMLElement;
 
@@ -58,26 +60,6 @@ export class DndExtension extends WunderbaumExtension {
     const tree = this.tree;
     const dndOpts = tree.options.dnd;
 
-    // this.dropMarkerElem = document.querySelector("#wb-drop-marker");
-    // if (!this.dropMarkerElem) {
-    //   this.dropMarkerElem = $("<div id='fancytree-drop-marker'></div>")
-    //     .hide()
-    //     .css({
-    //       "z-index": 1000,
-    //       // Drop marker should not steal dragenter/dragover events:
-    //       "pointer-events": "none",
-    //     })
-    //     .prependTo(dndOpts.dropMarkerParent);
-    //   if (glyph) {
-    //     FT.setSpanIcon(
-    //       $dropMarker[0],
-    //       glyph.map._addClass,
-    //       glyph.map.dropMarker
-    //     );
-    //   }
-    // }
-    // $dropMarker.toggleClass("fancytree-rtl", !!opts.rtl);
-
     // Enable drag support if dragStart() is specified:
     if (dndOpts.dragStart) {
       onEvent(
@@ -97,8 +79,19 @@ export class DndExtension extends WunderbaumExtension {
   }
 
   protected onDragEvent(e: DragEvent) {
-    const node = Wunderbaum.getNode(e);
+    const tree = this.tree;
+    const node = Wunderbaum.getNode(e)!;
+    const dndOpts = tree.options.dnd;
+
     this.tree.logDebug("onDragEvent." + e.type + " " + node, e);
+    if (e.type === "dragenter") {
+      var nodeData = node.toDict(true, dndOpts.sourceCopyHook);
+      nodeData.treeId = node.tree.id;
+      const json = JSON.stringify(nodeData);
+      e.dataTransfer!.setData(nodeMimeType, json);
+      // e.dataTransfer!.setData("text/html", $(node.span).html());
+      e.dataTransfer!.setData("text/plain", node.title);
+    }
     return true;
   }
 
