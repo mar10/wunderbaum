@@ -248,6 +248,23 @@ export class WunderbaumNode {
     return (<unknown>undefined) as WunderbaumNode;
   }
 
+  addClass(className: string) {
+    this.extraClasses.add(className);
+    this._rowElem?.classList.add(className);
+  }
+
+  removeClass(className: string) {
+    this.extraClasses.delete(className);
+    this._rowElem?.classList.remove(className);
+  }
+
+  toggleClass(className: string, flag: boolean) {
+    flag
+      ? this.extraClasses.add(className)
+      : this.extraClasses.delete(className);
+    this._rowElem?.classList.toggle(className, flag);
+  }
+
   /** */
   async expandAll(flag: boolean = true) {
     this.visit((node) => {
@@ -705,16 +722,15 @@ export class WunderbaumNode {
    * @returns {NodeData}
    */
   toDict(recursive = false, callback?: any): any {
-    var i,
-      l,
-      node,
-      res,
-      dict: any = {},
-      self = this;
+    const dict: any = {};
 
-    util.each(NODE_ATTRS, (i: number, a: string) => {
-      if ((<any>this)[a] || (<any>this)[a] === false) {
-        dict[a] = (<any>this)[a];
+    NODE_ATTRS.forEach((propName: string) => {
+      const val = (<any>this)[propName];
+
+      if (val instanceof Set && val.size) {
+        dict[propName] = Array.prototype.join.call(val.keys(), " ");
+      } else if (val || val === false || val === 0) {
+        dict[propName] = val;
       }
     });
     if (!util.isEmptyObject(this.data)) {
@@ -724,7 +740,7 @@ export class WunderbaumNode {
       }
     }
     if (callback) {
-      res = callback(dict, self);
+      const res = callback(dict, this);
       if (res === false) {
         return false; // Don't include this node nor its children
       }
@@ -735,10 +751,10 @@ export class WunderbaumNode {
     if (recursive) {
       if (util.isArray(this.children)) {
         dict.children = [];
-        for (i = 0, l = this.children!.length; i < l; i++) {
-          node = this.children![i];
+        for (let i = 0, l = this.children!.length; i < l; i++) {
+          const node = this.children![i];
           if (!node.isStatusNode()) {
-            res = node.toDict(true, callback);
+            const res = node.toDict(true, callback);
             if (res !== false) {
               dict.children.push(res);
             }

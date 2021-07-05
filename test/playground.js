@@ -39,18 +39,32 @@ const tree = new Wunderbaum({
       { title: "Node 3", type: "book" },
     ],
   },
+  dnd: {
+    dragStart: (e) => {
+      return true;
+    },
+    dragEnter: (e) => {
+      return true;
+    },
+  },
   activate: (e) => {},
   click: (e) => {
-    tree.log(e.name, e)
-
+    tree.log(
+      e.name,
+      e,
+      e.node.toDict(false, (d) => {
+        d._org_key = d.key;
+        delete d.key;
+      })
+    );
   },
   deactivate: (e) => {},
   discard: (e) => {},
   change: (e) => {
-    tree.log(e.name, e)
+    tree.log(e.name, e);
   },
   renderColumns: (e) => {
-    tree.log(e.name, e)
+    tree.log(e.name, e);
     e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
   },
 });

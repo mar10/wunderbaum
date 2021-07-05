@@ -275,9 +275,12 @@ div.wunderbaum {
     }
   }
   /* --- DND --- */
-  wb-node.wb-drop-target {
+  div.wb-row.wb-drag-source .wb-node {
+    background-color: greenyellow;
+  }
+  div.wb-row.wb-drop-target .wb-node {
     background-color: gold;
-    &.wb-drop-over::before {
+    &::before {
       content: url(../docs/assets/drop_marker_16x32.png);
       position: absolute;
       left: $icon-outer-width;
