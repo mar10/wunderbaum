@@ -10,11 +10,14 @@ import { WunderbaumExtension } from "./wb_extension_base";
 import { WunderbaumNode } from "./wb_node";
 
 const nodeMimeType = "application/x-fancytree-node";
+export type DropRegionType = "over" | "before" | "after";
+type DropRegionTypeSet = Set<DropRegionType>;
 
 export class DndExtension extends WunderbaumExtension {
   // public dropMarkerElem?: HTMLElement;
   protected srcNode: WunderbaumNode | null = null;
   protected lastTargetNode: WunderbaumNode | null = null;
+  protected lastAllowedDropRegions: DropRegionTypeSet | null = null;
 
   constructor(tree: Wunderbaum) {
     super(tree, "dnd", {
@@ -81,21 +84,43 @@ export class DndExtension extends WunderbaumExtension {
     }
   }
 
+  /** Cleanup classes after target node is no longer hovered. */
+  protected _leaveNode(): void {
+    // We remove the marker on dragenter from the previous target:
+    const ltn = this.lastTargetNode;
+    if (ltn) {
+      ltn.removeClass("wb-drop-target wb-drop-over");
+      this.lastTargetNode = null;
+    }
+  }
+
+  /** */
+  protected unifyDragover(res: any): DropRegionTypeSet | false {
+    if (res === false || res instanceof Set) {
+      return res;
+    } else if (res === true) {
+      return new Set<DropRegionType>(["over", "before", "after"]);
+    } else if (typeof res === "string" || util.isArray(res)) {
+      return <DropRegionTypeSet>util.toSet(res);
+    }
+    throw new Error("Unsupported drop region definition: " + res);
+  }
+
   protected onDragEvent(e: DragEvent) {
     // const tree = this.tree;
+    const dndOpts = this.treeOpts.dnd;
     const srcNode = Wunderbaum.getNode(e);
 
     if (!srcNode) {
       return;
     }
     if (e.type !== "drag") {
-      this.tree.logDebug(
-        "onDragEvent." + e.type + " sourceNode: " + srcNode,
-        e
-      );
+      this.tree.logDebug("onDragEvent." + e.type + ", srcNode: " + srcNode, e);
     }
     if (e.type === "dragstart") {
       let res = srcNode.callEvent("dnd.dragStart");
+      res = this.unifyDragover(res);
+      this.lastAllowedDropRegions = res;
       if (!res) {
         return;
       }
@@ -111,7 +136,7 @@ export class DndExtension extends WunderbaumExtension {
       // e.dataTransfer!.setData("text/html", $(node.span).html());
       e.dataTransfer!.setData("text/plain", srcNode.title);
 
-      e.dataTransfer!.effectAllowed = "copyMove"; // "all";
+      e.dataTransfer!.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
 
       srcNode.addClass("wb-drag-source");
       this.srcNode = srcNode;
@@ -122,11 +147,8 @@ export class DndExtension extends WunderbaumExtension {
       this.srcNode = null;
       if (this.lastTargetNode) {
         // `dragleave` is not reliable with event delegation.
-        // We remove the marker on dragenter from the previous target:
-        this.lastTargetNode.removeClass("wb-drop-target");
-        this.lastTargetNode.removeClass("wb-drop-over");
+        this._leaveNode();
       }
-      this.lastTargetNode = null;
     }
     return true;
   }
@@ -137,6 +159,7 @@ export class DndExtension extends WunderbaumExtension {
     const dndOpts = this.treeOpts.dnd;
 
     if (!targetNode) {
+      this._leaveNode();
       return;
     }
     if (e.type !== "dragover") {
@@ -146,15 +169,16 @@ export class DndExtension extends WunderbaumExtension {
       );
     }
     if (e.type === "dragenter") {
-      if (this.lastTargetNode) {
-        // `dragleave` is not reliable with event delegation.
-        // We remove the marker on dragenter from the previous target:
-        this.lastTargetNode.removeClass("wb-drop-target");
-        this.lastTargetNode.removeClass("wb-drop-over");
+      // `dragleave` is not reliable with event delegation, so we generate it
+      // from dragenter:
+      if (this.lastTargetNode && this.lastTargetNode !== targetNode) {
+        this._leaveNode();
       }
       this.lastTargetNode = targetNode;
-      if (targetNode === this.srcNode) {
-        e.dataTransfer!.dropEffect = "none";
+
+      // Don't allow void operation ('drop on self')
+      if (dndOpts.preventVoidMoves && targetNode === this.srcNode) {
+        // e.dataTransfer!.dropEffect = "none";
         return true;
       }
       let res = targetNode.callEvent("dnd.dragEnter");
@@ -162,23 +186,19 @@ export class DndExtension extends WunderbaumExtension {
         return true; // do not cancel the event, so drop is not allowed
       }
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
-      targetNode.addClass("wb-drop-target");
-      targetNode.addClass("wb-drop-over");
+      targetNode.addClass("wb-drop-target wb-drop-over");
       // e.dataTransfer!.dropEffect = "copy";
       return false;
     } else if (e.type === "dragover") {
-      return false;
       // e.preventDefault(); // Allow drop (Drop operation is denied by default)
       // e.dataTransfer!.dropEffect = "copy";
+      return false;
     } else if (e.type === "dragleave") {
-      // NOTE: we cannot trust this event, since it is always fired?
+      // NOTE: we cannot trust this event, since it is always fired,
       // Instead we remove the marker on dragenter
-      // targetNode.removeClass("wb-drop-target");
-      // targetNode.removeClass("wb-drop-over");
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
-      targetNode.removeClass("wb-drop-target");
-      targetNode.removeClass("wb-drop-over");
+      this._leaveNode();
     }
   }
 }

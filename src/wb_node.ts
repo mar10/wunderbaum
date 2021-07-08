@@ -248,21 +248,28 @@ export class WunderbaumNode {
     return (<unknown>undefined) as WunderbaumNode;
   }
 
-  addClass(className: string) {
-    this.extraClasses.add(className);
-    this._rowElem?.classList.add(className);
+  addClass(className: string | string[] | Set<string>) {
+    const cnSet = util.toSet(className);
+    cnSet.forEach((cn) => {
+      this.extraClasses.add(cn);
+      this._rowElem?.classList.add(cn);
+    });
   }
 
-  removeClass(className: string) {
-    this.extraClasses.delete(className);
-    this._rowElem?.classList.remove(className);
+  removeClass(className: string | string[] | Set<string>) {
+    const cnSet = util.toSet(className);
+    cnSet.forEach((cn) => {
+      this.extraClasses.delete(cn);
+      this._rowElem?.classList.remove(cn);
+    });
   }
 
-  toggleClass(className: string, flag: boolean) {
-    flag
-      ? this.extraClasses.add(className)
-      : this.extraClasses.delete(className);
-    this._rowElem?.classList.toggle(className, flag);
+  toggleClass(className: string | string[] | Set<string>, flag: boolean) {
+    const cnSet = util.toSet(className);
+    cnSet.forEach((cn) => {
+      flag ? this.extraClasses.add(cn) : this.extraClasses.delete(cn);
+      this._rowElem?.classList.toggle(cn, flag);
+    });
   }
 
   /** */
