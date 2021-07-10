@@ -285,7 +285,7 @@ export class Wunderbaum {
         node = info.node;
 
       if (
-        this.callEvent("click", { node: node, info: info, event: e }) === false
+        this._callEvent("click", { node: node, info: info, event: e }) === false
       ) {
         return false;
       }
@@ -309,7 +309,7 @@ export class Wunderbaum {
       const info = Wunderbaum.getEventInfo(e);
       const node = info.node;
 
-      return this.callEvent("change", { node: node, info: info, event: e });
+      return this._callEvent("change", { node: node, info: info, event: e });
     });
 
     util.onEvent(this.element, "keydown", (e) => {
@@ -319,7 +319,7 @@ export class Wunderbaum {
     util.onEvent(this.element, "focusin focusout", (e) => {
       const flag = e.type === "focusin";
 
-      this.callEvent("focus", { flag: flag, event: e });
+      this._callEvent("focus", { flag: flag, event: e });
       // if (flag && !this.activeNode ) {
       //   setTimeout(() => {
       //     if (!this.activeNode) {
@@ -474,8 +474,8 @@ export class Wunderbaum {
     return res;
   }
 
-  /** Call event if defined in options. */
-  callEvent(name: string, extra?: any): any {
+  /* Call event if defined in options. */
+  _callEvent(name: string, extra?: any): any {
     const [p, n] = name.split(".");
     let func = n ? this.options[p][n] : this.options[p];
     if (func) {
@@ -555,6 +555,10 @@ export class Wunderbaum {
     return node;
   }
 
+  addChildren(nodeData: any, options?: any): WunderbaumNode {
+    return this.root.addChildren(nodeData, options);
+  }
+
   /**
    * Return `tree.option.NAME` (also resolving if this is a callback).
    *
@@ -626,7 +630,7 @@ export class Wunderbaum {
       i++;
     });
     if (this.keyMap.size !== i) {
-      this.logError(`_check failed: ${this.keyMap.size} !== ${i}`);
+      this.logWarn(`_check failed: ${this.keyMap.size} !== ${i}`);
     }
     // util.assert(this.keyMap.size === i);
   }
@@ -950,7 +954,7 @@ export class Wunderbaum {
         modified = true;
       }
       if (idx < start || idx > end) {
-        node.callEvent("discard");
+        node._callEvent("discard");
         node.removeMarkup();
       } else {
         // if (!node._rowElem || prevIdx != idx) {
@@ -960,7 +964,7 @@ export class Wunderbaum {
       top += height;
     });
     for (let prevNode of obsoleteViewNodes) {
-      prevNode.callEvent("discard");
+      prevNode._callEvent("discard");
       prevNode.removeMarkup();
     }
     // Resize tree container
@@ -1185,7 +1189,7 @@ export class Wunderbaum {
       startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_MAX_PREFETCH),
       endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_MAX_PREFETCH),
     });
-    this.callEvent("update");
+    this._callEvent("update");
   }
 
   /** Call callback(node) for all nodes in hierarchical order (depth-first).

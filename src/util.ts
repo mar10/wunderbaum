@@ -217,7 +217,7 @@ export function toSet(val: any): Set<string> {
     return set;
   }
   if (Array.isArray(val)) {
-    return new Set<string>(...val);
+    return new Set<string>(val);
   }
   throw new Error("Cannot convert to Set<string>: " + val);
 }

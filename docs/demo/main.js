@@ -64,16 +64,30 @@ document.addEventListener("DOMContentLoaded", (event) => {
     ],
     dnd: {
       dragStart: (e) => {
+        if (e.node.type === "folder") {
+          return false;
+        }
+        e.event.dataTransfer.effectAllowed = "all";
         return true;
       },
       dragEnter: (e) => {
-        return true;
+        if (e.node.type === "folder") {
+          e.event.dataTransfer.dropEffect = "copy";
+          return "over";
+        }
+        return ["before", "after"];
+      },
+      drop: (e) => {
+        console.log(e.name, e);
       },
     },
     filter: {
       attachInput: "input#filterQuery",
       // mode: "dim",
     },
+    // load: function (e) {
+    //   e.tree.addChildren({ title: "custom1" });
+    // },
     change: function (e) {
       console.log(e.name, e);
     },
@@ -82,7 +96,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     //   document.querySelector("#tree-info").textContent = "todo";
     // },
     renderNode: function (e) {
-      console.log(e.name, e.isNew, e);
+      // console.log(e.name, e.isNew, e);
       const node = e.node;
       if (node.type === "folder") {
         return;

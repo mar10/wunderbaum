@@ -30,9 +30,10 @@ $node-text-color: #56534c;
 $bg-highlight-color: #26a0da;
 $header-color: #dedede;
 $alternate-row-color: #fcfcfc;
-
 // derived
 $border-color: $node-text-color;
+$drop-source-color: adjust-color($node-text-color, $lightness: 50%);
+$drop-target-color: adjust-color($bg-highlight-color, $lightness: 40%);
 $dim-color: adjust-color($node-text-color, $lightness: 20%);
 // @debug $dim-color;
 $hover-color: adjust-color($bg-highlight-color, $lightness: 48%); // #f7f7f7;
@@ -275,32 +276,42 @@ div.wunderbaum {
     }
   }
   /* --- DND --- */
-  div.wb-row.wb-drag-source .wb-node {
-    background-color: greenyellow;
+  div.wb-row.wb-drag-source {
+    opacity: 0.5;
+    .wb-node {
+      background-color: $drop-source-color;
+    }
   }
-  div.wb-row.wb-drop-target .wb-node {
-    background-color: gold;
-    &::before {
-      content: url(../docs/assets/drop_marker_16x32.png);
-      position: absolute;
-      left: $icon-outer-width;
-      top: ($row-outer-height - 16) / 2;
-      z-index: 10;
+  div.wb-row.wb-drop-target {
+    overflow: visible;
+    .wb-node {
+      background-color: $drop-target-color;
+      overflow: visible;
+      // z-index: 1000;
+      .wb-icon {
+        position: relative;
+        overflow: visible;
+        &::after {
+          // use ::after, because ::before is used by icon fonts
+          // vertical-align: baseline;
+          position: absolute;
+          z-index: 1000;
+          content: url(../docs/assets/drop_marker_16x32.png);
+          left: 0; //-$icon-outer-width;
+          top: ($row-outer-height - 16) / 2;
+        }
+      }
     }
-    &.wb-drop-after::before {
-      content: url(../docs/assets/drop_marker_insert_16x64.png);
-      position: absolute;
-      left: $icon-outer-width;
-      top: ($row-outer-height - 16) / 2 + $row-outer-height / 2;
-      z-index: 10;
-    }
-    &.wb-drop-before::before {
-      content: url(../docs/assets/drop_marker_insert_16x64.png);
-      position: absolute;
-      left: $icon-outer-width;
-      top: ($row-outer-height - 16) / 2 - $row-outer-height / 2;
-      z-index: 10;
-    }
+  }
+  div.wb-row.wb-drop-target.wb-drop-before .wb-node .wb-icon::after {
+    content: url(../docs/assets/drop_marker_insert_16x64.png);
+    left: 0; // $icon-outer-width * 1.5;
+    top: ($row-outer-height - 16) / 2 - $row-outer-height / 2;
+  }
+  div.wb-row.wb-drop-target.wb-drop-after .wb-node .wb-icon::after {
+    content: url(../docs/assets/drop_marker_insert_16x64.png);
+    left: 0; //$icon-outer-width * 1.5;
+    top: ($row-outer-height - 16) / 2 + $row-outer-height / 2;
   }
 
   &.wb-rainbow {

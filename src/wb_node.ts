@@ -161,8 +161,8 @@ export class WunderbaumNode {
   // }
 
   /** Call event if defined in options. */
-  callEvent(name: string, extra?: any): any {
-    return this.tree.callEvent(name, util.extend({ node: this }, extra));
+  _callEvent(name: string, extra?: any): any {
+    return this.tree._callEvent(name, util.extend({ node: this }, extra));
   }
 
   /**
@@ -225,9 +225,9 @@ export class WunderbaumNode {
    * @param [mode=child] 'before', 'after', 'firstChild', or 'child' ('over' is a synonym for 'child')
    * @returns new node
    */
-  addNode(nodeData: any, mode?: string): WunderbaumNode {
-    if (mode === undefined || mode === "over") {
-      mode = "child";
+  addNode(nodeData: any, mode = "child"): WunderbaumNode {
+    if (mode === "over") {
+      mode = "child"; // compatible with drop region
     }
     switch (mode) {
       case "after":
@@ -241,7 +241,6 @@ export class WunderbaumNode {
         // let insertBefore = this.children ? this.children[0] : undefined;
         return this.addChildren(nodeData, { before: 0 });
       case "child":
-      case "over":
         return this.addChildren(nodeData);
     }
     util.assert(false, "Invalid mode: " + mode);
@@ -580,14 +579,16 @@ export class WunderbaumNode {
         }
         const data = await response.json();
         // Let caller modify the parsed JSON response:
-        this.callEvent("receive", { response: data });
+        this._callEvent("receive", { response: data });
         this.setStatus(NodeStatusType.ok);
 
         this._loadSource(data);
+
+        this._callEvent("load", {});
       }
     } catch (error) {
       this.logError("Error during load()", source, error);
-      this.callEvent("error", { error: error });
+      this._callEvent("error", { error: error });
       this.setStatus(NodeStatusType.error, "" + error);
       throw error;
     } finally {
@@ -952,7 +953,7 @@ export class WunderbaumNode {
       titleSpan.classList.add("wb-title");
       nodeElem.appendChild(titleSpan);
 
-      this.callEvent("enhanceTitle", { titleSpan: titleSpan });
+      this._callEvent("enhanceTitle", { titleSpan: titleSpan });
 
       // Store the width of leading icons with the node, so we can calculate
       // the width of the embedded title span later
@@ -1035,12 +1036,12 @@ export class WunderbaumNode {
     }
 
     if (this.statusNodeType) {
-      this.callEvent("renderStatusNode", {
+      this._callEvent("renderStatusNode", {
         isNew: isNew,
         nodeElem: nodeElem,
       });
     } else {
-      this.callEvent("renderNode", {
+      this._callEvent("renderNode", {
         isNew: isNew,
         nodeElem: nodeElem,
         typeInfo: typeInfo,
@@ -1071,7 +1072,7 @@ export class WunderbaumNode {
       if (flag) {
         if (prev !== this || retrigger) {
           if (
-            prev?.callEvent("deactivate", {
+            prev?._callEvent("deactivate", {
               nextNode: this,
               orgEvent: orgEvent,
             }) === false
@@ -1079,7 +1080,7 @@ export class WunderbaumNode {
             return;
           }
           if (
-            this.callEvent("activate", {
+            this._callEvent("activate", {
               prevNode: prev,
               orgEvent: orgEvent,
             }) === false
@@ -1090,7 +1091,7 @@ export class WunderbaumNode {
           }
         }
       } else if (prev === this || retrigger) {
-        this.callEvent("deactivate", { nextNode: null, orgEvent: orgEvent });
+        this._callEvent("deactivate", { nextNode: null, orgEvent: orgEvent });
       }
     }
 
@@ -1133,7 +1134,7 @@ export class WunderbaumNode {
   setSelected(flag: boolean = true, options?: any) {
     const prev = this.selected;
     if (!!flag !== prev) {
-      this.callEvent("select", { flag: flag });
+      this._callEvent("select", { flag: flag });
     }
     this.selected = !!flag;
     this.setDirty(ChangeType.status);

@@ -288,7 +288,7 @@ export class FilterExtension extends WunderbaumExtension {
         } else {
           titleElem.innerHTML = node.title;
         }
-        node.callEvent("enhanceTitle", { titleElem: titleElem });
+        node._callEvent("enhanceTitle", { titleElem: titleElem });
       }
       delete node.match;
       delete node.subMatchCount;
