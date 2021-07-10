@@ -877,6 +877,21 @@ export class Wunderbaum {
     return "Wunderbaum<'" + this.id + "'>";
   }
 
+  /** Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
+   */
+  isLoading() {
+    var res = false;
+
+    this.root.visit((n) => {
+      // also visit rootNode
+      if (n._isLoading || n._requestId) {
+        res = true;
+        return false;
+      }
+    }, true);
+    return res;
+  }
+
   /** Alias for `logDebug` */
   log = this.logDebug; // Alias
 

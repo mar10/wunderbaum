@@ -26,10 +26,10 @@ export class DndExtension extends WunderbaumExtension {
   constructor(tree: Wunderbaum) {
     super(tree, "dnd", {
       autoExpandMS: 1500, // Expand nodes after n milliseconds of hovering
-      dropMarkerInsertOffsetX: -16, // Additional offset for drop-marker with hitMode = "before"/"after"
-      dropMarkerOffsetX: -24, // Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
+      // dropMarkerInsertOffsetX: -16, // Additional offset for drop-marker with hitMode = "before"/"after"
+      // dropMarkerOffsetX: -24, // Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
       // #1021 `document.body` is not available yet
-      dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
+      // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
       multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
       effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
       // dropEffect: "auto", // 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
@@ -43,7 +43,7 @@ export class DndExtension extends WunderbaumExtension {
       scroll: true, // Enable auto-scrolling while dragging
       scrollSensitivity: 20, // Active top/bottom margin in pixel
       scrollSpeed: 5, // Pixel per event
-      setTextTypeJson: false, // Allow dragging of nodes to different IE windows
+      // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
       sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
       // Events (drag support)
       dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
@@ -251,6 +251,7 @@ export class DndExtension extends WunderbaumExtension {
       if (
         dndOpts.autoExpandMS > 0 &&
         targetNode.isExpandable(true) &&
+        !targetNode._isLoading &&
         Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS &&
         targetNode._callEvent("dnd.dragExpand", { event: e }) !== false
       ) {

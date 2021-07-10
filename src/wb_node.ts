@@ -88,6 +88,7 @@ export class WunderbaumNode {
   // --- Node Status ---
   public statusNodeType?: string;
   _isLoading = false;
+  _requestId = 0;
   _errorInfo: any | null = null;
   // --- FILTER ---
   public match?: boolean; // Added and removed by filter code
@@ -469,6 +470,10 @@ export class WunderbaumNode {
     return !!this.children && (!this.expanded || !andCollapsed);
   }
 
+  isLoading() {
+    return this._isLoading;
+  }
+
   isSelected() {
     return !!this.selected;
   }
@@ -553,6 +558,17 @@ export class WunderbaumNode {
     let timerLabel: string;
     const tree = this.tree;
     const opts = tree.options;
+    const requestId = Date.now();
+    const prevParent = this.parent;
+
+    // Check for overlapping requests
+    if (this._requestId) {
+      this.logWarn(
+        `Recursive load request #${requestId} while #${this._requestId} is pending.`
+      );
+      // 	node.debug("Send load request #" + requestId);
+    }
+    this._requestId = requestId;
 
     try {
       timerLabel = tree.logTime(this + ".load()");
@@ -569,15 +585,25 @@ export class WunderbaumNode {
         const response = await fetch(url, { method: "GET" });
         if (!response.ok) {
           util.error(
-            "GET " +
-              opts.remote +
-              " returned " +
-              response.status +
-              ", " +
-              response
+            `GET ${opts.remote} returned ${response.status}, ${response}`
           );
         }
         const data = await response.json();
+
+        if (this._requestId && this._requestId > requestId) {
+          this.logWarn(
+            `Ignored load response #${requestId} because #${this._requestId} is pending.`
+          );
+          return;
+        } else {
+          this.logDebug(`Received response for load request #${requestId}`);
+        }
+        if (this.parent === null && prevParent !== null) {
+          this.logWarn(
+            "Lazy parent node was removed while loading: discarding response."
+          );
+          return;
+        }
         // Let caller modify the parsed JSON response:
         this._callEvent("receive", { response: data });
         this.setStatus(NodeStatusType.ok);
@@ -592,6 +618,7 @@ export class WunderbaumNode {
       this.setStatus(NodeStatusType.error, "" + error);
       throw error;
     } finally {
+      this._requestId = 0;
       if (opts.debugLevel >= 2) {
         tree.logTimeEnd(timerLabel!);
       }

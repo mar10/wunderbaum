@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   /* ---------------------------------------------------------------------------
    * Navigation
    */
-  let navTree = new mar10.Wunderbaum({
+  const navTree = new mar10.Wunderbaum({
     id: "navigation",
     header: "Wunderbaum",
     element: document.querySelector("#nav-tree"),
@@ -39,7 +39,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   /* ---------------------------------------------------------------------------
    * Demo Tree
    */
-  let tree = new mar10.Wunderbaum({
+  const tree = new mar10.Wunderbaum({
     id: "demo",
     element: document.querySelector("#demo-tree"),
     source: "../assets/ajax-tree-products.json",
@@ -132,6 +132,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
   /* ---------------------------------------------------------------------------
    * Demo Behavior
    */
+  // setTimeout(() => {
+  //   tree.root.load(
+  //     "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json"
+  //   );
+  // }, 0);
+
   document.querySelector("a#expand-all").addEventListener("click", (event) => {
     // let tree = mar10.Wunderbaum.getTree("demo");
     console.time("expandAll");

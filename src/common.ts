@@ -17,8 +17,8 @@ export const ROW_EXTRA_PAD = 7; // 2x $col-padding-x + 3px rounding errors
 export const RENDER_MIN_PREFETCH = 5;
 export const RENDER_MAX_PREFETCH = 5;
 export const TEST_IMG = new RegExp(/\.|\//); // strings are considered image urls if they contain '.' or '/'
-export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
-export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
+// export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
+// export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 
