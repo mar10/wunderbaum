@@ -465,8 +465,8 @@ export class WunderbaumNode {
     return !!this.expanded;
   }
 
-  isExpandable() {
-    return !!this.children;
+  isExpandable(andCollapsed = false) {
+    return !!this.children && (!this.expanded || !andCollapsed);
   }
 
   isSelected() {

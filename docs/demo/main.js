@@ -78,7 +78,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         return ["before", "after"];
       },
       drop: (e) => {
-        console.log(e.name, e);
+        console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
       },
     },
     filter: {

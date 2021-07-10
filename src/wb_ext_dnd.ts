@@ -18,8 +18,10 @@ export class DndExtension extends WunderbaumExtension {
   // public dropMarkerElem?: HTMLElement;
   protected srcNode: WunderbaumNode | null = null;
   protected lastTargetNode: WunderbaumNode | null = null;
+  protected lastEnterStamp = 0;
   protected lastAllowedDropRegions: DropRegionTypeSet | null = null;
   protected lastDropEffect: string | null = null;
+  protected lastDropRegion: DropRegionType | false = false;
 
   constructor(tree: Wunderbaum) {
     super(tree, "dnd", {
@@ -90,6 +92,7 @@ export class DndExtension extends WunderbaumExtension {
   protected _leaveNode(): void {
     // We remove the marker on dragenter from the previous target:
     const ltn = this.lastTargetNode;
+    this.lastEnterStamp = 0;
     if (ltn) {
       ltn.removeClass(
         "wb-drop-target wb-drop-over wb-drop-after wb-drop-before"
@@ -219,6 +222,7 @@ export class DndExtension extends WunderbaumExtension {
         this._leaveNode();
       }
       this.lastTargetNode = targetNode;
+      this.lastEnterStamp = Date.now();
 
       // Don't allow void operation ('drop on self')
       if (dndOpts.preventVoidMoves && targetNode === this.srcNode) {
@@ -241,6 +245,18 @@ export class DndExtension extends WunderbaumExtension {
       return false;
     } else if (e.type === "dragover") {
       const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
+
+      this.lastDropRegion = region;
+
+      if (
+        dndOpts.autoExpandMS > 0 &&
+        targetNode.isExpandable(true) &&
+        Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS &&
+        targetNode._callEvent("dnd.dragExpand", { event: e }) !== false
+      ) {
+        targetNode.setExpanded();
+      }
+
       if (!region) {
         return; // We already rejected in dragenter
       }
@@ -258,7 +274,11 @@ export class DndExtension extends WunderbaumExtension {
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
       this._leaveNode();
-      targetNode._callEvent("dnd.drop", { event: e, sourceNode: this.srcNode });
+      targetNode._callEvent("dnd.drop", {
+        event: e,
+        region: this.lastDropRegion,
+        sourceNode: this.srcNode,
+      });
     }
   }
 }
