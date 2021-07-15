@@ -34,12 +34,12 @@ export class DndExtension extends WunderbaumExtension {
       effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
       // dropEffect: "auto", // 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
       dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
-      preventForeignNodes: false, // Prevent dropping nodes from different Fancytrees
-      preventLazyParents: true, // Prevent dropping items on unloaded lazy Fancytree nodes
-      preventNonNodes: false, // Prevent dropping items other than Fancytree nodes
+      preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
+      preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes
+      preventNonNodes: false, // Prevent dropping items other than Wunderbaum tree nodes
       preventRecursion: true, // Prevent dropping nodes on own descendants
       preventSameParent: false, // Prevent dropping nodes under same direct parent
-      preventVoidMoves: true, // Prevent dropping nodes 'before self', etc.
+      preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
       scroll: true, // Enable auto-scrolling while dragging
       scrollSensitivity: 20, // Active top/bottom margin in pixel
       scrollSpeed: 5, // Pixel per event
@@ -138,6 +138,30 @@ export class DndExtension extends WunderbaumExtension {
       return dy > ROW_HEIGHT / 2 ? "after" : "before";
     }
     return "over";
+  }
+
+  /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
+  protected autoScroll(event: DragEvent): number {
+    let tree = this.tree,
+      dndOpts = tree.options.dnd,
+      sp = tree.scrollContainer,
+      sensitivity = dndOpts.scrollSensitivity,
+      speed = dndOpts.scrollSpeed,
+      scrolled = 0;
+
+    const scrollTop = sp.offsetTop;
+    if (scrollTop + sp.offsetHeight - event.pageY < sensitivity) {
+      const delta = sp.scrollHeight - sp.clientHeight - scrollTop;
+      if (delta > 0) {
+        sp.scrollTop = scrolled = scrollTop + speed;
+      }
+    } else if (scrollTop > 0 && event.pageY - scrollTop < sensitivity) {
+      sp.scrollTop = scrolled = scrollTop - speed;
+    }
+    // if (scrolled) {
+    //   tree.logDebug("autoScroll: " + scrolled + "px");
+    // }
+    return scrolled;
   }
 
   protected onDragEvent(e: DragEvent) {
@@ -244,6 +268,8 @@ export class DndExtension extends WunderbaumExtension {
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
     } else if (e.type === "dragover") {
+      this.autoScroll(e);
+
       const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
       this.lastDropRegion = region;
