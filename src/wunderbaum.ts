@@ -72,7 +72,7 @@ export class Wunderbaum {
 
   public activeNode: WunderbaumNode | null = null;
   public focusNode: WunderbaumNode | null = null;
-  _enableUpdate = true;
+  _disableUpdate = 0;
 
   /** Shared properties, referenced by `node.type`. */
   public types: any = {};
@@ -605,14 +605,27 @@ export class Wunderbaum {
     ext!.setOption(parts[1], value);
   }
 
+  /** Run code, but defer `updateViewport()` until done. */
+  runWithoutUpdate(func: () => any, hint = null) {
+    const prev = this._disableUpdate;
+    const start = Date.now();
+    this._disableUpdate = Date.now();
+    try {
+      return func();
+    } finally {
+      if (!prev && this._disableUpdate === start) {
+        this._disableUpdate = 0;
+      }
+    }
+  }
+
   /** */
   async expandAll(flag: boolean = true) {
-    let tag = this.logTime("expandAll(" + flag + ")");
-    let prev = this.enableUpdate(false);
-    let res = this.root.expandAll(flag);
+    const tag = this.logTime("expandAll(" + flag + ")");
+    const prev = this.enableUpdate(false);
+    await this.root.expandAll(flag);
     this.enableUpdate(prev);
     this.logTimeEnd(tag);
-    return res;
   }
 
   /** */
@@ -1185,6 +1198,9 @@ export class Wunderbaum {
 
   /** Render all rows that are visible in the viewport. */
   updateViewport() {
+    if (this._disableUpdate) {
+      return;
+    }
     let height = this.scrollContainer.clientHeight;
     // We cannot get the height for abolut positioned parent, so look at first col
     // let headerHeight = this.headerElement.clientHeight
@@ -1381,17 +1397,17 @@ export class Wunderbaum {
   /**
    *
    */
-  public enableUpdate(flag: boolean): boolean {
-    flag = flag !== false;
-    if (!!this._enableUpdate === !!flag) {
+  public enableUpdate(flag = true): boolean {
+    if (!!this._disableUpdate === !flag) {
       return flag;
     }
-    this._enableUpdate = flag;
     if (flag) {
       this.logDebug("enableUpdate(true): redraw...");
       this.updateViewport();
+      this._disableUpdate = 0;
     } else {
       this.logDebug("enableUpdate(false)...");
+      this._disableUpdate = Date.now();
     }
     return !flag; // return previous value
   }

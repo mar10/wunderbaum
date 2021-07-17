@@ -307,6 +307,9 @@ export function assert(cond: any, msg?: string) {
 export function extend(...args: any[]) {
   for (let i = 1; i < args.length; i++) {
     let arg = args[i];
+    if (arg == null) {
+      continue;
+    }
     for (let key in arg) {
       if (Object.prototype.hasOwnProperty.call(arg, key)) {
         args[0][key] = arg[key];

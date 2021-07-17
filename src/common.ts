@@ -6,6 +6,7 @@
 
 import { escapeRegex } from "./util";
 import { WunderbaumNode } from "./wb_node";
+import { Wunderbaum } from "./wunderbaum";
 
 export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
@@ -24,6 +25,21 @@ export type NodeAnyCallback = (node: WunderbaumNode) => any;
 
 export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
+
+// type WithWildcards<T> = T & { [key: string]: unknown };
+export type WbEventType = {
+  name: string;
+  event: Event;
+  tree: Wunderbaum;
+  // node?: WunderbaumNode;
+  [key: string]: unknown;
+};
+export type WbNodeEventType = WbEventType & {
+  node: WunderbaumNode;
+};
+
+export type WbCallbackType = (e: WbEventType) => any;
+export type WbNodeCallbackType = (e: WbNodeEventType) => any;
 
 export type FilterModeType = null | "dim" | "hide";
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
@@ -91,7 +107,7 @@ export let iconMap = {
   // expanderExpanded: "bi bi-dash-square",
   expanderCollapsed: "bi bi-chevron-right",
   // expanderCollapsed: "bi bi-plus-square",
-  expanderLazy: "bi bi-x-square",
+  expanderLazy: "bi bi-chevron-bar-right",
   checkChecked: "bi bi-check-square",
   checkUnchecked: "bi bi-square",
   checkUnknown: "bi dash-square-dotted",

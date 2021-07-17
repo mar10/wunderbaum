@@ -90,6 +90,8 @@ export class WunderbaumNode {
   _isLoading = false;
   _requestId = 0;
   _errorInfo: any | null = null;
+  _partsel = false;
+  _partload = false;
   // --- FILTER ---
   public match?: boolean; // Added and removed by filter code
   public subMatchCount?: number = 0;
@@ -373,7 +375,7 @@ export class WunderbaumNode {
     return i;
   }
 
-  /** Return the successor node (under the same parent) or null. */
+  /** Return the successive node (under the same parent) or null. */
   getNextSibling(): WunderbaumNode | null {
     let ac = this.parent.children!;
     let idx = ac.indexOf(this);
@@ -431,64 +433,154 @@ export class WunderbaumNode {
     return path.join(separator);
   }
 
-  /** Return the predecessor node (under the same parent) or null. */
+  /** Return the preceeding node (under the same parent) or null. */
   getPrevSibling(): WunderbaumNode | null {
     let ac = this.parent.children!;
     let idx = ac.indexOf(this);
     return ac[idx - 1] || null;
   }
 
-  /** Return true if node has children. Return undefined if not sure, i.e. the node is lazy and not yet loaded. */
+  /** Return true if node has children.
+   * Return undefined if not sure, i.e. the node is lazy and not yet loaded.
+   */
   hasChildren() {
     if (this.lazy) {
       if (this.children == null) {
-        // null or undefined: Not yet loaded
-        return undefined;
+        return undefined; // null or undefined: Not yet loaded
       } else if (this.children.length === 0) {
-        // Loaded, but response was empty
-        return false;
+        return false; // Loaded, but response was empty
       } else if (
         this.children.length === 1 &&
         this.children[0].isStatusNode()
       ) {
-        // Currently loading or load error
-        return undefined;
+        return undefined; // Currently loading or load error
       }
-      return true;
+      return true; // One or more child nodes
     }
     return !!(this.children && this.children.length);
   }
+
+  /** Return true if this node is the currently active tree node. */
   isActive() {
     return this.tree.activeNode === this;
   }
 
-  isExpanded() {
-    return !!this.expanded;
+  /** Return true if this node is a *direct* child of `other`.
+   * (See also [[isDescendantOf]].)
+   */
+  isChildOf(other: WunderbaumNode) {
+    return this.parent && this.parent === other;
   }
 
+  /** Return true if this node is a direct or indirect sub node of `other`.
+   * (See also [[isChildOf]].)
+   */
+  isDescendantOf(other: WunderbaumNode) {
+    if (!other || other.tree !== this.tree) {
+      return false;
+    }
+    var p = this.parent;
+    while (p) {
+      if (p === other) {
+        return true;
+      }
+      if (p === p.parent) {
+        util.error("Recursive parent link: " + p);
+      }
+      p = p.parent;
+    }
+    return false;
+  }
+
+  /** Return true if this node has children, i.e. the node is generally expandable.
+   * If `andCollapsed` is set, we also check if this node is collapsed, i.e.
+   * an expand operation is currently possible.
+   */
   isExpandable(andCollapsed = false) {
     return !!this.children && (!this.expanded || !andCollapsed);
   }
 
+  /** Return true is this node is currently expanded. */
+  isExpanded() {
+    return !!this.expanded;
+  }
+
+  /** Return true if this node is the first node of its parent's children. */
+  isFirstSibling() {
+    var p = this.parent;
+    return !p || p.children![0] === this;
+  }
+
+  /** Return true if this node is the last node of its parent's children. */
+  isLastSibling() {
+    var p = this.parent;
+    return !p || p.children![p.children!.length - 1] === this;
+  }
+
+  /** Return true if this node is lazy (even if data was already loaded) */
+  isLazy() {
+    return !!this.lazy;
+  }
+
+  /** Return true if node is lazy and loaded. For non-lazy nodes always return true. */
+  isLoaded() {
+    return !this.lazy || this.hasChildren() !== undefined; // Also checks if the only child is a status node
+  }
+
+  /** Return true if node is currently loading, i.e. a GET request is pending. */
   isLoading() {
     return this._isLoading;
   }
 
+  /** Return true if this node is a temporarily generated status node of type 'paging'. */
+  isPagingNode() {
+    return this.statusNodeType === "paging";
+  }
+
+  /** (experimental) Return true if this node is partially loaded. */
+  isPartload() {
+    return !!this._partload;
+  }
+
+  /** Return true if this node is partially selected (tri-state). */
+  isPartsel() {
+    return !this.selected && !!this._partsel;
+  }
+
+  /** Return true if this node is the (invisible) system root node.
+   * (See also [[isTopLevel()]].)
+   */
+  isRootNode() {
+    return this.tree.root === this;
+  }
+
+  /** Return true if this node is selected, i.e. the checkbox is set. */
   isSelected() {
     return !!this.selected;
   }
-  /** Return true if this a top level node, i.e. a direct child of the (invisible) system root node.
+
+  /** Return true if this node is a temporarily generated system node like
+   * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
    */
+  isStatusNode() {
+    return !!this.statusNodeType;
+  }
+
+  /** Return true if this a top level node, i.e. a direct child of the (invisible) system root node. */
   isTopLevel() {
     return this.tree.root === this.parent;
   }
-  /** Return true if node is lazy and not yet loaded. For non-lazy nodes always return false.
+
+  /** Return true if node is marked lazy but not yet loaded.
+   * For non-lazy nodes always return false.
    */
-  isUndefined() {
-    return this.hasChildren() === undefined; // also checks if the only child is a status node
+  isUnloaded() {
+    // Also checks if the only child is a status node:
+    return this.hasChildren() === undefined;
   }
+
   /** Return true if all parent nodes are expanded. Note: this does not check
-   * whether the node is scrolled into the visible part of the screen.
+   * whether the node is scrolled into the visible part of the screen or viewport.
    */
   isVisible() {
     let i,
@@ -521,19 +613,7 @@ export class WunderbaumNode {
     return true;
   }
 
-  /** Return true if this node is a temporarily generated system node like
-   * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
-   */
-  isStatusNode() {
-    return !!this.statusNodeType;
-  }
-
-  /** Return true if this node is a temporarily generated system node of type 'paging'. */
-  isPagingNode() {
-    return this.statusNodeType === "paging";
-  }
-
-  protected _loadSource(source: any) {
+  protected _loadSourceObject(source: any) {
     const tree = this.tree;
 
     if (util.isArray(source)) {
@@ -577,7 +657,7 @@ export class WunderbaumNode {
       }
 
       if (util.isPlainObject(source) && !source.url) {
-        this._loadSource(source);
+        this._loadSourceObject(source);
       } else {
         const url = typeof source === "string" ? source : source.url;
 
@@ -608,9 +688,9 @@ export class WunderbaumNode {
         this._callEvent("receive", { response: data });
         this.setStatus(NodeStatusType.ok);
 
-        this._loadSource(data);
+        this._loadSourceObject(data);
 
-        this._callEvent("load", {});
+        this._callEvent("load");
       }
     } catch (error) {
       this.logError("Error during load()", source, error);
@@ -623,6 +703,38 @@ export class WunderbaumNode {
         tree.logTimeEnd(timerLabel!);
       }
     }
+  }
+
+  /**Load content of a lazy node. */
+  async loadLazy(forceReload = false) {
+    const wasExpanded = this.expanded;
+
+    util.assert(this.lazy, "load() requires a lazy node");
+    // _assert( forceReload || this.isUndefined(), "Pass forceReload=true to re-load a lazy node" );
+    if (!forceReload && !this.isUnloaded()) {
+      return;
+    }
+    if (this.isLoaded()) {
+      this.resetLazy(); // also collapses
+    }
+    // This method is also called by setExpanded() and loadKeyPath(), so we
+    // have to avoid recursion.
+    const source = await this._callEvent("lazyLoad");
+    util.assert(
+      source === false || util.isArray(source) || (source && source.url),
+      "The lazyLoad event must return a node list, `{url: ...}` or false."
+    );
+    if (source === false) {
+      return;
+    }
+    await this.load(source);
+    if (wasExpanded) {
+      this.expanded = true;
+      this.tree.updateViewport();
+    } else {
+      this.render(); // fix expander icon to 'loaded'
+    }
+    return;
   }
 
   /** Alias for `logDebug` */
@@ -737,125 +849,45 @@ export class WunderbaumNode {
     }, true);
   }
 
+  /**Remove all descendants of ctx.node. */
+  removeChildren() {
+    const tree = this.tree;
+
+    if (!this.children) {
+      return;
+    }
+    if (tree.activeNode && tree.activeNode.isDescendantOf(this)) {
+      tree.activeNode.setActive(false); // TODO: don't fire events
+    }
+    if (tree.focusNode && tree.focusNode.isDescendantOf(this)) {
+      tree.focusNode = null;
+    }
+    // TODO: persist must take care to clear select and expand cookies
+    // Unlink children to support GC
+    // TODO: also delete this.children (not possible using visit())
+    this.triggerModifyChild("remove", null);
+    this.visit((n) => {
+      tree._unregisterNode(n);
+    });
+    if (this.lazy) {
+      // 'undefined' would be interpreted as 'not yet loaded' for lazy nodes
+      this.children = [];
+    } else {
+      this.children = null;
+    }
+    util.assert(this.parent); // don't call this for root node
+    if (!this.isRootNode()) {
+      this.expanded = false;
+    }
+    this.tree.updateViewport();
+  }
+
   removeMarkup() {
     if (this._rowElem) {
       delete (<any>this._rowElem)._wb_node;
       this._rowElem.remove();
       this._rowElem = undefined;
     }
-  }
-
-  /** Convert node (or whole branch) into a plain object.
-   *
-   * The result is compatible with node.addChildren().
-   *
-   * @param include child nodes
-   * @param callback(dict, node) is called for every node, in order to allow
-   *     modifications.
-   *     Return `false` to ignore this node or `"skip"` to include this node
-   *     without its children.
-   * @returns {NodeData}
-   */
-  toDict(recursive = false, callback?: any): any {
-    const dict: any = {};
-
-    NODE_ATTRS.forEach((propName: string) => {
-      const val = (<any>this)[propName];
-
-      if (val instanceof Set && val.size) {
-        dict[propName] = Array.prototype.join.call(val.keys(), " ");
-      } else if (val || val === false || val === 0) {
-        dict[propName] = val;
-      }
-    });
-    if (!util.isEmptyObject(this.data)) {
-      dict.data = util.extend({}, this.data);
-      if (util.isEmptyObject(dict.data)) {
-        delete dict.data;
-      }
-    }
-    if (callback) {
-      const res = callback(dict, this);
-      if (res === false) {
-        return false; // Don't include this node nor its children
-      }
-      if (res === "skip") {
-        recursive = false; // Include this node, but not the children
-      }
-    }
-    if (recursive) {
-      if (util.isArray(this.children)) {
-        dict.children = [];
-        for (let i = 0, l = this.children!.length; i < l; i++) {
-          const node = this.children![i];
-          if (!node.isStatusNode()) {
-            const res = node.toDict(true, callback);
-            if (res !== false) {
-              dict.children.push(res);
-            }
-          }
-        }
-      }
-    }
-    return dict;
-  }
-
-  /** Return an option value that has a default, but may be overridden by a
-   * callback or a node instance attribute.
-   *
-   * Evaluation sequence:
-   *
-   * If `tree.options.<optionName>` is a callback that returns something, use that.
-   * Else if `node.<optionName>` is defined, use that.
-   * Else if `tree.options.<optionName>` is a value, use that.
-   * Else use `defaultValue`.
-   *
-   * @param optionName name of the option property (on node and tree)
-   * @param node passed to the callback
-   * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
-   * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
-   * @param defaultValue return this if nothing else matched
-   *
-   * @example
-   * // Check for node.foo, tree,options.foo(), and tree.options.foo:
-   * evalOption("foo", node, node, tree.options);
-   * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
-   * evalOption("bar", node, node.data, tree.options.qux);
-   */
-  getOption(name: string, defaultValue?: any) {
-    let tree = this.tree;
-    let opts = tree.options;
-
-    // Lookup `name` in options dict
-    if (name.indexOf(".") >= 0) {
-      [opts, name] = name.split(".");
-    }
-    let value = opts[name]; // ?? defaultValue;
-
-    // A callback resolver always takes precedence
-    if (typeof value === "function") {
-      let res = value.call(tree, {
-        type: "resolve",
-        tree: tree,
-        node: this,
-        // typeInfo: this.type ? tree.types[this.type] : {},
-      });
-      if (res !== undefined) {
-        return res;
-      }
-    }
-    // If this node has an explicit local setting, use it:
-    if ((<any>this)[name] !== undefined) {
-      return (<any>this)[name];
-    }
-    // Use value from type definition if defined
-    let typeInfo = this.type ? tree.types[this.type] : undefined;
-    let res = typeInfo ? typeInfo[name] : undefined;
-    if (res !== undefined) {
-      return res;
-    }
-    // Use value from value options dict, fallback do default
-    return value ?? defaultValue;
   }
 
   protected _createIcon(parentElem: HTMLElement): HTMLElement | null {
@@ -1030,6 +1062,8 @@ export class WunderbaumNode {
         } else {
           expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
         }
+      } else if (this.lazy && this.children == null) {
+        expanderSpan.className = "wb-expander " + iconMap.expanderLazy;
       } else {
         expanderSpan.classList.add("wb-indent");
       }
@@ -1084,6 +1118,131 @@ export class WunderbaumNode {
     }
   }
 
+  /**
+   * Remove all children, collapse, and set the lazy-flag, so that the lazyLoad
+   * event is triggered on next expand.
+   */
+  resetLazy() {
+    this.removeChildren();
+    this.expanded = false;
+    this.lazy = true;
+    this.children = null;
+    this.tree.updateViewport();
+  }
+
+  /** Convert node (or whole branch) into a plain object.
+   *
+   * The result is compatible with node.addChildren().
+   *
+   * @param include child nodes
+   * @param callback(dict, node) is called for every node, in order to allow
+   *     modifications.
+   *     Return `false` to ignore this node or `"skip"` to include this node
+   *     without its children.
+   * @returns {NodeData}
+   */
+  toDict(recursive = false, callback?: any): any {
+    const dict: any = {};
+
+    NODE_ATTRS.forEach((propName: string) => {
+      const val = (<any>this)[propName];
+
+      if (val instanceof Set && val.size) {
+        dict[propName] = Array.prototype.join.call(val.keys(), " ");
+      } else if (val || val === false || val === 0) {
+        dict[propName] = val;
+      }
+    });
+    if (!util.isEmptyObject(this.data)) {
+      dict.data = util.extend({}, this.data);
+      if (util.isEmptyObject(dict.data)) {
+        delete dict.data;
+      }
+    }
+    if (callback) {
+      const res = callback(dict, this);
+      if (res === false) {
+        return false; // Don't include this node nor its children
+      }
+      if (res === "skip") {
+        recursive = false; // Include this node, but not the children
+      }
+    }
+    if (recursive) {
+      if (util.isArray(this.children)) {
+        dict.children = [];
+        for (let i = 0, l = this.children!.length; i < l; i++) {
+          const node = this.children![i];
+          if (!node.isStatusNode()) {
+            const res = node.toDict(true, callback);
+            if (res !== false) {
+              dict.children.push(res);
+            }
+          }
+        }
+      }
+    }
+    return dict;
+  }
+
+  /** Return an option value that has a default, but may be overridden by a
+   * callback or a node instance attribute.
+   *
+   * Evaluation sequence:
+   *
+   * If `tree.options.<optionName>` is a callback that returns something, use that.
+   * Else if `node.<optionName>` is defined, use that.
+   * Else if `tree.options.<optionName>` is a value, use that.
+   * Else use `defaultValue`.
+   *
+   * @param optionName name of the option property (on node and tree)
+   * @param node passed to the callback
+   * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
+   * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
+   * @param defaultValue return this if nothing else matched
+   *
+   * @example
+   * // Check for node.foo, tree,options.foo(), and tree.options.foo:
+   * evalOption("foo", node, node, tree.options);
+   * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
+   * evalOption("bar", node, node.data, tree.options.qux);
+   */
+  getOption(name: string, defaultValue?: any) {
+    let tree = this.tree;
+    let opts = tree.options;
+
+    // Lookup `name` in options dict
+    if (name.indexOf(".") >= 0) {
+      [opts, name] = name.split(".");
+    }
+    let value = opts[name]; // ?? defaultValue;
+
+    // A callback resolver always takes precedence
+    if (typeof value === "function") {
+      let res = value.call(tree, {
+        type: "resolve",
+        tree: tree,
+        node: this,
+        // typeInfo: this.type ? tree.types[this.type] : {},
+      });
+      if (res !== undefined) {
+        return res;
+      }
+    }
+    // If this node has an explicit local setting, use it:
+    if ((<any>this)[name] !== undefined) {
+      return (<any>this)[name];
+    }
+    // Use value from type definition if defined
+    let typeInfo = this.type ? tree.types[this.type] : undefined;
+    let res = typeInfo ? typeInfo[name] : undefined;
+    if (res !== undefined) {
+      return res;
+    }
+    // Use value from value options dict, fallback do default
+    return value ?? defaultValue;
+  }
+
   async scrollIntoView(options?: any) {
     return this.tree.scrollTo(this);
   }
@@ -1135,7 +1294,7 @@ export class WunderbaumNode {
   }
 
   setDirty(type: ChangeType) {
-    if (this.tree._enableUpdate === false) {
+    if (this.tree._disableUpdate) {
       return;
     }
     if (type === ChangeType.structure) {
@@ -1147,6 +1306,9 @@ export class WunderbaumNode {
   }
 
   async setExpanded(flag: boolean = true, options?: any) {
+    if (this.lazy && this.children == null) {
+      await this.loadLazy();
+    }
     this.expanded = flag;
     this.setDirty(ChangeType.structure);
   }
@@ -1257,6 +1419,36 @@ export class WunderbaumNode {
     tree.updateViewport();
     return statusNode;
   }
+
+  /**
+   * Trigger `modifyChild` event on a parent to signal that a child was modified.
+   * @param {string} operation Type of change: 'add', 'remove', 'rename', 'move', 'data', ...
+   */
+  triggerModifyChild(
+    operation: string,
+    child: WunderbaumNode | null,
+    extra?: any
+  ) {
+    if (!this.tree.options.modifyChild) return;
+
+    if (child && child.parent !== this) {
+      util.error("child " + child + " is not a child of " + this);
+    }
+    this._callEvent(
+      "modifyChild",
+      util.extend({ operation: operation, child: child }, extra)
+    );
+  }
+
+  /**
+   * Trigger `modifyChild` event on node.parent(!).
+   * @param {string} operation Type of change: 'add', 'remove', 'rename', 'move', 'data', ...
+   * @param {object} [extra]
+   */
+  triggerModify(operation: string, extra: any) {
+    this.parent.triggerModifyChild(operation, this, extra);
+  }
+
   /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
    * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
    * Return false if iteration was stopped.

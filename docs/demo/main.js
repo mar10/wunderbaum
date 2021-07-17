@@ -91,6 +91,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     change: function (e) {
       console.log(e.name, e);
     },
+    lazyLoad: function (e) {
+      console.log(e.name, e);
+      return { url: "../assets/ajax-lazy-sample.json" };
+    },
     // render: function (e) {
     //   console.log(e.name, e);
     //   document.querySelector("#tree-info").textContent = "todo";

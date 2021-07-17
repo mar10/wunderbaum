@@ -47,14 +47,14 @@ export class DndExtension extends WunderbaumExtension {
       sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
       // Events (drag support)
       dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
-      dragDrag: util.noop, // Callback(sourceNode, data)
-      dragEnd: util.noop, // Callback(sourceNode, data)
+      dragDrag: null, // Callback(sourceNode, data)
+      dragEnd: null, // Callback(sourceNode, data)
       // Events (drop support)
       dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
-      dragOver: util.noop, // Callback(targetNode, data)
-      dragExpand: util.noop, // Callback(targetNode, data), return false to prevent autoExpand
-      dragDrop: util.noop, // Callback(targetNode, data)
-      dragLeave: util.noop, // Callback(targetNode, data)
+      dragOver: null, // Callback(targetNode, data)
+      dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
+      dragDrop: null, // Callback(targetNode, data)
+      dragLeave: null, // Callback(targetNode, data)
     });
   }
 
@@ -175,6 +175,8 @@ export class DndExtension extends WunderbaumExtension {
     if (e.type !== "drag") {
       this.tree.logDebug("onDragEvent." + e.type + ", srcNode: " + srcNode, e);
     }
+
+    // --- dragstart ---
     if (e.type === "dragstart") {
       // Set a default definition of allowed effects
       e.dataTransfer!.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
@@ -201,8 +203,11 @@ export class DndExtension extends WunderbaumExtension {
         // the system generated drag image
         srcNode.addClass("wb-drag-source");
       }, 0);
+
+      // --- drag ---
     } else if (e.type === "drag") {
       // This event occurs very often...
+      // --- dragend ---
     } else if (e.type === "dragend") {
       srcNode.removeClass("wb-drag-source");
       this.srcNode = null;
@@ -238,6 +243,8 @@ export class DndExtension extends WunderbaumExtension {
         e
       );
     }
+
+    // --- dragenter ---
     if (e.type === "dragenter") {
       this.lastAllowedDropRegions = null;
       // `dragleave` is not reliable with event delegation, so we generate it
@@ -248,8 +255,11 @@ export class DndExtension extends WunderbaumExtension {
       this.lastTargetNode = targetNode;
       this.lastEnterStamp = Date.now();
 
-      // Don't allow void operation ('drop on self')
-      if (dndOpts.preventVoidMoves && targetNode === this.srcNode) {
+      if (
+        // Don't allow void operation ('drop on self')
+        (dndOpts.preventVoidMoves && targetNode === this.srcNode) ||
+        targetNode.isStatusNode()
+      ) {
         dt.dropEffect = "none";
         return true; // Prevent drop operation
       }
@@ -267,6 +277,8 @@ export class DndExtension extends WunderbaumExtension {
 
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
+
+      // --- dragover ---
     } else if (e.type === "dragover") {
       this.autoScroll(e);
 
@@ -295,9 +307,12 @@ export class DndExtension extends WunderbaumExtension {
       // dt.dropEffect = this.lastDropEffect!;
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
+
+      // --- dragleave ---
     } else if (e.type === "dragleave") {
       // NOTE: we cannot trust this event, since it is always fired,
       // Instead we remove the marker on dragenter
+      // --- drop ---
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
       this._leaveNode();
