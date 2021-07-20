@@ -11,8 +11,10 @@
 - `wb-rainbow`
 - `wb-skeleton`
 - `wb-status-STATUS`, e.g. `wb-status-error`
+- `wb-checkbox-auto-hide`
+- `wb-fade-expander`
 
-# CSS Tips
+# CSS Hacks
 ```css
 * {
   box-sizing: border-box;

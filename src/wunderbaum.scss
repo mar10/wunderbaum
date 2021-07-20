@@ -321,6 +321,38 @@ div.wunderbaum {
       }
     }
   }
+
+  /* Fade out expanders, when container is not hovered or active */
+  &.wb-fade-expander {
+    i.wb-expander {
+      transition: opacity 1.5s;
+      opacity: 0;
+    }
+    &:hover i.wb-expander,
+    &:focus i.wb-expander,
+    &:focus-within i.wb-expander,
+    [class*="wb-statusnode-"] i.wb-expander {
+      transition: opacity 0.6s;
+      opacity: 1;
+    }
+  }
+
+  /* Auto-hide checkboxes unless selected or hovered */
+  &.wb-checkbox-auto-hide {
+    i.wb-checkbox {
+      visibility: hidden;
+    }
+    .wb-row:hover i.wb-checkbox,
+    .wb-row.wb-selected i.wb-checkbox {
+      visibility: unset;
+    }
+    &:focus,
+    &:focus-within {
+      .wb-row.wb-active i.wb-checkbox {
+        visibility: unset;
+      }
+    }
+  }
 } // div.wunderbaum
 
 /* --- TOOL CLASSES --- */
