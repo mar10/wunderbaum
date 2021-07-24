@@ -79,3 +79,23 @@ tree.ready
   .catch((err) => {
     console.error(`${tree} init failed.`, err);
   });
+
+async function test() {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      console.info("in test()");
+      // throw new Error("fail");
+      reject("fail");
+      // resolve("res");
+    }, 1000);
+  });
+}
+
+console.info("before test()");
+test()
+  .then((res) => {
+    console.info("after test(): " + res);
+  })
+  .catch((err) => {
+    console.error("after test(): " + err);
+  });

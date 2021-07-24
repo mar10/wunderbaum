@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - deferred
- * Copyright (c) 2016-2021, Martin Wendt. Released under the MIT license.
- * @VERSION, @DATE (https://github.com/mar10/persisto)
+ * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
 type PromiseCallbackType = (val: any) => void;

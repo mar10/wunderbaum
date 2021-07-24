@@ -196,6 +196,7 @@ div.wunderbaum {
       content: "\00a0";
     }
   }
+  i.wb-expander.wb-spin,
   i.wb-icon.wb-spin {
     height: unset; // Prevent wobble
     width: unset;
@@ -365,7 +366,10 @@ div.wunderbaum {
 }
 .wb-helper-indeterminate-cb {
   // tri-state checkbox
-  color: $dim-color; // #777;
+  color: $dim-color;
+}
+.wb-helper-lazy-expander {
+  color: $bg-highlight-color;
 }
 .wb-helper-invalid {
   color: $error-color;

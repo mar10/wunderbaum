@@ -184,39 +184,45 @@ export class WunderbaumNode {
       // redraw = options ? options.redraw !== false : true,
       nodeList = [];
 
-    if (util.isPlainObject(nodeData)) {
-      nodeData = [nodeData];
-    }
-    for (let child of nodeData) {
-      let subChildren = child.children;
-      delete child.children;
+    try {
+      this.tree.enableUpdate(false);
 
-      let n = new WunderbaumNode(this.tree, this, child);
-      nodeList.push(n);
-      if (subChildren) {
-        n.addChildren(subChildren, { redraw: false });
+      if (util.isPlainObject(nodeData)) {
+        nodeData = [nodeData];
       }
-    }
+      for (let child of nodeData) {
+        let subChildren = child.children;
+        delete child.children;
 
-    if (!this.children) {
-      this.children = nodeList;
-    } else if (insertBefore == null || this.children.length === 0) {
-      this.children = this.children.concat(nodeList);
-    } else {
-      // Returns null if insertBefore is not a direct child:
-      insertBefore = this.findDirectChild(insertBefore)!;
-      let pos = this.children.indexOf(insertBefore);
-      util.assert(pos >= 0, "insertBefore must be an existing child");
-      // insert nodeList after children[pos]
-      this.children.splice(pos, 0, ...nodeList);
+        let n = new WunderbaumNode(this.tree, this, child);
+        nodeList.push(n);
+        if (subChildren) {
+          n.addChildren(subChildren, { redraw: false });
+        }
+      }
+
+      if (!this.children) {
+        this.children = nodeList;
+      } else if (insertBefore == null || this.children.length === 0) {
+        this.children = this.children.concat(nodeList);
+      } else {
+        // Returns null if insertBefore is not a direct child:
+        insertBefore = this.findDirectChild(insertBefore)!;
+        let pos = this.children.indexOf(insertBefore);
+        util.assert(pos >= 0, "insertBefore must be an existing child");
+        // insert nodeList after children[pos]
+        this.children.splice(pos, 0, ...nodeList);
+      }
+      // TODO:
+      // if (this.tree.options.selectMode === 3) {
+      //   this.fixSelection3FromEndNodes();
+      // }
+      // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
+      this.tree.setModified(ChangeType.structure, this);
+      return nodeList[0];
+    } finally {
+      this.tree.enableUpdate(true);
     }
-    // TODO:
-    // if (this.tree.options.selectMode === 3) {
-    //   this.fixSelection3FromEndNodes();
-    // }
-    // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
-    this.tree.setModified(ChangeType.structure, this);
-    return nodeList[0];
   }
 
   /**
@@ -624,13 +630,11 @@ export class WunderbaumNode {
       source.children,
       "If `source` is an object, it must have a `children` property"
     );
-    let prev = tree.enableUpdate(false);
     if (source.types) {
       // TODO: convert types.classes to Set()
       util.extend(tree.types, source.types);
     }
     this.addChildren(source.children);
-    tree.enableUpdate(prev);
   }
 
   /** Download  data from the cloud, then call `.update()`. */
@@ -715,30 +719,41 @@ export class WunderbaumNode {
       return;
     }
     if (this.isLoaded()) {
-      this.resetLazy(); // also collapses
+      this.resetLazy(); // Also collapses if currently expanded
     }
-    // This method is also called by setExpanded() and loadKeyPath(), so we
-    // have to avoid recursion.
-    const source = await this._callEvent("lazyLoad");
-    util.assert(
-      source === false || util.isArray(source) || (source && source.url),
-      "The lazyLoad event must return a node list, `{url: ...}` or false."
-    );
-    if (source === false) {
-      return;
-    }
-    await this.load(source);
-    if (wasExpanded) {
-      this.expanded = true;
-      this.tree.updateViewport();
-    } else {
-      this.render(); // fix expander icon to 'loaded'
+    // `lazyLoad` may be long-running, so mark node as loading now. `this.load()`
+    // will reset the status later.
+    this.setStatus(NodeStatusType.loading);
+    try {
+      const source = await this._callEvent("lazyLoad");
+      if (source === false) {
+        this.setStatus(NodeStatusType.ok);
+        return;
+      }
+      util.assert(
+        util.isArray(source) || (source && source.url),
+        "The lazyLoad event must return a node list, `{url: ...}` or false."
+      );
+
+      await this.load(source); // also calls setStatus('ok')
+
+      if (wasExpanded) {
+        this.expanded = true;
+        this.tree.updateViewport();
+      } else {
+        this.render(); // Fix expander icon to 'loaded'
+      }
+    } catch (e) {
+      this.setStatus(NodeStatusType.error, e);
+      // } finally {
     }
     return;
   }
 
   /** Alias for `logDebug` */
-  log = this.logDebug; // Alias
+  log(...args: any[]) {
+    this.logDebug.apply(this, args);
+  }
 
   /* Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
@@ -747,6 +762,7 @@ export class WunderbaumNode {
       console.log.apply(console, args);
     }
   }
+
   /* Log error to console. */
   logError(...args: any[]) {
     if (this.tree.options.debugLevel >= 1) {
@@ -890,9 +906,17 @@ export class WunderbaumNode {
     }
   }
 
-  protected _createIcon(parentElem: HTMLElement): HTMLElement | null {
+  protected _createIcon(
+    parentElem: HTMLElement,
+    replaceChild?: HTMLElement
+  ): HTMLElement | null {
     let iconSpan;
     let icon = this.getOption("icon");
+    if (this._errorInfo) {
+      icon = iconMap.error;
+    } else if (this._isLoading) {
+      icon = iconMap.loading;
+    }
     if (icon === false) {
       return null;
     }
@@ -921,7 +945,11 @@ export class WunderbaumNode {
       iconSpan = document.createElement("i");
       iconSpan.className = "wb-icon " + icon;
     }
-    parentElem.appendChild(iconSpan);
+    if (replaceChild) {
+      parentElem.replaceChild(iconSpan, replaceChild);
+    } else {
+      parentElem.appendChild(iconSpan);
+    }
     // this.log("_createIcon: ", iconSpan);
     return iconSpan;
   }
@@ -969,6 +997,9 @@ export class WunderbaumNode {
       expanderSpan = nodeElem.querySelector("i.wb-expander") as HTMLElement;
       checkboxSpan = nodeElem.querySelector("i.wb-checkbox") as HTMLElement;
       iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
+      // TODO: we need this, when icons should be replacable
+      // iconSpan = this._createIcon(nodeElem, iconSpan);
+
       colElems = (<unknown>(
         rowDiv.querySelectorAll("span.wb-col")
       )) as HTMLElement[];
@@ -1040,6 +1071,9 @@ export class WunderbaumNode {
           if (colIdx === activeColIdx) {
             colElem.classList.add("wb-active");
           }
+          // Add classes from `columns` definition to `<div.wb-col>` cells
+          col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
+
           colElem.style.left = col._ofsPx + "px";
           colElem.style.width = col._widthPx + "px";
           colElems.push(colElem);
@@ -1047,8 +1081,13 @@ export class WunderbaumNode {
       }
     }
 
+    // --- From here common code starts (either new or existing markup):
+
     rowDiv.className = rowClasses.join(" "); // Reset prev. classes
+
+    // Add classes from `node.extraClasses`
     rowDiv.classList.add(...this.extraClasses);
+    // Add classes from `tree.types[node.type]`
     if (typeInfo && typeInfo.classes) {
       rowDiv.classList.add(...typeInfo.classes);
     }
@@ -1056,12 +1095,14 @@ export class WunderbaumNode {
     rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
 
     if (expanderSpan) {
-      if (this.isExpandable()) {
+      if (this.isExpandable(false)) {
         if (this.expanded) {
           expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
         } else {
           expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
         }
+      } else if (this._isLoading) {
+        expanderSpan.className = "wb-expander " + iconMap.loading;
       } else if (this.lazy && this.children == null) {
         expanderSpan.className = "wb-expander " + iconMap.expanderLazy;
       } else {
@@ -1306,15 +1347,20 @@ export class WunderbaumNode {
   }
 
   async setExpanded(flag: boolean = true, options?: any) {
-    if (this.lazy && this.children == null) {
+    if (flag && this.lazy && this.children == null) {
       await this.loadLazy();
     }
     this.expanded = flag;
     this.setDirty(ChangeType.structure);
   }
 
+  setIcon() {
+    throw new Error("Not yet implemented");
+    // this.setDirty(ChangeType.status);
+  }
+
   setFocus(flag: boolean = true, options?: any) {
-    let prev = this.tree.focusNode;
+    const prev = this.tree.focusNode;
     this.tree.focusNode = this;
     prev?.setDirty(ChangeType.status);
     this.setDirty(ChangeType.status);
@@ -1387,6 +1433,7 @@ export class WunderbaumNode {
         }
         this._isLoading = true;
         this._errorInfo = null;
+        this.render();
         break;
       case "error":
         _setStatusNode({
@@ -1418,6 +1465,12 @@ export class WunderbaumNode {
     }
     tree.updateViewport();
     return statusNode;
+  }
+
+  setTitle(title: string): void {
+    this.title = title;
+    this.setDirty(ChangeType.status);
+    // this.triggerModify("rename"); // TODO
   }
 
   /**

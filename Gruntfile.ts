@@ -1,5 +1,5 @@
 /*
- * Build scripts for persisto
+ * Build scripts for Wunderbaum
  */
 module.exports = (grunt: any) => {
   grunt.initConfig({

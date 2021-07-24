@@ -1,4 +1,4 @@
 [
   { "title": "SubNode 1", "type": "folder", "lazy": true },
-  { "title": "More...", "type": "folder", "lazy": true }
+  { "title": "SubNode 2", "lazy": true }
 ]

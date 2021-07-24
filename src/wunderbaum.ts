@@ -73,6 +73,7 @@ export class Wunderbaum {
   public activeNode: WunderbaumNode | null = null;
   public focusNode: WunderbaumNode | null = null;
   _disableUpdate = 0;
+  _disableUpdateCount = 0;
 
   /** Shared properties, referenced by `node.type`. */
   public types: any = {};
@@ -451,6 +452,7 @@ export class Wunderbaum {
     (node.parent as any) = null;
     // node.title = "DISPOSED: " + node.title
     this.viewNodes.delete(node);
+    node.removeMarkup();
   }
 
   /** Call all hook methods of all registered extensions.*/
@@ -606,26 +608,31 @@ export class Wunderbaum {
   }
 
   /** Run code, but defer `updateViewport()` until done. */
-  runWithoutUpdate(func: () => any, hint = null) {
-    const prev = this._disableUpdate;
-    const start = Date.now();
-    this._disableUpdate = Date.now();
+  runWithoutUpdate(func: () => any, hint = null): void {
+    // const prev = this._disableUpdate;
+    // const start = Date.now();
+    // this._disableUpdate = Date.now();
     try {
+      this.enableUpdate(false);
       return func();
     } finally {
-      if (!prev && this._disableUpdate === start) {
-        this._disableUpdate = 0;
-      }
+      this.enableUpdate(true);
+      // if (!prev && this._disableUpdate === start) {
+      //   this._disableUpdate = 0;
+      // }
     }
   }
 
   /** */
   async expandAll(flag: boolean = true) {
     const tag = this.logTime("expandAll(" + flag + ")");
-    const prev = this.enableUpdate(false);
-    await this.root.expandAll(flag);
-    this.enableUpdate(prev);
-    this.logTimeEnd(tag);
+    try {
+      this.enableUpdate(false);
+      await this.root.expandAll(flag);
+    } finally {
+      this.enableUpdate(true);
+      this.logTimeEnd(tag);
+    }
   }
 
   /** */
@@ -1397,19 +1404,30 @@ export class Wunderbaum {
   /**
    *
    */
-  public enableUpdate(flag = true): boolean {
-    if (!!this._disableUpdate === !flag) {
-      return flag;
-    }
+  public enableUpdate(flag: boolean): void {
+    /*
+        5  7  9                20       25   30
+    1   >-------------------------------------<
+    2      >--------------------<
+    3         >--------------------------<
+
+      5
+
+    */
+    this.logDebug(
+      `enableUpdate(${flag}): count=${this._disableUpdateCount}...`
+    );
     if (flag) {
-      this.logDebug("enableUpdate(true): redraw...");
-      this.updateViewport();
-      this._disableUpdate = 0;
+      util.assert(this._disableUpdateCount > 0);
+      this._disableUpdateCount--;
+      if (this._disableUpdateCount === 0) {
+        this.updateViewport();
+      }
     } else {
-      this.logDebug("enableUpdate(false)...");
-      this._disableUpdate = Date.now();
+      this._disableUpdateCount++;
+      // this._disableUpdate = Date.now();
     }
-    return !flag; // return previous value
+    // return !flag; // return previous value
   }
 
   /* ---------------------------------------------------------------------------

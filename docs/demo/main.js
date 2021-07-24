@@ -85,32 +85,37 @@ document.addEventListener("DOMContentLoaded", (event) => {
       attachInput: "input#filterQuery",
       // mode: "dim",
     },
-    // load: function (e) {
-    //   e.tree.addChildren({ title: "custom1" });
-    // },
+    load: function (e) {
+      // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
+    },
     change: function (e) {
       console.log(e.name, e);
     },
     lazyLoad: function (e) {
       console.log(e.name, e);
-      return { url: "../assets/ajax-lazy-sample.json" };
+      // return { url: "../assets/ajax-lazy-sample.json" };
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          // reject("Epic fail")
+          resolve({ url: "../assets/ajax-lazy-sample.json" });
+        }, 1500);
+      });
     },
-    // render: function (e) {
-    //   console.log(e.name, e);
-    //   document.querySelector("#tree-info").textContent = "todo";
-    // },
     renderNode: function (e) {
       // console.log(e.name, e.isNew, e);
       const node = e.node;
-      if (node.type === "folder") {
+
+      if (node.type === "folder" || !node.type) {
         return;
       }
-      // Skip first column (node icon & title is rendered by the core)
-      for (let i = 1; i < e.colInfo.length; i++) {
+      for (let i = 0; i < e.colInfo.length; i++) {
         const elem = e.colElems[i];
         const col = e.colInfo[i];
 
         switch (col.id) {
+          case "*":
+            // node icon & title is rendered by the core
+            break;
           case "price":
             elem.textContent = "$ " + node.data.price.toFixed(2);
             break;
@@ -124,8 +129,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }
         //
         // elem.setAttribute("contenteditable", true);
-        // TODO: this should be standard:
-        col.classes ? elem.classList.add(...col.classes.split(" ")) : 0;
       }
     },
     update: function (e) {

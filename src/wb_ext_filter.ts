@@ -58,6 +58,16 @@ export class FilterExtension extends WunderbaumExtension {
     }
   }
 
+  _applyFilterNoUpdate(
+    filter: string | NodeFilterCallback,
+    branchMode: boolean,
+    _opts: any
+  ) {
+    return this.tree.runWithoutUpdate(() => {
+      return this._applyFilterImpl(filter, branchMode, _opts);
+    });
+  }
+
   _applyFilterImpl(
     filter: string | NodeFilterCallback,
     branchMode: boolean,
@@ -65,7 +75,6 @@ export class FilterExtension extends WunderbaumExtension {
   ) {
     let match,
       temp,
-      prevEnableUpdate,
       start = Date.now(),
       count = 0,
       tree = this.tree,
@@ -147,8 +156,6 @@ export class FilterExtension extends WunderbaumExtension {
     tree.filterMode = opts.mode;
     this.lastFilterArgs = arguments;
 
-    prevEnableUpdate = tree.enableUpdate(false);
-
     tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
     tree.element.classList.toggle("wb-ext-filter-dim", !hideMode);
     tree.element.classList.toggle(
@@ -215,7 +222,6 @@ export class FilterExtension extends WunderbaumExtension {
       tree.root.setStatus(NodeStatusType.noData);
     }
     // Redraw whole tree
-    tree.enableUpdate(prevEnableUpdate);
     tree.logInfo(
       `Filter '${match}' found ${count} nodes in ${Date.now() - start} ms.`
     );
@@ -228,7 +234,7 @@ export class FilterExtension extends WunderbaumExtension {
    * @param {boolean} [opts={autoExpand: false, leavesOnly: false}]
    */
   filterNodes(filter: string | NodeFilterCallback, opts: any) {
-    return this._applyFilterImpl(filter, false, opts);
+    return this._applyFilterNoUpdate(filter, false, opts);
   }
 
   /**
@@ -237,7 +243,7 @@ export class FilterExtension extends WunderbaumExtension {
    * @param {boolean} [opts={autoExpand: false}]
    */
   filterBranches(filter: string | NodeFilterCallback, opts: any) {
-    return this._applyFilterImpl(filter, true, opts);
+    return this._applyFilterNoUpdate(filter, true, opts);
   }
 
   /**
@@ -252,7 +258,7 @@ export class FilterExtension extends WunderbaumExtension {
       this.lastFilterArgs &&
       tree.options.filter.autoApply
     ) {
-      this._applyFilterImpl.apply(this, <any>this.lastFilterArgs);
+      this._applyFilterNoUpdate.apply(this, <any>this.lastFilterArgs);
     } else {
       tree.logWarn("updateFilter(): no filter active.");
     }
@@ -267,9 +273,9 @@ export class FilterExtension extends WunderbaumExtension {
   clearFilter() {
     let tree = this.tree,
       // statusNode = tree.root.findDirectChild(KEY_NODATA),
-      escapeTitles = tree.options.escapeTitles,
-      // enhanceTitle = tree.options.enhanceTitle,
-      prevEnableUpdate = tree.enableUpdate(false);
+      escapeTitles = tree.options.escapeTitles;
+    // enhanceTitle = tree.options.enhanceTitle,
+    tree.enableUpdate(false);
 
     // if (statusNode) {
     //   statusNode.remove();
@@ -315,7 +321,7 @@ export class FilterExtension extends WunderbaumExtension {
     );
     // tree._callHook("treeStructureChanged", this, "clearFilter");
     // tree.render();
-    tree.enableUpdate(prevEnableUpdate);
+    tree.enableUpdate(true);
   }
 }
 
