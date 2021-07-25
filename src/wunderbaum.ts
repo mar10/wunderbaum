@@ -33,6 +33,7 @@ import {
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
+import { throttle } from "./debounce";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -56,6 +57,7 @@ export class Wunderbaum {
   readonly headerElement: HTMLDivElement | null;
   readonly scrollContainer: HTMLDivElement;
   readonly nodeListElement: HTMLDivElement;
+  readonly updateThrottled: (...args: any) => any;
 
   protected extensions: WunderbaumExtension[] = [];
   protected extensionDict: ExtensionsDict = {};
@@ -112,6 +114,7 @@ export class Wunderbaum {
         showSpinner: false,
         checkbox: true,
         minExpandLevel: 0,
+        updateThrottle: 1000, // TODO
         // --- KeyNav ---
         navigationMode: NavigationMode.allow,
         quicksearch: true,
@@ -273,6 +276,8 @@ export class Wunderbaum {
     setTimeout(() => {
       this.updateViewport();
     }, 50);
+
+    // this.updateThrottled = throttle(this.updateViewport, opts.updateThrottle);
 
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {

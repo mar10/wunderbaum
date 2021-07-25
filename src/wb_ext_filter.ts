@@ -5,7 +5,6 @@
  */
 
 import {
-  debounce,
   elemFromSelector,
   escapeHtml,
   escapeRegex,
@@ -17,6 +16,7 @@ import { NodeFilterCallback, NodeStatusType } from "./common";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
+import { debounce } from "./debounce";
 
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";

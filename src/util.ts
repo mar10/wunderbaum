@@ -365,35 +365,20 @@ export function type(obj: any) {
     .toLowerCase();
 }
 
-export const debounce = <T extends (...args: any[]) => any>(
-  callback: T,
-  delay: number
-) => {
-  let timeout: ReturnType<typeof setTimeout>;
-
-  return (...args: Parameters<T>): ReturnType<T> => {
-    let result: any;
-    timeout && clearTimeout(timeout);
-    timeout = setTimeout(() => {
-      result = callback(...args);
-    }, delay);
-    return result;
-  };
-};
-
-// export const debouncePromise = <F extends (...args: any[]) => any>(
-//   func: F,
+// export const debounce = <T extends (...args: any[]) => any>(
+//   callback: T,
 //   delay: number
 // ) => {
 //   let timeout: ReturnType<typeof setTimeout>;
 
-//   return (...args: Parameters<F>): Promise<ReturnType<F>> =>
-//     new Promise((resolve) => {
-//       if (timeout) {
-//         clearTimeout(timeout);
-//       }
-//       timeout = setTimeout(() => resolve(func(...args)), delay);
-//     });
+//   return (...args: Parameters<T>): ReturnType<T> => {
+//     let result: any;
+//     timeout && clearTimeout(timeout);
+//     timeout = setTimeout(() => {
+//       result = callback(...args);
+//     }, delay);
+//     return result;
+//   };
 // };
 
 /**
