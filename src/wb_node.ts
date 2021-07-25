@@ -972,6 +972,7 @@ export class WunderbaumNode {
     let colElems: HTMLElement[];
     const isNew = !rowDiv;
 
+    util.assert(!this.isRootNode());
     //
     let rowClasses = ["wb-row"];
     this.expanded ? rowClasses.push("wb-expanded") : 0;
@@ -1433,7 +1434,7 @@ export class WunderbaumNode {
         }
         this._isLoading = true;
         this._errorInfo = null;
-        this.render();
+        // this.render();
         break;
       case "error":
         _setStatusNode({

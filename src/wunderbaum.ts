@@ -57,7 +57,7 @@ export class Wunderbaum {
   readonly headerElement: HTMLDivElement | null;
   readonly scrollContainer: HTMLDivElement;
   readonly nodeListElement: HTMLDivElement;
-  readonly updateThrottled: (...args: any) => any;
+  readonly _updateThrottled: (...args: any) => void;
 
   protected extensions: WunderbaumExtension[] = [];
   protected extensionDict: ExtensionsDict = {};
@@ -114,7 +114,7 @@ export class Wunderbaum {
         showSpinner: false,
         checkbox: true,
         minExpandLevel: 0,
-        updateThrottle: 1000, // TODO
+        updateThrottleWait: 200,
         // --- KeyNav ---
         navigationMode: NavigationMode.allow,
         quicksearch: true,
@@ -175,6 +175,9 @@ export class Wunderbaum {
     ) {
       this.cellNavMode = true;
     }
+    this._updateThrottled = throttle(() => {
+      this.updateViewport(true);
+    }, opts.updateThrottleWait);
 
     // --- Create Markup
     this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
@@ -276,8 +279,6 @@ export class Wunderbaum {
     setTimeout(() => {
       this.updateViewport();
     }, 50);
-
-    // this.updateThrottled = throttle(this.updateViewport, opts.updateThrottle);
 
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
@@ -1209,8 +1210,12 @@ export class Wunderbaum {
   }
 
   /** Render all rows that are visible in the viewport. */
-  updateViewport() {
+  updateViewport(immediate = false) {
     if (this._disableUpdate) {
+      return;
+    }
+    if (!immediate) {
+      this._updateThrottled();
       return;
     }
     let height = this.scrollContainer.clientHeight;

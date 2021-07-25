@@ -329,6 +329,7 @@ div.wunderbaum {
       transition: opacity 1.5s;
       opacity: 0;
     }
+    div.wb-row.wb-loading i.wb-expander,
     &:hover i.wb-expander,
     &:focus i.wb-expander,
     &:focus-within i.wb-expander,
