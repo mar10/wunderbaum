@@ -99,3 +99,5 @@ test()
   .catch((err) => {
     console.error("after test(): " + err);
   });
+
+  console.info(5, 5%2, 6%2)

@@ -33,7 +33,7 @@ import {
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
-import { throttle } from "./debounce";
+import { DebouncedFunction, throttle } from "./debounce";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -57,7 +57,7 @@ export class Wunderbaum {
   readonly headerElement: HTMLDivElement | null;
   readonly scrollContainer: HTMLDivElement;
   readonly nodeListElement: HTMLDivElement;
-  readonly _updateThrottled: (...args: any) => void;
+  readonly _updateViewportThrottled: DebouncedFunction<(...args: any) => void>;
 
   protected extensions: WunderbaumExtension[] = [];
   protected extensionDict: ExtensionsDict = {};
@@ -175,9 +175,14 @@ export class Wunderbaum {
     ) {
       this.cellNavMode = true;
     }
-    this._updateThrottled = throttle(() => {
-      this.updateViewport(true);
-    }, opts.updateThrottleWait);
+
+    this._updateViewportThrottled = throttle(
+      () => {
+        this._updateViewport();
+      },
+      opts.updateThrottleWait,
+      { leading: true, trailing: true }
+    );
 
     // --- Create Markup
     this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
@@ -983,7 +988,12 @@ export class Wunderbaum {
     let viewNodes = this.viewNodes;
     // this.debug("render", opts);
     util.assert(start != null && end != null);
-    // this.root.children![1].expanded = true;
+
+    // Make sure start is always even, so the alternating row colors don't
+    // change when scrolling:
+    if (start % 2) {
+      start--;
+    }
 
     this.visitRows(function (node) {
       let prevIdx = node._rowIdx;
@@ -1211,11 +1221,16 @@ export class Wunderbaum {
 
   /** Render all rows that are visible in the viewport. */
   updateViewport(immediate = false) {
-    if (this._disableUpdate) {
-      return;
+    // Call the `throttle` wrapper for `this._updateViewport()` which will
+    // execute immediately on the leading edge of a sequence:
+    this._updateViewportThrottled();
+    if (immediate) {
+      this._updateViewportThrottled.flush();
     }
-    if (!immediate) {
-      this._updateThrottled();
+  }
+
+  protected _updateViewport() {
+    if (this._disableUpdate) {
       return;
     }
     let height = this.scrollContainer.clientHeight;

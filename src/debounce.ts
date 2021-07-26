@@ -18,7 +18,7 @@ type ThrottleOptions = {
   trailing?: boolean;
 };
 
-interface DebouncedFunction<F extends Procedure> {
+export interface DebouncedFunction<F extends Procedure> {
   (this: ThisParameterType<F>, ...args: Parameters<F>): ReturnType<F>;
   cancel: () => void;
   flush: () => any;
