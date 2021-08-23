@@ -30,6 +30,7 @@ $node-text-color: #56534c;
 $bg-highlight-color: #26a0da;
 $header-color: #dedede;
 $alternate-row-color: #fcfcfc;
+$alternate-row-color-even: #f7fcfe;
 // derived
 $border-color: $node-text-color;
 $drop-source-color: adjust-color($node-text-color, $lightness: 50%);
@@ -43,7 +44,7 @@ $grid-color: #dedede;
 $active-color: #e5f3fb;
 $active-cell-color: $bg-highlight-color;
 $active-border-color: #70c0e7;
-$active-hover-color: #cbe8f6;
+$active-hover-color: #dceff8;
 $active-hover-border-color: $bg-highlight-color;
 $background-color: $clr-milk;
 $active-column-color: $hover-color;
@@ -96,41 +97,61 @@ div.wunderbaum {
     // height: calc(100% - #{$header-height});  // didn't work. Using JS instead
   }
 
+  // --- Header and node list ---
   div.wb-row {
-    // Header and node list
     position: absolute;
     width: 100%;
     height: $row-outer-height;
     line-height: $row-outer-height;
     border: 1px solid transparent;
-    &.wb-active,
-    &.wb-selected {
-      background-color: $active-color;
-      // border-color: $active-border-color;
+  }
+
+  // --- Node List Only ---
+  div.wb-node-list {
+    div.wb-row {
       &:hover {
-        background-color: $active-hover-color;
-        // border-color: $active-hover-border-color;
+        background-color: $hover-color;
       }
-    }
-    &.wb-focus:not(.wb-active) {
-      border-style: dotted;
-      border-color: $active-border-color;
-    }
-    &.wb-active {
-      // background-color: $active-hover-color;
-      border-style: solid;
-      border-color: $active-border-color;
-      &:hover {
+      &.wb-active,
+      &.wb-selected {
+        background-color: $active-color;
+        // border-color: $active-border-color;
+        &:hover {
+          background-color: $active-hover-color;
+          // border-color: $active-hover-border-color;
+        }
+      }
+      &.wb-focus:not(.wb-active) {
+        border-style: dotted;
+        border-color: $active-border-color;
+      }
+      &.wb-active {
         // background-color: $active-hover-color;
-        border-color: $active-hover-border-color;
+        border-style: solid;
+        border-color: $active-border-color;
+        &:hover {
+          // background-color: $active-hover-color;
+          border-color: $active-hover-border-color;
+        }
       }
-    }
-    &.wb-loading {
-      font-style: italic;
-    }
-    &.wb-error,
-    &.wb-status-error {
-      color: $error-color;
+      &.wb-loading {
+        font-style: italic;
+      }
+      &.wb-dirty,
+      .wb-col.wb-dirty {
+        font-style: italic;
+        background: repeating-linear-gradient(
+          45deg,
+          $hover-color,
+          $hover-color 5px,
+          $grid-color 5px,
+          $grid-color 10px
+        );
+      }
+      &.wb-error,
+      &.wb-status-error {
+        color: $error-color;
+      }
     }
   }
 
@@ -233,7 +254,7 @@ div.wunderbaum {
       border-bottom-color: $grid-color;
       &:hover:not(.wb-active):not(.wb-selected) {
         background-color: $hover-color;
-        border-color: $hover-border-color;
+        // border-color: $hover-border-color;
       }
       &.wb-active {
         border-bottom-color: $active-border-color;
@@ -259,6 +280,9 @@ div.wunderbaum {
     &.wb-alternate div.wb-node-list {
       div.wb-row:nth-of-type(even):not(.wb-active):not(.wb-selected) {
         background-color: $alternate-row-color;
+        &:hover {
+          background-color: $alternate-row-color-even;
+        }
       }
     }
   }
@@ -365,18 +389,21 @@ div.wunderbaum {
 .wb-helper-disabled {
   color: $dim-color;
 }
+.wb-helper-hidden {
+  display: none;
+}
 .wb-helper-indeterminate-cb {
   // tri-state checkbox
   color: $dim-color;
 }
-.wb-helper-lazy-expander {
-  color: $bg-highlight-color;
-}
 .wb-helper-invalid {
   color: $error-color;
 }
-.wb-helper-hidden {
-  display: none;
+.wb-helper-lazy-expander {
+  color: $bg-highlight-color;
+}
+.wb-helper-link {
+  cursor: pointer;
 }
 
 /* RTL support */

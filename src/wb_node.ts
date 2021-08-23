@@ -165,7 +165,16 @@ export class WunderbaumNode {
 
   /** Call event if defined in options. */
   _callEvent(name: string, extra?: any): any {
-    return this.tree._callEvent(name, util.extend({ node: this }, extra));
+    return this.tree._callEvent(
+      name,
+      util.extend(
+        {
+          node: this,
+          typeInfo: this.type ? this.tree.types[this.type] : {},
+        },
+        extra
+      )
+    );
   }
 
   /**
@@ -1143,7 +1152,8 @@ export class WunderbaumNode {
         isNew: isNew,
         nodeElem: nodeElem,
       });
-    } else {
+    } else if (this.parent) {
+      // Skip root node
       this._callEvent("renderNode", {
         isNew: isNew,
         nodeElem: nodeElem,
@@ -1189,8 +1199,11 @@ export class WunderbaumNode {
     NODE_ATTRS.forEach((propName: string) => {
       const val = (<any>this)[propName];
 
-      if (val instanceof Set && val.size) {
-        dict[propName] = Array.prototype.join.call(val.keys(), " ");
+      if (val instanceof Set) {
+        // Convert Set to string (or skip if set is empty)
+        val.size
+          ? (dict[propName] = Array.prototype.join.call(val.keys(), " "))
+          : 0;
       } else if (val || val === false || val === 0) {
         dict[propName] = val;
       }

@@ -11,6 +11,23 @@ function elementFromHtml(html) {
   return t.content.firstElementChild;
 }
 
+function setTimeoutPromise(callback, ms) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      try {
+        resolve(callback.apply(self));
+      } catch (err) {
+        reject(err);
+      }
+    }, ms);
+  });
+}
+
+const ModeElemTemplate = `<select>
+  <option value='1'>O1</option>
+  <option value='2'>O2</option>
+</select>`;
+
 const tree = new Wunderbaum({
   element: "#tree",
   id: "Playground",
@@ -18,6 +35,7 @@ const tree = new Wunderbaum({
   columns: [
     { title: "test", id: "*" },
     { title: "Fav", id: "favorite", width: "30px" },
+    { title: "Mode", id: "mode", width: "150px" },
   ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
@@ -61,11 +79,18 @@ const tree = new Wunderbaum({
   deactivate: (e) => {},
   discard: (e) => {},
   change: (e) => {
-    tree.log(e.name, e);
+    // Simulate delayed behavior
+    return setTimeoutPromise(() => {
+      tree.log(e.name, e);
+    }, 1500);
   },
-  renderColumns: (e) => {
-    tree.log(e.name, e);
-    e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
+  renderNode: (e) => {
+    e.node.log(e.name, e);
+    //
+    if (e.isNew) {
+      e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
+      e.colElems[2].appendChild(elementFromHtml(ModeElemTemplate));
+    }
   },
 });
 
@@ -79,25 +104,3 @@ tree.ready
   .catch((err) => {
     console.error(`${tree} init failed.`, err);
   });
-
-async function test() {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      console.info("in test()");
-      // throw new Error("fail");
-      reject("fail");
-      // resolve("res");
-    }, 1000);
-  });
-}
-
-console.info("before test()");
-test()
-  .then((res) => {
-    console.info("after test(): " + res);
-  })
-  .catch((err) => {
-    console.error("after test(): " + err);
-  });
-
-  console.info(5, 5%2, 6%2)

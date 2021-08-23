@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     checkbox: false,
     minExpandLevel: 1,
     types: {
-      link: { icon: "bi bi-link-45deg" },
+      link: { icon: "bi bi-link-45deg", classes: "wb-helper-link" },
     },
     source: [
       {

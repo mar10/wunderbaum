@@ -34,6 +34,7 @@ import {
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
 import { DebouncedFunction, throttle } from "./debounce";
+import { EditExtension } from "./wb_ext_edit";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -144,6 +145,7 @@ export class Wunderbaum {
     });
 
     this._registerExtension(new KeynavExtension(this));
+    this._registerExtension(new EditExtension(this));
     this._registerExtension(new FilterExtension(this));
     this._registerExtension(new DndExtension(this));
     this._registerExtension(new LoggerExtension(this));
@@ -315,13 +317,6 @@ export class Wunderbaum {
       }
       // if(e.target.classList.)
       // this.log("click", info);
-    });
-
-    util.onEvent(this.nodeListElement, "input", "div.wb-row", (e) => {
-      const info = Wunderbaum.getEventInfo(e);
-      const node = info.node;
-
-      return this._callEvent("change", { node: node, info: info, event: e });
     });
 
     util.onEvent(this.element, "keydown", (e) => {
@@ -856,6 +851,7 @@ export class Wunderbaum {
         colDef: undefined,
         colIdx: -1,
         colId: undefined,
+        colElem: undefined,
       };
 
     if (cl.contains("wb-title")) {
@@ -877,6 +873,7 @@ export class Wunderbaum {
         parentCol
       );
       res.colIdx = idx;
+      res.colElem = node!._rowElem?.childNodes[idx];
     } else {
       // Somewhere near the title
       console.warn("getEventInfo(): not found", event, res);

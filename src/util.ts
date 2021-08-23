@@ -255,6 +255,69 @@ export function error(msg: string) {
   throw new Error(msg);
 }
 
+export function getValueFromElem(elem: HTMLElement, coerce = false) {
+  const tag = elem.tagName;
+  let value = null;
+
+  if (tag === "INPUT") {
+    const input = <HTMLInputElement>elem;
+    const type = input.type;
+
+    switch (type) {
+      case "checkbox":
+        value = input.indeterminate ? undefined : input.checked;
+        break;
+      case "date":
+      case "month":
+      case "time":
+      case "week":
+      case "datetime":
+      case "datetime-local":
+        value = coerce ? input.valueAsDate : input.value;
+        break;
+      case "number":
+      case "range":
+        value = input.valueAsNumber;
+        break;
+      case "radio":
+        const name = input.name;
+        const checked = input.parentElement!.querySelector(
+          `input[name="${name}"]:checked`
+        );
+        value = checked ? (<HTMLInputElement>checked).value : undefined;
+        break;
+      case "button":
+      case "reset":
+      case "submit":
+      case "image":
+        break;
+      case "text":
+      default:
+        value = input.value;
+    }
+  } else if (tag === "SELECT") {
+    const select = <HTMLSelectElement>elem;
+    value = select.value;
+  }
+  return value;
+}
+
+/** Run function after ms milliseconds and return a promise that resolves when done. */
+export function setTimeoutPromise(
+  callback: (...args: any[]) => void,
+  ms: number
+) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      try {
+        resolve(callback.apply(self));
+      } catch (err) {
+        reject(err);
+      }
+    }, ms);
+  });
+}
+
 export function elementFromHtml(html: string): HTMLElement {
   const t = document.createElement("template");
   t.innerHTML = html.trim();
