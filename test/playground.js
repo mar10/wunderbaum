@@ -35,6 +35,7 @@ const tree = new Wunderbaum({
   columns: [
     { title: "test", id: "*" },
     { title: "Fav", id: "favorite", width: "30px" },
+    { title: "Tag", id: "tag", width: "300px" },
     { title: "Mode", id: "mode", width: "150px" },
   ],
   types: {
@@ -84,12 +85,12 @@ const tree = new Wunderbaum({
       tree.log(e.name, e);
     }, 1500);
   },
-  renderNode: (e) => {
+  render: (e) => {
     e.node.log(e.name, e);
     //
     if (e.isNew) {
-      e.colElems[1].appendChild(elementFromHtml(`<input type=checkbox>`));
-      e.colElems[2].appendChild(elementFromHtml(ModeElemTemplate));
+      e.colInfosById["favorite"].elem.appendChild(elementFromHtml(`<input type=checkbox>`));
+      e.colInfosById["mode"].elem.appendChild(elementFromHtml(ModeElemTemplate));
     }
   },
 });

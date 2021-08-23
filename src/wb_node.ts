@@ -915,6 +915,27 @@ export class WunderbaumNode {
     }
   }
 
+  protected _getRenderInfo() {
+    let colInfosById: { [key: string]: any } = {};
+    let idx = 0;
+    let colElems = this._rowElem
+      ? ((<unknown>(
+          this._rowElem.querySelectorAll("span.wb-col")
+        )) as HTMLElement[])
+      : null;
+
+    for (let col of this.tree.columns) {
+      colInfosById[col.id] = {
+        id: col.id,
+        idx: idx,
+        elem: colElems ? colElems[idx] : null,
+        info: col,
+      };
+      idx++;
+    }
+    return colInfosById;
+  }
+
   protected _createIcon(
     parentElem: HTMLElement,
     replaceChild?: HTMLElement
@@ -1147,6 +1168,8 @@ export class WunderbaumNode {
         "px";
     }
 
+    this._rowElem = rowDiv;
+
     if (this.statusNodeType) {
       this._callEvent("renderStatusNode", {
         isNew: isNew,
@@ -1154,20 +1177,18 @@ export class WunderbaumNode {
       });
     } else if (this.parent) {
       // Skip root node
-      this._callEvent("renderNode", {
+      this._callEvent("render", {
         isNew: isNew,
         nodeElem: nodeElem,
         typeInfo: typeInfo,
-        colInfo: columns,
-        colElems: colElems,
+        colInfosById: this._getRenderInfo(),
       });
     }
 
     // Attach to DOM as late as possible
-    if (!this._rowElem) {
-      this._rowElem = rowDiv;
-      tree.nodeListElement.appendChild(rowDiv);
-    }
+    // if (!this._rowElem) {
+    tree.nodeListElement.appendChild(rowDiv);
+    // }
   }
 
   /**

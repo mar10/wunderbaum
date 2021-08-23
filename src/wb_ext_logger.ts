@@ -12,7 +12,7 @@ export class LoggerExtension extends WunderbaumExtension {
   readonly prefix: string;
   protected ignoreEvents = new Set<string>([
     "enhanceTitle",
-    "renderNode",
+    "render",
     "discard",
   ]);
 

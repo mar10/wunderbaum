@@ -101,35 +101,58 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }, 1500);
       });
     },
-    renderNode: function (e) {
+    render: function (e) {
       // console.log(e.name, e.isNew, e);
       const node = e.node;
 
       if (node.type === "folder" || !node.type) {
         return;
       }
-      for (let i = 0; i < e.colInfo.length; i++) {
-        const elem = e.colElems[i];
-        const col = e.colInfo[i];
 
+      // const colInfos = e.colInfosById
+      // colInfos["price"].elem.textContent = "$ " + node.data.price.toFixed(2);
+      // colInfos["qty"].elem.textContent = node.data.qty.toLocaleString();
+
+      for (const col of Object.values(e.colInfosById)) {
         switch (col.id) {
           case "*":
             // node icon & title is rendered by the core
             break;
           case "price":
-            elem.textContent = "$ " + node.data.price.toFixed(2);
+            col.elem.textContent = "$ " + node.data.price.toFixed(2);
             break;
           case "qty": // thousands separator
-            elem.textContent = node.data.qty.toLocaleString();
+            col.elem.textContent = node.data.qty.toLocaleString();
             break;
           default:
             // Assumption: we named column.id === node.data.NAME
-            elem.textContent = node.data[col.id];
+            col.elem.textContent = node.data[col.id];
             break;
         }
-        //
-        // elem.setAttribute("contenteditable", true);
       }
+
+      // for (let i = 0; i < e.colInfos.length; i++) {
+      //   const elem = e.colElems[i];
+      //   const col = e.colInfos[i];
+
+      //   switch (col.id) {
+      //     case "*":
+      //       // node icon & title is rendered by the core
+      //       break;
+      //     case "price":
+      //       elem.textContent = "$ " + node.data.price.toFixed(2);
+      //       break;
+      //     case "qty": // thousands separator
+      //       elem.textContent = node.data.qty.toLocaleString();
+      //       break;
+      //     default:
+      //       // Assumption: we named column.id === node.data.NAME
+      //       elem.textContent = node.data[col.id];
+      //       break;
+      //   }
+      //
+      // elem.setAttribute("contenteditable", true);
+      // }
     },
     update: function (e) {
       console.log(e.name, e);

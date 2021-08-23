@@ -79,9 +79,10 @@ export class Wunderbaum {
   _disableUpdateCount = 0;
 
   /** Shared properties, referenced by `node.type`. */
-  public types: any = {};
+  public types: { [key: string]: any } = {};
   /** List of column definitions. */
   public columns: any[] = [];
+  public _columnsById: { [key: string]: any } = {};
 
   // Modification Status
   protected changedSince = 0;
@@ -851,7 +852,7 @@ export class Wunderbaum {
         colDef: undefined,
         colIdx: -1,
         colId: undefined,
-        colElem: undefined,
+        colElem: parentCol,
       };
 
     if (cl.contains("wb-title")) {
@@ -873,7 +874,6 @@ export class Wunderbaum {
         parentCol
       );
       res.colIdx = idx;
-      res.colElem = node!._rowElem?.childNodes[idx];
     } else {
       // Somewhere near the title
       console.warn("getEventInfo(): not found", event, res);
@@ -1168,7 +1168,9 @@ export class Wunderbaum {
     let fixedWidth = 0;
 
     // Gather width requests
+    this._columnsById = {};
     for (let col of this.columns) {
+      this._columnsById[<string>col.id] = col;
       let cw = col.width;
 
       if (!cw || cw === "*") {
