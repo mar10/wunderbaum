@@ -26,7 +26,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
         title: "API Documentation",
         type: "link",
         href: "../api",
-        // href: "https://github.com/mar10/wunderbaum",
+      },
+      {
+        title: "Demo",
+        type: "folder",
+        expanded: true,
+        children: [{ title: "Demo 1" }],
       },
     ],
     click: (e) => {

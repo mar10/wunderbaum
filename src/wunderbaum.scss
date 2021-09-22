@@ -362,6 +362,17 @@ div.wunderbaum {
       opacity: 1;
     }
   }
+  /* Skeleton */
+  div.wb-row.wb-skeleton {
+    span.wb-title,
+    i.wb-icon {
+      animation: skeleton-animation 1s linear infinite alternate;
+      border-radius: 0.25em;
+      color: transparent;
+      opacity: 0.7;
+      // max-width: 20px;
+    }
+  }
 
   /* Auto-hide checkboxes unless selected or hovered */
   &.wb-checkbox-auto-hide {
@@ -428,5 +439,14 @@ div.wunderbaum {
   }
   to {
     transform: rotate(1turn);
+  }
+}
+
+@keyframes skeleton-animation {
+  0% {
+    background-color: hsl(200, 20%, 70%);
+  }
+  100% {
+    background-color: hsl(200, 20%, 95%);
   }
 }

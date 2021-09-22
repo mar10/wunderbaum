@@ -117,6 +117,7 @@ export class Wunderbaum {
         checkbox: true,
         minExpandLevel: 0,
         updateThrottleWait: 200,
+        skeleton: false,
         // --- KeyNav ---
         navigationMode: NavigationMode.allow,
         quicksearch: true,

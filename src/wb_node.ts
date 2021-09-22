@@ -753,7 +753,7 @@ export class WunderbaumNode {
         this.render(); // Fix expander icon to 'loaded'
       }
     } catch (e) {
-      this.setStatus(NodeStatusType.error, e);
+      this.setStatus(NodeStatusType.error, "" + e);
       // } finally {
     }
     return;
@@ -1018,6 +1018,7 @@ export class WunderbaumNode {
 
     this.match ? rowClasses.push("wb-match") : 0;
     this.subMatchCount ? rowClasses.push("wb-submatch") : 0;
+    treeOptions.skeleton ? rowClasses.push("wb-skeleton") : 0;
     // TODO: no need to hide!
     // !(this.match || this.subMatchCount) ? rowClasses.push("wb-hide") : 0;
 
@@ -1156,16 +1157,18 @@ export class WunderbaumNode {
       titleSpan.innerHTML = this.title;
     }
     // Set the width of the title span, so overflow ellipsis work
-    if (this.colspan) {
-      let vpWidth = tree.element.clientWidth;
-      titleSpan.style.width =
-        vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
-    } else {
-      titleSpan.style.width =
-        columns[0]._widthPx -
-        (<any>nodeElem)._ofsTitlePx -
-        ROW_EXTRA_PAD +
-        "px";
+    if (!treeOptions.skeleton) {
+      if (this.colspan) {
+        let vpWidth = tree.element.clientWidth;
+        titleSpan.style.width =
+          vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
+      } else {
+        titleSpan.style.width =
+          columns[0]._widthPx -
+          (<any>nodeElem)._ofsTitlePx -
+          ROW_EXTRA_PAD +
+          "px";
+      }
     }
 
     this._rowElem = rowDiv;
