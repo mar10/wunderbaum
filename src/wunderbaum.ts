@@ -206,7 +206,7 @@ export class Wunderbaum {
       "div.wb-header"
     ) as HTMLDivElement;
 
-    let wantHeader =
+    const wantHeader =
       opts.header == null ? this.columns.length > 1 : !!opts.header;
 
     if (this.headerElement) {
@@ -216,10 +216,10 @@ export class Wunderbaum {
         "`opts.columns` must not be set if markup already contains a header"
       );
       this.columns = [];
-      let rowElement = this.headerElement.querySelector(
+      const rowElement = this.headerElement.querySelector(
         "div.wb-row"
       ) as HTMLDivElement;
-      for (let colDiv of rowElement.querySelectorAll("div")) {
+      for (const colDiv of rowElement.querySelectorAll("div")) {
         this.columns.push({
           id: colDiv.dataset.id || null,
           text: "" + colDiv.textContent,
@@ -227,7 +227,9 @@ export class Wunderbaum {
       }
     } else if (wantHeader) {
       // We need a row div, the rest will be computed from `this.columns`
-      let coldivs = "<span class='wb-col'></span>".repeat(this.columns.length);
+      const coldivs = "<span class='wb-col'></span>".repeat(
+        this.columns.length
+      );
       this.element.innerHTML = `
         <div class='wb-header'>
           <div class='wb-row'>
@@ -342,6 +344,18 @@ export class Wunderbaum {
       // }
     });
   }
+
+  /** */
+  // _renderHeader(){
+  //   const coldivs = "<span class='wb-col'></span>".repeat(this.columns.length);
+  //   this.element.innerHTML = `
+  //     <div class='wb-header'>
+  //       <div class='wb-row'>
+  //         ${coldivs}
+  //       </div>
+  //     </div>`;
+
+  // }
 
   /** Return a Wunderbaum instance, from element, index, or event.
    *
@@ -1057,14 +1071,15 @@ export class Wunderbaum {
     if (!this.headerElement) {
       return;
     }
-    let headerRow = this.headerElement.querySelector(".wb-row");
+    const headerRow = this.headerElement.querySelector(".wb-row")!;
+    util.assert(headerRow);
+    headerRow.innerHTML = "<span class='wb-col'></span>".repeat(
+      this.columns.length
+    );
 
-    if (!headerRow) {
-      util.assert(false);
-    }
     for (let i = 0; i < this.columns.length; i++) {
       let col = this.columns[i];
-      let colElem = <HTMLElement>headerRow!.children[i];
+      let colElem = <HTMLElement>headerRow.children[i];
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
       colElem.textContent = col.title || col.id;
@@ -1453,8 +1468,11 @@ export class Wunderbaum {
   /** . */
   load(source: any, options: any = {}) {
     this.clear();
-    if (options.columns) {
+    const columns = options.columns || source.columns;
+    if (columns) {
       this.columns = options.columns;
+      this.renderHeader();
+      // this.updateColumns({ render: false });
     }
     return this.root.load(source);
   }

@@ -49,6 +49,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
               );
             },
           },
+          {
+            title: "Editable",
+            type: "code",
+            code: (tree) => {
+                tree.load("../assets/ajax-tree-editable.json");
+            },
+          },
         ],
       },
     ],
@@ -76,8 +83,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   document.querySelector("a#expand-all").addEventListener("click", (event) => {
     const tree = mar10.Wunderbaum.getTree("demo");
-    console.time("expandAll");
 
+    console.time("expandAll");
     tree.expandAll().then(() => {
       console.timeEnd("expandAll");
     });
@@ -87,6 +94,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     .querySelector("a#collapse-all")
     .addEventListener("click", (event) => {
       const tree = mar10.Wunderbaum.getTree("demo");
+
       console.time("collapseAll");
       tree.expandAll(false);
       console.timeEnd("collapseAll");

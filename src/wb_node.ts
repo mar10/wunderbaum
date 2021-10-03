@@ -700,7 +700,13 @@ export class WunderbaumNode {
         // Let caller modify the parsed JSON response:
         this._callEvent("receive", { response: data });
         this.setStatus(NodeStatusType.ok);
-
+        if (data.columns) {
+          tree.logInfo("Re-define columns", data.columns);
+          util.assert(!this.parent);
+          tree.columns = data.columns;
+          delete data.columns;
+          tree.renderHeader();
+        }
         this._loadSourceObject(data);
 
         this._callEvent("load");
