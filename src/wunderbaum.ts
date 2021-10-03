@@ -570,6 +570,7 @@ export class Wunderbaum {
   }
 
   clear() {
+    this.root.removeChildren();
     this.root.children = null;
     this.keyMap.clear();
     this.refKeyMap.clear();

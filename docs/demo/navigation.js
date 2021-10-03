@@ -75,8 +75,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // }, 0);
 
   document.querySelector("a#expand-all").addEventListener("click", (event) => {
-    // let tree = mar10.Wunderbaum.getTree("demo");
+    const tree = mar10.Wunderbaum.getTree("demo");
     console.time("expandAll");
+
     tree.expandAll().then(() => {
       console.timeEnd("expandAll");
     });
@@ -85,7 +86,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
   document
     .querySelector("a#collapse-all")
     .addEventListener("click", (event) => {
-      // let tree = mar10.Wunderbaum.getTree("demo");
+      const tree = mar10.Wunderbaum.getTree("demo");
       console.time("collapseAll");
       tree.expandAll(false);
       console.timeEnd("collapseAll");

@@ -900,7 +900,7 @@ export class WunderbaumNode {
     } else {
       this.children = null;
     }
-    util.assert(this.parent); // don't call this for root node
+    // util.assert(this.parent); // don't call this for root node
     if (!this.isRootNode()) {
       this.expanded = false;
     }
