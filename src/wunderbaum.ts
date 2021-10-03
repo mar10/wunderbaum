@@ -569,6 +569,34 @@ export class Wunderbaum {
     return this.root.addChildren(nodeData, options);
   }
 
+  clear() {
+    this.root.children = null;
+    this.keyMap.clear();
+    this.refKeyMap.clear();
+    this.viewNodes.clear();
+    this.activeNode = null;
+    this.focusNode = null;
+
+    // this.types = {};
+    // this. columns =[];
+    // this._columnsById = {};
+
+    // Modification Status
+    this.changedSince = 0;
+    this.changes.clear();
+    this.changedNodes.clear();
+
+    // // --- FILTER ---
+    // public filterMode: FilterModeType = null;
+
+    // // --- KEYNAV ---
+    // public activeColIdx = 0;
+    // public cellNavMode = false;
+    // public lastQuicksearchTime = 0;
+    // public lastQuicksearchTerm = "";
+    this.updateViewport();
+  }
+
   /**
    * Return `tree.option.NAME` (also resolving if this is a callback).
    *
@@ -1422,7 +1450,11 @@ export class Wunderbaum {
   }
 
   /** . */
-  load(source: any) {
+  load(source: any, options: any = {}) {
+    this.clear();
+    if (options.columns) {
+      this.columns = options.columns;
+    }
     return this.root.load(source);
   }
 

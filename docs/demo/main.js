@@ -1,55 +1,13 @@
 document.addEventListener("DOMContentLoaded", (event) => {
   /* ---------------------------------------------------------------------------
-   * Navigation
-   */
-  const navTree = new mar10.Wunderbaum({
-    id: "navigation",
-    header: "Wunderbaum",
-    element: document.querySelector("#nav-tree"),
-    checkbox: false,
-    minExpandLevel: 1,
-    types: {
-      link: { icon: "bi bi-link-45deg", classes: "wb-helper-link" },
-    },
-    source: [
-      {
-        title: "GitHub Project",
-        type: "link",
-        href: "https://github.com/mar10/wunderbaum",
-      },
-      {
-        title: "Tutorial",
-        type: "link",
-        href: "https://github.com/mar10/wunderbaum",
-      },
-      {
-        title: "API Documentation",
-        type: "link",
-        href: "../api",
-      },
-      {
-        title: "Demo",
-        type: "folder",
-        expanded: true,
-        children: [{ title: "Demo 1" }],
-      },
-    ],
-    click: (e) => {
-      if (e.node.type === "link") {
-        window.open(e.node.data.href);
-      }
-    },
-  });
-
-  /* ---------------------------------------------------------------------------
    * Demo Tree
    */
   const tree = new mar10.Wunderbaum({
     id: "demo",
     element: document.querySelector("#demo-tree"),
-    source: "../assets/ajax-tree-products.json",
-    // source:
-    //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+    // source: "../assets/ajax-tree-products.json",
+    source:
+      "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
     // checkbox: false,
     // minExpandLevel: 1,
@@ -164,41 +122,4 @@ document.addEventListener("DOMContentLoaded", (event) => {
       showStatus(this);
     },
   });
-  /* ---------------------------------------------------------------------------
-   * Demo Behavior
-   */
-  // setTimeout(() => {
-  //   tree.root.load(
-  //     "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json"
-  //   );
-  // }, 0);
-
-  document.querySelector("a#expand-all").addEventListener("click", (event) => {
-    // let tree = mar10.Wunderbaum.getTree("demo");
-    console.time("expandAll");
-    tree.expandAll().then(() => {
-      console.timeEnd("expandAll");
-    });
-  });
-
-  document
-    .querySelector("a#collapse-all")
-    .addEventListener("click", (event) => {
-      // let tree = mar10.Wunderbaum.getTree("demo");
-      console.time("collapseAll");
-      tree.expandAll(false);
-      console.timeEnd("collapseAll");
-    });
 });
-
-function showStatus(tree, options) {
-  const info = document.querySelector("#tree-info");
-  const elemCount = document.querySelector("#demo-tree .wb-node-list")
-    .childElementCount;
-  const msg =
-    `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
-      .count(true)
-      .toLocaleString()}, rendered: ${elemCount}` + `.`;
-  info.textContent = msg;
-  tree._check();
-}
