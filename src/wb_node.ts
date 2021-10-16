@@ -9,6 +9,7 @@ import * as util from "./util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
+  CellNavigationMode,
   ChangeType,
   iconMap,
   ICON_WIDTH,
@@ -1004,8 +1005,9 @@ export class WunderbaumNode {
     let checkboxSpan: HTMLElement | null = null;
     let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement | null = null;
-    const activeColIdx = tree.cellNavMode ? tree.activeColIdx : null;
-    let colElems: HTMLElement[];
+    const activeColIdx =
+      tree.cellNavMode === CellNavigationMode.row ? null : tree.activeColIdx;
+    // let colElems: HTMLElement[];
     const isNew = !rowDiv;
 
     util.assert(!this.isRootNode());
@@ -1038,9 +1040,9 @@ export class WunderbaumNode {
       // TODO: we need this, when icons should be replacable
       // iconSpan = this._createIcon(nodeElem, iconSpan);
 
-      colElems = (<unknown>(
-        rowDiv.querySelectorAll("span.wb-col")
-      )) as HTMLElement[];
+      // colElems = (<unknown>(
+      //   rowDiv.querySelectorAll("span.wb-col")
+      // )) as HTMLElement[];
     } else {
       rowDiv = document.createElement("div");
       // rowDiv.classList.add("wb-row");
@@ -1091,7 +1093,7 @@ export class WunderbaumNode {
       }
 
       // Render columns
-      colElems = [];
+      // colElems = [];
       if (!this.colspan && columns.length > 1) {
         let colIdx = 0;
         for (let col of columns) {
@@ -1114,7 +1116,12 @@ export class WunderbaumNode {
 
           colElem.style.left = col._ofsPx + "px";
           colElem.style.width = col._widthPx + "px";
-          colElems.push(colElem);
+          // colElems.push(colElem);
+          if (col.html) {
+            if (typeof col.html === "string") {
+              colElem.innerHTML = col.html;
+            }
+          }
         }
       }
     }
@@ -1369,7 +1376,11 @@ export class WunderbaumNode {
     tree.activeNode = this;
     prev?.setDirty(ChangeType.status);
     this.setDirty(ChangeType.status);
-    if (options && options.colIdx != null && tree.cellNavMode) {
+    if (
+      options &&
+      options.colIdx != null &&
+      tree.cellNavMode !== CellNavigationMode.row
+    ) {
       tree.setColumn(options.colIdx);
     }
     // requestAnimationFrame(() => {

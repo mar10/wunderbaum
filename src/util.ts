@@ -1,5 +1,5 @@
 /*!
- * Wunderbaum - utils
+ * Wunderbaum - util
  * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
@@ -32,7 +32,7 @@ export type EventCallbackType = (e: Event) => boolean | void;
 type PromiseCallbackType = (val: any) => void;
 
 /**
- * A ES6 Promise, that exposes the resolve() method.
+ * A ES6 Promise, that exposes the resolve()/reject() methods.
  */
 export class Deferred {
   private thens: PromiseCallbackType[] = [];
@@ -85,7 +85,7 @@ export class Deferred {
 }
 
 /**
- * Bind one or more event handlers directly to an [[Element]].
+ * Bind one or more event handlers directly to an [[HtmlElement]].
  *
  * @param element HTMLElement or selector
  * @param eventNames
@@ -166,6 +166,7 @@ export function escapeHtml(s: string): string {
 //   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 // }
 
+/**Convert a regular expression string by escaping special characters (e.g. `"$"` -> `"\$"`) */
 export function escapeRegex(s: string) {
   return (s + "").replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
 }
@@ -177,6 +178,7 @@ export function escapeTooltip(s: string): string {
   });
 }
 
+/** TODO */
 export function extractHtmlText(s: string) {
   if (s.indexOf(">") >= 0) {
     error("not implemented");
@@ -227,6 +229,14 @@ export function toSet(val: any): Set<string> {
  * http://youmightnotneedjquery.com
  */
 
+/**
+ * Iterate over Object properties or array elements.
+ *
+ * @param obj `Object`, `Array` or null
+ * @param callback(index, item) called for every item.
+ *  `this` also contains the item.
+ *  Return `false` to stop the iteration.
+ */
 export function each(obj: any, callback: any) {
   if (obj == null) {
     // accept `null` or `undefined`
@@ -251,21 +261,53 @@ export function each(obj: any, callback: any) {
   return obj;
 }
 
+/**Shortcut for `throw new Error(msg)`.*/
 export function error(msg: string) {
   throw new Error(msg);
 }
 
-export function getValueFromElem(elem: HTMLElement, coerce = false) {
+/**
+ * Read the value from an HTML input element.
+ *
+ * If a `<span class="wb-col">` is passed, the first child input is used.
+ * Depending on the target element type, `value` is interpreted accordingly.
+ * For example for a checkbox a value of true, false, or null is returned if the
+ * the element is checked, unchecked, or indeterminate.
+ * For datetime input control a numerical value is assumed, etc.
+ *
+ * Common use case: store the new user input in the `change` event:
+ *
+ * ```ts
+ *   change: (e) => {
+ *     // Read the value from the input control that triggered the change event:
+ *     let value = e.tree.getValueFromElem(e.element);
+ *     //
+ *     e.node.data[]
+ *   },
+ * ```
+ * @param elem `<input>` or `<select>` element Also a parent `span.wb-col` is accepted.
+ * @param coerce pass true to convert date/time inputs to `Date`.
+ * @returns the value
+ */
+export function getValueFromElem(elem: HTMLElement, coerce = false): any {
   const tag = elem.tagName;
   let value = null;
 
-  if (tag === "INPUT") {
+  if (tag === "SPAN" && elem.classList.contains("wb-col")) {
+    const span = <HTMLSpanElement>elem;
+    const embeddedInput = span.querySelector("input,select");
+
+    if (embeddedInput) {
+      return getValueFromElem(<HTMLElement>embeddedInput, coerce);
+    }
+    span.innerText = "" + value;
+  } else if (tag === "INPUT") {
     const input = <HTMLInputElement>elem;
     const type = input.type;
 
     switch (type) {
       case "checkbox":
-        value = input.indeterminate ? undefined : input.checked;
+        value = input.indeterminate ? null : input.checked;
         break;
       case "date":
       case "month":
@@ -300,6 +342,74 @@ export function getValueFromElem(elem: HTMLElement, coerce = false) {
     value = select.value;
   }
   return value;
+}
+
+/**
+ * Set the value of an HTML input element.
+ *
+ * If a `<span class="wb-col">` is passed, the first child input is used.
+ * Depending on the target element type, `value` is interpreted accordingly.
+ * For example a checkbox is set to checked, unchecked, or indeterminate if the
+ * value is truethy, falsy, or `null`.
+ * For datetime input control a numerical value is assumed, etc.
+ *
+ * @param elem `<input>` or `<select>` element Also a parent `span.wb-col` is accepted.
+ * @param value a value that matches the target element.
+ */
+export function setValueToElem(elem: HTMLElement, value: any): void {
+  const tag = elem.tagName;
+
+  if (tag === "SPAN" && elem.classList.contains("wb-col")) {
+    const span = <HTMLSpanElement>elem;
+    const embeddedInput = span.querySelector("input,select");
+
+    if (embeddedInput) {
+      return setValueToElem(<HTMLElement>embeddedInput, value);
+    }
+    span.innerText = "" + value;
+  } else if (tag === "INPUT") {
+    const input = <HTMLInputElement>elem;
+    const type = input.type;
+
+    switch (type) {
+      case "checkbox":
+        input.indeterminate = value == null;
+        input.checked = !!value;
+        break;
+      case "date":
+      case "month":
+      case "time":
+      case "week":
+      case "datetime":
+      case "datetime-local":
+        input.valueAsDate = value;
+        break;
+      case "number":
+      case "range":
+        input.valueAsNumber = value;
+        break;
+      case "radio":
+        assert(false, "not implemented");
+        // const name = input.name;
+        // const checked = input.parentElement!.querySelector(
+        //   `input[name="${name}"]:checked`
+        // );
+        // value = checked ? (<HTMLInputElement>checked).value : undefined;
+        break;
+      case "button":
+      case "reset":
+      case "submit":
+      case "image":
+        break;
+      case "text":
+      default:
+        input.innerText = value;
+    }
+  } else if (tag === "SELECT") {
+    const select = <HTMLSelectElement>elem;
+    select.value = value;
+  }
+  // return value;
 }
 
 /** Run function after ms milliseconds and return a promise that resolves when done. */
@@ -360,6 +470,7 @@ export function eventToString(event: Event) {
   return s.join("+");
 }
 
+/**Throw an `Error` if `cond` is falsey. */
 export function assert(cond: any, msg?: string) {
   if (!cond) {
     msg = msg || "Assertion failed.";
@@ -459,7 +570,7 @@ export function elemFromSelector(obj: string | Element): HTMLElement | null {
 
 /** Return a wrapped handler method, that provides `this._super`.
  *
- * @example
+ * ```ts
   // Implement `opts.createNode` event to add the 'draggable' attribute
   overrideMethod(ctx.options, "createNode", (event, data) => {
     // Default processing if any
@@ -467,6 +578,7 @@ export function elemFromSelector(obj: string | Element): HTMLElement | null {
     // Add 'draggable' attribute
     data.node.span.draggable = true;
   });
+  ```
   */
 export function overrideMethod(
   instance: any,

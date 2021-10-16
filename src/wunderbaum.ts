@@ -19,6 +19,7 @@ import { DndExtension } from "./wb_ext_dnd";
 import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
 
 import {
+  CellNavigationMode,
   ChangeType,
   DEFAULT_DEBUGLEVEL,
   FilterModeType,
@@ -94,11 +95,13 @@ export class Wunderbaum {
 
   // --- KEYNAV ---
   public activeColIdx = 0;
-  public cellNavMode = false;
+  public cellNavMode = CellNavigationMode.row;
   public lastQuicksearchTime = 0;
   public lastQuicksearchTerm = "";
 
   readonly ready: Promise<any>;
+
+  public static util = util;
 
   constructor(options: WunderbaumOptions) {
     let opts = (this.options = util.extend(
@@ -177,7 +180,7 @@ export class Wunderbaum {
       opts.navigationMode === NavigationMode.force ||
       opts.navigationMode === NavigationMode.start
     ) {
-      this.cellNavMode = true;
+      this.cellNavMode = CellNavigationMode.cellNav;
     }
 
     this._updateViewportThrottled = throttle(
@@ -1016,14 +1019,14 @@ export class Wunderbaum {
 
   /** */
   protected render(opts?: any): boolean {
-    let label = this.logTime("render");
+    const label = this.logTime("render");
     let idx = 0;
     let top = 0;
-    let height = ROW_HEIGHT;
+    const height = ROW_HEIGHT;
     let modified = false;
     let start = opts?.startIdx;
     let end = opts?.endIdx;
-    let obsoleteViewNodes = this.viewNodes;
+    const obsoleteViewNodes = this.viewNodes;
 
     this.viewNodes = new Set();
     let viewNodes = this.viewNodes;
@@ -1037,7 +1040,7 @@ export class Wunderbaum {
     }
 
     this.visitRows(function (node) {
-      let prevIdx = node._rowIdx;
+      const prevIdx = node._rowIdx;
 
       viewNodes.add(node);
       obsoleteViewNodes.delete(node);
@@ -1055,7 +1058,7 @@ export class Wunderbaum {
       idx++;
       top += height;
     });
-    for (let prevNode of obsoleteViewNodes) {
+    for (const prevNode of obsoleteViewNodes) {
       prevNode._callEvent("discard");
       prevNode.removeMarkup();
     }
@@ -1122,28 +1125,25 @@ export class Wunderbaum {
   }
 
   /** */
-  setCellMode(flag = true) {
-    flag = !!flag;
+  setCellMode(mode: CellNavigationMode) {
     // util.assert(this.cellNavMode);
     // util.assert(0 <= colIdx && colIdx < this.columns.length);
-    if (flag === this.cellNavMode) {
+    if (mode === this.cellNavMode) {
       return;
     }
-    // if( flag ) {
-    // }else{
-    // }
+    const cellMode = mode !== CellNavigationMode.row;
     // this.activeColIdx = 0;
-    this.cellNavMode = flag;
-    if (flag) {
+    this.cellNavMode = mode;
+    if (cellMode) {
       this.setColumn(0);
     }
-    this.element.classList.toggle("wb-cell-mode", flag);
+    this.element.classList.toggle("wb-cell-mode", cellMode);
     this.setModified(ChangeType.row, this.activeNode);
   }
 
   /** */
   setColumn(colIdx: number) {
-    util.assert(this.cellNavMode);
+    util.assert(this.cellNavMode !== CellNavigationMode.row);
     util.assert(0 <= colIdx && colIdx < this.columns.length);
     this.activeColIdx = colIdx;
     // node.setActive(true, { column: tree.activeColIdx + 1 });
@@ -1490,9 +1490,7 @@ export class Wunderbaum {
       5
 
     */
-    this.logDebug(
-      `enableUpdate(${flag}): count=${this._disableUpdateCount}...`
-    );
+    // this.logDebug( `enableUpdate(${flag}): count=${this._disableUpdateCount}...` );
     if (flag) {
       util.assert(this._disableUpdateCount > 0);
       this._disableUpdateCount--;

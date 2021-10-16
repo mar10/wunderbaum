@@ -147,6 +147,7 @@ div.wunderbaum {
           $grid-color 5px,
           $grid-color 10px
         );
+        animation: wb-dirty-animation 2s linear infinite;
       }
       &.wb-error,
       &.wb-status-error {
@@ -222,7 +223,7 @@ div.wunderbaum {
     height: unset; // Prevent wobble
     width: unset;
     padding: 0 3px;
-    animation: wb-spin 2s linear infinite;
+    animation: wb-spin-animation 2s linear infinite;
   }
 
   span.wb-title {
@@ -366,7 +367,7 @@ div.wunderbaum {
   div.wb-row.wb-skeleton {
     span.wb-title,
     i.wb-icon {
-      animation: skeleton-animation 1s linear infinite alternate;
+      animation: wb-skeleton-animation 1s linear infinite alternate;
       border-radius: 0.25em;
       color: transparent;
       opacity: 0.7;
@@ -433,7 +434,7 @@ div.wunderbaum {
   }
 }
 
-@keyframes wb-spin {
+@keyframes wb-spin-animation {
   0% {
     transform: rotate(0deg);
   }
@@ -442,11 +443,20 @@ div.wunderbaum {
   }
 }
 
-@keyframes skeleton-animation {
+@keyframes wb-skeleton-animation {
   0% {
     background-color: hsl(200, 20%, 70%);
   }
   100% {
     background-color: hsl(200, 20%, 95%);
+  }
+}
+
+@keyframes wb-dirty-animation {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: -70px 0;
   }
 }

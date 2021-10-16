@@ -4,7 +4,11 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavigationMode, TAG_NAME_ALLOWED_KEYS } from "./common";
+import {
+  CellNavigationMode,
+  NavigationMode,
+  TAG_NAME_ALLOWED_KEYS,
+} from "./common";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
@@ -84,12 +88,12 @@ export class KeynavExtension extends WunderbaumExtension {
     // Pre-Evaluate expand/collapse action for LEFT/RIGHT
     switch (eventName) {
       case "ArrowLeft":
-        if (tree.cellNavMode) {
+        if (tree.cellNavMode !== CellNavigationMode.row) {
           if (tree.activeColIdx > 0) {
             tree.setColumn(tree.activeColIdx - 1);
             return;
           } else if (navMode !== NavigationMode.force) {
-            tree.setCellMode(false);
+            tree.setCellMode(CellNavigationMode.row);
             return;
           }
         } else if (node.expanded) {
@@ -97,7 +101,7 @@ export class KeynavExtension extends WunderbaumExtension {
         }
         break;
       case "ArrowRight":
-        if (tree.cellNavMode) {
+        if (tree.cellNavMode !== CellNavigationMode.row) {
           if (tree.activeColIdx < tree.columns.length - 1) {
             tree.setColumn(tree.activeColIdx + 1);
           }
@@ -105,13 +109,13 @@ export class KeynavExtension extends WunderbaumExtension {
         } else if (!node.expanded && (node.children || node.lazy)) {
           eventName = "Add"; // expand
         } else if (navMode === NavigationMode.allow) {
-          tree.setCellMode(true);
+          tree.setCellMode(CellNavigationMode.cellNav);
           return;
         }
         break;
       case "Enter":
         if (
-          tree.cellNavMode &&
+          tree.cellNavMode !== CellNavigationMode.row &&
           tree.activeColIdx === 0 &&
           node.isExpandable()
         ) {
@@ -120,8 +124,8 @@ export class KeynavExtension extends WunderbaumExtension {
         }
         break;
       case "Escape":
-        if (tree.cellNavMode) {
-          tree.setCellMode(false);
+        if (tree.cellNavMode !== CellNavigationMode.row) {
+          tree.setCellMode(CellNavigationMode.row);
           return;
         }
         break;

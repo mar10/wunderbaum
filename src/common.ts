@@ -62,18 +62,6 @@ export enum NodeStatusType {
   // paging = "paging",
 }
 
-export enum NavigationMode {
-  allow = "allow",
-  force = "force",
-  start = "start",
-  off = "off",
-}
-export enum CellNavigationMode {
-  row = "row",
-  cellNav = "cellNav",
-  cellEdit = "cellEdit",
-}
-
 export enum TargetType {
   unknown = "",
   checkbox = "checkbox",
@@ -83,18 +71,6 @@ export enum TargetType {
   prefix = "prefix",
   title = "title",
 }
-
-// Define which keys are handled by embedded <input> control, and should
-// *not* be passed to tree navigation handler in cell-edit mode:
-export const INPUT_KEYS = {
-  text: ["left", "right", "home", "end", "backspace"],
-  number: ["up", "down", "left", "right", "home", "end", "backspace"],
-  checkbox: [],
-  link: [],
-  radiobutton: ["up", "down"],
-  "select-one": ["up", "down"],
-  "select-multiple": ["up", "down"],
-};
 
 export let iconMap = {
   error: "bi bi-exclamation-triangle",
@@ -122,6 +98,36 @@ export let iconMap = {
 
 export const KEY_NODATA = "__not_found__";
 
+export enum NavigationMode {
+  allow = "allow", // Start with row mode, but allow cell-nav mode
+  force = "force", // Cell-nav mode only
+  start = "start", // Start in cell-nav mode, but allow row mode
+  off = "off", // Row mode only
+}
+
+export enum CellNavigationMode {
+  row = "row",
+  cellNav = "cellNav",
+  cellEdit = "cellEdit",
+}
+
+/** Define which keys are handled by embedded <input> control, and should
+ * *not* be passed to tree navigation handler in cell-edit mode: */
+export const INPUT_KEYS = {
+  text: ["left", "right", "home", "end", "backspace"],
+  number: ["up", "down", "left", "right", "home", "end", "backspace"],
+  checkbox: [],
+  link: [],
+  radiobutton: ["up", "down"],
+  "select-one": ["up", "down"],
+  "select-multiple": ["up", "down"],
+};
+
+/** Lookup key codes that trigger grid navigation, even when inside an input element. */
+export const TAG_NAME_ALLOWED_KEYS: { [key: string]: string[] } = {
+  SPAN: ["ArrowDown", "ArrowUp"],
+};
+
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   " ": "toggleSelect",
@@ -144,11 +150,6 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   PageUp: "pageUp",
   "-": "collapse",
   Subtract: "collapse",
-};
-
-/** Lookup key codes that trigger grid navigation, even when inside an input element. */
-export const TAG_NAME_ALLOWED_KEYS: { [key: string]: string[] } = {
-  SPAN: ["ArrowDown", "ArrowUp"],
 };
 
 /** */

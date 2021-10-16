@@ -34,7 +34,13 @@ const tree = new Wunderbaum({
   // header: "Playground",
   columns: [
     { title: "test", id: "*" },
-    { title: "Fav", id: "favorite", width: "30px" },
+    {
+      title: "Fav",
+      id: "favorite",
+      width: "30px",
+      classes: "wb-helper-center",
+      html: "<input type=checkbox>",
+    },
     { title: "Tag", id: "tag", width: "300px" },
     { title: "Mode", id: "mode", width: "150px" },
   ],
@@ -66,6 +72,11 @@ const tree = new Wunderbaum({
       return true;
     },
   },
+  // edit: {
+  //   validate: (e) => {
+  //     e.node.log(`${e.type}`);
+  //   },
+  // },
   activate: (e) => {},
   click: (e) => {
     tree.log(
@@ -81,17 +92,36 @@ const tree = new Wunderbaum({
   discard: (e) => {},
   change: (e) => {
     // Simulate delayed behavior
+    // let value = Wunderbaum.util.getValueFromElem(e.info.colElem);
+    let value = e.inputValue;
+    // e.inputElem.checked = false
+    e.node.log(e.name, e, value);
+
+    // TODO: We could validate `inputValue` and call on error:
+    // Wunderbaum.util.setValueToElem( e.inputElem, prevValue);
+
     return setTimeoutPromise(() => {
-      tree.log(e.name, e);
+      // Read the value from the input control that triggered the change event:
+      //
+      e.node.data[e.info.colId] = value;
+      // tree.log(e.name, e);
     }, 1500);
   },
   render: (e) => {
     e.node.log(e.name, e);
     //
     if (e.isNew) {
-      e.colInfosById["favorite"].elem.appendChild(elementFromHtml(`<input type=checkbox>`));
-      e.colInfosById["mode"].elem.appendChild(elementFromHtml(ModeElemTemplate));
+      // e.colInfosById["favorite"].elem.appendChild(
+      //   elementFromHtml(`<input type=checkbox>`)
+      // );
+      e.colInfosById["mode"].elem.appendChild(
+        elementFromHtml(ModeElemTemplate)
+      );
     }
+    // Wunderbaum.util.setValueToElem(
+    //   e.colInfosById.favorite.elem,
+    //   true //e.node.data.favorite
+    // );
   },
 });
 

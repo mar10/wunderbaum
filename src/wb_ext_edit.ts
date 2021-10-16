@@ -44,6 +44,8 @@ export class EditExtension extends WunderbaumExtension {
         node: node,
         info: info,
         event: e,
+        inputElem: e.target,
+        inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
       });
     } catch (err) {
       colElem.classList.add("wb-error");
@@ -63,6 +65,10 @@ export class EditExtension extends WunderbaumExtension {
       });
   }
 
+  // handleKey(e:KeyboardEvent):boolean {
+  //   if(this.tree.cellNavMode )
+  // }
+
   init() {
     super.init();
 
@@ -72,6 +78,7 @@ export class EditExtension extends WunderbaumExtension {
       ".contenteditable,input,textarea,select",
       (e) => {
         // TODO: set cell 'dirty'
+        // return false;
         this.debouncedOnChange(e);
       }
     );
