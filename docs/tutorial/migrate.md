@@ -1,5 +1,7 @@
 # Migrate from Fancytree to Wunderbaum
 
+> See also the [Wunderbaum Overview](tutorial.md) for a general overview.
+
 ## Main Differences
 **Main Changes to [Fancytree](https://github.com/mar10/fancytree/):**
 
@@ -11,5 +13,5 @@
   to unique `key`s).
 - Built-in html5 drag'n'drop
 - Built-in ARIA
-- 
+- escapeTitles: true
 - 'folder' is no longer a builtin type

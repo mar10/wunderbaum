@@ -19,13 +19,13 @@ import { DndExtension } from "./wb_ext_dnd";
 import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
 
 import {
-  CellNavigationMode,
+  NavigationMode,
   ChangeType,
   DEFAULT_DEBUGLEVEL,
   FilterModeType,
   makeNodeTitleStartMatcher,
   MatcherType,
-  NavigationMode,
+  NavigationModeOption,
   NodeStatusType,
   RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
@@ -80,10 +80,10 @@ export class Wunderbaum {
   _disableUpdateCount = 0;
 
   /** Shared properties, referenced by `node.type`. */
-  public types: { [key: string]: any } = {};
+  public types: { [key: string]: any; } = {};
   /** List of column definitions. */
   public columns: any[] = [];
-  public _columnsById: { [key: string]: any } = {};
+  public _columnsById: { [key: string]: any; } = {};
 
   // Modification Status
   protected changedSince = 0;
@@ -95,7 +95,7 @@ export class Wunderbaum {
 
   // --- KEYNAV ---
   public activeColIdx = 0;
-  public cellNavMode = CellNavigationMode.row;
+  public navMode = NavigationMode.row;
   public lastQuicksearchTime = 0;
   public lastQuicksearchTerm = "";
 
@@ -122,7 +122,7 @@ export class Wunderbaum {
         updateThrottleWait: 200,
         skeleton: false,
         // --- KeyNav ---
-        navigationMode: NavigationMode.allow,
+        navigationMode: NavigationModeOption.startRow,
         quicksearch: true,
         // --- Events ---
         change: util.noop,
@@ -173,14 +173,14 @@ export class Wunderbaum {
     }
 
     if (this.columns.length === 1) {
-      opts.navigationMode = NavigationMode.off;
+      opts.navigationMode = NavigationModeOption.row;
     }
 
     if (
-      opts.navigationMode === NavigationMode.force ||
-      opts.navigationMode === NavigationMode.start
+      opts.navigationMode === NavigationModeOption.cell ||
+      opts.navigationMode === NavigationModeOption.startCell
     ) {
-      this.cellNavMode = CellNavigationMode.cellNav;
+      this.navMode = NavigationMode.cellNav;
     }
 
     this._updateViewportThrottled = throttle(
@@ -535,13 +535,13 @@ export class Wunderbaum {
       bottomIdx =
         Math.floor(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-            ROW_HEIGHT
+          ROW_HEIGHT
         ) - 1;
     } else {
       bottomIdx =
         Math.ceil(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-            ROW_HEIGHT
+          ROW_HEIGHT
         ) - 1;
     }
     // TODO: start searching from active node
@@ -862,6 +862,16 @@ export class Wunderbaum {
   }
 
   /**
+   * Return the active cell of the currently active node or null.
+   */
+  getActiveColElem() {
+    if (this.activeNode && this.activeColIdx >= 0) {
+      return this.activeNode.getColElem(this.activeColIdx);
+    }
+    return null;
+  }
+
+  /**
    * Return the currently active node or null.
    */
   getActiveNode() {
@@ -1125,15 +1135,15 @@ export class Wunderbaum {
   }
 
   /** */
-  setCellMode(mode: CellNavigationMode) {
+  setCellMode(mode: NavigationMode) {
     // util.assert(this.cellNavMode);
     // util.assert(0 <= colIdx && colIdx < this.columns.length);
-    if (mode === this.cellNavMode) {
+    if (mode === this.navMode) {
       return;
     }
-    const cellMode = mode !== CellNavigationMode.row;
+    const cellMode = mode !== NavigationMode.row;
     // this.activeColIdx = 0;
-    this.cellNavMode = mode;
+    this.navMode = mode;
     if (cellMode) {
       this.setColumn(0);
     }
@@ -1143,7 +1153,7 @@ export class Wunderbaum {
 
   /** */
   setColumn(colIdx: number) {
-    util.assert(this.cellNavMode !== CellNavigationMode.row);
+    util.assert(this.navMode !== NavigationMode.row);
     util.assert(0 <= colIdx && colIdx < this.columns.length);
     this.activeColIdx = colIdx;
     // node.setActive(true, { column: tree.activeColIdx + 1 });

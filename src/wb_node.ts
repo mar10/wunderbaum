@@ -9,7 +9,7 @@ import * as util from "./util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
-  CellNavigationMode,
+  NavigationMode,
   ChangeType,
   iconMap,
   ICON_WIDTH,
@@ -363,6 +363,18 @@ export class WunderbaumNode {
    */
   findRelatedNode(where: string, includeHidden = false) {
     return this.tree.findRelatedNode(this, where, includeHidden);
+  }
+
+  /** Return the first child node or null.
+   * @returns {WunderbaumNode | null}
+   */
+  getColElem(colIdx:number) {
+    const colElems = this._rowElem?.querySelectorAll("span.wb-col");
+      // ? ((<unknown>(
+      //     this._rowElem.querySelectorAll("span.wb-col")
+      //   )) as HTMLElement[])
+      // : null;
+    return colElems ? colElems[colIdx] as HTMLSpanElement : null;
   }
 
   /** Return the first child node or null.
@@ -1006,7 +1018,7 @@ export class WunderbaumNode {
     let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement | null = null;
     const activeColIdx =
-      tree.cellNavMode === CellNavigationMode.row ? null : tree.activeColIdx;
+      tree.navMode === NavigationMode.row ? null : tree.activeColIdx;
     // let colElems: HTMLElement[];
     const isNew = !rowDiv;
 
@@ -1117,7 +1129,7 @@ export class WunderbaumNode {
           colElem.style.left = col._ofsPx + "px";
           colElem.style.width = col._widthPx + "px";
           // colElems.push(colElem);
-          if (col.html) {
+          if (isNew && col.html) {
             if (typeof col.html === "string") {
               colElem.innerHTML = col.html;
             }
@@ -1341,7 +1353,7 @@ export class WunderbaumNode {
 
   async setActive(flag: boolean = true, options?: any) {
     const tree = this.tree;
-    let prev = tree.activeNode;
+    const prev = tree.activeNode;
     const retrigger = options?.retrigger;
     const noEvent = options?.noEvent;
 
@@ -1373,13 +1385,16 @@ export class WunderbaumNode {
       }
     }
 
-    tree.activeNode = this;
-    prev?.setDirty(ChangeType.status);
-    this.setDirty(ChangeType.status);
+    if( prev !== this ) {
+      tree.activeNode = this;
+      prev?.setDirty(ChangeType.status);
+      this.setDirty(ChangeType.status);
+    }
     if (
       options &&
       options.colIdx != null &&
-      tree.cellNavMode !== CellNavigationMode.row
+      options.colIdx !== tree.activeColIdx &&
+      tree.navMode !== NavigationMode.row
     ) {
       tree.setColumn(options.colIdx);
     }

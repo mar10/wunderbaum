@@ -23,10 +23,11 @@ function setTimeoutPromise(callback, ms) {
   });
 }
 
-const ModeElemTemplate = `<select>
+const ModeElemTemplate = `<select  tabindex='-1'>
   <option value='1'>O1</option>
   <option value='2'>O2</option>
 </select>`;
+// const CommentElemTemplate = `<input type=text>`;
 
 const tree = new Wunderbaum({
   element: "#tree",
@@ -39,9 +40,9 @@ const tree = new Wunderbaum({
       id: "favorite",
       width: "30px",
       classes: "wb-helper-center",
-      html: "<input type=checkbox>",
+      html: "<input type=checkbox tabindex='-1'>",
     },
-    { title: "Tag", id: "tag", width: "300px" },
+    { title: "tag", id: "tag", width: "300px", html: "<input type=text tabindex='-1'>"},
     { title: "Mode", id: "mode", width: "150px" },
   ],
   types: {
@@ -77,7 +78,16 @@ const tree = new Wunderbaum({
   //     e.node.log(`${e.type}`);
   //   },
   // },
-  activate: (e) => {},
+  activate: (e) => {
+    tree.log(
+      e.name,
+      e,
+      e.node.toDict(false, (d) => {
+        d._org_key = d.key;
+        delete d.key;
+      })
+    );
+  },
   click: (e) => {
     tree.log(
       e.name,

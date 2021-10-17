@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavigationMode } from "./common";
+import { NavigationModeOption } from "./common";
 
 /**
  * Available options for [[PersistentObject]].
@@ -38,7 +38,7 @@ export interface WunderbaumOptions {
   /**
    *
    */
-  navigationMode?: NavigationMode;
+  navigationMode?: NavigationModeOption;
   /**
    * Default values if no data is found in localStorage.
    *

@@ -262,6 +262,23 @@ div.wunderbaum {
       }
       span.wb-col {
         border-right: 1px solid $grid-color;
+        >input[type=color],
+        >input[type=date],
+        >input[type=datetime],  // deprecated
+        >input[type=datetime-local],
+        >input[type=email],
+        >input[type=month],
+        >input[type=number],
+        >input[type=password],
+        >input[type=search],
+        >input[type=tel],
+        >input[type=text],
+        >input[type=time],
+        >input[type=url],
+        >input[type=week],
+        >select {
+          width: 100%;
+        }
       }
     }
     &.wb-cell-mode {
@@ -363,6 +380,7 @@ div.wunderbaum {
       opacity: 1;
     }
   }
+
   /* Skeleton */
   div.wb-row.wb-skeleton {
     span.wb-title,
@@ -417,6 +435,9 @@ div.wunderbaum {
 .wb-helper-link {
   cursor: pointer;
 }
+// .wb-helper-edit-text {
+//   // content-editable: true;
+// }
 
 /* RTL support */
 .wb-helper-start {

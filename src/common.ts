@@ -98,14 +98,14 @@ export let iconMap = {
 
 export const KEY_NODATA = "__not_found__";
 
-export enum NavigationMode {
-  allow = "allow", // Start with row mode, but allow cell-nav mode
-  force = "force", // Cell-nav mode only
-  start = "start", // Start in cell-nav mode, but allow row mode
-  off = "off", // Row mode only
+export enum NavigationModeOption {
+  startRow = "startRow", // Start with row mode, but allow cell-nav mode
+  cell = "cell", // Cell-nav mode only
+  startCell = "startCell", // Start in cell-nav mode, but allow row mode
+  row = "row", // Row mode only
 }
 
-export enum CellNavigationMode {
+export enum NavigationMode {
   row = "row",
   cellNav = "cellNav",
   cellEdit = "cellEdit",
