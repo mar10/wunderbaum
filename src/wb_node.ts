@@ -164,7 +164,12 @@ export class WunderbaumNode {
   //   );
   // }
 
-  /** Call event if defined in options. */
+  /** Call event handler if defined in tree.options.
+   * Example:
+   * ```js
+   * node._callEvent("edit.beforeEdit", {foo: 42})
+   * ```
+   */
   _callEvent(name: string, extra?: any): any {
     return this.tree._callEvent(
       name,
@@ -365,16 +370,15 @@ export class WunderbaumNode {
     return this.tree.findRelatedNode(this, where, includeHidden);
   }
 
-  /** Return the first child node or null.
+  /** Return the `<span class='wb-col'>` element with a given index or id.
    * @returns {WunderbaumNode | null}
    */
-  getColElem(colIdx:number) {
+  getColElem(colIdx: number | string) {
+    if (typeof colIdx === "string") {
+      colIdx = this.tree.columns.findIndex((value) => value.id === colIdx);
+    }
     const colElems = this._rowElem?.querySelectorAll("span.wb-col");
-      // ? ((<unknown>(
-      //     this._rowElem.querySelectorAll("span.wb-col")
-      //   )) as HTMLElement[])
-      // : null;
-    return colElems ? colElems[colIdx] as HTMLSpanElement : null;
+    return colElems ? (colElems[colIdx] as HTMLSpanElement) : null;
   }
 
   /** Return the first child node or null.
@@ -1385,7 +1389,7 @@ export class WunderbaumNode {
       }
     }
 
-    if( prev !== this ) {
+    if (prev !== this) {
       tree.activeNode = this;
       prev?.setDirty(ChangeType.status);
       this.setDirty(ChangeType.status);

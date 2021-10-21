@@ -168,7 +168,7 @@ export function escapeHtml(s: string): string {
 
 /**Convert a regular expression string by escaping special characters (e.g. `"$"` -> `"\$"`) */
 export function escapeRegex(s: string) {
-  return (s + "").replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
+  return ("" + s).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
 }
 
 /** Convert `<`, `>`, `"`, `'`, and `/` (but not `&`) to the equivalent entities. */

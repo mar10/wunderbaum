@@ -262,6 +262,8 @@ div.wunderbaum {
       }
       span.wb-col {
         border-right: 1px solid $grid-color;
+
+        input.wb-input-edit,
         >input[type=color],
         >input[type=date],
         >input[type=datetime],  // deprecated
@@ -293,6 +295,9 @@ div.wunderbaum {
             background-color: $active-cell-color;
           }
         }
+      }
+      &.wb-cell-edit-mode div.wb-row.wb-active span.wb-col.wb-active {
+        background-color: $error-color;
       }
     }
     &.wb-alternate div.wb-node-list {

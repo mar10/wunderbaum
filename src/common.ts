@@ -123,10 +123,13 @@ export const INPUT_KEYS = {
   "select-multiple": ["up", "down"],
 };
 
-/** Lookup key codes that trigger grid navigation, even when inside an input element. */
-export const TAG_NAME_ALLOWED_KEYS: { [key: string]: string[] } = {
-  SPAN: ["ArrowDown", "ArrowUp"],
-};
+/** Key codes that trigger grid navigation, even when inside an input element. */
+export const NAVIGATE_IN_INPUT_KEYS: Set<string> = new Set([
+  "ArrowDown",
+  "ArrowUp",
+  "Enter",
+  "Escape",
+]);
 
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_DICT: { [key: string]: string } = {

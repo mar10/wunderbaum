@@ -80,10 +80,10 @@ export class Wunderbaum {
   _disableUpdateCount = 0;
 
   /** Shared properties, referenced by `node.type`. */
-  public types: { [key: string]: any; } = {};
+  public types: { [key: string]: any } = {};
   /** List of column definitions. */
   public columns: any[] = [];
-  public _columnsById: { [key: string]: any; } = {};
+  public _columnsById: { [key: string]: any } = {};
 
   // Modification Status
   protected changedSince = 0;
@@ -327,7 +327,8 @@ export class Wunderbaum {
     });
 
     util.onEvent(this.element, "keydown", (e) => {
-      this._callHook("onKeyEvent", { event: e });
+      const info = Wunderbaum.getEventInfo(e);
+      this._callHook("onKeyEvent", { event: e, node: info.node });
     });
 
     util.onEvent(this.element, "focusin focusout", (e) => {
@@ -501,10 +502,30 @@ export class Wunderbaum {
     return res;
   }
 
-  /* Call event if defined in options. */
+  /** Call tree method or extension method if defined.
+   * Example:
+   * ```js
+   * tree._callMethod("edit.startEdit", "arg1", "arg2")
+   * ```
+   */
+  _callMethod(name: string, ...args: any[]): any {
+    const [p, n] = name.split(".");
+    const obj = n ? this.extensionDict[p] : this;
+    const func = (<any>obj)[n];
+    if (func) {
+      return func.apply(obj, args);
+    }
+  }
+
+  /** Call event handler if defined in tree.options.
+   * Example:
+   * ```js
+   * tree._callEvent("edit.beforeEdit", {foo: 42})
+   * ```
+   */
   _callEvent(name: string, extra?: any): any {
     const [p, n] = name.split(".");
-    let func = n ? this.options[p][n] : this.options[p];
+    const func = n ? this.options[p][n] : this.options[p];
     if (func) {
       return func.call(this, util.extend({ name: name, tree: this }, extra));
     }
@@ -535,13 +556,13 @@ export class Wunderbaum {
       bottomIdx =
         Math.floor(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-          ROW_HEIGHT
+            ROW_HEIGHT
         ) - 1;
     } else {
       bottomIdx =
         Math.ceil(
           (this.scrollContainer.scrollTop + this.scrollContainer.clientHeight) /
-          ROW_HEIGHT
+            ROW_HEIGHT
         ) - 1;
     }
     // TODO: start searching from active node
@@ -1141,13 +1162,18 @@ export class Wunderbaum {
     if (mode === this.navMode) {
       return;
     }
+    const prevMode = this.navMode;
     const cellMode = mode !== NavigationMode.row;
-    // this.activeColIdx = 0;
+
     this.navMode = mode;
-    if (cellMode) {
+    if (cellMode && prevMode === NavigationMode.row) {
       this.setColumn(0);
     }
     this.element.classList.toggle("wb-cell-mode", cellMode);
+    this.element.classList.toggle(
+      "wb-cell-edit-mode",
+      mode === NavigationMode.cellEdit
+    );
     this.setModified(ChangeType.row, this.activeNode);
   }
 

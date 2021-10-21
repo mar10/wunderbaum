@@ -7,7 +7,7 @@
 import {
   NavigationMode,
   NavigationModeOption,
-  TAG_NAME_ALLOWED_KEYS,
+  NAVIGATE_IN_INPUT_KEYS,
 } from "./common";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
@@ -28,6 +28,18 @@ export class KeynavExtension extends WunderbaumExtension {
       opts = data.options,
       handled = true,
       activate = !event.ctrlKey || opts.autoActivate;
+    const navModeOption = opts.navigationMode;
+
+    tree.logDebug(`onKeyEvent: ${eventName}`);
+    // If the event target is an input element or `contenteditable="true"`,
+    // we ignore it as navigation command
+    const inputElem =
+      event.target && event.target.closest("input,[contenteditable]");
+    if (inputElem && !NAVIGATE_IN_INPUT_KEYS.has(eventName)) {
+      // E.g. inside a checkbox, still handle cursor keys, ...
+      node.logDebug(`onKeyEvent: ignored keystroke inside input: ${eventName}`);
+      return;
+    }
 
     // Set focus to active (or first node) if no other node has the focus yet
     if (!node) {
@@ -47,20 +59,6 @@ export class KeynavExtension extends WunderbaumExtension {
         node.logInfo("Keydown: force focus on active node.");
       }
     }
-
-    const navModeOption = opts.navigationMode;
-
-    // If the event target is an input element or `contenteditable="true"`,
-    // we ignore it as navigation command
-    // const input =
-    //   event.target && event.target.closest("input,[contenteditable]");
-    // let tagName = input?.tagName;
-    // tagName === "INPUT" ? (tagName += "." + input.type) : 0;
-    // if (tagName && TAG_NAME_ALLOWED_KEYS[tagName].indexOf(eventName) === -1) {
-    //   // E.g. inside a checkbox, still handle cursor keys, ...
-    //   node.logDebug("onKeyEvent: ignored keystroke inside " + tagName);
-    //   return;
-    // }
 
     if (tree.navMode === NavigationMode.row) {
       // --- Quick-Search
@@ -126,6 +124,9 @@ export class KeynavExtension extends WunderbaumExtension {
             node.setActive(true, { event: event });
           }
           break;
+        case "F2":
+          tree._callMethod("edit.startEdit");
+          break;
         case "Enter":
           node.setActive(true, { event: event });
           break;
@@ -155,9 +156,15 @@ export class KeynavExtension extends WunderbaumExtension {
           } else {
             // [Space] key should trigger embedded checkbox
             const elem = tree.getActiveColElem();
-            const cb = elem?.querySelector("input[type=checkbox]") as HTMLInputElement;
+            const cb = elem?.querySelector(
+              "input[type=checkbox]"
+            ) as HTMLInputElement;
             cb?.click();
           }
+          break;
+        case "F2":
+          tree.setCellMode(NavigationMode.cellEdit);
+          tree._callMethod("edit.startEdit");
           break;
         case "Enter":
           if (tree.activeColIdx === 0 && node.isExpandable()) {
@@ -204,8 +211,6 @@ export class KeynavExtension extends WunderbaumExtension {
           handled = false;
       }
     }
-
-
 
     if (handled) {
       event.preventDefault();

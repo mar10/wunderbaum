@@ -5,10 +5,10 @@
  */
 
 import { Wunderbaum } from "./wunderbaum";
-// import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
-import { onEvent } from "./util";
+import { escapeHtml, onEvent } from "./util";
 import { debounce } from "./debounce";
+import { WunderbaumNode } from "./wb_node";
 
 // const START_MARKER = "\uFFF7";
 
@@ -19,8 +19,10 @@ export class EditExtension extends WunderbaumExtension {
 
   constructor(tree: Wunderbaum) {
     super(tree, "edit", {
-      // noData: true, // Display a 'no data' status node if result is empty
       debounce: 700,
+      // --- Events ---
+      //
+      startEdit: null,
     });
 
     this.debouncedOnChange = debounce(
@@ -41,7 +43,7 @@ export class EditExtension extends WunderbaumExtension {
     colElem.classList.remove("wb-error");
     try {
       res = node._callEvent("change", {
-        node: node,
+        // node: node,
         info: info,
         event: e,
         inputElem: e.target,
@@ -83,4 +85,32 @@ export class EditExtension extends WunderbaumExtension {
       }
     );
   }
+
+  startEdit(node?: WunderbaumNode | null) {
+    let res;
+
+    node = node ?? this.tree.getActiveNode();
+    if (!node) {
+      return;
+    }
+    let inputHtml = node._callEvent("edit.beforeEdit");
+    if (inputHtml === false) {
+      return;
+    }
+    if (!inputHtml) {
+      const title = escapeHtml(node.title);
+      inputHtml = `<input type=text class="wb-input-edit" value="${title}" required>`;
+    }
+    const titleElem = node
+      .getColElem(0)!
+      .querySelector(".wb-title") as HTMLSpanElement;
+
+    titleElem.innerHTML = inputHtml;
+    (<HTMLElement>titleElem.firstElementChild!).focus();
+    res = node._callEvent("edit.edit", {
+      titleElem: titleElem,
+    });
+  }
+
+  stopEdit() {}
 }
