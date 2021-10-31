@@ -142,6 +142,13 @@ export class Wunderbaum {
 
     const readyDeferred = new Deferred();
     this.ready = readyDeferred.promise();
+    this.ready
+      .then(() => {
+        this._callEvent("init");
+      })
+      .catch((err) => {
+        this._callEvent("init", { error: err });
+      });
 
     this.id = opts.id || "wb_" + ++Wunderbaum.sequence;
     this.root = new WunderbaumNode(this, <WunderbaumNode>(<unknown>null), {
@@ -682,6 +689,11 @@ export class Wunderbaum {
     ext!.setOption(parts[1], value);
   }
 
+  /**Return true if the tree (or one of its nodes) has the input focus. */
+  hasFocus() {
+    return this.element.contains(document.activeElement);
+  }
+
   /** Run code, but defer `updateViewport()` until done. */
   runWithoutUpdate(func: () => any, hint = null): void {
     // const prev = this._disableUpdate;
@@ -1200,6 +1212,15 @@ export class Wunderbaum {
       for (let colDiv of rowDiv.children) {
         (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
       }
+    }
+  }
+
+  /** */
+  setFocus(flag = true) {
+    if (flag) {
+      this.element.focus();
+    } else {
+      this.element.blur();
     }
   }
 

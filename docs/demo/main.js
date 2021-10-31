@@ -5,9 +5,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const tree = new mar10.Wunderbaum({
     id: "demo",
     element: document.querySelector("#demo-tree"),
-    // source: "../assets/ajax-tree-products.json",
-    source:
-      "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+    source: "../assets/ajax-tree-products.json",
+    // source:
+    //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
     debugLevel: 5,
     // checkbox: false,
     // minExpandLevel: 1,
@@ -48,11 +48,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
       attachInput: "input#filterQuery",
       // mode: "dim",
     },
+    init: (e) => {
+      // e.tree.setFocus();
+    },
     load: function (e) {
       // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
     },
     change: function (e) {
       console.log(e.name, e);
+      e.node.setTitle(e.inputValue)
     },
     lazyLoad: function (e) {
       console.log(e.name, e);

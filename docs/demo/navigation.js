@@ -59,6 +59,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
         ],
       },
     ],
+    init: (e) => {
+      e.tree.findFirst("Products").setActive(true, {noEvent: true})
+    },
     click: (e) => {
       switch (e.node.type) {
         case "link":

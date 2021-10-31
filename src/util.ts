@@ -15,6 +15,8 @@ export const MOUSE_BUTTONS: { [key: number]: string } = {
 };
 
 export const MAX_INT = 9007199254740991;
+export const userInfo = _getUserInfo();
+export const isMac = userInfo.isMac;
 
 const REX_HTML = /[&<>"'/]/g; // Escape those characters
 const REX_TOOLTIP = /[<>"'/]/g; // Don't escape `&` in tooltips
@@ -82,6 +84,16 @@ export class Deferred {
       catch: this.catch,
     };
   }
+}
+
+/** */
+function _getUserInfo() {
+  const nav = navigator;
+  // const ua = nav.userAgentData;
+  const res = {
+    isMac: /Mac/.test(nav.platform),
+  };
+  return res;
 }
 
 /**
@@ -306,15 +318,20 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
     const type = input.type;
 
     switch (type) {
+      case "button":
+      case "reset":
+      case "submit":
+      case "image":
+        break;
       case "checkbox":
         value = input.indeterminate ? null : input.checked;
         break;
       case "date":
+      case "datetime":
+      case "datetime-local":
       case "month":
       case "time":
       case "week":
-      case "datetime":
-      case "datetime-local":
         value = coerce ? input.valueAsDate : input.value;
         break;
       case "number":
@@ -327,11 +344,6 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
           `input[name="${name}"]:checked`
         );
         value = checked ? (<HTMLInputElement>checked).value : undefined;
-        break;
-      case "button":
-      case "reset":
-      case "submit":
-      case "image":
         break;
       case "text":
       default:

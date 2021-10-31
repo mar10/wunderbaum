@@ -42,7 +42,7 @@ div.grid-wrapper div.menu {
 div.grid-wrapper nav.nav {
   grid-column: 1;
   grid-row: 2 / 5;
-  padding: 5px;
+  /* padding: 5px; */
 }
 
 div.grid-wrapper section.header {
