@@ -31,6 +31,7 @@ const ModeElemTemplate = `<select  tabindex='-1'>
 
 const tree = new Wunderbaum({
   element: "#tree",
+  // checkbox: false,
   id: "Playground",
   // header: "Playground",
   columns: [
@@ -42,8 +43,8 @@ const tree = new Wunderbaum({
       classes: "wb-helper-center",
       html: "<input type=checkbox tabindex='-1'>",
     },
-    { title: "tag", id: "tag", width: "300px", html: "<input type=text tabindex='-1'>"},
-    { title: "Mode", id: "mode", width: "150px" },
+    { title: "tag", id: "tag", width: "100px", html: "<input type=text tabindex='-1'>"},
+    { title: "Mode", id: "mode", width: "100px" },
   ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },

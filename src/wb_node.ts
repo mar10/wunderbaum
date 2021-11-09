@@ -989,10 +989,10 @@ export class WunderbaumNode {
     // this.log("_createIcon: " + icon);
     if (icon.indexOf("<") >= 0) {
       // HTML
-      iconSpan = util.elementFromHtml(icon);
+      iconSpan = util.elemFromHtml(icon);
     } else if (TEST_IMG.test(icon)) {
       // Image URL
-      iconSpan = util.elementFromHtml(`<img src="${icon}" class="wb-icon">`);
+      iconSpan = util.elemFromHtml(`<img src="${icon}" class="wb-icon">`);
     } else {
       // Class name
       iconSpan = document.createElement("i");

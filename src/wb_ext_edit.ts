@@ -203,7 +203,7 @@ export class EditExtension extends WunderbaumExtension {
     }
     if (!inputHtml) {
       const title = escapeHtml(node.title);
-      inputHtml = `<input type=text class="wb-input-edit" value="${title}" required>`;
+      inputHtml = `<input type=text class="wb-input-edit" value="${title}" required autocorrect=off>`;
     }
     const titleElem = node
       .getColElem(0)!

@@ -309,8 +309,8 @@ export class Wunderbaum {
       this.updateViewport();
     });
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
-      let info = Wunderbaum.getEventInfo(e),
-        node = info.node;
+      const info = Wunderbaum.getEventInfo(e);
+      const node = info.node;
 
       if (
         this._callEvent("click", { node: node, info: info, event: e }) === false
@@ -318,11 +318,22 @@ export class Wunderbaum {
         return false;
       }
       if (node) {
+        // Edit title if 'clickActive' is triggered:
+        const trigger = this.getOption("edit.trigger");
+        if (
+          trigger.indexOf("clickActive") >= 0 &&
+          info.region === "title" &&
+          node.isActive()
+        ) {
+          this._callMethod("edit.startEditTitle", node);
+        }
+
         if (info.colIdx >= 0) {
           node.setActive(true, { colIdx: info.colIdx, event: e });
         } else {
           node.setActive(true, { event: e });
         }
+
         if (info.region === NodeRegion.expander) {
           node.setExpanded(!node.isExpanded());
         } else if (info.region === NodeRegion.checkbox) {
@@ -649,14 +660,16 @@ export class Wunderbaum {
    * See also [[WunderbaumNode.getOption()]] to consider `node.NAME` setting and
    * `tree.types[node.type].NAME`.
    *
-   * @param name options name (use dot natation to acces exension option, e.g. `filter.mode`)
+   * @param name option name (use dot notation to access extension option, e.g. `filter.mode`)
    */
   getOption(name: string, defaultValue?: any): any {
+    let ext;
     let opts = this.options;
 
     // Lookup `name` in options dict
     if (name.indexOf(".") >= 0) {
-      [opts, name] = name.split(".");
+      [ext, name] = name.split(".");
+      opts = opts[ext];
     }
     let value = opts[name];
 

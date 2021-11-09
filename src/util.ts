@@ -86,6 +86,20 @@ export class Deferred {
   }
 }
 
+/**
+ * Wait `ms` microseconds.
+ *
+ * Example:
+ * ```js
+ * await sleep(1000);
+ * ```
+ * @param ms duration
+ * @returns
+ */
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 /** */
 function _getUserInfo() {
   const nav = navigator;
@@ -440,7 +454,7 @@ export function setTimeoutPromise(
   });
 }
 
-export function elementFromHtml(html: string): HTMLElement {
+export function elemFromHtml(html: string): HTMLElement {
   const t = document.createElement("template");
   t.innerHTML = html.trim();
   return t.content.firstElementChild as HTMLElement;
