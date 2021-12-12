@@ -4,24 +4,6 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-/*
-  * Some nice colors
-  */
-$clr-black-olive: #2d342c;
-$clr-black: #1c1b19;
-$clr-bronze: #816540;
-$clr-gray: #868581;
-$clr-midnight-blue: #1e2e47;
-$clr-milk: #fcfcfc;
-$clr-patina-green: #29806d;
-$clr-petrol: #005c75;
-$clr-signal-blue: #1e5494;
-$clr-slate: #47423f;
-$clr-sunflower: #f7a600;
-$clr-translucent-green: #94bd31;
-$clr-translucent-red: #b5373b;
-$clr-umbra-gray: #56534c;
-
 $font-stack: Helvetica, sans-serif;
 
 // Basic Theme Colors
@@ -67,8 +49,12 @@ $icon-padding-x: ($icon-outer-width - $icon-width) / 2;
 
 $header-height: $row-outer-height;
 
-$level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
-  rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
+// PyCharm:
+$level-rainbow: rgba(255, 255, 232, 1), rgba(240, 255, 240, 1),
+  rgba(255, 240, 255, 1), rgba(234, 253, 253, 1);
+// VS-Code_
+// $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
+//   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
 
 div.wunderbaum {
   box-sizing: border-box;
