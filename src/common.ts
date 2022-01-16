@@ -62,6 +62,7 @@ export enum NodeStatusType {
   // paging = "paging",
 }
 
+/**Define the subregion of a node, where an event occurred. */
 export enum TargetType {
   unknown = "",
   checkbox = "checkbox",

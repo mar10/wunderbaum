@@ -13,6 +13,16 @@ import { ROW_HEIGHT } from "./common";
 const nodeMimeType = "application/x-fancytree-node";
 export type DropRegionType = "over" | "before" | "after";
 type DropRegionTypeSet = Set<DropRegionType>;
+// type AllowedDropRegionType =
+//   | "after"
+//   | "afterBefore"
+//   // | "afterBeforeOver" // == all == true
+//   | "afterOver"
+//   | "all" // == true
+//   | "before"
+//   | "beforeOver"
+//   | "none" // == false == "" == null
+//   | "over"; // == "child"
 
 export class DndExtension extends WunderbaumExtension {
   // public dropMarkerElem?: HTMLElement;

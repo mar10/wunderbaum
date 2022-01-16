@@ -8,6 +8,8 @@ for details and migration hints.
   * Performant and efficient handling of *big* data structures.
   * Robust, consistent handling of parallel, asynchronous behavior.
   * Tree-grid control with emphasis on *tree*.
+  * Depending on the number of columns and nesting depth, Wunderbaum also can be
+    a plain tree, plain grid, or a simple list control.
   * Built-in support for [aria](https://www.w3.org/TR/wai-aria-1.1/),
     [drag and drop](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API),
     [editing](tutorial_edit.md), [filtering](tutorial_filter.md),

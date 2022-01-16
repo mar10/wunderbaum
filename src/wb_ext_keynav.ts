@@ -28,6 +28,11 @@ export class KeynavExtension extends WunderbaumExtension {
 
     tree.logDebug(`onKeyEvent: ${eventName}`);
 
+    // Let callback prevent default processing
+    if (tree._callEvent("keydown", data) === false) {
+      return false;
+    }
+
     // Let ext-edit trigger editing
     if (tree._callMethod("edit._preprocessKeyEvent", data) === false) {
       return false;

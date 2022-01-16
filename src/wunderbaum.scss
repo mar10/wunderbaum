@@ -28,7 +28,7 @@ $active-cell-color: $bg-highlight-color;
 $active-border-color: #70c0e7;
 $active-hover-color: #dceff8;
 $active-hover-border-color: $bg-highlight-color;
-$background-color: $clr-milk;
+$background-color: #fcfcfc;
 $active-column-color: $hover-color;
 $active-header-column-color: adjust-color($header-color, $lightness: -10%);
 // @debug $active-header-column-color;
@@ -413,10 +413,6 @@ div.wunderbaum {
 .wb-helper-hidden {
   display: none;
 }
-.wb-helper-indeterminate-cb {
-  // tri-state checkbox
-  color: $dim-color;
-}
 .wb-helper-invalid {
   color: $error-color;
 }
@@ -444,6 +440,16 @@ div.wunderbaum {
   .wb-helper-end {
     text-align: left;
   }
+}
+/* Class 'wb-tristate' is used to mark checkboxes that should toggle like
+ *   indeterminate -> checked -> unchecked -> indeterminate ...
+ */
+// input[type=checkbox].wb-tristate {
+// }
+// tri-state checkbox in indeterminate state
+input[type="checkbox"]:indeterminate {
+  color: $dim-color;
+  background-color: red;
 }
 
 @keyframes wb-spin-animation {

@@ -15,7 +15,8 @@ export const MOUSE_BUTTONS: { [key: number]: string } = {
 };
 
 export const MAX_INT = 9007199254740991;
-export const userInfo = _getUserInfo();
+const userInfo = _getUserInfo();
+/**True if the user is using a macOS platform. */
 export const isMac = userInfo.isMac;
 
 const REX_HTML = /[&<>"'/]/g; // Escape those characters
@@ -86,21 +87,14 @@ export class Deferred {
   }
 }
 
-/**
- * Wait `ms` microseconds.
- *
- * Example:
- * ```js
- * await sleep(1000);
- * ```
- * @param ms duration
- * @returns
- */
-export async function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+/**Throw an `Error` if `cond` is falsey. */
+export function assert(cond: any, msg?: string) {
+  if (!cond) {
+    msg = msg || "Assertion failed.";
+    throw new Error(msg);
+  }
 }
 
-/** */
 function _getUserInfo() {
   const nav = navigator;
   // const ua = nav.userAgentData;
@@ -110,75 +104,60 @@ function _getUserInfo() {
   return res;
 }
 
-/**
- * Bind one or more event handlers directly to an [[HtmlElement]].
- *
- * @param element HTMLElement or selector
- * @param eventNames
- * @param handler
- */
-export function onEvent(
-  rootElem: HTMLElement | string,
-  eventNames: string,
-  handler: EventCallbackType
-): void;
-
-/**
- * Bind one or more event handlers using event delegation.
- *
- * E.g. handle all 'input' events for input and textarea elements of a given
- * form:
- * ```ts
- * onEvent("#form_1", "input", "input,textarea", function (e: Event) {
- *   console.log(e.type, e.target);
- * });
- * ```
- *
- * @param element HTMLElement or selector
- * @param eventNames
- * @param selector
- * @param handler
- */
-export function onEvent(
-  rootElem: HTMLElement | string,
-  eventNames: string,
-  selector: string,
-  handler: EventCallbackType
-): void;
-
-export function onEvent(
-  rootElem: HTMLElement | string,
-  eventNames: string,
-  selectorOrHandler: string | EventCallbackType,
-  handlerOrNone?: EventCallbackType
-): void {
-  let selector: string | null, handler: EventCallbackType;
-  rootElem = elemFromSelector(rootElem)!;
-
-  if (handlerOrNone) {
-    selector = selectorOrHandler as string;
-    handler = handlerOrNone!;
+/** Run `callback` when document was loaded. */
+export function documentReady(callback: () => void): void {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", callback);
   } else {
-    selector = "";
-    handler = selectorOrHandler as EventCallbackType;
+    callback();
   }
+}
 
-  eventNames.split(" ").forEach((evn) => {
-    (<HTMLElement>rootElem).addEventListener(evn, function (e) {
-      if (!selector) {
-        return handler!(e); // no event delegation
-      } else if (e.target) {
-        let elem = e.target as HTMLElement;
-        if (elem.matches(selector as string)) {
-          return handler!(e);
-        }
-        elem = elem.closest(selector) as HTMLElement;
-        if (elem) {
-          return handler(e);
-        }
-      }
-    });
+/** Resolve when document was loaded. */
+export function documentReadyPromise(): Promise<void> {
+  return new Promise((resolve) => {
+    documentReady(resolve);
   });
+}
+
+/**
+ * Iterate over Object properties or array elements.
+ *
+ * @param obj `Object`, `Array` or null
+ * @param callback(index, item) called for every item.
+ *  `this` also contains the item.
+ *  Return `false` to stop the iteration.
+ */
+export function each(
+  obj: any,
+  callback: (index: number | string, item: any) => void | boolean
+): any {
+  if (obj == null) {
+    // accept `null` or `undefined`
+    return obj;
+  }
+  let length = obj.length,
+    i = 0;
+
+  if (typeof length === "number") {
+    for (; i < length; i++) {
+      if (callback.call(obj[i], i, obj[i]) === false) {
+        break;
+      }
+    }
+  } else {
+    for (let k in obj) {
+      if (callback.call(obj[i], k, obj[k]) === false) {
+        break;
+      }
+    }
+  }
+  return obj;
+}
+
+/** Shortcut for `throw new Error(msg)`.*/
+export function error(msg: string) {
+  throw new Error(msg);
 }
 
 /** Convert `<`, `>`, `&`, `"`, `'`, and `/` to the equivalent entities. */
@@ -213,91 +192,12 @@ export function extractHtmlText(s: string) {
   return s;
 }
 
-// export function toggleClass(
-//   element: HTMLElement | string,
-//   classname: string,
-//   force?: boolean
-// ): void {
-//   element = elemFromSelector(element)!;
-
-//   switch (force) {
-//     case true:
-//       element.classList.add(classname);
-//       break;
-//     case false:
-//       element.classList.remove(classname);
-//       break;
-//     default:
-//       element.classList.toggle(classname);
-//   }
-// }
-
-/** Convert an Array or space-separated string to a Set. */
-export function toSet(val: any): Set<string> {
-  if (val instanceof Set) {
-    return val;
-  }
-  if (typeof val === "string") {
-    let set = new Set<string>();
-    for (const c of val.split(" ")) {
-      set.add(c.trim());
-    }
-    return set;
-  }
-  if (Array.isArray(val)) {
-    return new Set<string>(val);
-  }
-  throw new Error("Cannot convert to Set<string>: " + val);
-}
-
-/*
- * jQuery Shims
- * http://youmightnotneedjquery.com
- */
-
-/**
- * Iterate over Object properties or array elements.
- *
- * @param obj `Object`, `Array` or null
- * @param callback(index, item) called for every item.
- *  `this` also contains the item.
- *  Return `false` to stop the iteration.
- */
-export function each(obj: any, callback: any) {
-  if (obj == null) {
-    // accept `null` or `undefined`
-    return obj;
-  }
-  let length = obj.length,
-    i = 0;
-
-  if (typeof length === "number") {
-    for (; i < length; i++) {
-      if (callback.call(obj[i], i, obj[i]) === false) {
-        break;
-      }
-    }
-  } else {
-    for (let i in obj) {
-      if (callback.call(obj[i], i, obj[i]) === false) {
-        break;
-      }
-    }
-  }
-  return obj;
-}
-
-/**Shortcut for `throw new Error(msg)`.*/
-export function error(msg: string) {
-  throw new Error(msg);
-}
-
 /**
  * Read the value from an HTML input element.
  *
  * If a `<span class="wb-col">` is passed, the first child input is used.
  * Depending on the target element type, `value` is interpreted accordingly.
- * For example for a checkbox a value of true, false, or null is returned if the
+ * For example for a checkbox, a value of true, false, or null is returned if the
  * the element is checked, unchecked, or indeterminate.
  * For datetime input control a numerical value is assumed, etc.
  *
@@ -438,33 +338,34 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
   // return value;
 }
 
-/** Run function after ms milliseconds and return a promise that resolves when done. */
-export function setTimeoutPromise(
-  callback: (...args: any[]) => void,
-  ms: number
-) {
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      try {
-        resolve(callback.apply(self));
-      } catch (err) {
-        reject(err);
-      }
-    }, ms);
-  });
-}
-
+/** Return an unconnected `HTMLElement` from a HTML string. */
 export function elemFromHtml(html: string): HTMLElement {
   const t = document.createElement("template");
   t.innerHTML = html.trim();
   return t.content.firstElementChild as HTMLElement;
 }
 
-const IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
+const _IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
 
-export function eventToString(event: Event) {
+/** Return a HtmlElement from selector or cast an existing element. */
+export function elemFromSelector(obj: string | Element): HTMLElement | null {
+  if (!obj) {
+    return null; //(null as unknown) as HTMLElement;
+  }
+  if (typeof obj === "string") {
+    return document.querySelector(obj) as HTMLElement;
+  }
+  return obj as HTMLElement;
+}
+
+/**
+ * Return a descriptive string for a keyboard or mouse event.
+ *
+ * The result also contains a prefix for modifiers if any, for example
+ * `"x"`, `"F2"`, `"Control+Home"`, or `"Shift+clickright"`.
+ */
+export function eventToString(event: Event): string {
   let key = (<KeyboardEvent>event).key,
-    // which = (<KeyboardEvent>event).keyCode,
     et = event.type,
     s = [];
 
@@ -490,18 +391,10 @@ export function eventToString(event: Event) {
     //     SPECIAL_KEYCODES[key] ||
     //     String.fromCharCode(key).toLowerCase()
     //   );
-  } else if (!IGNORE_KEYS.has(key)) {
+  } else if (!_IGNORE_KEYS.has(key)) {
     s.push(key);
   }
   return s.join("+");
-}
-
-/**Throw an `Error` if `cond` is falsey. */
-export function assert(cond: any, msg?: string) {
-  if (!cond) {
-    msg = msg || "Assertion failed.";
-    throw new Error(msg);
-  }
 }
 
 export function extend(...args: any[]) {
@@ -519,79 +412,94 @@ export function extend(...args: any[]) {
   return args[0];
 }
 
-// export function overrideMethod(class:any, method:string, func:callable) {
-//   return ;
-// }
-
-export function isEmptyObject(obj: any) {
-  // let name;
-  // // eslint-disable-next-line guard-for-in
-  // for (name in obj) {
-  //   return false;
-  // }
-  // return true;
-  // because Object.keys(new Date()).length === 0
-  // we have to do some additional check
-  return Object.keys(obj).length === 0 && obj.constructor === Object;
+export function isArray(obj: any) {
+  return Array.isArray(obj);
 }
 
-export function isPlainObject(obj: any) {
-  return Object.prototype.toString.call(obj) === "[object Object]";
+export function isEmptyObject(obj: any) {
+  return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
 export function isFunction(obj: any) {
   return typeof obj === "function";
 }
 
-export function isArray(obj: any) {
-  return Array.isArray(obj);
+export function isPlainObject(obj: any) {
+  return Object.prototype.toString.call(obj) === "[object Object]";
 }
 
 /** A dummy function that does nothing ('no operation'). */
 export function noop(...args: any[]): any {}
 
-export function ready(fn: any) {
-  if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", fn);
-  } else {
-    fn();
-  }
-}
-
-export function type(obj: any) {
-  return Object.prototype.toString
-    .call(obj)
-    .replace(/^\[object (.+)\]$/, "$1")
-    .toLowerCase();
-}
-
-// export const debounce = <T extends (...args: any[]) => any>(
-//   callback: T,
-//   delay: number
-// ) => {
-//   let timeout: ReturnType<typeof setTimeout>;
-
-//   return (...args: Parameters<T>): ReturnType<T> => {
-//     let result: any;
-//     timeout && clearTimeout(timeout);
-//     timeout = setTimeout(() => {
-//       result = callback(...args);
-//     }, delay);
-//     return result;
-//   };
-// };
+/**
+ * Bind one or more event handlers directly to an [[HtmlElement]].
+ *
+ * @param element HTMLElement or selector
+ * @param eventNames
+ * @param handler
+ */
+export function onEvent(
+  rootElem: HTMLElement | string,
+  eventNames: string,
+  handler: EventCallbackType
+): void;
 
 /**
- * Return HtmlElement from selector or cast existing element.
+ * Bind one or more event handlers using event delegation.
+ *
+ * E.g. handle all 'input' events for input and textarea elements of a given
+ * form:
+ * ```ts
+ * onEvent("#form_1", "input", "input,textarea", function (e: Event) {
+ *   console.log(e.type, e.target);
+ * });
+ * ```
+ *
+ * @param element HTMLElement or selector
+ * @param eventNames
+ * @param selector
+ * @param handler
  */
-export function elemFromSelector(obj: string | Element): HTMLElement | null {
-  if (!obj) {
-    return null; //(null as unknown) as HTMLElement;
+export function onEvent(
+  rootElem: HTMLElement | string,
+  eventNames: string,
+  selector: string,
+  handler: EventCallbackType
+): void;
+
+export function onEvent(
+  rootElem: HTMLElement | string,
+  eventNames: string,
+  selectorOrHandler: string | EventCallbackType,
+  handlerOrNone?: EventCallbackType
+): void {
+  let selector: string | null, handler: EventCallbackType;
+  rootElem = elemFromSelector(rootElem)!;
+
+  if (handlerOrNone) {
+    selector = selectorOrHandler as string;
+    handler = handlerOrNone!;
+  } else {
+    selector = "";
+    handler = selectorOrHandler as EventCallbackType;
   }
-  if (typeof obj === "string") {
-    return document.querySelector(obj) as HTMLElement;
-  }
-  return obj as HTMLElement;
+
+  eventNames.split(" ").forEach((evn) => {
+    (<HTMLElement>rootElem).addEventListener(evn, function (e) {
+      if (!selector) {
+        return handler!(e); // no event delegation
+      } else if (e.target) {
+        let elem = e.target as HTMLElement;
+        if (elem.matches(selector as string)) {
+          return handler!(e);
+        }
+        elem = elem.closest(selector) as HTMLElement;
+        if (elem) {
+          return handler(e);
+        }
+      }
+    });
+  });
 }
 
 /** Return a wrapped handler method, that provides `this._super`.
@@ -636,4 +544,89 @@ export function overrideMethod(
     }
   };
   instance[methodName] = wrapper;
+}
+
+/** Run function after ms milliseconds and return a promise that resolves when done. */
+export function setTimeoutPromise(
+  callback: (...args: any[]) => void,
+  ms: number
+) {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      try {
+        resolve(callback.apply(self));
+      } catch (err) {
+        reject(err);
+      }
+    }, ms);
+  });
+}
+
+/**
+ * Wait `ms` microseconds.
+ *
+ * Example:
+ * ```js
+ * await sleep(1000);
+ * ```
+ * @param ms duration
+ * @returns
+ */
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Set or rotate checkbox status with support for tri-state.
+ */
+export function toggleCheckbox(
+  element: HTMLElement | string,
+  value?: boolean | null,
+  tristate?: boolean
+): void {
+  const input = elemFromSelector(element) as HTMLInputElement;
+  assert(input.type === "checkbox");
+  tristate ??= input.classList.contains("wb-tristate") || input.indeterminate;
+
+  if (value === undefined) {
+    const curValue = input.indeterminate ? null : input.checked;
+    switch (curValue) {
+      case true:
+        value = false;
+        break;
+      case false:
+        value = tristate ? null : true;
+        break;
+      case null:
+        value = true;
+        break;
+    }
+  }
+  input.indeterminate = value == null;
+  input.checked = !!value;
+}
+
+/** Convert an Array or space-separated string to a Set. */
+export function toSet(val: any): Set<string> {
+  if (val instanceof Set) {
+    return val;
+  }
+  if (typeof val === "string") {
+    let set = new Set<string>();
+    for (const c of val.split(" ")) {
+      set.add(c.trim());
+    }
+    return set;
+  }
+  if (Array.isArray(val)) {
+    return new Set<string>(val);
+  }
+  throw new Error("Cannot convert to Set<string>: " + val);
+}
+
+export function type(obj: any): string {
+  return Object.prototype.toString
+    .call(obj)
+    .replace(/^\[object (.+)\]$/, "$1")
+    .toLowerCase();
 }

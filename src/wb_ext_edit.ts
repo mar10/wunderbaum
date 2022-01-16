@@ -7,7 +7,6 @@
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import {
-  assert,
   escapeHtml,
   eventToString,
   getValueFromElem,
@@ -220,12 +219,17 @@ export class EditExtension extends WunderbaumExtension {
   stopEditTitle(apply: boolean) {
     const focusElem = document.activeElement as HTMLInputElement;
     const newValue = focusElem ? getValueFromElem(focusElem) : null;
-    this.tree.logDebug(`stopEditTitle(apply=${apply})`, focusElem, newValue);
-    const node = Wunderbaum.getNode(focusElem)!;
-    assert(node === this.curEditNode);
+    const node = this.curEditNode;
+
+    this.tree.logDebug(`stopEditTitle(apply=${apply})`, focusElem, newValue, node);
+
+    if(!node){return}
+    // const node = Wunderbaum.getNode(focusElem)!;
+    // assert(node === this.curEditNode);
     // const inputElem = this.curEditNode
     //   .getColElem(0)!
     //   .querySelector(".wb-title input") as HTMLInputElement;
+
     if (apply) {
       if (
         node._callEvent("edit.beforeApply", {
@@ -245,8 +249,6 @@ export class EditExtension extends WunderbaumExtension {
     }
     // We discarded the <input>, so we have to acquire keyboard focus again
     this.tree.setFocus();
-    // this.curEditNode!.setFocus();
-    // this.inputElem = null;
     this.curEditNode = null;
   }
 }

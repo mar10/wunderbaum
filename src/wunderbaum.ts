@@ -305,15 +305,22 @@ export class Wunderbaum {
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
       this.updateViewport();
     });
-    window.addEventListener("resize", (e: Event) => {
+
+    // window.addEventListener("resize", (e: Event) => {
+    //   this.updateViewport();
+    // });
+    const resizeObserver = new ResizeObserver((entries) => {
       this.updateViewport();
+      // console.log("ResizeObserver: Size changed", entries);
     });
+    resizeObserver.observe(this.element);
+
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
       const node = info.node;
 
       if (
-        this._callEvent("click", { node: node, info: info, event: e }) === false
+        this._callEvent("click", { event: e, node: node, info: info }) === false
       ) {
         return false;
       }
@@ -346,13 +353,22 @@ export class Wunderbaum {
 
     util.onEvent(this.element, "keydown", (e) => {
       const info = Wunderbaum.getEventInfo(e);
-      this._callHook("onKeyEvent", { event: e, node: info.node });
+      const eventName = util.eventToString(e);
+      this._callHook("onKeyEvent", {
+        event: e,
+        node: info.node,
+        info: info,
+        eventName: eventName,
+      });
     });
 
     util.onEvent(this.element, "focusin focusout", (e) => {
       const flag = e.type === "focusin";
 
       this._callEvent("focus", { flag: flag, event: e });
+      if (!flag) {
+        this._callMethod("edit.stopEditTitle", true);
+      }
       // if (flag && !this.activeNode ) {
       //   setTimeout(() => {
       //     if (!this.activeNode) {
