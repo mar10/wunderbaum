@@ -1,6 +1,6 @@
 # Migrate from Fancytree to Wunderbaum
 
-> See also the [Wunderbaum Overview](tutorial.md) for a general overview.
+> See also the [Wunderbaum Overview](/tutorial/index.md) for a general overview.
 
 ## Main Differences
 **Main Changes to [Fancytree](https://github.com/mar10/fancytree/):**

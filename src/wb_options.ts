@@ -7,32 +7,18 @@
 import { NavigationModeOption } from "./common";
 
 /**
- * Available options for [[PersistentObject]].
+ * Available options for [[Wunderbaum]].
  *
  * Options are passed to the constructor as plain object:
  *
  * ```js
- * let store = new mar10.PersistentObject("test", {
- *   storage: sessionStorage,  // Default: localStorage
- *   attachForm: "#form1",
- *   defaults: {
- *     title: "foo",
- *     ...
- *   }
+ * const tree = new mar10.Wunderbaum({
+ *   id: "demo",
+ *   element: document.querySelector("#demo-tree"),
+ *   source: "url/of/data/request",
+ *   ...
  * });
  * ```
- *
- * Events may be handled by passing a handler callback option:
- *
- * ```js
- * let store = new mar10.PersistentObject("mySettings", {
- *   [...]
- *   change: function(hint){
- *     alert("Store " + this + " was changed. Reason: " + hint);
- *   }
- * });
- * ```
- *
  */
 export interface WunderbaumOptions {
   /**
