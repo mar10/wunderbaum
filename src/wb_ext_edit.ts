@@ -33,7 +33,7 @@ export class EditExtension extends WunderbaumExtension {
       // (note: there is also the `tree.change` event.)
       beforeEdit: null,
       edit: null,
-      beforeApply: null,
+      apply: null,
     });
 
     this.debouncedOnChange = debounce(
@@ -42,36 +42,39 @@ export class EditExtension extends WunderbaumExtension {
     );
   }
 
-  protected _onChange(e: Event) {
+  /*
+   * Call an event handler, while marking the current node 'dirty'.
+   */
+  protected _applyChange(
+    eventName: string,
+    node: WunderbaumNode,
+    colElem: HTMLElement,
+    extra: any
+  ): Promise<any> {
     let res;
-    const info = Wunderbaum.getEventInfo(e);
-    const node = info.node!;
-    const colElem = <HTMLElement>info.colElem!;
+    // const info = Wunderbaum.getEventInfo(e);
+    // const node = info.node!;
+    // const colElem = <HTMLElement>info.colElem!;
 
-    this.tree.log("_onChange", e, info);
+    node.log(`_applyChange(${eventName})`, extra);
 
     colElem.classList.add("wb-dirty");
     colElem.classList.remove("wb-error");
     try {
-      res = node._callEvent("change", {
-        info: info,
-        event: e,
-        inputElem: e.target,
-        inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
-      });
+      res = node._callEvent(eventName, extra);
     } catch (err) {
-      node.logError("Error in change event handler", err);
+      node.logError(`Error in ${eventName} event handler`, err);
       colElem.classList.add("wb-error");
       colElem.classList.remove("wb-dirty");
     }
-    // Convert scalar return value to a promise
+    // Convert scalar return value to a resolved promise
     if (!(res instanceof Promise)) {
       res = Promise.resolve(res);
     }
     res
       // .then((value) => {})
       .catch((err) => {
-        node.logError("Error in change event promise", err);
+        node.logError(`Error in ${eventName} event promise`, err);
         colElem.classList.add("wb-error");
       })
       .finally(() => {
@@ -79,6 +82,58 @@ export class EditExtension extends WunderbaumExtension {
         // Remove input control (no matter if ESC or ENTER)
         // this.stopEditTitle(false);
       });
+    return res;
+  }
+
+  /*
+   *
+   */
+  protected _onChange(e: Event) {
+    // let res;
+    const info = Wunderbaum.getEventInfo(e);
+    const node = info.node!;
+    const colElem = <HTMLElement>info.colElem!;
+    if (!node || info.colIdx === 0) {
+      this.tree.log("Ignored change event for removed element or node title");
+      return;
+    }
+    this._applyChange("change", node, colElem, {
+      info: info,
+      event: e,
+      inputElem: e.target,
+      inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
+    });
+    // this.tree.log("_onChange", e, info);
+
+    // colElem.classList.add("wb-dirty");
+    // colElem.classList.remove("wb-error");
+    // try {
+    //   res = node._callEvent("change", {
+    //     info: info,
+    //     event: e,
+    //     inputElem: e.target,
+    //     inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
+    //   });
+    // } catch (err) {
+    //   node.logError("Error in change event handler", err);
+    //   colElem.classList.add("wb-error");
+    //   colElem.classList.remove("wb-dirty");
+    // }
+    // // Convert scalar return value to a resolved promise
+    // if (!(res instanceof Promise)) {
+    //   res = Promise.resolve(res);
+    // }
+    // res
+    //   // .then((value) => {})
+    //   .catch((err) => {
+    //     node.logError("Error in change event promise", err);
+    //     colElem.classList.add("wb-error");
+    //   })
+    //   .finally(() => {
+    //     colElem.classList.remove("wb-dirty");
+    //     // Remove input control (no matter if ESC or ENTER)
+    //     // this.stopEditTitle(false);
+    //   });
   }
 
   // handleKey(e:KeyboardEvent):boolean {
@@ -195,60 +250,83 @@ export class EditExtension extends WunderbaumExtension {
       return;
     }
     this.tree.logDebug(`startEditTitle(node=${node})`);
-    this.curEditNode = node;
     let inputHtml = node._callEvent("edit.beforeEdit");
     if (inputHtml === false) {
       return;
     }
+    // `beforeEdit(e)` may return an input HTML string. Otherwise make a default:
     if (!inputHtml) {
       const title = escapeHtml(node.title);
       inputHtml = `<input type=text class="wb-input-edit" value="${title}" required autocorrect=off>`;
     }
-    const titleElem = node
+    const titleSpan = node
       .getColElem(0)!
       .querySelector(".wb-title") as HTMLSpanElement;
 
-    titleElem.innerHTML = inputHtml;
-    const inputElem = titleElem.firstElementChild as HTMLInputElement;
+    titleSpan.innerHTML = inputHtml;
+    const inputElem = titleSpan.firstElementChild as HTMLInputElement;
     inputElem.focus();
+    this.curEditNode = node;
     node._callEvent("edit.edit", {
       inputElem: inputElem,
     });
   }
-
-  stopEditTitle(apply: boolean) {
+  /**
+   *
+   * @param apply
+   * @param canKeepOpen
+   * @returns
+   */
+  stopEditTitle(apply: boolean, canKeepOpen: boolean = true) {
     const focusElem = document.activeElement as HTMLInputElement;
     const newValue = focusElem ? getValueFromElem(focusElem) : null;
     const node = this.curEditNode;
 
-    this.tree.logDebug(`stopEditTitle(apply=${apply})`, focusElem, newValue, node);
+    if (!node) {
+      this.tree.logWarn("stopEditTitle: not in edit mode.");
+      return;
+    }
+    node.logDebug(
+      `stopEditTitle(${apply}, ${canKeepOpen})`,
+      focusElem,
+      newValue,
+      node
+    );
 
-    if(!node){return}
     // const node = Wunderbaum.getNode(focusElem)!;
     // assert(node === this.curEditNode);
     // const inputElem = this.curEditNode
     //   .getColElem(0)!
     //   .querySelector(".wb-title input") as HTMLInputElement;
 
-    if (apply) {
-      if (
-        node._callEvent("edit.beforeApply", {
-          oldValue: node.title,
-          newValue: newValue,
-          inputElem: focusElem,
-        }) === false
-      ) {
-        return;
-      }
+    if (apply && newValue !== null) {
+      const colElem = node.getColElem(0)!;
+      this._applyChange("edit.appy", node, colElem, {
+        oldValue: node.title,
+        newValue: newValue,
+        inputElem: focusElem,
+      })
+        .then((value) => {
+          node?.setTitle(newValue);
+          // Discard the embedded `<input>`
+          if (canKeepOpen && value === false) {
+            return;
+          }
+          this.curEditNode!.render();
+          this.tree.setFocus();
+        })
+        .finally(() => {
+          // this.curEditNode!.render();
+          this.curEditNode = null;
+        });
       // Trigger 'change' event for embedded `<input>`
-      focusElem.blur();
-      // node?.setTitle(newValue);
+      // focusElem.blur();
     } else {
       // Discard the embedded `<input>`
       this.curEditNode!.render();
+      this.curEditNode = null;
+      // We discarded the <input>, so we have to acquire keyboard focus again
+      this.tree.setFocus();
     }
-    // We discarded the <input>, so we have to acquire keyboard focus again
-    this.tree.setFocus();
-    this.curEditNode = null;
   }
 }

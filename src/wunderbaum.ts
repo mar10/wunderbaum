@@ -367,7 +367,7 @@ export class Wunderbaum {
 
       this._callEvent("focus", { flag: flag, event: e });
       if (!flag) {
-        this._callMethod("edit.stopEditTitle", true);
+        this._callMethod("edit.stopEditTitle", true, false);
       }
       // if (flag && !this.activeNode ) {
       //   setTimeout(() => {

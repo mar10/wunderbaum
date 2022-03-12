@@ -56,7 +56,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
     change: function (e) {
       console.log(e.name, e);
-      e.node.setTitle(e.inputValue)
+      // e.node.setTitle(e.inputValue)
+    },
+    edit: {
+      beforeEdit: function (e) {
+        console.log(e.name, e);
+      },
+      edit: function (e) {
+        console.log(e.name, e);
+      },
+      apply: function (e) {
+        console.log(e.name, e);
+      },
     },
     lazyLoad: function (e) {
       console.log(e.name, e);
