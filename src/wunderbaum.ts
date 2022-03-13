@@ -102,6 +102,8 @@ export class Wunderbaum {
   readonly ready: Promise<any>;
 
   public static util = util;
+  // TODO: make accessible in compiled JS like this?
+  public _util = util;
 
   constructor(options: WunderbaumOptions) {
     let opts = (this.options = util.extend(
@@ -561,7 +563,10 @@ export class Wunderbaum {
     const [p, n] = name.split(".");
     const func = n ? this.options[p][n] : this.options[p];
     if (func) {
-      return func.call(this, util.extend({ name: name, tree: this }, extra));
+      return func.call(
+        this,
+        util.extend({ name: name, tree: this, util: this._util }, extra)
+      );
     }
   }
 
@@ -715,7 +720,7 @@ export class Wunderbaum {
     }
     const parts = name.split(".");
     const ext = this.extensionDict[parts[0]];
-    ext!.setOption(parts[1], value);
+    ext!.setPluginOption(parts[1], value);
   }
 
   /**Return true if the tree (or one of its nodes) has the input focus. */
@@ -1404,7 +1409,7 @@ export class Wunderbaum {
    * @param [options]
    *     Defaults:
    *     {start: First tree node, reverse: false, includeSelf: true, includeHidden: false, wrap: false}
-   * @returns {boolean} false if iteration was cancelled
+   * @returns {boolean} false if iteration was canceled
    */
   visitRows(callback: (node: WunderbaumNode) => any, opts?: any): boolean {
     if (!this.root.hasChildren()) {

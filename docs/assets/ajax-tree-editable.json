@@ -10,7 +10,7 @@
       "width": "80px",
       "classes": "wb-helper-end"
     },
-    { "id": "sale", "title": "Sale", "width": "50px" },
+    { "id": "sale", "title": "Sale", "width": "50px","classes": "wb-helper-center" },
     { "id": "details", "title": "Details", "width": "*" }
   ],
   "types": {

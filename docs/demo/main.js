@@ -44,6 +44,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
         console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
       },
     },
+    edit: {
+      select: true,
+      beforeEdit: function (e) {
+        console.log(e.name, e);
+        // return false;
+      },
+      edit: function (e) {
+        console.log(e.name, e);
+      },
+      apply: function (e) {
+        console.log(e.name, e);
+      },
+    },
     filter: {
       attachInput: "input#filterQuery",
       // mode: "dim",
@@ -53,21 +66,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
     load: function (e) {
       // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
-    },
-    change: function (e) {
-      console.log(e.name, e);
-      // e.node.setTitle(e.inputValue)
-    },
-    edit: {
-      beforeEdit: function (e) {
-        console.log(e.name, e);
-      },
-      edit: function (e) {
-        console.log(e.name, e);
-      },
-      apply: function (e) {
-        console.log(e.name, e);
-      },
     },
     lazyLoad: function (e) {
       console.log(e.name, e);
@@ -79,9 +77,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
         }, 1500);
       });
     },
+    change: function (e) {
+      console.log(e.name, e);
+      return e.util.setTimeoutPromise(() => {
+        e.node.data.sale = e.inputValue;
+      }, 1000);
+    },
     render: function (e) {
       // console.log(e.name, e.isNew, e);
       const node = e.node;
+      const util = e.util;
 
       if (node.type === "folder" || !node.type) {
         return;
@@ -102,35 +107,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
           case "qty": // thousands separator
             col.elem.textContent = node.data.qty.toLocaleString();
             break;
+          case "sale": // checkbox control
+            col.elem.innerHTML = "<input type='checkbox'>";
+            util.setValueToElem(col.elem, !!node.data.sale);
+            break;
           default:
             // Assumption: we named column.id === node.data.NAME
             col.elem.textContent = node.data[col.id];
             break;
         }
       }
-
-      // for (let i = 0; i < e.colInfos.length; i++) {
-      //   const elem = e.colElems[i];
-      //   const col = e.colInfos[i];
-
-      //   switch (col.id) {
-      //     case "*":
-      //       // node icon & title is rendered by the core
-      //       break;
-      //     case "price":
-      //       elem.textContent = "$ " + node.data.price.toFixed(2);
-      //       break;
-      //     case "qty": // thousands separator
-      //       elem.textContent = node.data.qty.toLocaleString();
-      //       break;
-      //     default:
-      //       // Assumption: we named column.id === node.data.NAME
-      //       elem.textContent = node.data[col.id];
-      //       break;
-      //   }
-      //
-      // elem.setAttribute("contenteditable", true);
-      // }
     },
     update: function (e) {
       console.log(e.name, e);

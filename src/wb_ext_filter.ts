@@ -44,7 +44,7 @@ export class FilterExtension extends WunderbaumExtension {
 
   init() {
     super.init();
-    let attachInput = this.getOption("attachInput");
+    let attachInput = this.getPluginOption("attachInput");
     if (attachInput) {
       this.queryInput = elemFromSelector(attachInput) as HTMLInputElement;
       onEvent(

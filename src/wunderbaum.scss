@@ -18,6 +18,7 @@ $border-color: $node-text-color;
 $drop-source-color: adjust-color($node-text-color, $lightness: 50%);
 $drop-target-color: adjust-color($bg-highlight-color, $lightness: 40%);
 $dim-color: adjust-color($node-text-color, $lightness: 20%);
+$error-background-color: adjust-color($error-color, $lightness: 45%);
 // @debug $dim-color;
 $hover-color: adjust-color($bg-highlight-color, $lightness: 48%); // #f7f7f7;
 $hover-border-color: $hover-color;
@@ -447,9 +448,14 @@ div.wunderbaum {
 // input[type=checkbox].wb-tristate {
 // }
 // tri-state checkbox in indeterminate state
-input[type="checkbox"]:indeterminate {
+.wb-col input[type="checkbox"]:indeterminate {
   color: $dim-color;
   background-color: red;
+}
+
+.wb-col input:invalid {
+  border-color: $error-color;
+  background-color: $error-background-color;
 }
 
 @keyframes wb-spin-animation {

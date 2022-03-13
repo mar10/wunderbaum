@@ -28,7 +28,7 @@ export abstract class WunderbaumExtension {
       this.extensionOpts = util.extend({}, defaults, tree.options[id]);
       tree.options[id] = this.extensionOpts;
     }
-    this.enabled = this.getOption("enabled", true);
+    this.enabled = this.getPluginOption("enabled", true);
   }
 
   /** Called on tree (re)init after all extensions are added, but before loading.*/
@@ -51,16 +51,16 @@ export abstract class WunderbaumExtension {
   //   }
   // }
 
-  getOption(name: string, defaultValue?: any): any {
+  getPluginOption(name: string, defaultValue?: any): any {
     return this.extensionOpts[name] ?? defaultValue;
   }
 
-  setOption(name: string, value: any): void {
+  setPluginOption(name: string, value: any): void {
     this.extensionOpts[name] = value;
   }
 
   setEnabled(flag = true) {
-    return this.setOption("enabled", !!flag);
+    return this.setPluginOption("enabled", !!flag);
     // this.enabled = !!flag;
   }
 

@@ -29,6 +29,9 @@ export class EditExtension extends WunderbaumExtension {
       minlength: 1,
       maxlength: null,
       trigger: ["F2", "macEnter", "clickActive"],
+      trim: true,
+      select: true,
+      validity: true, //"Please enter a title",
       // --- Events ---
       // (note: there is also the `tree.change` event.)
       beforeEdit: null,
@@ -38,12 +41,12 @@ export class EditExtension extends WunderbaumExtension {
 
     this.debouncedOnChange = debounce(
       this._onChange.bind(this),
-      this.getOption("edit.debounce")
+      this.getPluginOption("debounce")
     );
   }
 
   /*
-   * Call an event handler, while marking the current node 'dirty'.
+   * Call an event handler, while marking the current node cell 'dirty'.
    */
   protected _applyChange(
     eventName: string,
@@ -52,9 +55,6 @@ export class EditExtension extends WunderbaumExtension {
     extra: any
   ): Promise<any> {
     let res;
-    // const info = Wunderbaum.getEventInfo(e);
-    // const node = info.node!;
-    // const colElem = <HTMLElement>info.colElem!;
 
     node.log(`_applyChange(${eventName})`, extra);
 
@@ -72,21 +72,18 @@ export class EditExtension extends WunderbaumExtension {
       res = Promise.resolve(res);
     }
     res
-      // .then((value) => {})
       .catch((err) => {
         node.logError(`Error in ${eventName} event promise`, err);
         colElem.classList.add("wb-error");
       })
       .finally(() => {
         colElem.classList.remove("wb-dirty");
-        // Remove input control (no matter if ESC or ENTER)
-        // this.stopEditTitle(false);
       });
     return res;
   }
 
   /*
-   *
+   * Called for when a control that is embedded in a cell fires a `change` event.
    */
   protected _onChange(e: Event) {
     // let res;
@@ -103,37 +100,6 @@ export class EditExtension extends WunderbaumExtension {
       inputElem: e.target,
       inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
     });
-    // this.tree.log("_onChange", e, info);
-
-    // colElem.classList.add("wb-dirty");
-    // colElem.classList.remove("wb-error");
-    // try {
-    //   res = node._callEvent("change", {
-    //     info: info,
-    //     event: e,
-    //     inputElem: e.target,
-    //     inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
-    //   });
-    // } catch (err) {
-    //   node.logError("Error in change event handler", err);
-    //   colElem.classList.add("wb-error");
-    //   colElem.classList.remove("wb-dirty");
-    // }
-    // // Convert scalar return value to a resolved promise
-    // if (!(res instanceof Promise)) {
-    //   res = Promise.resolve(res);
-    // }
-    // res
-    //   // .then((value) => {})
-    //   .catch((err) => {
-    //     node.logError("Error in change event promise", err);
-    //     colElem.classList.add("wb-error");
-    //   })
-    //   .finally(() => {
-    //     colElem.classList.remove("wb-dirty");
-    //     // Remove input control (no matter if ESC or ENTER)
-    //     // this.stopEditTitle(false);
-    //   });
   }
 
   // handleKey(e:KeyboardEvent):boolean {
@@ -148,8 +114,6 @@ export class EditExtension extends WunderbaumExtension {
       "change", //"change input",
       ".contenteditable,input,textarea,select",
       (e) => {
-        // TODO: set cell 'dirty'
-        // return false;
         this.debouncedOnChange(e);
       }
     );
@@ -160,7 +124,7 @@ export class EditExtension extends WunderbaumExtension {
     const event = data.event;
     const eventName = eventToString(event);
     const tree = this.tree;
-    const trigger = this.getOption("trigger");
+    const trigger = this.getPluginOption("trigger");
     const inputElem =
       event.target && event.target.closest("input,[contenteditable]");
     // let handled = true;
@@ -243,18 +207,22 @@ export class EditExtension extends WunderbaumExtension {
     return !!this.curEditNode;
   }
 
-  /**  */
+  /** Start renaming, i.e. replace the title with an embedded `<input>`. */
   startEditTitle(node?: WunderbaumNode | null) {
     node = node ?? this.tree.getActiveNode();
+    const validity = this.getPluginOption("validity");
+    const select = this.getPluginOption("select");
+
     if (!node) {
       return;
     }
     this.tree.logDebug(`startEditTitle(node=${node})`);
     let inputHtml = node._callEvent("edit.beforeEdit");
     if (inputHtml === false) {
+      node.logInfo("beforeEdit canceled operation.");
       return;
     }
-    // `beforeEdit(e)` may return an input HTML string. Otherwise make a default:
+    // `beforeEdit(e)` may return an input HTML string. Otherwise use a default:
     if (!inputHtml) {
       const title = escapeHtml(node.title);
       inputHtml = `<input type=text class="wb-input-edit" value="${title}" required autocorrect=off>`;
@@ -265,7 +233,19 @@ export class EditExtension extends WunderbaumExtension {
 
     titleSpan.innerHTML = inputHtml;
     const inputElem = titleSpan.firstElementChild as HTMLInputElement;
+    if (validity) {
+      // Permanently apply  input validations (CSS and tooltip)
+      inputElem.addEventListener("keydown", (e) => {
+        if (!inputElem.reportValidity()) {
+          // node?.logInfo(`Invalid: '${}'")
+        }
+      });
+    }
     inputElem.focus();
+    if (select) {
+      inputElem.select();
+    }
+
     this.curEditNode = node;
     node._callEvent("edit.edit", {
       inputElem: inputElem,
@@ -279,11 +259,14 @@ export class EditExtension extends WunderbaumExtension {
    */
   stopEditTitle(apply: boolean, canKeepOpen: boolean = true) {
     const focusElem = document.activeElement as HTMLInputElement;
-    const newValue = focusElem ? getValueFromElem(focusElem) : null;
+    let newValue = focusElem ? getValueFromElem(focusElem) : null;
     const node = this.curEditNode;
 
+    if (newValue && this.getPluginOption("trim")) {
+      newValue = newValue.trim();
+    }
     if (!node) {
-      this.tree.logWarn("stopEditTitle: not in edit mode.");
+      this.tree.logDebug("stopEditTitle: not in edit mode.");
       return;
     }
     node.logDebug(
@@ -299,8 +282,9 @@ export class EditExtension extends WunderbaumExtension {
     //   .getColElem(0)!
     //   .querySelector(".wb-title input") as HTMLInputElement;
 
-    if (apply && newValue !== null) {
+    if (apply && newValue !== null && newValue !== node.title) {
       const colElem = node.getColElem(0)!;
+
       this._applyChange("edit.appy", node, colElem, {
         oldValue: node.title,
         newValue: newValue,
