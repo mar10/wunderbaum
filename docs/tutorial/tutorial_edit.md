@@ -1,6 +1,6 @@
-## Edit Nodes and Columns
+> Wunderbaum: Edit Nodes and Columns
 
-> See also the [Wunderbaum Overview](tutorial.md) for a general overview.
+?> See also the [General Overview](/tutorial/overview.md).
 
 Editing is supported in two different ways:
 
@@ -9,7 +9,7 @@ Editing is supported in two different ways:
      to enable this.
 
   2. In a tree grid, there is also general support for embedded input elements
-     in column cells, like checkboxes, text fileds, etc.<br>
+     in column cells, like checkboxes, text fields, etc.<br>
      Note that *Wunderbaum* does **not** implement fancy input controls though.
      Rather think of it as a framework that makes it easy to use standard or
      custom HTML controls: <br>
@@ -27,8 +27,9 @@ const tree = new Wunderbaum({
   // --- Special Options and Events ---
   edit: {
     // --- Options ---
-    trigger: ["F2", "macEnter", ...],
+    trigger: ["clickActive", "F2", "macEnter", ...],
     select: true,  // Select all text on start
+    slowClickDelay: 1000,
     trim: true,  // Trim input before applying
     validity: true,  // Check validation rules while typing
     ...
@@ -55,13 +56,25 @@ const tree = new Wunderbaum({
      * canceled, confirmed, or moved focus.
      *
      * Return `false` to keep the input control open (not always possible).
+     * 
      * It is also possible to return a `Promise` (e.g. from an ajax request).
-     * In this case, the cell is marled 'busy' while updating.
+     * In this case, the cell is marked 'busy' while updating.
+     * 
+     * Implementing this event is optional. By default, `node.setTitle()` is
+     * called with the new text.
      */
     apply: (e) => {
+      const node = e.node;
       const oldValue = e.oldValue;
       const newValue = e.newValue;
       const inputElem = e.inputElem;
+      // Simulate an async storage call that handles validation
+      return storeMyStuff(node.refKey, newValue).then(() => {
+        if( ...) {
+          e.inputElem.setCustomValidity("Invalid for *reasons*: " + e.newValue)
+          return false;
+        }
+      }, 1000);
     },
   },
 });

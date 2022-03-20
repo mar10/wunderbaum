@@ -1,6 +1,6 @@
-## Customize Rendering
+> Wunderbaum: Custom Rendering
 
-> See also the [Wunderbaum Overview](tutorial.md) for a general overview.
+?> See also the [General Overview](/tutorial/overview.md).
 
 A tree ...
 

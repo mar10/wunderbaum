@@ -28,9 +28,10 @@ export class EditExtension extends WunderbaumExtension {
       debounce: 100,
       minlength: 1,
       maxlength: null,
-      trigger: ["F2", "macEnter", "clickActive"],
+      trigger: ["clickActive", "F2", "macEnter"],
       trim: true,
       select: true,
+      slowClickDelay: 1000, // Handle 'clickActive' only if last click is less than this old (0: always)
       validity: true, //"Please enter a title",
       // --- Events ---
       // (note: there is also the `tree.change` event.)
@@ -136,10 +137,10 @@ export class EditExtension extends WunderbaumExtension {
       //this.isEditingTitle()) {
       switch (eventName) {
         case "Enter":
-          this.stopEditTitle(true);
+          this._stopEditTitle(true, { event: event });
           return false;
         case "Escape":
-          this.stopEditTitle(false);
+          this._stopEditTitle(false, { event: event });
           return false;
       }
       // If the event target is an input element or `contenteditable="true"`,
@@ -254,13 +255,21 @@ export class EditExtension extends WunderbaumExtension {
   /**
    *
    * @param apply
-   * @param canKeepOpen
    * @returns
    */
-  stopEditTitle(apply: boolean, canKeepOpen: boolean = true) {
+  stopEditTitle(apply: boolean) {
+    return this._stopEditTitle(apply, {});
+  }
+  /*
+   *
+   * @param apply
+   * @param canKeepOpen
+   */
+  _stopEditTitle(apply: boolean, opts: any) {
     const focusElem = document.activeElement as HTMLInputElement;
     let newValue = focusElem ? getValueFromElem(focusElem) : null;
     const node = this.curEditNode;
+    const forceClose = !!opts.forceClose;
 
     if (newValue && this.getPluginOption("trim")) {
       newValue = newValue.trim();
@@ -269,18 +278,7 @@ export class EditExtension extends WunderbaumExtension {
       this.tree.logDebug("stopEditTitle: not in edit mode.");
       return;
     }
-    node.logDebug(
-      `stopEditTitle(${apply}, ${canKeepOpen})`,
-      focusElem,
-      newValue,
-      node
-    );
-
-    // const node = Wunderbaum.getNode(focusElem)!;
-    // assert(node === this.curEditNode);
-    // const inputElem = this.curEditNode
-    //   .getColElem(0)!
-    //   .querySelector(".wb-title input") as HTMLInputElement;
+    node.logDebug(`stopEditTitle(${apply})`, opts, focusElem, newValue);
 
     if (apply && newValue !== null && newValue !== node.title) {
       const colElem = node.getColElem(0)!;
@@ -291,17 +289,19 @@ export class EditExtension extends WunderbaumExtension {
         inputElem: focusElem,
       })
         .then((value) => {
-          node?.setTitle(newValue);
           // Discard the embedded `<input>`
-          if (canKeepOpen && value === false) {
+          // node.logDebug("applyChange:", value, forceClose)
+          if (!forceClose && value === false) {
             return;
           }
+          node?.setTitle(newValue);
           this.curEditNode!.render();
-          this.tree.setFocus();
-        })
-        .finally(() => {
-          // this.curEditNode!.render();
           this.curEditNode = null;
+          this.tree.setFocus(); // restore focus that was in the input element
+        })
+        .catch((err) => {
+          // this.curEditNode!.render();
+          //this.curEditNode = null;
         });
       // Trigger 'change' event for embedded `<input>`
       // focusElem.blur();

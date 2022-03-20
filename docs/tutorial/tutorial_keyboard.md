@@ -1,6 +1,6 @@
-## Keyboard Navigation
+> Wunderbaum: Keyboard Navigation
 
-> See also the [Wunderbaum Overview](tutorial.md) for a general overview.
+?> See also the [General Overview](/tutorial/overview.md).
 
 The option `keyboard: true` should be used to control if standard keyboard
 navigation is enabled.
@@ -38,8 +38,6 @@ should *behave like a listbox*, i.e.
 
 If the default implementation for `keyboard: true` also satisfies these
 requirements (and makes all users happy), maybe we can remove the tabbable option.
-
--
 
 ### Navigation in **Row Mode**
 

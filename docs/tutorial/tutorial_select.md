@@ -1,4 +1,4 @@
-> Wunderbaum: Event Handling
+> Wunderbaum: Selection.
 
 ?> See also the [General Overview](/tutorial/overview.md).
 

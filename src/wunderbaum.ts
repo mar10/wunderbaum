@@ -99,6 +99,9 @@ export class Wunderbaum {
   public lastQuicksearchTime = 0;
   public lastQuicksearchTerm = "";
 
+  // --- EDIT ---
+  protected lastClickTime = 0;
+
   readonly ready: Promise<any>;
 
   public static util = util;
@@ -324,15 +327,18 @@ export class Wunderbaum {
       if (
         this._callEvent("click", { event: e, node: node, info: info }) === false
       ) {
+        this.lastClickTime = Date.now();
         return false;
       }
       if (node) {
         // Edit title if 'clickActive' is triggered:
         const trigger = this.getOption("edit.trigger");
+        const slowClickDelay = this.getOption("edit.slowClickDelay");
         if (
           trigger.indexOf("clickActive") >= 0 &&
           info.region === "title" &&
-          node.isActive()
+          node.isActive() &&
+          (!slowClickDelay || Date.now() - this.lastClickTime < slowClickDelay)
         ) {
           this._callMethod("edit.startEditTitle", node);
         }
@@ -351,6 +357,7 @@ export class Wunderbaum {
       }
       // if(e.target.classList.)
       // this.log("click", info);
+      this.lastClickTime = Date.now();
     });
 
     util.onEvent(this.element, "keydown", (e) => {
@@ -369,7 +376,10 @@ export class Wunderbaum {
 
       this._callEvent("focus", { flag: flag, event: e });
       if (!flag) {
-        this._callMethod("edit.stopEditTitle", true, false);
+        this._callMethod("edit._stopEditTitle", true, {
+          event: e,
+          forceClose: true,
+        });
       }
       // if (flag && !this.activeNode ) {
       //   setTimeout(() => {
@@ -550,6 +560,8 @@ export class Wunderbaum {
     const func = (<any>obj)[n];
     if (func) {
       return func.apply(obj, args);
+    } else {
+      this.logError(`Calling undefined method '${name}()'.`);
     }
   }
 
@@ -567,6 +579,8 @@ export class Wunderbaum {
         this,
         util.extend({ name: name, tree: this, util: this._util }, extra)
       );
+      // } else {
+      //   this.logError(`Triggering undefined event '${name}'.`)
     }
   }
 

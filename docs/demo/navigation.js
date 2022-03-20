@@ -18,10 +18,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
         type: "link",
         href: "https://github.com/mar10/wunderbaum",
       },
+      // {
+      //   title: "Tutorial (GH wiki)",
+      //   type: "link",
+      //   href: "https://github.com/mar10/wunderbaum",
+      // },
       {
-        title: "Tutorial",
+        title: "User Guide",
         type: "link",
-        href: "https://github.com/mar10/wunderbaum",
+        href: "../index.html",
       },
       {
         title: "API Documentation",

@@ -1,16 +1,22 @@
 
+* [Project Home](https://mar10.github.io/wunderbaum/)
 
-* [Home](/)
+<!-- * [User Guide](/tutorial/index.md) -->
 
-* [Project](https://mar10.github.io/wunderbaum/)
+* **User Guide**
 
-* [Tutorial](/tutorial/index.md)
-
-  * [Overview](/tutorial/index.md)
-  * [Edit](/tutorial/tutorial_edit.md)
+  * [Overview](/tutorial/overview.md)
+  * [Initialization](/tutorial/tutorial_initialize.md)
   * [Events](/tutorial/tutorial_events.md)
-  * [Keyboard](/tutorial/tutorial_keyboard.md)
   * [Render](/tutorial/tutorial_render.md)
+  * [Edit](/tutorial/tutorial_edit.md)
+  * [Drag'n'Drop](/tutorial/tutorial_dnd.md)
+  * [Filter](/tutorial/tutorial_filter.md)
+  * [Keyboard](/tutorial/tutorial_keyboard.md)
+  * [Select](/tutorial/tutorial_select.md)
+  * [Advanced](/tutorial/tutorial_advanced.md)
+  * [Migration](/tutorial/migrate.md)
 
-* [API Documentation](/api/index.html)
-* [Migrate](/tutorial/migrate.md)
+* [API Documentation](/docs/api/index.html ':ignore')
+
+* [Source Code](https://github.com/mar10/wunderbaum)

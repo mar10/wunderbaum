@@ -55,10 +55,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
       },
       apply: function (e) {
         console.log(e.name, e);
-        return e.util.setTimeoutPromise(() => {
-          // e.node.data.sale = e.inputValue;
-        }, 1000);
-        },
+        // Simulate an async sorage that AL
+        // return e.util.setTimeoutPromise(() => {
+        //   // e.node.data.sale = e.inputValue;
+        //   e.inputElem.setCustomValidity("Invalid for *reasons*: " + e.newValue)
+        //   return false;
+        // }, 1000);
+      },
     },
     filter: {
       attachInput: "input#filterQuery",
