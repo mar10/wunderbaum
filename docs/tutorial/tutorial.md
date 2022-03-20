@@ -14,8 +14,8 @@ for details and migration hints.
     [drag and drop](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API),
     [editing](tutorial_edit.md), [filtering](tutorial_filter.md),
     [keyboard navigation](tutorial_keyboard.md), [multi-selection](tutorial_select.md).
-  * Grid support
-  * Use modern technologies with zero dependencies. Drop legacy support (IE, jQuery, ...)
+  * Use modern technologies with zero dependencies.
+    Drop legacy support (IE, jQuery, ...).
   * Framework agnostic.
   * Good documentation.
   * Decent test coverage.
@@ -39,18 +39,19 @@ The tree's data model can be accessed and modified using an extensive
 or `node.setExpanded()`.
 
 The rectangular, scrollable area on the page, that contains the (potentially
-larger) tree is called **viewport**.<br>
+much larger) tree is called **viewport**.<br>
 HTML markup is **rendered on demand**, i.e. only for nodes that are visible
 inside the *viewport*.<br>
 Also children of collapsed parent nodes don't have HTML elements.
 
 This concept allows to hold a *huge* data model (100k+ nodes) in the frontend,
-while only having a few `<span>` elements materialized in the DOM.<br>
+while only having a few HTML elements materialized in the DOM.<br>
 Developers should not manipulate the html directly, but change the data model
 and then call `node.render()` if needed.<br>
-It is not possible to bind events to all node HTML elements directly.
-However this is rarely necessary, since Wunderbaum offers event handlers like
-`click`, `dblclick`, and `keypress`. Use event delegation otherwise.
+Due to lazy rendering, it is not possible to bind events to all node HTML
+elements directly. However this is rarely necessary, since Wunderbaum offers
+event handlers like `click`, `dblclick`, and `keypress`.
+Use event delegation otherwise.
 
 A tree is usually set up for **lazy loading**:
 For one thing, the tree initialization may be delayed to an asynchronous Ajax
@@ -74,12 +75,13 @@ node.setExpanded().done(() => {
   alert("expand has finished");
 });
 ```
+or
 ```js
 await tree.expandAll();
 alert("expand has finished");
 ```
 
-Activitities and state changes generate **events**. Event handlers are used
+Activities and state changes generate **events**. Event handlers are used
 to implement behavior:
 
 ```js
@@ -87,6 +89,9 @@ const tree = new Wunderbaum({
   // ...
   activate: (e) => {
     console.log("Node was activated:", e.node);
+  },
+  change: (e) => {
+    console.log("Grid data was modified:", e);
   },
   render: (e) => {
     // e.node was rendered. We may now modify the markup...

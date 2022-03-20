@@ -25,7 +25,7 @@ export class EditExtension extends WunderbaumExtension {
 
   constructor(tree: Wunderbaum) {
     super(tree, "edit", {
-      debounce: 700,
+      debounce: 100,
       minlength: 1,
       maxlength: null,
       trigger: ["F2", "macEnter", "clickActive"],
@@ -285,7 +285,7 @@ export class EditExtension extends WunderbaumExtension {
     if (apply && newValue !== null && newValue !== node.title) {
       const colElem = node.getColElem(0)!;
 
-      this._applyChange("edit.appy", node, colElem, {
+      this._applyChange("edit.apply", node, colElem, {
         oldValue: node.title,
         newValue: newValue,
         inputElem: focusElem,

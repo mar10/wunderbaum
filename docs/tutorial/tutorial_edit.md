@@ -11,9 +11,9 @@ Editing is supported in two different ways:
   2. In a tree grid, there is also general support for embedded input elements
      in column cells, like checkboxes, text fileds, etc.<br>
      Note that *Wunderbaum* does **not** implement fancy input controls though.
-     Rather think of it as a framework that makes it easy to use standard or 
+     Rather think of it as a framework that makes it easy to use standard or
      custom HTML controls: <br>
-     Create HTML controls in the  `tree.render()` callback and implement the 
+     Create HTML controls in the  `tree.render()` callback and implement the
      `tree.change()` event to enable this.
 
 ## 1. Rename Nodes
@@ -48,7 +48,7 @@ const tree = new Wunderbaum({
      * with the current node title, focused, and selected.
      */
     edit: (e) => {
-      let inputElem = e.inputElem;
+      const inputElem = e.inputElem;
     },
     /**
      * Called when the edit operation is ending, either because the user
@@ -59,9 +59,9 @@ const tree = new Wunderbaum({
      * In this case, the cell is marled 'busy' while updating.
      */
     apply: (e) => {
-      let oldValue = e.oldValue;
-      let newValue = e.newValue;
-      let inputElem = e.inputElem;
+      const oldValue = e.oldValue;
+      const newValue = e.newValue;
+      const inputElem = e.inputElem;
     },
   },
 });
@@ -86,6 +86,10 @@ span.wb-col input:invalid {}
 
 ### Related Tree Options
 
+**Note:**
+See also the [Render Tutorial](tutorial_render.md) for a general rendering
+description.
+
 ```js
 const tree = new Wunderbaum({
   // --- Common Options ---
@@ -93,7 +97,7 @@ const tree = new Wunderbaum({
   // --- Common Events ---
   /**
    * Called when a node is rendered.
-   * 
+   *
    * We can do many things here, but related to editing, a typical aspect is
    * rendering `<input>` elements in column cells.
    */

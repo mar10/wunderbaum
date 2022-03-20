@@ -454,7 +454,8 @@ div.wunderbaum {
 }
 
 .wb-col input:invalid {
-  border-color: $error-color;
+  // border-color: $error-color;
+  color: $error-color;
   background-color: $error-background-color;
 }
 

@@ -13,7 +13,8 @@ We distinguish node states 'focused', 'active', and 'selected'.<br>
 is enabled (which is on by default), the node also gets activated.<br>
 A node becomes 'selected', when the checkbox is checked.
 
-The tree can have one of three navigation modes. Use <kbd>Enter</kbd>/<kbd>Esc</kbd> to toggle:
+A tree can have one of three navigation modes. Use <kbd>Enter</kbd>/<kbd>Esc</kbd>
+to toggle:
 
 *Row Mode* &harr; *Cell-Nav Mode* &harr; *Cell-Edit Mode*
 
@@ -111,7 +112,7 @@ const tree = new Wunderbaum({
   edit: {
     trigger: ["F2", "macEnter", ...],
     ...
-},
+  },
 });
 ```
 
