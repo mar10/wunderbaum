@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       },
     },
     edit: {
+      trigger: ["clickActive", "F2", "macEnter"],
       select: true,
       beforeEdit: function (e) {
         console.log(e.name, e);

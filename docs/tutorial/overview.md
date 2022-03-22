@@ -1,9 +1,8 @@
-> Wunderbaum: Design goals and main concepts.
-
 !> Wunderbaum has currently pre-alpha status:<br>
-   Do not use it in production.
+   API, Markup, Stylesheet, etc. are subject to change.<br>
+   **Do not use it in production!**
 
-?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree). 
+?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
    Read [migrate](/tutorial/migrate.md) for details and migration hints.
 
 
@@ -16,10 +15,10 @@
   * Use modern technologies with **zero dependencies**.
     Drop legacy support (IE, jQuery, ...).
   * Robust, consistent handling of parallel, asynchronous behavior.
-  * Built-in support for 
+  * Built-in support for
     [aria](https://www.w3.org/TR/wai-aria-1.1/),
     [drag and drop](/tutorial/tutorial_dnd.md),
-    [editing](/tutorial/tutorial_edit.md), 
+    [editing](/tutorial/tutorial_edit.md),
     [filtering](/tutorial/tutorial_filter.md),
     [multi-selection](/tutorial/tutorial_select.md).
   * Fully [controllable using the keyboard](/tutorial/tutorial_keyboard.md).
@@ -66,8 +65,8 @@ spinner icon until the data arrives.<br>
 Additionally, single child nodes may be marked 'lazy'. These nodes will generate
 Ajax requests when expanded for the first time.
 Lazy loading allows to present hierarchical structures of infinite size in an
-efficient way. But since neither all DOM elements nor even the complete tree 
-data model is available in the browser, API functions like `tree.getNodeByKey()` 
+efficient way. But since neither all DOM elements nor even the complete tree
+data model is available in the browser, API functions like `tree.getNodeByKey()`
 or `node.findAll()` may not work as expected.
 
 Some API functions are potentially **asynchronous**. For example `node.setExpanded()`

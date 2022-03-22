@@ -606,6 +606,30 @@ export function toggleCheckbox(
   input.checked = !!value;
 }
 
+/**
+ * Return `opts.NAME` if opts is valid and
+ *
+ * @param opts dict, object, or null
+ * @param name option name (use dot notation to access extension option, e.g. `filter.mode`)
+ * @param defaultValue returned when `opts` is not an object, or does not have a NAME property
+ */
+export function getOption(
+  opts: any,
+  name: string,
+  defaultValue = undefined
+): any {
+  let ext;
+
+  // Lookup `name` in options dict
+  if (opts && name.indexOf(".") >= 0) {
+    [ext, name] = name.split(".");
+    opts = opts[ext];
+  }
+  let value = opts ? opts[name] : null;
+  // Use value from value options dict, fallback do default
+  return value ?? defaultValue;
+}
+
 /** Convert an Array or space-separated string to a Set. */
 export function toSet(val: any): Set<string> {
   if (val instanceof Set) {

@@ -1421,6 +1421,16 @@ export class WunderbaumNode {
   }
 
   async setExpanded(flag: boolean = true, options?: any) {
+    // alert("" + this.getLevel() + ", "+ this.getOption("minExpandLevel");
+    if (
+      !flag &&
+      this.isExpanded() &&
+      this.getLevel() < this.getOption("minExpandLevel") &&
+      !util.getOption(options, "force")
+    ) {
+      this.logDebug("Ignored collapse request.");
+      return;
+    }
     if (flag && this.lazy && this.children == null) {
       await this.loadLazy();
     }

@@ -28,7 +28,7 @@ export class EditExtension extends WunderbaumExtension {
       debounce: 100,
       minlength: 1,
       maxlength: null,
-      trigger: ["clickActive", "F2", "macEnter"],
+      trigger: [], //["clickActive", "F2", "macEnter"],
       trim: true,
       select: true,
       slowClickDelay: 1000, // Handle 'clickActive' only if last click is less than this old (0: always)

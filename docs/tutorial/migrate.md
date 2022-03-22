@@ -14,4 +14,4 @@
 - Built-in html5 drag'n'drop
 - Built-in ARIA
 - escapeTitles: true
-- 'folder' is no longer a builtin type
+- 'folder' is no longer a built-in type
