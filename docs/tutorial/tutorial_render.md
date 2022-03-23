@@ -1,4 +1,4 @@
-> Wunderbaum: Custom Rendering
+# Custom Rendering
 
 ?> See also the [General Overview](/tutorial/overview.md).
 

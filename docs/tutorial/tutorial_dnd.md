@@ -1,4 +1,4 @@
-> Wunderbaum: Drag and Drop
+# Drag and Drop
 
 ?> See also the [General Overview](/tutorial/overview.md).
 

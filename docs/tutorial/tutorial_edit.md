@@ -1,4 +1,4 @@
-> Wunderbaum: Edit Nodes and Columns
+# Edit Nodes and Columns
 
 ?> See also the [General Overview](/tutorial/overview.md).
 
@@ -56,10 +56,10 @@ const tree = new Wunderbaum({
      * canceled, confirmed, or moved focus.
      *
      * Return `false` to keep the input control open (not always possible).
-     * 
+     *
      * It is also possible to return a `Promise` (e.g. from an ajax request).
      * In this case, the cell is marked 'busy' while updating.
-     * 
+     *
      * Implementing this event is optional. By default, `node.setTitle()` is
      * called with the new text.
      */

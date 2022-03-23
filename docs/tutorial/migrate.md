@@ -9,9 +9,17 @@
 - Dropped support for Internet Explorer
 - Markup now `<div>` based, instead of `<ul>/<li>` and `<table>`
 - Grid layout is now built-in standard. A plain tree is only a special case thereof.
+- New viewport concept (implies a fixed header)
 - Clone suppport is standard (i.e. support for duplicate `refKey`s in addition
   to unique `key`s).
 - Built-in html5 drag'n'drop
 - Built-in ARIA
-- escapeTitles: true
+- Titles are XSS-safe now by default (`escapeTitles: true`)
 - 'folder' is no longer a built-in type
+- Written in TypeScript, transpiled to JavaScript ES6 with type hints (.esm & .umd).
+
+**Missing Features (So Far)**
+
+- Persistence
+- Hierarcical Multi-Selection
+- Fixed Columns

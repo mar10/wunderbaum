@@ -1,4 +1,4 @@
-> Wunderbaum: Keyboard Navigation
+# Keyboard Navigation
 
 ?> See also the [General Overview](/tutorial/overview.md).
 

@@ -1,4 +1,4 @@
-> Wunderbaum: Advanced topics.
+# Advanced Topics
 
 ?> See also the [General Overview](/tutorial/overview.md).
 
@@ -19,7 +19,7 @@
 - `wb-checkbox-auto-hide`
 - `wb-fade-expander`
 
-# CSS Hacks
+### CSS Hacks
 ```css
 * {
   box-sizing: border-box;

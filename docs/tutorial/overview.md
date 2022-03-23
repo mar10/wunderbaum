@@ -1,33 +1,34 @@
+# Overview
+
 !> Wunderbaum has currently pre-alpha status:<br>
-   API, Markup, Stylesheet, etc. are subject to change.<br>
-   **Do not use it in production!**
+API, Markup, Stylesheet, etc. are subject to change.<br>
+**Do not use it in production!**
 
 ?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
-   Read [migrate](/tutorial/migrate.md) for details and migration hints.
+Read [migrate](/tutorial/migrate.md) for details and migration hints.
 
+## Design Goals
 
-### Design Goals
+- Create a **Tree-grid** control with emphasis on "tree".<br>
+  Depending on the number of columns and nesting depth, Wunderbaum can also be
+  used as a **plain tree**, **plain grid**, or a **simple list** control.
+- **Performant** and efficient handling of **big data structures**.
+- Use modern technologies with **zero dependencies**.
+  Drop legacy support (IE, jQuery, ...).
+- Robust, consistent handling of parallel, asynchronous behavior.
+- Built-in support for
+  [aria](https://www.w3.org/TR/wai-aria-1.1/),
+  [drag and drop](/tutorial/tutorial_dnd.md),
+  [editing](/tutorial/tutorial_edit.md),
+  [filtering](/tutorial/tutorial_filter.md),
+  [multi-selection](/tutorial/tutorial_select.md).
+- Fully [controllable using the keyboard](/tutorial/tutorial_keyboard.md).
+- Framework agnostic.
+- Good documentation.
+- Decent test coverage.
+- Written in TypeScript, transpiled to JavaScript ES6 with type hints (.esm & .umd).
 
-  * Create a **Tree-grid** control with emphasis on "tree".<br>
-    Depending on the number of columns and nesting depth, Wunderbaum can also be
-    used as a **plain tree**, **plain grid**, or a **simple list** control.
-  * **Performant** and efficient handling of **big data structures**.
-  * Use modern technologies with **zero dependencies**.
-    Drop legacy support (IE, jQuery, ...).
-  * Robust, consistent handling of parallel, asynchronous behavior.
-  * Built-in support for
-    [aria](https://www.w3.org/TR/wai-aria-1.1/),
-    [drag and drop](/tutorial/tutorial_dnd.md),
-    [editing](/tutorial/tutorial_edit.md),
-    [filtering](/tutorial/tutorial_filter.md),
-    [multi-selection](/tutorial/tutorial_select.md).
-  * Fully [controllable using the keyboard](/tutorial/tutorial_keyboard.md).
-  * Framework agnostic.
-  * Good documentation.
-  * Decent test coverage.
-
-
-### Main Concepts
+## Main Concepts
 
 We have a tree **data model** as the backbone, i.e. an instance of the
 `Wunderbaum` class that contains a hierarchical structure of `WunderbaumNode`
@@ -47,9 +48,9 @@ or `node.setExpanded()`.
 The rectangular, scrollable area on the page, that contains the (potentially
 much larger) tree is called **viewport**.<br>
 HTML markup is **rendered on demand**, i.e. only for nodes that are visible
-inside the *viewport*.<br>
+inside the _viewport_.<br>
 Also children of collapsed parent nodes don't have HTML elements.<br>
-This concept allows to hold a *huge* data model (100k+ nodes) in the frontend,
+This concept allows to hold a _huge_ data model (100k+ nodes) in the frontend,
 while only having a few HTML elements materialized in the DOM.
 Developers should not manipulate the html directly, but change the data model
 and then call `node.render()` if needed.<br>
@@ -75,12 +76,15 @@ scrolls and render new nodes.
 These functions generally return a
 [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise),
 so handling deferred responses is easy:
+
 ```js
 node.setExpanded().done(() => {
   alert("expand has finished");
 });
 ```
+
 or
+
 ```js
 await tree.expandAll();
 alert("expand has finished");
@@ -102,5 +106,4 @@ const tree = new Wunderbaum({
     // e.node was rendered. We may now modify the markup...
   },
 });
-
 ```

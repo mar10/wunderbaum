@@ -314,7 +314,7 @@ div.wunderbaum {
     &:not(:focus-within),
     &:not(:focus) {
       div.wb-node-list div.wb-row {
-        border-bottom-color: grayscale($active-border-color);
+        border-bottom-color: grayscale($grid-color);
       }
     }
   }
