@@ -238,7 +238,7 @@ export class EditExtension extends WunderbaumExtension {
       // Permanently apply  input validations (CSS and tooltip)
       inputElem.addEventListener("keydown", (e) => {
         if (!inputElem.reportValidity()) {
-          // node?.logInfo(`Invalid: '${}'")
+          // node?.logInfo(`Invalid input: '${inputElem.value}'`);
         }
       });
     }
@@ -270,6 +270,7 @@ export class EditExtension extends WunderbaumExtension {
     let newValue = focusElem ? getValueFromElem(focusElem) : null;
     const node = this.curEditNode;
     const forceClose = !!opts.forceClose;
+    const validity = this.getPluginOption("validity");
 
     if (newValue && this.getPluginOption("trim")) {
       newValue = newValue.trim();
@@ -289,9 +290,17 @@ export class EditExtension extends WunderbaumExtension {
         inputElem: focusElem,
       })
         .then((value) => {
+          const errMsg = focusElem.validationMessage;
+          if (validity && errMsg && value !== false) {
+            // Handler called 'inputElem.setCustomValidity()' to signal error
+            throw new Error(
+              `Edit apply validation failed for "${newValue}": ${errMsg}.`
+            );
+          }
           // Discard the embedded `<input>`
           // node.logDebug("applyChange:", value, forceClose)
           if (!forceClose && value === false) {
+            // Keep open
             return;
           }
           node?.setTitle(newValue);

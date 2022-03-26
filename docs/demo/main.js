@@ -56,12 +56,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
       },
       apply: function (e) {
         console.log(e.name, e);
-        // Simulate an async sorage that AL
-        // return e.util.setTimeoutPromise(() => {
-        //   // e.node.data.sale = e.inputValue;
-        //   e.inputElem.setCustomValidity("Invalid for *reasons*: " + e.newValue)
-        //   return false;
-        // }, 1000);
+        // Simulate async storage that also validates:
+        return e.util.setTimeoutPromise(() => {
+          if( e.newValue.match(/.*\d.*/)){
+            e.inputElem.setCustomValidity("No numbers please.")
+            return false;
+          }
+        }, 1000);
       },
     },
     filter: {
