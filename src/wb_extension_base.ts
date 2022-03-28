@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - wb_extension_base
- * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -21,12 +21,14 @@ export abstract class WunderbaumExtension {
     this.id = id;
     this.treeOpts = tree.options;
 
+    const opts = tree.options as any;
+
     if (this.treeOpts[id] === undefined) {
-      this.treeOpts[id] = this.extensionOpts = util.extend({}, defaults);
+      opts[id] = this.extensionOpts = util.extend({}, defaults);
     } else {
       // TODO: do we break existing object instance references here?
-      this.extensionOpts = util.extend({}, defaults, tree.options[id]);
-      tree.options[id] = this.extensionOpts;
+      this.extensionOpts = util.extend({}, defaults, opts[id]);
+      opts[id] = this.extensionOpts;
     }
     this.enabled = this.getPluginOption("enabled", true);
   }

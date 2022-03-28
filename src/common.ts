@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - common
- * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -8,8 +8,9 @@ import { escapeRegex } from "./util";
 import { WunderbaumNode } from "./wb_node";
 import { Wunderbaum } from "./wunderbaum";
 
-export type WunderbaumOptions = any;
+// export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
+export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
 
 export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
 export const ROW_HEIGHT = 22;

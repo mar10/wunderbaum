@@ -12,4 +12,4 @@
 ?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
    Read [migrate](/tutorial/migrate.md) for details and migration hints.
 
-Copyright &copy; 2021 Martin Wendt
+Copyright &copy; 2021-2022 Martin Wendt

@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - wunderbaum_node
- * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -694,9 +694,7 @@ export class WunderbaumNode {
         this.setStatus(NodeStatusType.loading);
         const response = await fetch(url, { method: "GET" });
         if (!response.ok) {
-          util.error(
-            `GET ${opts.remote} returned ${response.status}, ${response}`
-          );
+          util.error(`GET ${url} returned ${response.status}, ${response}`);
         }
         const data = await response.json();
 
@@ -1317,7 +1315,7 @@ export class WunderbaumNode {
    */
   getOption(name: string, defaultValue?: any) {
     let tree = this.tree;
-    let opts = tree.options;
+    let opts: any = tree.options;
 
     // Lookup `name` in options dict
     if (name.indexOf(".") >= 0) {

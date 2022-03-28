@@ -4,6 +4,7 @@
   - [Initialization](/tutorial/tutorial_initialize.md)
   - [Events](/tutorial/tutorial_events.md)
   - [Render](/tutorial/tutorial_render.md)
+  - [Grid](/tutorial/tutorial_grid.md)
   - [Edit](/tutorial/tutorial_edit.md)
   - [Drag'n'Drop](/tutorial/tutorial_dnd.md)
   - [Filter](/tutorial/tutorial_filter.md)

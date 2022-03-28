@@ -1,4 +1,4 @@
-> Migrate from Fancytree to Wunderbaum.
+# Migrate from Fancytree to Wunderbaum
 
 ?> See also the [General Overview](/tutorial/overview.md).
 

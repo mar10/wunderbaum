@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - ext-logger
- * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 

@@ -86,13 +86,18 @@ const tree = new Wunderbaum({
 - `tree.startEditTitle(node)`
 - `tree.stopEditTitle(apply: boolean)`
 
-### Related CSS Rules
+### Style Hacks
 
 ```css
 input.wb-input-edit {}
 span.wb-col.wb-dirty {}
 span.wb-col.wb-error {}
 span.wb-col input:invalid {}
+```
+
+### Code Hacks
+
+```js
 ```
 
 ## 2. Edit Cell Content

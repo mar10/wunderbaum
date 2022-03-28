@@ -8,3 +8,4 @@
 sauce_connect.*
 .pyftpsync-meta.json
 .DS_Store
+docs/tutorial/FT_*.md

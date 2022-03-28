@@ -3,7 +3,7 @@
  *
  * A tree control.
  *
- * Copyright (c) 2021, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
  * Released under the MIT license.
  *
  * @version @VERSION
@@ -30,12 +30,12 @@ import {
   RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
   TargetType as NodeRegion,
-  WunderbaumOptions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
 import { DebouncedFunction, throttle } from "./debounce";
 import { EditExtension } from "./wb_ext_edit";
+import { WunderbaumOptions } from "./wb_options";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -573,7 +573,8 @@ export class Wunderbaum {
    */
   _callEvent(name: string, extra?: any): any {
     const [p, n] = name.split(".");
-    const func = n ? this.options[p][n] : this.options[p];
+    const opts = this.options as any;
+    const func = n ? opts[p][n] : opts[p];
     if (func) {
       return func.call(
         this,
@@ -699,7 +700,7 @@ export class Wunderbaum {
    */
   getOption(name: string, defaultValue?: any): any {
     let ext;
-    let opts = this.options;
+    let opts = this.options as any;
 
     // Lookup `name` in options dict
     if (name.indexOf(".") >= 0) {
@@ -723,7 +724,7 @@ export class Wunderbaum {
    */
   setOption(name: string, value: any): void {
     if (name.indexOf(".") === -1) {
-      this.options[name] = value;
+      (this.options as any)[name] = value;
       // switch (name) {
       //   case value:
       //     break;

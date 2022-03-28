@@ -1,4 +1,4 @@
-> Wunderbaum: Contributors Guide
+# Contributors Guide
 
 First off: thank you for your contribution:
 This open source project would not be possible without your support!

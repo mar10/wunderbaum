@@ -1,10 +1,25 @@
 /*!
  * Wunderbaum - utils
- * Copyright (c) 2021, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavigationModeOption } from "./common";
+import {
+  BoolOptionResolver,
+  NavigationModeOption,
+  WbEventType,
+} from "./common";
+
+export interface WunderbaumSource {
+  title: string;
+  key?: string;
+  refKey?: string;
+  expanded?: boolean;
+  selected?: boolean;
+  checkbox?: boolean | "radio" | BoolOptionResolver;
+  children?: Array<WunderbaumSource>;
+  // ...any?: Any;
+}
 
 /**
  * Available options for [[Wunderbaum]].
@@ -22,140 +37,81 @@ import { NavigationModeOption } from "./common";
  */
 export interface WunderbaumOptions {
   /**
-   *
+   * The target `div` element (or selector) that shall become a Wunderbaum.
    */
-  navigationMode?: NavigationModeOption;
+  element: string | HTMLDivElement;
   /**
-   * Default values if no data is found in localStorage.
+   * The identifier of this tree. Used to reference the instance, especially
+   * when multiple trees are present (e.g. `tree = mar10.Wunderbaum.getTree("demo")`).
+   *
+   * Default: `"wb_" + COUNTER`.
+   */
+  id?: string;
+  /**
+   * Define the initial tree data. Typically a URL of an endpoint that serves
+   * a JSON formatted structure, but also a callback, Promise, or static data
+   * is allowed.
    *
    * Default: `{}`.
    */
-  defaults?: any;
+  source?: string | Array<WunderbaumSource>;
   /**
-   * Track form input changes and maintain status class names.
+   * Define shared attributes for multiple nodes of the same type.
+   * This allows for more compact data models. Type definitions can be passed
+   * as tree option, or be part of a `source` response.
    *
-   * Automatically call [[readFromForm]] when users enter form data.
+   * Default: `{}`.
    */
-  attachForm?: HTMLFormElement | string;
+  types: any; //[key: string]: any;
   /**
-   * Set status-dependant classes here.
+   * A list of maps that define column headers. If this option is set,
+   * Wunderbaum becomes a tree-grid control instead of a plain tree.
+   * Column definitions can be passed as tree option, or be part of a `source`
+   * response.
+   * Default: `[]` meaning this is a plain tree.
    */
-  statusElement?: HTMLFormElement | string;
-
+  columns?: Array<any>;
   /**
-   * Commit changes after *X* milliseconds of inactivity.
    *
-   * Commit cached changes to localStorage after 0.5 seconds of inactivity.<br>
-   * After each change, we wait 0.5 more seconds for additional changes to come
-   * in, before the actual commit is executed.
-   *
-   * The maximum delay (first change until actual commit) is limited by
-   * [[maxCommitDelay]].
-   *
-   * Set to `0` to force synchronous mode.
-   * Default: `500` milliseconds.
+   * Default: false.
    */
-  commitDelay: number;
+  skeleton: false;
   /**
-   * Allow [[PersistentObject.set]] to create missing intermediate parent
-   * objects.
+   *
+   * Default: false.
    */
-  createParents?: boolean;
+  strings: any; //[key: string] string;
   /**
-   * Commit changes max. *X* millseconds after first change.
-   *
-   * This settings limits the effect of [[commitDelay]], which would otherwise
-   * never commit if the user enters keystrokes frequently.
-   *
-   * Default: `3000` milliseconds
    */
-  maxCommitDelay?: number;
+  debugLevel: 3;
+  minExpandLevel: 0;
+  escapeTitles: true;
+  headerHeightPx: 22;
+  autoCollapse: false;
+  // --- Extensions ---
+  dnd: any; // = {};
+  filter: any; // = {};
   /**
-   * Push commits after *X* milliseconds of inactivity.
-   *
-   * Push commits to remote after 5 seconds of inactivity.<br>
-   * After each change, we wait 5 more seconds for additional changes to come
-   * in, before the actual push is executed.<br>
-   * The maximum delay (first change until actual push) is limited by [[maxPushDelay]].
-   *
-   * Set to `0` to force synchronous mode.
-   * Default: `5000` milliseconds
+   * A list of maps that define column headers. If this option is set,
+   * Wunderbaum becomes a tree grid control instead of a plain tree.
+   * Column definitions can be passed as tree option, or be part of a `source`
+   * response.
    */
-  pushDelay?: number;
+  navigationMode?: NavigationModeOption;
+  // --- Events ---
   /**
-   * Push commits max. *X* milliseconds after first change.
-   *
-   * Push every commit to remote max. 30 seconds after it occurred.
-   * This setting limits the effect of [[pushDelay]].
-   *
-   * Default: `30000` milliseconds.
-   */
-  maxPushDelay?: number;
-  /**
-   * Instance of [Web Storage](https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API).
-   *
-   * Possible values are `window.localStorage`, `window.sessionStorage`.<br>
-   * Pass `null` to disable persistence.
-   *
-   * Default: `window.localStorage`
-   */
-  storage?: any;
-  /**
-   * Verbosity level: 0:quiet, 1:normal, 2:verbose.
-   * Default: `1`
-   */
-  debugLevel?: number;
-  /**
-   * Called when data was changed (before comitting).
+   * Called after initial data was loaded and tree markup was rendered.
    * @category Callback
    */
-  change?: (hint: string) => void;
-  /**
-   * Called after modified data was written to storage.
-   * @category Callback
-   */
-  commit?: () => void;
-  /**
-   * Called when new data arrives from storage, while local data is still
-   * uncommitted.
-   *
-   * Return false to prevent updating the local data with the new storage content.
-   * @category Callback
-   */
-  conflict?: (remoteData: any, localData: any) => boolean;
-  /**
-   * Called on errors, e.g. when Ajax requests fails.
-   * @category Callback
-   */
-  error?: (...args: any[]) => void;
-  /**
-   * Called after data was received from remote service.
-   * @category Callback
-   */
-  pull?: (response: any) => void;
-  /**
-   * Called after modified data was POSTed to `remote`.
-   * @category Callback
-   */
-  push?: (response: any) => void;
-  /**
-   * Modified data was stored.
-   *
-   * If `remote` was passed, this means `push` has finished,
-   * otherwise `commit` has finished.
-   * @category Callback
-   */
-  save?: () => void;
-  /**
-   * Status changed.
-   *
-   * Possible values: 'ok', 'error', 'loading', 'status', 'modified'.
-   * @category Callback
-   */
-  status?: (status: string) => void;
+  init?: (e: WbEventType) => void;
   /**
    * Called after data was loaded from local storage.
    * @category Callback
    */
-  update?: () => void;
+  update?: (e: WbEventType) => void;
+  /**
+   * Called after data was loaded from local storage.
+   * @category Callback
+   */
+  modifyChild?: (e: WbEventType) => void;
 }
