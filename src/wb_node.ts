@@ -24,6 +24,7 @@ import {
   ROW_HEIGHT,
   TEST_IMG,
   ApplyCommandType,
+  AddNodeType,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -277,7 +278,7 @@ export class WunderbaumNode {
    * Apply a modification (or navigation) operation.
    * @see Wunderbaum#applyCommand
    */
-  applyCommand(cmd: ApplyCommandType, opts: any) {
+  applyCommand(cmd: ApplyCommandType, opts: any): any {
     return this.tree.applyCommand(cmd, this, opts);
   }
 
@@ -691,7 +692,7 @@ export class WunderbaumNode {
   /** Download  data from the cloud, then call `.update()`. */
   async load(source: any) {
     const tree = this.tree;
-    const opts = tree.options;
+    // const opts = tree.options;
     const requestId = Date.now();
     const prevParent = this.parent;
     const url = typeof source === "string" ? source : source.url;
@@ -865,6 +866,101 @@ export class WunderbaumNode {
     return dfd.promise();
   }
 
+  /** Move this node to targetNode. */
+  moveTo(
+    targetNode: WunderbaumNode,
+    mode: AddNodeType = "appendChild",
+    map?: NodeAnyCallback
+  ) {
+    if (mode === "prependChild") {
+      if (targetNode.children && targetNode.children.length) {
+        mode = "before";
+        targetNode = targetNode.children[0];
+      } else {
+        mode = "appendChild";
+      }
+    }
+    let pos,
+      tree = this.tree,
+      prevParent = this.parent,
+      targetParent = mode === "appendChild" ? targetNode : targetNode.parent;
+
+    if (this === targetNode) {
+      return;
+    } else if (!this.parent) {
+      util.error("Cannot move system root");
+    } else if (targetParent.isDescendantOf(this)) {
+      util.error("Cannot move a node to its own descendant");
+    }
+    if (targetParent !== prevParent) {
+      prevParent.triggerModifyChild("remove", this);
+    }
+    // Unlink this node from current parent
+    if (this.parent.children!.length === 1) {
+      if (this.parent === targetParent) {
+        return; // #258
+      }
+      this.parent.children = this.parent.lazy ? [] : null;
+      this.parent.expanded = false;
+    } else {
+      pos = this.parent.children!.indexOf(this);
+      util.assert(pos >= 0, "invalid source parent");
+      this.parent.children!.splice(pos, 1);
+    }
+
+    // Insert this node to target parent's child list
+    this.parent = targetParent;
+    if (targetParent.hasChildren()) {
+      switch (mode) {
+        case "appendChild":
+          // Append to existing target children
+          targetParent.children!.push(this);
+          break;
+        case "before":
+          // Insert this node before target node
+          pos = targetParent.children!.indexOf(targetNode);
+          util.assert(pos >= 0, "invalid target parent");
+          targetParent.children!.splice(pos, 0, this);
+          break;
+        case "after":
+          // Insert this node after target node
+          pos = targetParent.children!.indexOf(targetNode);
+          util.assert(pos >= 0, "invalid target parent");
+          targetParent.children!.splice(pos + 1, 0, this);
+          break;
+        default:
+          util.error("Invalid mode " + mode);
+      }
+    } else {
+      targetParent.children = [this];
+    }
+
+    // Let caller modify the nodes
+    if (map) {
+      targetNode.visit(map, true);
+    }
+    if (targetParent === prevParent) {
+      targetParent.triggerModifyChild("move", this);
+    } else {
+      // prevParent.triggerModifyChild("remove", this);
+      targetParent.triggerModifyChild("add", this);
+    }
+    // Handle cross-tree moves
+    if (tree !== targetNode.tree) {
+      // Fix node.tree for all source nodes
+      // 	util.assert(false, "Cross-tree move is not yet implemented.");
+      this.logWarn("Cross-tree moveTo is experimental!");
+      this.visit(function (n) {
+        // TODO: fix selection state and activation, ...
+        n.tree = targetNode.tree;
+      }, true);
+    }
+
+    tree.updateViewport();
+    // TODO: fix selection state
+    // TODO: fix active state
+  }
+
   /** Set focus relative to this node and optionally activate.
    *
    * 'left' collapses the node if it is expanded, or move to the parent
@@ -898,7 +994,7 @@ export class WunderbaumNode {
     return Promise.resolve(this);
   }
 
-  /** */
+  /** Delete this node and all descendants. */
   remove() {
     const tree = this.tree;
     const pos = this.parent.children!.indexOf(this);
@@ -909,7 +1005,7 @@ export class WunderbaumNode {
     }, true);
   }
 
-  /**Remove all descendants of ctx.node. */
+  /** Remove all descendants of this node. */
   removeChildren() {
     const tree = this.tree;
 
@@ -942,6 +1038,7 @@ export class WunderbaumNode {
     this.tree.updateViewport();
   }
 
+  /** Remove all HTML markup from the DOM. */
   removeMarkup() {
     if (this._rowElem) {
       delete (<any>this._rowElem)._wb_node;
@@ -1019,6 +1116,7 @@ export class WunderbaumNode {
     return iconSpan;
   }
 
+  /** Create HTML markup for this node, i.e. the whole row. */
   render(opts?: any) {
     const tree = this.tree;
     const treeOptions = tree.options;

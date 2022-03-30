@@ -1,40 +1,41 @@
-(function (window, document, undefined) {
-  /*globals QUnit */
-  /*globals mar10 */
+/*!
+ * Wunderbaum - Unit Test
+ * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
+ * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
+ */
 
-  const Wunderbaum = mar10.Wunderbaum;
-  const util = Wunderbaum.util;
+const { test } = QUnit;
+const Wunderbaum = mar10.Wunderbaum;
+const util = Wunderbaum.util;
+const FIXTURE_1 = [
+  {
+    title: "Node 1",
+    expanded: true,
+    children: [{ title: "Node 1.1" }, { title: "Node 1.2" }],
+  },
+  { title: "Node 2", lazy: true },
+];
 
-  const FIXTURE_1 = [
-    {
-      title: "Node 1",
-      expanded: true,
-      children: [{ title: "Node 1.1" }, { title: "Node 1.2" }],
-    },
-    { title: "Node 2", lazy: true },
-  ];
+/* Setup */
+QUnit.testStart(function () {
+  window.sessionStorage.clear();
+  window.localStorage.clear();
+});
 
-  /* Setup */
-  QUnit.testStart(function () {
-    window.sessionStorage.clear();
-    window.localStorage.clear();
-  });
+/* Tear Down */
+QUnit.testDone(function () {});
 
-  /* Tear Down */
-  QUnit.testDone(function () {});
-
-  QUnit.module("Utility tests");
-
-  QUnit.test("Static utility functions", function (assert) {
+QUnit.module("Utility tests", (hooks) => {
+  test("Static utility functions", (assert) => {
     assert.expect(2);
 
     assert.equal(util.type([]), "array", "type([])");
     assert.equal(util.type({}), "object", "type({})");
   });
+});
 
-  QUnit.module("Static tests");
-
-  QUnit.test("Access static properties", function (assert) {
+QUnit.module("Static tests", (hooks) => {
+  test("Access static properties", (assert) => {
     assert.expect(4);
 
     assert.true(Wunderbaum.version != null, "Statics defined");
@@ -61,15 +62,23 @@
       "Fail if 'element' option is missing"
     );
   });
+});
 
-  QUnit.module("Instance tests");
+QUnit.module("Instance tests", (hooks) => {
+  let tree = null;
 
-  QUnit.test("Initial event sequence (fetch)", function (assert) {
+  hooks.beforeEach(() => {});
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+  });
+
+  test("Initial event sequence (fetch)", (assert) => {
     assert.expect(5);
     assert.timeout(1000); // Timeout after 1 second
     const done = assert.async();
 
-    const tree = new Wunderbaum({
+    tree = new Wunderbaum({
       element: "#tree",
       source: "ajax-simple.json",
       // source: FIXTURE_1,
@@ -95,13 +104,13 @@
     });
   });
 
-  QUnit.test("Lazy load (fetch)", function (assert) {
+  test("Lazy load (fetch)", (assert) => {
     assert.expect(8);
     assert.timeout(1000); // Timeout after 1 second
     const done = assert.async();
     let initComplete = false;
 
-    const tree = new Wunderbaum({
+    tree = new Wunderbaum({
       element: "#tree",
       source: "ajax-simple.json",
       lazyLoad: (e) => {
@@ -153,21 +162,24 @@
     });
   });
 
-  QUnit.test("applyCommand", function (assert) {
-    assert.expect(5);
+  test("applyCommand", (assert) => {
+    assert.expect(2);
     assert.timeout(1000); // Timeout after 1 second
     const done = assert.async();
 
-    const tree = new Wunderbaum({
+    tree = new Wunderbaum({
       element: "#tree",
       source: FIXTURE_1,
       init: (e) => {
         const node1 = tree.findFirst("Node 1");
         const node2 = tree.findFirst("Node 2");
-        node1.applyCommand("copy")
-        node2.applyCommand("paste")
+        assert.equal(node1.getPrevSibling(), null);
+
+        node1.applyCommand("moveDown");
+        assert.equal(node1.getPrevSibling(), node2);
+        // Avoid errors reported by ResizeObserver
         done();
       },
     });
   });
-})(window, document);
+});

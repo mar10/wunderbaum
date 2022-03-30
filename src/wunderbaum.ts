@@ -75,6 +75,8 @@ export class Wunderbaum {
   // protected rows: WunderbaumNode[] = [];
   // protected _rowCount = 0;
 
+  // protected eventHandlers : Array<function> = [];
+
   public activeNode: WunderbaumNode | null = null;
   public focusNode: WunderbaumNode | null = null;
   _disableUpdate = 0;
@@ -85,6 +87,8 @@ export class Wunderbaum {
   /** List of column definitions. */
   public columns: any[] = [];
   public _columnsById: { [key: string]: any } = {};
+
+  protected resizeObserver;
 
   // Modification Status
   protected changedSince = 0;
@@ -269,7 +273,7 @@ export class Wunderbaum {
         </div>`;
       // this.updateColumns({ render: false });
     } else {
-      this.element.innerHTML = ``;
+      this.element.innerHTML = "";
     }
 
     //
@@ -330,11 +334,11 @@ export class Wunderbaum {
     // window.addEventListener("resize", (e: Event) => {
     //   this.updateViewport();
     // });
-    const resizeObserver = new ResizeObserver((entries) => {
+    this.resizeObserver = new ResizeObserver((entries) => {
       this.updateViewport();
-      // console.log("ResizeObserver: Size changed", entries);
+      console.log("ResizeObserver: Size changed", entries);
     });
-    resizeObserver.observe(this.element);
+    this.resizeObserver.observe(this.element);
 
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
@@ -677,40 +681,19 @@ export class Wunderbaum {
     return this.root.addChildren(nodeData, options);
   }
 
-  clear() {
-    this.root.removeChildren();
-    this.root.children = null;
-    this.keyMap.clear();
-    this.refKeyMap.clear();
-    this.viewNodes.clear();
-    this.activeNode = null;
-    this.focusNode = null;
-
-    // this.types = {};
-    // this. columns =[];
-    // this._columnsById = {};
-
-    // Modification Status
-    this.changedSince = 0;
-    this.changes.clear();
-    this.changedNodes.clear();
-
-    // // --- FILTER ---
-    // public filterMode: FilterModeType = null;
-
-    // // --- KEYNAV ---
-    // public activeColIdx = 0;
-    // public cellNavMode = false;
-    // public lastQuicksearchTime = 0;
-    // public lastQuicksearchTerm = "";
-    this.updateViewport();
-  }
   /**
    * Apply a modification (or navigation) operation on the tree or active node.
    * @returns
    */
   applyCommand(cmd: ApplyCommandType, opts?: any): any;
+
   /**
+   * Apply a modification (or navigation) operation on a node.
+   * @returns
+   */
+  applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, opts?: any): any;
+
+  /*
    * Apply a modification or navigation operation.
    *
    * Most of these commands simply map to a node or tree method.
@@ -726,15 +709,25 @@ export class Wunderbaum {
    *   - 'down', 'first', 'last', 'left', 'parent', 'right', 'up': navigate
    *
    */
-  applyCommand(cmd: ApplyCommandType, node?: WunderbaumNode, opts?: any) {
-    var // clipboard,
+  applyCommand(
+    cmd: ApplyCommandType,
+    nodeOrOpts?: WunderbaumNode | any,
+    opts?: any
+  ): any {
+    let // clipboard,
+      node,
       refNode;
     // opts = $.extend(
     // 	{ setActive: true, clipboard: CLIPBOARD },
     // 	opts_
     // );
-
-    node = node || this.getActiveNode()!;
+    if (nodeOrOpts instanceof WunderbaumNode) {
+      node = nodeOrOpts;
+    } else {
+      node = this.getActiveNode()!;
+      util.assert(opts === undefined);
+      opts = nodeOrOpts;
+    }
     // clipboard = opts.clipboard;
 
     switch (cmd) {
@@ -756,14 +749,14 @@ export class Wunderbaum {
       case "indent":
         refNode = node.getPrevSibling();
         if (refNode) {
-          node.moveTo(refNode, "child");
+          node.moveTo(refNode, "appendChild");
           refNode.setExpanded();
           node.setActive();
         }
         break;
       case "outdent":
         if (!node.isTopLevel()) {
-          node.moveTo(node.getParent(), "after");
+          node.moveTo(node.getParent()!, "after");
           node.setActive();
         }
         break;
@@ -823,6 +816,52 @@ export class Wunderbaum {
       default:
         util.error(`Unhandled command: '${cmd}'`);
     }
+  }
+
+  /** Delete all nodes. */
+  clear() {
+    this.root.removeChildren();
+    this.root.children = null;
+    this.keyMap.clear();
+    this.refKeyMap.clear();
+    this.viewNodes.clear();
+    this.activeNode = null;
+    this.focusNode = null;
+
+    // this.types = {};
+    // this. columns =[];
+    // this._columnsById = {};
+
+    // Modification Status
+    this.changedSince = 0;
+    this.changes.clear();
+    this.changedNodes.clear();
+
+    // // --- FILTER ---
+    // public filterMode: FilterModeType = null;
+
+    // // --- KEYNAV ---
+    // public activeColIdx = 0;
+    // public cellNavMode = false;
+    // public lastQuicksearchTime = 0;
+    // public lastQuicksearchTerm = "";
+    this.updateViewport();
+  }
+
+  /**
+   * Clear nodes and markup and detach events and observers.
+   *
+   * This method may be useful to free up resources before re-creating a tree
+   * on an existing div, for example in unittest suites.
+   * Note that this Wunderbaum instance becomes unusable afterwards.
+   */
+  public destroy() {
+    this.logInfo("destroy()...");
+    this.clear();
+    this.resizeObserver.disconnect();
+    this.element.innerHTML = "";
+    // Remove all event handlers
+    this.element.outerHTML = this.element.outerHTML;
   }
 
   /**
