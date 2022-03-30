@@ -1,7 +1,10 @@
-# ![](docs/assets/tree_logo_32.png) wunderbaum-pre
+# ![](docs/assets/tree_logo_32.png) wunderbaum
 
-Incubator for [wunderbaum](https://github.com/mar10/wunderbaum).
+**NOTE:** Status *experimental*. Do not use in production!
 
-https://de.wikipedia.org/wiki/Wunderbaum
+Potential successor of [Fancytree](https://github.com/mar10/fancytree).
 
 Read [the documentation](https://mar10.github.io/wunderbaum/).
+
+<!-- https://de.wikipedia.org/wiki/Wunderbaum -->
+
