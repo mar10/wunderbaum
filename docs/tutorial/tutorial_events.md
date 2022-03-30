@@ -42,7 +42,7 @@ Common event handlers include:
 </dd>
 <dt>receive(e)</dt>
 <dd>
-  Fires when data was loaded (initial request, reload, or lazy loading),
+  Fires when data was fetched (initial request, reload, or lazy loading),
   but before the data is applied and rendered.
   Here we can modify and adjust the received data, for example to convert an
   external response to native Wunderbaum syntax.

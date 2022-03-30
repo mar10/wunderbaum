@@ -11,11 +11,21 @@ module.exports = (grunt: any) => {
         cmd: "yarn build",
       },
     },
+    // connect: {
+    //   dev: {
+    //     options: {
+    //       port: 8080,
+    //       base: "./",
+    //       keepalive: false, // pass on, so subsequent tasks (like watch or qunit) can start
+    //     },
+    //   },
+    // },
     qunit: {
-      // options: {
-      //   timeout: 20000,
-      //   "--cookies-file": "misc/cookies.txt",
-      // },
+      options: {
+        httpBase: "http://localhost:8080",
+        //   timeout: 20000,
+        //   "--cookies-file": "misc/cookies.txt",
+      },
       build: ["test/unit/test-core-build.html"],
       develop: ["test/unit/test-core.html"],
     },
@@ -62,7 +72,10 @@ module.exports = (grunt: any) => {
     }
   }
   // Register tasks
-  grunt.registerTask("test", ["qunit:develop"]);
+  grunt.registerTask("test", [
+    // "connect:dev", // start server
+    "qunit:develop",
+  ]);
   grunt.registerTask("ci", ["test"]); // Called by 'npm test'
   grunt.registerTask("default", ["test"]);
 

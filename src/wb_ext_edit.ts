@@ -7,21 +7,25 @@
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import {
+  assert,
   escapeHtml,
   eventToString,
   getValueFromElem,
   isMac,
+  isPlainObject,
   onEvent,
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { NavigationMode } from "./common";
+import { AddNodeType, NavigationMode } from "./common";
+import { WbNodeData } from "./wb_options";
 
 // const START_MARKER = "\uFFF7";
 
 export class EditExtension extends WunderbaumExtension {
   protected debouncedOnChange: (e: Event) => void;
   protected curEditNode: WunderbaumNode | null = null;
+  protected relatedNode: WunderbaumNode | null = null;
 
   constructor(tree: Wunderbaum) {
     super(tree, "edit", {
@@ -147,12 +151,6 @@ export class EditExtension extends WunderbaumExtension {
       // we ignore it as navigation command
       return false;
     }
-    // ---
-    // if (inputElem) {
-    //   // If the event target is an input element or `contenteditable="true"`,
-    //   // we ignore it as navigation command
-    //   return false;
-    // }
     // --- Trigger title editing
     if (tree.navMode === NavigationMode.row || tree.activeColIdx === 0) {
       switch (eventName) {
@@ -172,40 +170,12 @@ export class EditExtension extends WunderbaumExtension {
       }
       return true;
     }
-
-    // switch (eventName) {
-    //   case "ArrowDown":
-    //   case "ArrowUp":
-    //     return true;
-    //   case "Enter":
-    //     if (trigger.indexOf("macEnter") >= 0 && isMac) {
-    //       this.startEditTitle();
-    //     } else {
-    //       this.stopEditTitle(true);
-    //     }
-    //     break;
-    //   case "F2":
-    //     if (trigger.indexOf("F2") >= 0) {
-    //       tree.setCellMode(NavigationMode.cellEdit);
-    //       this.startEditTitle();
-    //     }
-    //     break;
-    //   case "Escape":
-    //     this.stopEditTitle(false);
-    //     break;
-    //   default:
-    //     handled = false;
-    //     break;
-    // }
-    // if (handled) {
-    //   event.preventDefault();
-    // }
-    return true; //
+    return true;
   }
 
   /** Return true if a title is currently being edited. */
-  isEditingTitle() {
-    return !!this.curEditNode;
+  isEditingTitle(node?: WunderbaumNode): boolean {
+    return node ? this.curEditNode === node : !!this.curEditNode;
   }
 
   /** Start renaming, i.e. replace the title with an embedded `<input>`. */
@@ -263,7 +233,7 @@ export class EditExtension extends WunderbaumExtension {
   /*
    *
    * @param apply
-   * @param canKeepOpen
+   * @param opts.canKeepOpen
    */
   _stopEditTitle(apply: boolean, opts: any) {
     const focusElem = document.activeElement as HTMLInputElement;
@@ -306,11 +276,13 @@ export class EditExtension extends WunderbaumExtension {
           node?.setTitle(newValue);
           this.curEditNode!.render();
           this.curEditNode = null;
+          this.relatedNode = null;
           this.tree.setFocus(); // restore focus that was in the input element
         })
         .catch((err) => {
           // this.curEditNode!.render();
-          //this.curEditNode = null;
+          // this.curEditNode = null;
+          // this.relatedNode = null;
         });
       // Trigger 'change' event for embedded `<input>`
       // focusElem.blur();
@@ -318,8 +290,51 @@ export class EditExtension extends WunderbaumExtension {
       // Discard the embedded `<input>`
       this.curEditNode!.render();
       this.curEditNode = null;
+      this.relatedNode = null;
       // We discarded the <input>, so we have to acquire keyboard focus again
       this.tree.setFocus();
     }
+  }
+  /**
+   * Create a new child or sibling node and start edit mode.
+   */
+  createNode(
+    mode: AddNodeType = "after",
+    node?: WunderbaumNode | null,
+    init?: string | WbNodeData
+  ) {
+    const tree = this.tree;
+    node = node ?? (tree.getActiveNode() as WunderbaumNode);
+    assert(node, "No node was passed, or no node is currently active.");
+    // const validity = this.getPluginOption("validity");
+
+    mode = mode || "prependChild";
+    if (init == null) {
+      init = { title: "" };
+    } else if (typeof init === "string") {
+      init = { title: init };
+    } else {
+      assert(isPlainObject(init));
+    }
+    // Make sure node is expanded (and loaded) in 'child' mode
+    if (
+      (mode === "prependChild" || mode === "appendChild") &&
+      node?.isExpandable(true)
+    ) {
+      node.setExpanded().then(() => {
+        this.createNode(mode, node, init);
+      });
+      return;
+    }
+    const newNode = node.addNode(init, mode);
+    newNode.addClass("wb-edit-new");
+    this.relatedNode = node;
+
+    // Don't filter new nodes:
+    newNode.match = true;
+
+    newNode.makeVisible({ noAnimation: true }).then(() => {
+      this.startEditTitle(newNode);
+    });
   }
 }

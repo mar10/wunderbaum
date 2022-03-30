@@ -67,6 +67,7 @@
   "exclude": ["node_modules", "dist", "docs", "**/*.test.ts", "**/*.spec.ts"],
 
   "typedocOptions": {
+    // "name": "API Docs | Wunderbaum",
     "entryPoints": ["src/wunderbaum.ts", "src/wb_node.ts", "src/wb_options.ts", "src/common.ts", "src/util.ts"],
     "out": "docs/api",
     "excludePrivate": true,

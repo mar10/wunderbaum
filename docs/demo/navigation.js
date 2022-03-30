@@ -34,6 +34,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
         href: "../api",
       },
       {
+        title: "Unit Tests",
+        type: "link",
+        href: "../../test/unit/test-core.html",
+      },
+      {
         title: "Demo",
         type: "folder",
         expanded: true,

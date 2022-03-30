@@ -23,12 +23,14 @@ import {
   ROW_EXTRA_PAD,
   ROW_HEIGHT,
   TEST_IMG,
+  ApplyCommandType,
 } from "./common";
 import { Deferred } from "./deferred";
-import { isFunction } from "./util";
+import { WbNodeData } from "./wb_options";
 
 /** Top-level properties that can be passed with `data`. */
 const NODE_PROPS = new Set<string>([
+  // TODO: use NODE_ATTRS instead?
   "classes",
   "expanded",
   "icon",
@@ -41,10 +43,10 @@ const NODE_PROPS = new Set<string>([
   "type",
 ]);
 
-const NODE_ATTRS = new Set([
+const NODE_ATTRS = new Set<string>([
   "checkbox",
   "expanded",
-  "extraClasses",
+  "extraClasses", // TODO: rename to classes
   "folder",
   "icon",
   "iconTooltip",
@@ -249,7 +251,7 @@ export class WunderbaumNode {
    * @param [mode=child] 'before', 'after', 'firstChild', or 'child' ('over' is a synonym for 'child')
    * @returns new node
    */
-  addNode(nodeData: any, mode = "child"): WunderbaumNode {
+  addNode(nodeData: WbNodeData, mode = "child"): WunderbaumNode {
     if (mode === "over") {
       mode = "child"; // compatible with drop region
     }
@@ -269,6 +271,14 @@ export class WunderbaumNode {
     }
     util.assert(false, "Invalid mode: " + mode);
     return (<unknown>undefined) as WunderbaumNode;
+  }
+
+  /**
+   * Apply a modification (or navigation) operation.
+   * @see Wunderbaum#applyCommand
+   */
+  applyCommand(cmd: ApplyCommandType, opts: any) {
+    return this.tree.applyCommand(cmd, this, opts);
   }
 
   addClass(className: string | string[] | Set<string>) {
@@ -308,7 +318,7 @@ export class WunderbaumNode {
    *     callback function that returns `true` if a node is matched.
    */
   findAll(match: string | MatcherType): WunderbaumNode[] {
-    const matcher = isFunction(match)
+    const matcher = util.isFunction(match)
       ? <MatcherType>match
       : makeNodeTitleMatcher(<string>match);
     const res: WunderbaumNode[] = [];
@@ -348,7 +358,7 @@ export class WunderbaumNode {
    *     callback function that returns `true` if a node is matched.
    */
   findFirst(match: string | MatcherType): WunderbaumNode | null {
-    const matcher = isFunction(match)
+    const matcher = util.isFunction(match)
       ? <MatcherType>match
       : makeNodeTitleMatcher(<string>match);
     let res = null;
@@ -528,85 +538,95 @@ export class WunderbaumNode {
    * If `andCollapsed` is set, we also check if this node is collapsed, i.e.
    * an expand operation is currently possible.
    */
-  isExpandable(andCollapsed = false) {
+  isExpandable(andCollapsed = false): boolean {
     return !!this.children && (!this.expanded || !andCollapsed);
   }
 
-  /** Return true is this node is currently expanded. */
-  isExpanded() {
+  /** Return true if this node is currently in edit-title mode. */
+  isEditing(): boolean {
+    return this.tree._callMethod("edit.isEditingTitle", this);
+  }
+
+  /** Return true if this node is currently expanded. */
+  isExpanded(): boolean {
     return !!this.expanded;
   }
 
   /** Return true if this node is the first node of its parent's children. */
-  isFirstSibling() {
+  isFirstSibling(): boolean {
     var p = this.parent;
     return !p || p.children![0] === this;
   }
 
   /** Return true if this node is the last node of its parent's children. */
-  isLastSibling() {
+  isLastSibling(): boolean {
     var p = this.parent;
     return !p || p.children![p.children!.length - 1] === this;
   }
 
   /** Return true if this node is lazy (even if data was already loaded) */
-  isLazy() {
+  isLazy(): boolean {
     return !!this.lazy;
   }
 
   /** Return true if node is lazy and loaded. For non-lazy nodes always return true. */
-  isLoaded() {
+  isLoaded(): boolean {
     return !this.lazy || this.hasChildren() !== undefined; // Also checks if the only child is a status node
   }
 
   /** Return true if node is currently loading, i.e. a GET request is pending. */
-  isLoading() {
+  isLoading(): boolean {
     return this._isLoading;
   }
 
   /** Return true if this node is a temporarily generated status node of type 'paging'. */
-  isPagingNode() {
+  isPagingNode(): boolean {
     return this.statusNodeType === "paging";
   }
 
   /** (experimental) Return true if this node is partially loaded. */
-  isPartload() {
+  isPartload(): boolean {
     return !!this._partload;
   }
 
   /** Return true if this node is partially selected (tri-state). */
-  isPartsel() {
+  isPartsel(): boolean {
     return !this.selected && !!this._partsel;
+  }
+
+  /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
+  isRendered(): boolean {
+    return !!this._rowElem;
   }
 
   /** Return true if this node is the (invisible) system root node.
    * (See also [[isTopLevel()]].)
    */
-  isRootNode() {
+  isRootNode(): boolean {
     return this.tree.root === this;
   }
 
   /** Return true if this node is selected, i.e. the checkbox is set. */
-  isSelected() {
+  isSelected(): boolean {
     return !!this.selected;
   }
 
   /** Return true if this node is a temporarily generated system node like
    * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
    */
-  isStatusNode() {
+  isStatusNode(): boolean {
     return !!this.statusNodeType;
   }
 
   /** Return true if this a top level node, i.e. a direct child of the (invisible) system root node. */
-  isTopLevel() {
+  isTopLevel(): boolean {
     return this.tree.root === this.parent;
   }
 
   /** Return true if node is marked lazy but not yet loaded.
    * For non-lazy nodes always return false.
    */
-  isUnloaded() {
+  isUnloaded(): boolean {
     // Also checks if the only child is a status node:
     return this.hasChildren() === undefined;
   }
@@ -614,7 +634,7 @@ export class WunderbaumNode {
   /** Return true if all parent nodes are expanded. Note: this does not check
    * whether the node is scrolled into the visible part of the screen or viewport.
    */
-  isVisible() {
+  isVisible(): boolean {
     let i,
       l,
       n,
@@ -648,6 +668,9 @@ export class WunderbaumNode {
   protected _loadSourceObject(source: any) {
     const tree = this.tree;
 
+    // Let caller modify the parsed JSON response:
+    this._callEvent("receive", { response: source });
+
     if (util.isArray(source)) {
       source = { children: source };
     }
@@ -661,15 +684,17 @@ export class WunderbaumNode {
       util.extend(tree.types, source.types);
     }
     this.addChildren(source.children);
+
+    this._callEvent("load");
   }
 
   /** Download  data from the cloud, then call `.update()`. */
   async load(source: any) {
-    let timerLabel: string;
     const tree = this.tree;
     const opts = tree.options;
     const requestId = Date.now();
     const prevParent = this.parent;
+    const url = typeof source === "string" ? source : source.url;
 
     // Check for overlapping requests
     if (this._requestId) {
@@ -680,17 +705,12 @@ export class WunderbaumNode {
     }
     this._requestId = requestId;
 
-    try {
-      timerLabel = tree.logTime(this + ".load()");
-      if (util.isArray(source)) {
-        source = { children: source };
-      }
+    const timerLabel = tree.logTime(this + ".load()");
 
-      if (util.isPlainObject(source) && !source.url) {
+    try {
+      if (!url) {
         this._loadSourceObject(source);
       } else {
-        const url = typeof source === "string" ? source : source.url;
-
         this.setStatus(NodeStatusType.loading);
         const response = await fetch(url, { method: "GET" });
         if (!response.ok) {
@@ -712,8 +732,6 @@ export class WunderbaumNode {
           );
           return;
         }
-        // Let caller modify the parsed JSON response:
-        this._callEvent("receive", { response: data });
         this.setStatus(NodeStatusType.ok);
         if (data.columns) {
           tree.logInfo("Re-define columns", data.columns);
@@ -723,8 +741,6 @@ export class WunderbaumNode {
           tree.renderHeader();
         }
         this._loadSourceObject(data);
-
-        this._callEvent("load");
       }
     } catch (error) {
       this.logError("Error during load()", source, error);
@@ -733,9 +749,7 @@ export class WunderbaumNode {
       throw error;
     } finally {
       this._requestId = 0;
-      if (opts.debugLevel >= 2) {
-        tree.logTimeEnd(timerLabel!);
-      }
+      tree.logTimeEnd(timerLabel);
     }
   }
 
@@ -1296,22 +1310,14 @@ export class WunderbaumNode {
    *
    * Evaluation sequence:
    *
-   * If `tree.options.<optionName>` is a callback that returns something, use that.
-   * Else if `node.<optionName>` is defined, use that.
-   * Else if `tree.options.<optionName>` is a value, use that.
+   * If `tree.options.<name>` is a callback that returns something, use that.
+   * Else if `node.<name>` is defined, use that.
+   * Else if `tree.types[<node.type>]` is a value, use that.
+   * Else if `tree.options.<name>` is a value, use that.
    * Else use `defaultValue`.
    *
-   * @param optionName name of the option property (on node and tree)
-   * @param node passed to the callback
-   * @param nodeObject where to look for the local option property, e.g. `node` or `node.data`
-   * @param treeOption where to look for the tree option, e.g. `tree.options` or `tree.options.dnd`
+   * @param name name of the option property (on node and tree)
    * @param defaultValue return this if nothing else matched
-   *
-   * @example
-   * // Check for node.foo, tree,options.foo(), and tree.options.foo:
-   * evalOption("foo", node, node, tree.options);
-   * // Check for node.data.bar, tree,options.qux.bar(), and tree.options.qux.bar:
-   * evalOption("bar", node, node.data, tree.options.qux);
    */
   getOption(name: string, defaultValue?: any) {
     let tree = this.tree;

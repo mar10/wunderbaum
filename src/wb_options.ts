@@ -10,14 +10,14 @@ import {
   WbEventType,
 } from "./common";
 
-export interface WunderbaumSource {
+export interface WbNodeData {
   title: string;
   key?: string;
   refKey?: string;
   expanded?: boolean;
   selected?: boolean;
   checkbox?: boolean | "radio" | BoolOptionResolver;
-  children?: Array<WunderbaumSource>;
+  children?: Array<WbNodeData>;
   // ...any?: Any;
 }
 
@@ -54,7 +54,7 @@ export interface WunderbaumOptions {
    *
    * Default: `{}`.
    */
-  source?: string | Array<WunderbaumSource>;
+  source?: string | Array<WbNodeData>;
   /**
    * Define shared attributes for multiple nodes of the same type.
    * This allows for more compact data models. Type definitions can be passed

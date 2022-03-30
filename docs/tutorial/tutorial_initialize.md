@@ -138,18 +138,17 @@ allowing to dynamically define option values:
 
 ```js
 const tree = new mar10.Wunderbaum({
-  checkbox: function(event, data) {
+  checkbox: (e) => {
     // Hide checkboxes for folders
-    return data.node.isFolder() ? false : true;
+    return e.node.type === "folder" ? false : true;
   },
-  tooltip: function(event, data) {
+  tooltip: (e) => {
     // Create dynamic tooltips
-    return data.node.title + " (" + data.node.key + ")";
+    return `${e.node.title} (${e.node.key})`;
   },
-  icon: function(event, data) {
-    var node = data.node;
+  icon: (e) => {
     // Create custom icons
-    if( node.data.refType === "foo" ) {
+    if( e.node.data.critical ) {
       return "foo-icon-class";
     }
     // Exit without returning a value: continue with default processing.
@@ -160,6 +159,8 @@ const tree = new mar10.Wunderbaum({
 Currently the following options are evaluated as dynamic options:
 `checkbox`, `icon`, `iconTooltip`, `tooltip`, `unselectable`, `unselectableIgnore`,
 `unselectableStatus`.
+
+See method `node.getOption()` for details.
 
 ### Event Handlers
 

@@ -30,6 +30,7 @@ import {
   RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
   TargetType as NodeRegion,
+  ApplyCommandType,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -61,8 +62,8 @@ export class Wunderbaum {
   readonly nodeListElement: HTMLDivElement;
   readonly _updateViewportThrottled: DebouncedFunction<(...args: any) => void>;
 
-  protected extensions: WunderbaumExtension[] = [];
-  protected extensionDict: ExtensionsDict = {};
+  protected extensionList: WunderbaumExtension[] = [];
+  protected extensions: ExtensionsDict = {};
   // protected extensionMap = new Map<string, WunderbaumExtension>();
 
   /** Merged options from constructor args and tree- and extension defaults. */
@@ -147,12 +148,27 @@ export class Wunderbaum {
 
     const readyDeferred = new Deferred();
     this.ready = readyDeferred.promise();
+    let readyOk = false;
     this.ready
       .then(() => {
-        this._callEvent("init");
+        readyOk = true;
+        try {
+          this._callEvent("init");
+        } catch (error) {
+          // We re-raise in the reject handler, but Chrome resets the stack
+          // frame then, so we log it here:
+          console.error("Exception inside `init(e)` event:", error);
+        }
       })
       .catch((err) => {
-        this._callEvent("init", { error: err });
+        if (readyOk) {
+          // Error occurred in `init` handler. We can re-raise, but Chrome
+          // resets the stack frame.
+          throw err;
+        } else {
+          // Error in load process
+          this._callEvent("init", { error: err });
+        }
       });
 
     this.id = opts.id || "wb_" + ++Wunderbaum.sequence;
@@ -481,14 +497,14 @@ export class Wunderbaum {
 
   /** */
   protected _registerExtension(extension: WunderbaumExtension): void {
-    this.extensions.push(extension);
-    this.extensionDict[extension.id] = extension;
+    this.extensionList.push(extension);
+    this.extensions[extension.id] = extension;
     // this.extensionMap.set(extension.id, extension);
   }
 
   /** Called on tree (re)init after markup is created, before loading. */
   protected _initExtensions(): void {
-    for (let ext of this.extensions) {
+    for (let ext of this.extensionList) {
       ext.init();
     }
   }
@@ -536,7 +552,7 @@ export class Wunderbaum {
       data
     );
 
-    for (let ext of this.extensions) {
+    for (let ext of this.extensionList) {
       res = (<any>ext[hook]).call(ext, d);
       if (res === false) {
         break;
@@ -556,7 +572,7 @@ export class Wunderbaum {
    */
   _callMethod(name: string, ...args: any[]): any {
     const [p, n] = name.split(".");
-    const obj = n ? this.extensionDict[p] : this;
+    const obj = n ? this.extensions[p] : this;
     const func = (<any>obj)[n];
     if (func) {
       return func.apply(obj, args);
@@ -689,6 +705,125 @@ export class Wunderbaum {
     // public lastQuicksearchTerm = "";
     this.updateViewport();
   }
+  /**
+   * Apply a modification (or navigation) operation on the tree or active node.
+   * @returns
+   */
+  applyCommand(cmd: ApplyCommandType, opts?: any): any;
+  /**
+   * Apply a modification or navigation operation.
+   *
+   * Most of these commands simply map to a node or tree method.
+   * This method is especially useful when implementing keyboard mapping,
+   * context menus, or external buttons.
+   *
+   * Valid commands:
+   *   - 'moveUp', 'moveDown'
+   *   - 'indent', 'outdent'
+   *   - 'remove'
+   *   - 'edit', 'addChild', 'addSibling': (reqires ext-edit extension)
+   *   - 'cut', 'copy', 'paste': (use an internal singleton 'clipboard')
+   *   - 'down', 'first', 'last', 'left', 'parent', 'right', 'up': navigate
+   *
+   */
+  applyCommand(cmd: ApplyCommandType, node?: WunderbaumNode, opts?: any) {
+    var // clipboard,
+      refNode;
+    // opts = $.extend(
+    // 	{ setActive: true, clipboard: CLIPBOARD },
+    // 	opts_
+    // );
+
+    node = node || this.getActiveNode()!;
+    // clipboard = opts.clipboard;
+
+    switch (cmd) {
+      // Sorting and indentation:
+      case "moveUp":
+        refNode = node.getPrevSibling();
+        if (refNode) {
+          node.moveTo(refNode, "before");
+          node.setActive();
+        }
+        break;
+      case "moveDown":
+        refNode = node.getNextSibling();
+        if (refNode) {
+          node.moveTo(refNode, "after");
+          node.setActive();
+        }
+        break;
+      case "indent":
+        refNode = node.getPrevSibling();
+        if (refNode) {
+          node.moveTo(refNode, "child");
+          refNode.setExpanded();
+          node.setActive();
+        }
+        break;
+      case "outdent":
+        if (!node.isTopLevel()) {
+          node.moveTo(node.getParent(), "after");
+          node.setActive();
+        }
+        break;
+      // Remove:
+      case "remove":
+        refNode = node.getPrevSibling() || node.getParent();
+        node.remove();
+        if (refNode) {
+          refNode.setActive();
+        }
+        break;
+      // Add, edit (requires ext-edit):
+      case "addChild":
+        this._callMethod("edit.createNode", "prependChild");
+        break;
+      case "addSibling":
+        this._callMethod("edit.createNode", "after");
+        break;
+      case "rename":
+        this._callMethod("edit.startEditTitle");
+        break;
+      // Simple clipboard simulation:
+      // case "cut":
+      // 	clipboard = { mode: cmd, data: node };
+      // 	break;
+      // case "copy":
+      // 	clipboard = {
+      // 		mode: cmd,
+      // 		data: node.toDict(function(d, n) {
+      // 			delete d.key;
+      // 		}),
+      // 	};
+      // 	break;
+      // case "clear":
+      // 	clipboard = null;
+      // 	break;
+      // case "paste":
+      // 	if (clipboard.mode === "cut") {
+      // 		// refNode = node.getPrevSibling();
+      // 		clipboard.data.moveTo(node, "child");
+      // 		clipboard.data.setActive();
+      // 	} else if (clipboard.mode === "copy") {
+      // 		node.addChildren(clipboard.data).setActive();
+      // 	}
+      // 	break;
+      // Navigation commands:
+      case "down":
+      case "first":
+      case "last":
+      case "left":
+      case "pageDown":
+      case "pageUp":
+      case "parent":
+      case "right":
+      case "up":
+        return node.navigate(cmd);
+      default:
+        util.error(`Unhandled command: '${cmd}'`);
+    }
+  }
 
   /**
    * Return `tree.option.NAME` (also resolving if this is a callback).
@@ -734,7 +869,7 @@ export class Wunderbaum {
       return;
     }
     const parts = name.split(".");
-    const ext = this.extensionDict[parts[0]];
+    const ext = this.extensions[parts[0]];
     ext!.setPluginOption(parts[1], value);
   }
 
@@ -759,7 +894,7 @@ export class Wunderbaum {
     }
   }
 
-  /** */
+  /** Recursively expand all expandable nodes (triggers lazy load id needed). */
   async expandAll(flag: boolean = true) {
     const tag = this.logTime("expandAll(" + flag + ")");
     try {
@@ -771,7 +906,7 @@ export class Wunderbaum {
     }
   }
 
-  /** */
+  /** Return the number of nodes in the data model.*/
   count(visible = false) {
     if (visible) {
       return this.viewNodes.size;
@@ -779,7 +914,7 @@ export class Wunderbaum {
     return this.keyMap.size;
   }
 
-  /** */
+  /* Internal sanity check. */
   _check() {
     let i = 0;
     this.visit((n) => {
@@ -1044,9 +1179,14 @@ export class Wunderbaum {
     return "Wunderbaum<'" + this.id + "'>";
   }
 
+  /** Return true if any node is currently in edit-title mode. */
+  isEditing(): boolean {
+    return this._callMethod("edit.isEditingTitle");
+  }
+
   /** Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
    */
-  isLoading() {
+  isLoading(): boolean {
     var res = false;
 
     this.root.visit((n) => {
@@ -1619,7 +1759,7 @@ export class Wunderbaum {
    * @requires [[FilterExtension]]
    */
   clearFilter() {
-    return (this.extensionDict.filter as FilterExtension).clearFilter();
+    return (this.extensions.filter as FilterExtension).clearFilter();
   }
   /**
    * [ext-filter] Return true if a filter is currently applied.
@@ -1635,6 +1775,6 @@ export class Wunderbaum {
    * @requires [[FilterExtension]]
    */
   updateFilter() {
-    return (this.extensionDict.filter as FilterExtension).updateFilter();
+    return (this.extensions.filter as FilterExtension).updateFilter();
   }
 }

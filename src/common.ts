@@ -43,8 +43,31 @@ export type WbCallbackType = (e: WbEventType) => any;
 export type WbNodeCallbackType = (e: WbNodeEventType) => any;
 
 export type FilterModeType = null | "dim" | "hide";
+export type ApplyCommandType =
+  | "moveUp"
+  | "moveDown"
+  | "indent"
+  | "outdent"
+  | "remove"
+  | "rename"
+  | "addChild"
+  | "addSibling"
+  | "cut"
+  | "copy"
+  | "paste"
+  | "down"
+  | "first"
+  | "last"
+  | "left"
+  | "pageDown"
+  | "pageUp"
+  | "parent"
+  | "right"
+  | "up";
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
+
+export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
 
 export type DndModeType = "before" | "after" | "over";
 
