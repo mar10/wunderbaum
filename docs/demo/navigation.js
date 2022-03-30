@@ -29,7 +29,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         href: "../index.html",
       },
       {
-        title: "API Documentation",
+        title: "API Reference",
         type: "link",
         href: "../api",
       },

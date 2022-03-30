@@ -6,7 +6,7 @@
 
 * [Demo](demo ':ignore')
 * [User Guide](/tutorial/overview.md)
-* [API Documentation](/docs/api/index.html ':ignore')
+* [API Reference](/wunderbaum/api/index.html ':ignore')
 * [Source Code on GitHub](https://github.com/mar10/wunderbaum)
 
 ?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).

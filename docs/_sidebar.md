@@ -12,6 +12,6 @@
   - [Select](/tutorial/tutorial_select.md)
   - [Advanced](/tutorial/tutorial_advanced.md)
   - [Migration](/tutorial/migrate.md)
-- [API Documentation](/docs/api/index.html ":ignore")
+- [API Reference](/wunderbaum/api/index.html ":ignore")
 - [Contribute](/tutorial/contribute.md)
 - [Source Code](https://github.com/mar10/wunderbaum)
