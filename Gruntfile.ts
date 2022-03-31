@@ -10,28 +10,32 @@ module.exports = (grunt: any) => {
         stdin: true, // Allow interactive console
         cmd: "yarn build",
       },
+      copy_dist: {
+        stdin: true, // Allow interactive console
+        cmd: "rm dist/*.* ; cp build/*.* dist",
+      },
       make_dist: {
         stdin: true, // Allow interactive console
         cmd: "yarn make_dist",
       },
     },
-    // connect: {
-    //   dev: {
-    //     options: {
-    //       port: 8080,
-    //       base: "./",
-    //       keepalive: false, // pass on, so subsequent tasks (like watch or qunit) can start
-    //     },
-    //   },
-    // },
+    connect: {
+      dev: {
+        options: {
+          port: 8088,
+          base: "./",
+          keepalive: false, // pass on, so subsequent tasks (like watch or qunit) can start
+        },
+      },
+    },
     qunit: {
       options: {
-        httpBase: "http://localhost:8080",
+        httpBase: "http://localhost:8088",
         //   timeout: 20000,
         //   "--cookies-file": "misc/cookies.txt",
       },
-      dist: ["test/unit/test-dist.html"],
-      build: ["test/unit/test-build.html"],
+      dist: ["test/unit/test_dist.html"],
+      // build: ["test/unit/test-build.html"],
       develop: ["test/unit/test-dev.html"],
     },
     yabs: {
@@ -41,16 +45,17 @@ module.exports = (grunt: any) => {
           manifests: ["package.json"],
         },
         // The following tools are run in order:
-        run_test: { tasks: ["qunit:develop"] },
         check: {
           branch: ["main"],
           canPush: true,
           clean: true,
           cmpVersion: "gte",
         },
+        run_build: { tasks: ["exec:build"], always: true }, // TODO 'always' NYI
+        run_test: { tasks: ["test_dev"], always: true },
         bump: {}, // 'bump' also uses the increment mode `yabs:release:MODE`
-        run_build: { tasks: ["exec:dist"] },
-        run_test_dist: { tasks: ["qunit:dist"] },
+        run_copy_dist: { tasks: ["exec:copy_dist"] },
+        run_test_dist: { tasks: ["test_dist"] },
         commit: { add: "." },
         tag: {},
         push: { tags: true, useFollowTags: true },
@@ -77,18 +82,22 @@ module.exports = (grunt: any) => {
     }
   }
   // Register tasks
-  grunt.registerTask("test", [
-    // "connect:dev", // start server
+  grunt.registerTask("test_dev", [
+    "connect:dev", // start server
     "qunit:develop",
   ]);
-  grunt.registerTask("ci", ["test"]); // Called by 'npm test'
-  grunt.registerTask("default", ["test"]);
+  grunt.registerTask("test_dist", [
+    "connect:dev", // start server
+    "qunit:dist",
+  ]);
+  grunt.registerTask("ci", ["test_dev"]); // Called by 'npm test'
+  grunt.registerTask("default", ["test_dev"]);
 
   if (parseInt(process.env.TRAVIS_PULL_REQUEST!, 10) > 0) {
     // saucelab keys do not work on forks
     // http://support.saucelabs.com/entries/25614798
-    grunt.registerTask("travis", ["test"]);
+    grunt.registerTask("travis", ["test_dev"]);
   } else {
-    grunt.registerTask("travis", ["test"]); // , "sauce"]
+    grunt.registerTask("travis", ["test_dev"]); // , "sauce"]
   }
 };
