@@ -1,13 +1,18 @@
 # ![](docs/assets/tree_logo_32.png) wunderbaum
+[![GitHub version](https://badge.fury.io/gh/mar10%2Fwunderbaum.svg)](https://github.com/mar10/wunderbaum/releases/latest)
+[![Build Status](https://travis-ci.com/mar10/wunderbaum.svg?branch=master)](https://travis-ci.com/github/mar10/wunderbaum)
+[![npm](https://img.shields.io/npm/dm/jquery.wunderbaum.svg)](https://www.npmjs.com/package/jquery.wunderbaum)
+[![jsDelivr](https://data.jsdelivr.com/v1/package/npm/jquery.wunderbaum/badge)](https://www.jsdelivr.com/package/npm/jquery.wunderbaum)
+[![Released with: grunt-yabs](https://img.shields.io/badge/released%20with-grunt--yabs-yellowgreen)](https://github.com/mar10/grunt-yabs)
+[![StackOverflow: wunderbaum](https://img.shields.io/badge/StackOverflow-wunderbaum-blue.svg)](https://stackoverflow.com/questions/tagged/wunderbaum)
 
 > Potential successor of [Fancytree](https://github.com/mar10/fancytree).
+> **NOTE: Status _experimental_. Do not use in production!**
 
-**NOTE:** Status *experimental*. Do not use in production!
-
-**Major Features**
+<!-- https://de.wikipedia.org/wiki/Wunderbaum -->
 
 Wunderbaum is a rewrite of the [Fancytree](https://github.com/mar10/fancytree)
-library.
+library. Major features include
 
 - **Tree-grid** control with emphasis on "tree".<br>
   Depending on the number of columns and nesting depth, Wunderbaum can also be
@@ -17,21 +22,18 @@ library.
   Drop legacy support (IE, jQuery, ...).
 - Built-in support for
   [aria](https://www.w3.org/TR/wai-aria-1.1/),
-  [drag and drop](/tutorial/tutorial_dnd.md),
-  [editing](/tutorial/tutorial_edit.md),
-  [filtering](/tutorial/tutorial_filter.md),
-  [multi-selection](/tutorial/tutorial_select.md).
-- Fully [controllable using the keyboard](/tutorial/tutorial_keyboard.md).
+  [drag and drop](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_dnd),
+  [editing](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_edit),
+  [filtering](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_filter),
+  [multi-selection](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_select).
+- Fully [controllable using the keyboard](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_keyboard).
 - Framework agnostic.
 - Written in TypeScript, transpiled to JavaScript ES6 with type hints (.esm & .umd).
-<!-- - WiP:Good documentation. -->
-<!-- - Decent test coverage. -->
+  <!-- - Good documentation. -->
+  <!-- - Decent test coverage. -->
 
-**Details**
+### Details
 
-* [Online Demo](https://mar10.github.io/wunderbaum/demo/).
-* [User Guide](https://mar10.github.io/wunderbaum/).
-* [API Reference](https://mar10.github.io/wunderbaum/).
-
-<!-- https://de.wikipedia.org/wiki/Wunderbaum -->
-
+- [Online Demo](https://mar10.github.io/wunderbaum/demo/)
+- [User Guide](https://mar10.github.io/wunderbaum/)
+- [API Reference](https://mar10.github.io/wunderbaum/api/index.html)

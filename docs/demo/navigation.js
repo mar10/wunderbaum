@@ -2,6 +2,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
   /* ---------------------------------------------------------------------------
    * Navigation
    */
+  const is_local = !!window.location.hostname.match(/127.0.0.1/);
+
   const navTree = new mar10.Wunderbaum({
     id: "navigation",
     header: "Wunderbaum",
@@ -16,13 +18,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
       {
         title: "GitHub Project",
         type: "link",
+        icon: "bi bi-github",
         href: "https://github.com/mar10/wunderbaum",
       },
-      // {
-      //   title: "Tutorial (GH wiki)",
-      //   type: "link",
-      //   href: "https://github.com/mar10/wunderbaum",
-      // },
       {
         title: "User Guide",
         type: "link",
@@ -36,7 +34,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       {
         title: "Unit Tests",
         type: "link",
-        href: "../../test/unit/test-core.html",
+        href: is_local ? "../../test/unit/test-dev.html" : "../../test/unit/test-dist.html",
       },
       {
         title: "Demo",

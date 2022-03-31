@@ -3,7 +3,7 @@
  *     `<script defer type="module" src="playground.js"></script>`
  */
 
-import { Wunderbaum } from "../dist/wunderbaum.esm.js";
+import { Wunderbaum } from "../build/wunderbaum.esm.js";
 
 function elementFromHtml(html) {
   const t = document.createElement("template");

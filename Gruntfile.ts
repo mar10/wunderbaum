@@ -10,6 +10,10 @@ module.exports = (grunt: any) => {
         stdin: true, // Allow interactive console
         cmd: "yarn build",
       },
+      make_dist: {
+        stdin: true, // Allow interactive console
+        cmd: "yarn make_dist",
+      },
     },
     // connect: {
     //   dev: {
@@ -26,8 +30,9 @@ module.exports = (grunt: any) => {
         //   timeout: 20000,
         //   "--cookies-file": "misc/cookies.txt",
       },
-      build: ["test/unit/test-core-build.html"],
-      develop: ["test/unit/test-core.html"],
+      dist: ["test/unit/test-dist.html"],
+      build: ["test/unit/test-build.html"],
+      develop: ["test/unit/test-dev.html"],
     },
     yabs: {
       release: {
@@ -44,13 +49,13 @@ module.exports = (grunt: any) => {
           cmpVersion: "gte",
         },
         bump: {}, // 'bump' also uses the increment mode `yabs:release:MODE`
-        run_build: { tasks: ["exec:build"] },
-        run_test_dist: { tasks: ["qunit:build"] },
+        run_build: { tasks: ["exec:dist"] },
+        run_test_dist: { tasks: ["qunit:dist"] },
         commit: { add: "." },
         tag: {},
         push: { tags: true, useFollowTags: true },
         githubRelease: {
-          repo: "mar10/wunderbaum-pre",
+          repo: "mar10/wunderbaum",
           draft: false,
         },
         npmPublish: {},
