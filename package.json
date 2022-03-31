@@ -1,6 +1,6 @@
 {
   "name": "wunderbaum",
-  "version": "0.0.1",
+  "version": "0.0.2-0",
   "title": "A tree control.",
   "description": "JavaScript tree/grid/treegrid control.",
   "main": "dist/wunderbaum.umd.js",
