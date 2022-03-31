@@ -933,15 +933,10 @@ declare module "wb_ext_filter" {
         filterBranches(filter: string | NodeFilterCallback, opts: any): void;
         /**
          * [ext-filter] Re-apply current filter.
-         *
-         * @requires jquery.fancytree.filter.js
          */
         updateFilter(): void;
         /**
          * [ext-filter] Reset the filter.
-         *
-         * @alias Fancytree#clearFilter
-         * @requires jquery.fancytree.filter.js
          */
         clearFilter(): void;
     }
@@ -1225,18 +1220,18 @@ declare module "wunderbaum" {
          * Return the currently active node or null.
          */
         getActiveNode(): WunderbaumNode;
-        /** Return the first top level node if any (not the invisible root node).
-         * @returns {FancytreeNode | null}
+        /**
+         * Return the first top level node if any (not the invisible root node).
          */
         getFirstChild(): WunderbaumNode;
         /**
          * Return the currently active node or null.
          */
         getFocusNode(): WunderbaumNode;
-        /** Return a {node: FancytreeNode, region: TYPE} object for a mouse event.
+        /** Return a {node: WunderbaumNode, region: TYPE} object for a mouse event.
          *
          * @param {Event} event Mouse event, e.g. click, ...
-         * @returns {object} Return a {node: FancytreeNode, region: TYPE} object
+         * @returns {object} Return a {node: WunderbaumNode, region: TYPE} object
          *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
          */
         static getEventInfo(event: Event): {

@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 /** Readable names for `MouseEvent.button` */
 const MOUSE_BUTTONS = {
@@ -581,7 +581,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
 const ROW_HEIGHT = 22;
@@ -693,7 +693,7 @@ function makeNodeTitleStartMatcher(s) {
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1048,7 +1048,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1236,8 +1236,6 @@ class FilterExtension extends WunderbaumExtension {
     }
     /**
      * [ext-filter] Re-apply current filter.
-     *
-     * @requires jquery.fancytree.filter.js
      */
     updateFilter() {
         let tree = this.tree;
@@ -1252,9 +1250,6 @@ class FilterExtension extends WunderbaumExtension {
     }
     /**
      * [ext-filter] Reset the filter.
-     *
-     * @alias Fancytree#clearFilter
-     * @requires jquery.fancytree.filter.js
      */
     clearFilter() {
         let tree = this.tree, 
@@ -1347,7 +1342,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = false) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 class KeynavExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1533,7 +1528,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1573,9 +1568,9 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
-const nodeMimeType = "application/x-fancytree-node";
+const nodeMimeType = "application/x-wunderbaum-node";
 // type AllowedDropRegionType =
 //   | "after"
 //   | "afterBefore"
@@ -1851,7 +1846,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Deferred is a ES6 Promise, that exposes the resolve() and reject()` method.
@@ -1894,7 +1889,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 /** Top-level properties that can be passed with `data`. */
 const NODE_PROPS = new Set([
@@ -3434,7 +3429,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.1-0, Thu, 31 Mar 2022 10:19:39 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.1-0, Thu, 31 Mar 2022 15:13:20 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -3720,7 +3715,7 @@ class EditExtension extends WunderbaumExtension {
  * Released under the MIT license.
  *
  * @version v0.0.1-0
- * @date Thu, 31 Mar 2022 10:19:39 GMT
+ * @date Thu, 31 Mar 2022 15:13:20 GMT
  */
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -4664,8 +4659,8 @@ class Wunderbaum {
     getActiveNode() {
         return this.activeNode;
     }
-    /** Return the first top level node if any (not the invisible root node).
-     * @returns {FancytreeNode | null}
+    /**
+     * Return the first top level node if any (not the invisible root node).
      */
     getFirstChild() {
         return this.root.getFirstChild();
@@ -4676,10 +4671,10 @@ class Wunderbaum {
     getFocusNode() {
         return this.focusNode;
     }
-    /** Return a {node: FancytreeNode, region: TYPE} object for a mouse event.
+    /** Return a {node: WunderbaumNode, region: TYPE} object for a mouse event.
      *
      * @param {Event} event Mouse event, e.g. click, ...
-     * @returns {object} Return a {node: FancytreeNode, region: TYPE} object
+     * @returns {object} Return a {node: WunderbaumNode, region: TYPE} object
      *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
      */
     static getEventInfo(event) {
