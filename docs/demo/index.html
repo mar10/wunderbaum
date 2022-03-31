@@ -13,16 +13,14 @@
   <script type="text/javascript">
     const is_local = !!window.location.hostname.match(/127.0.0.1/);
     const folder = is_local ? "build" : "dist";
-    if(is_local) {
+    if (is_local) {
       document.title += " (DEV)";
       document.write(`<link rel="stylesheet" href="../../${folder}/wunderbaum.css" />`);
       document.write(`<script defer src="../../${folder}/wunderbaum.umd.js"\>\</script\>`);
-      } else {
-        document.write(`<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.css" />`);
-        document.write(`<script defer src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.umd.min.js"\>\</script\>`);
+    } else {
+      document.write(`<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.css" />`);
+      document.write(`<script defer src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.umd.min.js"\>\</script\>`);
     }
-
-      https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.umd.min.js
   </script>
 
   <script defer src="navigation.js"></script>
@@ -58,7 +56,8 @@
     </section>
 
     <main class="view">
-      <div id="demo-tree" class="wb-rainbow wb-skeleton wb-initializing wb-alternate wb-checkbox-auto-hide wb-fade-expander">
+      <div id="demo-tree"
+        class="wb-rainbow wb-skeleton wb-initializing wb-alternate wb-checkbox-auto-hide wb-fade-expander">
       </div>
     </main>
 
