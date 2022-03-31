@@ -28,7 +28,8 @@
   "exports": {
     ".": {
       "require": "./dist/wunderbaum.umd.min.js",
-      "import": "./dist/wunderbaum.esm.min.js"
+      "import": "./dist/wunderbaum.esm.min.js",
+      "style": "./dist/wunderbaum.css"
     }
   },
   "files": [
@@ -111,6 +112,7 @@
     {
       "basePath": "dist",
       "files": [
+        "wunderbaum.css",
         "wunderbaum.esm.js",
         "wunderbaum.esm.min.js",
         "wunderbaum.esm.min.js.map",
