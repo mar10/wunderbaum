@@ -248,8 +248,6 @@ export class FilterExtension extends WunderbaumExtension {
 
   /**
    * [ext-filter] Re-apply current filter.
-   *
-   * @requires jquery.fancytree.filter.js
    */
   updateFilter() {
     let tree = this.tree;
@@ -266,9 +264,6 @@ export class FilterExtension extends WunderbaumExtension {
 
   /**
    * [ext-filter] Reset the filter.
-   *
-   * @alias Fancytree#clearFilter
-   * @requires jquery.fancytree.filter.js
    */
   clearFilter() {
     let tree = this.tree,

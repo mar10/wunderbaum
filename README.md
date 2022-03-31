@@ -1,12 +1,12 @@
 # ![](docs/assets/tree_logo_32.png) wunderbaum
 [![GitHub version](https://badge.fury.io/gh/mar10%2Fwunderbaum.svg)](https://github.com/mar10/wunderbaum/releases/latest)
 [![Build Status](https://travis-ci.com/mar10/wunderbaum.svg?branch=master)](https://travis-ci.com/github/mar10/wunderbaum)
-[![npm](https://img.shields.io/npm/dm/jquery.wunderbaum.svg)](https://www.npmjs.com/package/jquery.wunderbaum)
-[![jsDelivr](https://data.jsdelivr.com/v1/package/npm/jquery.wunderbaum/badge)](https://www.jsdelivr.com/package/npm/jquery.wunderbaum)
+[![npm](https://img.shields.io/npm/dm/wunderbaum.svg)](https://www.npmjs.com/package/wunderbaum)
+[![jsDelivr](https://data.jsdelivr.com/v1/package/npm/wunderbaum/badge)](https://www.jsdelivr.com/package/npm/wunderbaum)
 [![Released with: grunt-yabs](https://img.shields.io/badge/released%20with-grunt--yabs-yellowgreen)](https://github.com/mar10/grunt-yabs)
 [![StackOverflow: wunderbaum](https://img.shields.io/badge/StackOverflow-wunderbaum-blue.svg)](https://stackoverflow.com/questions/tagged/wunderbaum)
 
-> Potential successor of [Fancytree](https://github.com/mar10/fancytree).
+> Potential successor of [Fancytree](https://github.com/mar10/fancytree).<br>
 > **NOTE: Status _experimental_. Do not use in production!**
 
 <!-- https://de.wikipedia.org/wiki/Wunderbaum -->

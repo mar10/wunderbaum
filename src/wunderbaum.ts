@@ -1134,8 +1134,8 @@ export class Wunderbaum {
     return this.activeNode;
   }
 
-  /** Return the first top level node if any (not the invisible root node).
-   * @returns {FancytreeNode | null}
+  /**
+   * Return the first top level node if any (not the invisible root node).
    */
   getFirstChild() {
     return this.root.getFirstChild();
@@ -1148,10 +1148,10 @@ export class Wunderbaum {
     return this.focusNode;
   }
 
-  /** Return a {node: FancytreeNode, region: TYPE} object for a mouse event.
+  /** Return a {node: WunderbaumNode, region: TYPE} object for a mouse event.
    *
    * @param {Event} event Mouse event, e.g. click, ...
-   * @returns {object} Return a {node: FancytreeNode, region: TYPE} object
+   * @returns {object} Return a {node: WunderbaumNode, region: TYPE} object
    *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
    */
   static getEventInfo(event: Event) {

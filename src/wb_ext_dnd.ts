@@ -10,7 +10,7 @@ import { WunderbaumExtension } from "./wb_extension_base";
 import { WunderbaumNode } from "./wb_node";
 import { ROW_HEIGHT } from "./common";
 
-const nodeMimeType = "application/x-fancytree-node";
+const nodeMimeType = "application/x-wunderbaum-node";
 export type DropRegionType = "over" | "before" | "after";
 type DropRegionTypeSet = Set<DropRegionType>;
 // type AllowedDropRegionType =
