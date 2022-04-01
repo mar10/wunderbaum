@@ -51,9 +51,9 @@ module.exports = (grunt: any) => {
           clean: true,
           cmpVersion: "gte",
         },
-        run_build: { tasks: ["exec:build"], always: true }, // TODO 'always' NYI
         run_test: { tasks: ["test_dev"], always: true },
         bump: {}, // 'bump' also uses the increment mode `yabs:release:MODE`
+        run_build: { tasks: ["exec:build"], always: true }, // TODO 'always' NYI
         run_copy_dist: { tasks: ["exec:copy_dist"] },
         run_test_dist: { tasks: ["test_dist"] },
         commit: { add: "." },

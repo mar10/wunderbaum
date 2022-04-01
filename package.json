@@ -91,8 +91,7 @@
     "delay": "2500"
   },
   "scripts": {
-    "test": "grunt ci --verbose",
-    "testNEW": "http-server test -p 8080 && grunt ci --verbose",
+    "test": "npm run lint && npm run build:minjs && grunt ci --verbose",
     "docs": "typedoc && touch docs/api/.nojekyll",
     "format": "prettier src -w",
     "lint": "prettier src --check",
