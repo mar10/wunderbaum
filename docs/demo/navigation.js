@@ -83,6 +83,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
   });
 
+  document.querySelector("output.tree-version").textContent = mar10.Wunderbaum.version;
+
   /* ---------------------------------------------------------------------------
    * Demo Behavior
    */
