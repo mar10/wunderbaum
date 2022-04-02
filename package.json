@@ -93,7 +93,7 @@
   },
   "scripts": {
     "test": "npm run lint && npm run build:js && grunt ci --verbose",
-    "docs": "typedoc && touch docs/api/.nojekyll",
+    "docs": "typedoc && touch docs/api/.nojekyll && npm run build:unittest",
     "format": "prettier src -w",
     "lint": "prettier src --check",
     "build:types": "tsc -t esnext --moduleResolution node -d --emitDeclarationOnly --outFile build/wunderbaum.d.ts src/wunderbaum.ts",
@@ -101,7 +101,8 @@
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"url='wunderbaum.umd.min.js.map'\" --output build/wunderbaum.umd.min.js",
     "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"url='wunderbaum.esm.min.js.map'\" --output build/wunderbaum.esm.min.js",
     "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
-    "build": "npm run format && mkdir build; rm build/*.* && npm run build:js -s && npm run build:minjs -s && npm run build:types -s && npm run docs",
+    "build:unittest": "rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
+    "build": "npm run format && mkdir build; rm build/*.* && npm run build:js -s && npm run build:minjs -s && npm run build:types -s && npm run build:unittest && npm run docs",
     "make_dist": "npm run build && rm dist/*.* ; cp build/*.* dist",
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
