@@ -34,7 +34,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       {
         title: "Unit Tests",
         type: "link",
-        href: is_local ? "../../test/unit/test-dev.html" : "../../test/unit/test-dist.html",
+        href: is_local ? "../../test/unit/test-dev.html" : "unittest/test-dist.html",
       },
       {
         title: "Demo",

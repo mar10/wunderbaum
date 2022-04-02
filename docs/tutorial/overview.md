@@ -13,7 +13,8 @@ Read [migrate](/tutorial/migrate.md) for details and migration hints.
   Depending on the number of columns and nesting depth, Wunderbaum can also be
   used as a **plain tree**, **plain grid**, or a **simple list** control.
 - **Performant** and efficient handling of **big data structures**.
-- Use modern technologies with **zero dependencies**.
+- Use modern technologies with **zero dependencies** (except for icon fonts you
+  may want to use).<br>
   Drop legacy support (IE, jQuery, ...).
 - Robust, consistent handling of parallel, asynchronous behavior.
 - Built-in support for
