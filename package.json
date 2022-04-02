@@ -92,7 +92,7 @@
     "delay": "2500"
   },
   "scripts": {
-    "test": "npm run lint && npm run build:minjs && grunt ci --verbose",
+    "test": "npm run lint && npm run build:js && grunt ci --verbose",
     "docs": "typedoc && touch docs/api/.nojekyll",
     "format": "prettier src -w",
     "lint": "prettier src --check",
@@ -101,8 +101,7 @@
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"url='wunderbaum.umd.min.js.map'\" --output build/wunderbaum.umd.min.js",
     "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"url='wunderbaum.esm.min.js.map'\" --output build/wunderbaum.esm.min.js",
     "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
-    "build:format": "prettier src -w",
-    "build": "npm run build:format && npm run build:js -s && npm run build:minjs -s && npm run build:types -s && npm run docs",
+    "build": "npm run format && mkdir build; rm build/*.* && npm run build:js -s && npm run build:minjs -s && npm run build:types -s && npm run docs",
     "make_dist": "npm run build && rm dist/*.* ; cp build/*.* dist",
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
