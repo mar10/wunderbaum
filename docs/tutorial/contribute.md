@@ -1,12 +1,12 @@
 # Contributors Guide
 
-First off: thank you for your contribution:
+First off: thank you for your contribution :heart: <br>
 This open source project would not be possible without your support!
 
 There are many ways how you can help:
 
 - Use and test the library. Provide constructive feedback.
-- Spread the word: Star this GitHub project, link to it, or mention it if you
+- Spread the word: Star this GitHub project, share links, or mention it if you
   find it useful.
 - Improve the documentation.
 - Report - or fix - bugs (see below).
@@ -18,11 +18,10 @@ There are many ways how you can help:
 Issues can be reported in the [bug tracker](https://github.com/mar10/wunderbaum/issues).
 
 ?> Try your best to make fixing as easy as possible.
-Create a [minimal,reproducible example](https://stackoverflow.com/help/minimal-reproducible-example)
-if possible.<br>
+Create a [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).<br>
 Do not assume that bugs are fixed, just because they are reported:
-Please understand that issues are likely to be closed, if they are hard
-to debug.
+Please understand that issues are likely to be closed, if they are hard to
+reproduce.
 
 Of course a
 [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
