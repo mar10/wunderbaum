@@ -177,13 +177,32 @@ div.wunderbaum {
   span.wb-col {
     position: absolute;
     display: inline-block;
-    text-overflow: ellipsis;
+    // text-overflow: ellipsis;
     height: $row-inner-height;
     line-height: $row-inner-height;
     padding: 0 $col-padding-x;
     border-right: 1px solid $grid-color;
     &:last-of-type {
       border-right: none;
+    }
+    overflow: visible; // allow resizer to overlap next col
+
+    span.wb-col-title {
+      width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    span.wb-col-resizer {
+      position: absolute;
+      top: 0;
+      // left: auto;
+      right: -1px;
+      width: 3px;
+      // float: right;
+      border: none;
+      border-right: 2px solid $border-color;
+      height: 100%;
+      cursor: col-resize;
     }
   }
 

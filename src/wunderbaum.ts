@@ -16,6 +16,7 @@ import { FilterExtension } from "./wb_ext_filter";
 import { KeynavExtension } from "./wb_ext_keynav";
 import { LoggerExtension } from "./wb_ext_logger";
 import { DndExtension } from "./wb_ext_dnd";
+import { GridExtension } from "./wb_ext_grid";
 import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
 
 import {
@@ -185,6 +186,7 @@ export class Wunderbaum {
     this._registerExtension(new EditExtension(this));
     this._registerExtension(new FilterExtension(this));
     this._registerExtension(new DndExtension(this));
+    this._registerExtension(new GridExtension(this));
     this._registerExtension(new LoggerExtension(this));
 
     // --- Evaluate options
@@ -1157,9 +1159,11 @@ export class Wunderbaum {
   static getEventInfo(event: Event) {
     let target = <Element>event.target,
       cl = target.classList,
-      parentCol = target.closest(".wb-col"),
+      parentCol = target.closest("span.wb-col") as HTMLSpanElement,
       node = Wunderbaum.getNode(target),
+      tree = node ? node.tree : Wunderbaum.getTree(event),
       res = {
+        tree: tree,
         node: node,
         region: NodeRegion.unknown,
         colDef: undefined,
@@ -1189,13 +1193,15 @@ export class Wunderbaum {
       res.colIdx = idx;
     } else {
       // Somewhere near the title
-      console.warn("getEventInfo(): not found", event, res);
+      if (event.type !== "mousemove") {
+        console.warn("getEventInfo(): not found", event, res);
+      }
       return res;
     }
     if (res.colIdx === -1) {
       res.colIdx = 0;
     }
-    res.colDef = node!.tree.columns[res.colIdx];
+    res.colDef = tree?.columns[res.colIdx];
     res.colDef != null ? (res.colId = (<any>res.colDef).id) : 0;
     // this.log("Event", event, res);
     return res;
@@ -1352,11 +1358,15 @@ export class Wunderbaum {
     );
 
     for (let i = 0; i < this.columns.length; i++) {
-      let col = this.columns[i];
-      let colElem = <HTMLElement>headerRow.children[i];
+      const col = this.columns[i];
+      const colElem = <HTMLElement>headerRow.children[i];
+
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
-      colElem.textContent = col.title || col.id;
+      // colElem.textContent = col.title || col.id;
+      const title = util.escapeHtml(col.title || col.id);
+      colElem.innerHTML = `<span class="wb-col-title">${title}</span> <span class="wb-col-resizer"></span>`;
+      // colElem.innerHTML = `${title} <span class="wb-col-resizer"></span>`;
     }
   }
 

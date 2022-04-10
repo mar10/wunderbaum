@@ -358,6 +358,19 @@ export function elemFromSelector(obj: string | Element): HTMLElement | null {
   return obj as HTMLElement;
 }
 
+/** Return a EventTarget from selector or cast an existing element. */
+export function eventTargetFromSelector(
+  obj: string | EventTarget
+): EventTarget | null {
+  if (!obj) {
+    return null;
+  }
+  if (typeof obj === "string") {
+    return document.querySelector(obj) as EventTarget;
+  }
+  return obj as EventTarget;
+}
+
 /**
  * Return a descriptive string for a keyboard or mouse event.
  *
@@ -397,6 +410,7 @@ export function eventToString(event: Event): string {
   return s.join("+");
 }
 
+// TODO: use Object.assign()?
 export function extend(...args: any[]) {
   for (let i = 1; i < args.length; i++) {
     let arg = args[i];
@@ -432,14 +446,14 @@ export function isPlainObject(obj: any) {
 export function noop(...args: any[]): any {}
 
 /**
- * Bind one or more event handlers directly to an [[HtmlElement]].
+ * Bind one or more event handlers directly to an [[EventTarget]].
  *
- * @param element HTMLElement or selector
+ * @param element EventTarget or selector
  * @param eventNames
  * @param handler
  */
 export function onEvent(
-  rootElem: HTMLElement | string,
+  rootTarget: EventTarget | string,
   eventNames: string,
   handler: EventCallbackType
 ): void;
@@ -455,26 +469,26 @@ export function onEvent(
  * });
  * ```
  *
- * @param element HTMLElement or selector
+ * @param element EventTarget or selector
  * @param eventNames
  * @param selector
  * @param handler
  */
 export function onEvent(
-  rootElem: HTMLElement | string,
+  rootTarget: EventTarget | string,
   eventNames: string,
   selector: string,
   handler: EventCallbackType
 ): void;
 
 export function onEvent(
-  rootElem: HTMLElement | string,
+  rootTarget: EventTarget | string,
   eventNames: string,
   selectorOrHandler: string | EventCallbackType,
   handlerOrNone?: EventCallbackType
 ): void {
   let selector: string | null, handler: EventCallbackType;
-  rootElem = elemFromSelector(rootElem)!;
+  rootTarget = eventTargetFromSelector(rootTarget)!;
 
   if (handlerOrNone) {
     selector = selectorOrHandler as string;
@@ -485,7 +499,7 @@ export function onEvent(
   }
 
   eventNames.split(" ").forEach((evn) => {
-    (<HTMLElement>rootElem).addEventListener(evn, function (e) {
+    (<EventTarget>rootTarget).addEventListener(evn, function (e) {
       if (!selector) {
         return handler!(e); // no event delegation
       } else if (e.target) {

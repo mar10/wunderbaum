@@ -83,7 +83,7 @@ export interface WunderbaumOptions {
   strings: any; //[key: string] string;
   /**
    */
-  debugLevel: 3;
+  debugLevel: number;
   minExpandLevel: 0;
   escapeTitles: true;
   headerHeightPx: 22;
@@ -91,6 +91,7 @@ export interface WunderbaumOptions {
   // --- Extensions ---
   dnd: any; // = {};
   filter: any; // = {};
+  grid: any; // = {};
   /**
    * A list of maps that define column headers. If this option is set,
    * Wunderbaum becomes a tree grid control instead of a plain tree.
