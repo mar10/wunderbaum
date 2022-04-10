@@ -1,24 +1,26 @@
 /*!
- * Wunderbaum - mouse_observer
+ * Wunderbaum - drag_observer
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 import * as util from "./util";
 
-// type PromiseCallbackType = (val: any) => void;
-// type finallyCallbackType = () => void;
-// type ObserveEvents = "drag" | "dragX" | "dragY";
 export type DragCallbackArgType = {
+  /** "dragstart", "drag", or "dragstop". */
   type: string;
-  event: MouseEvent;
+  /** Original mouse or touch event that triggered the drag event. */
+  event: MouseEvent | TouchEvent;
+  /** Element which is currently dragged. */
   dragElem: HTMLElement | null;
+  /** Relative horizontal drag distance since start. */
   dx: number;
+  /** Relative vertical drag distance since start. */
   dy: number;
-  /**False if drag was canceled */
+  /** False if drag was canceled. */
   apply?: boolean;
 };
 export type DragCallbackType = (e: DragCallbackArgType) => boolean | void;
-type MouseObserverOptionsType = {
+type DragObserverOptionsType = {
   /**Event target (typically `window.document`). */
   root: EventTarget;
   /**Event delegation selector.*/
@@ -37,14 +39,21 @@ type MouseObserverOptionsType = {
 export class DragObserver {
   protected _handler;
   protected root: EventTarget;
-  protected start = { x: 0, y: 0, shiftKey: false };
+  protected start = {
+    x: 0,
+    y: 0,
+    altKey: false,
+    ctrlKey: false,
+    metaKey: false,
+    shiftKey: false,
+  };
   protected dragElem: HTMLElement | null = null;
   protected dragging: boolean = false;
   // TODO: touch events
   protected events = ["mousedown", "mouseup", "mousemove", "keydown"];
-  protected opts: MouseObserverOptionsType;
+  protected opts: DragObserverOptionsType;
 
-  constructor(opts: MouseObserverOptionsType) {
+  constructor(opts: DragObserverOptionsType) {
     util.assert(opts.root);
     this.opts = util.extend({ thresh: 5 }, opts);
     this.root = opts.root;
@@ -112,11 +121,14 @@ export class DragObserver {
         }
         this.start.x = e.pageX;
         this.start.y = e.pageY;
+        this.start.altKey = e.altKey;
+        this.start.ctrlKey = e.ctrlKey;
+        this.start.metaKey = e.metaKey;
         this.start.shiftKey = e.shiftKey;
         break;
 
       case "mousemove":
-        // TODO: debounce
+        // TODO: debounce/throttle?
         // TODO: horizontal mode: ignore if dx unchanged
         if (!this.dragElem) {
           break;
