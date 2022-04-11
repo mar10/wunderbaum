@@ -1371,12 +1371,12 @@ export class Wunderbaum {
   }
 
   /**
+   * Make sure that this node is scrolled into the viewport.
    *
    * @param {boolean | PlainObject} [effects=false] animation options.
    * @param {object} [options=null] {topNode: null, effects: ..., parent: ...}
    *     this node will remain visible in
    *     any case, even if `this` is outside the scroll pane.
-   * Make sure that a node is scrolled into the viewport.
    */
   scrollTo(opts: any) {
     const MARGIN = 1;
@@ -1398,8 +1398,11 @@ export class Wunderbaum {
       // Node is above viewport
       newTop = nodeOfs + MARGIN;
     }
-    this.log("scrollTo(" + nodeOfs + "): " + curTop + " => " + newTop, height);
     if (newTop != null) {
+      this.log(
+        "scrollTo(" + nodeOfs + "): " + curTop + " => " + newTop,
+        height
+      );
       this.scrollContainer.scrollTop = newTop;
       this.updateViewport();
     }
@@ -1466,6 +1469,9 @@ export class Wunderbaum {
   setModified(change: ChangeType, options?: any): void;
 
   /** */
+  setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
+
+  /* */
   setModified(
     change: ChangeType,
     node?: WunderbaumNode | any,
@@ -1573,12 +1579,12 @@ export class Wunderbaum {
       return;
     }
     let height = this.scrollContainer.clientHeight;
-    // We cannot get the height for abolut positioned parent, so look at first col
+    // We cannot get the height for absolut positioned parent, so look at first col
     // let headerHeight = this.headerElement.clientHeight
     // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
     const headerHeight = this.options.headerHeightPx;
-    let wantHeight = this.element.clientHeight - headerHeight;
-    let ofs = this.scrollContainer.scrollTop;
+    const wantHeight = this.element.clientHeight - headerHeight;
+    const ofs = this.scrollContainer.scrollTop;
 
     if (Math.abs(height - wantHeight) > 1.0) {
       // this.log("resize", height, wantHeight);

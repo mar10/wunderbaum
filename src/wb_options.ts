@@ -7,8 +7,10 @@
 import {
   BoolOptionResolver,
   NavigationModeOption,
-  WbEventType,
+  WbNodeEventType,
+  WbTreeEventType,
 } from "./common";
+import { DndOptionsType } from "./wb_ext_dnd";
 
 export interface WbNodeData {
   title: string;
@@ -16,7 +18,7 @@ export interface WbNodeData {
   refKey?: string;
   expanded?: boolean;
   selected?: boolean;
-  checkbox?: boolean | "radio" | BoolOptionResolver;
+  checkbox?: boolean | string;
   children?: Array<WbNodeData>;
   // ...any?: Any;
 }
@@ -62,10 +64,10 @@ export interface WunderbaumOptions {
    *
    * Default: `{}`.
    */
-  types: any; //[key: string]: any;
+  types?: any; //[key: string]: any;
   /**
    * A list of maps that define column headers. If this option is set,
-   * Wunderbaum becomes a tree-grid control instead of a plain tree.
+   * Wunderbaum becomes a treegrid control instead of a plain tree.
    * Column definitions can be passed as tree option, or be part of a `source`
    * response.
    * Default: `[]` meaning this is a plain tree.
@@ -77,20 +79,21 @@ export interface WunderbaumOptions {
    * real data.
    * Default: false.
    */
-  skeleton: false;
+  skeleton?: false;
   /**
    * Translation map for some system messages.
    */
-  strings: any; //[key: string] string;
+  strings?: any; //[key: string] string;
   /**
-   *  Default: 3 (4 in local debug setup)
+   * 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
+   * Default: 3 (4 in local debug environment)
    */
   debugLevel: number;
   /**
    * Number of levels that are forced to be expanded, and have no expander icon.
    *  Default: 0
    */
-  minExpandLevel: number;
+  minExpandLevel?: number;
   // escapeTitles: boolean;
   /**
    * Height of the header row div.
@@ -101,37 +104,127 @@ export interface WunderbaumOptions {
    * Height of a node row div.
    * Default: 22
    */
-  heightPx: number;
+  rowHeightPx?: number;
   /**
    * Collapse siblings when a node is expanded.
    * Default: false
    */
-  autoCollapse: boolean;
-  // --- Extensions ---
-  dnd: any; // = {};
-  filter: any; // = {};
-  grid: any; // = {};
+  autoCollapse?: boolean;
   /**
-   * A list of maps that define column headers. If this option is set,
-   * Wunderbaum becomes a tree grid control instead of a plain tree.
-   * Column definitions can be passed as tree option, or be part of a `source`
-   * response.
+   * Default:  NavigationModeOption.startRow
    */
   navigationMode?: NavigationModeOption;
+  /**
+   * Show/hide header (pass bool or string)
+   */
+  header?: boolean | string | null;
+  /**
+   *
+   */
+  showSpinner?: boolean;
+  /**
+   * Default: true
+   */
+  checkbox?: boolean | "radio" | BoolOptionResolver;
+  /**
+   * Default: 200
+   */
+  updateThrottleWait?: number;
+  // --- KeyNav ---
+  /**
+   * Default: true
+   */
+  quicksearch?: boolean;
+
+  // --- Extensions ---
+  dnd?: DndOptionsType; // = {};
+  filter: any; // = {};
+  grid: any; // = {};
   // --- Events ---
   /**
    * Called after initial data was loaded and tree markup was rendered.
+   * Check `e.error` for status.
    * @category Callback
    */
-  init?: (e: WbEventType) => void;
+  init?: (e: WbTreeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  update?: (e: WbTreeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  activate?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  deactivate?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  change?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  click?: (e: WbTreeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  discard?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  error?: (e: WbTreeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  enhanceTitle?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * Check `e.flag` for status.
+   * @category Callback
+   */
+  focus?: (e: WbTreeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  keydown?: (e: WbNodeEventType) => void;
   /**
    * Called after data was loaded from local storage.
-   * @category Callback
    */
-  update?: (e: WbEventType) => void;
+  load?: (e: WbNodeEventType) => void;
   /**
-   * Called after data was loaded from local storage.
    * @category Callback
    */
-  modifyChild?: (e: WbEventType) => void;
+  modifyChild?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  receive?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  render?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  renderStatusNode?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * Check `e.flag` for status.
+   * @category Callback
+   */
+  select?: (e: WbNodeEventType) => void;
 }

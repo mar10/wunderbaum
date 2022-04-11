@@ -8,7 +8,7 @@ import { EventCallbackType, onEvent } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { WunderbaumNode } from "./wb_node";
-import { ROW_HEIGHT } from "./common";
+import { ROW_HEIGHT, WbNodeEventType } from "./common";
 
 const nodeMimeType = "application/x-wunderbaum-node";
 export type DropRegionType = "over" | "before" | "after";
@@ -23,6 +23,147 @@ type DropRegionTypeSet = Set<DropRegionType>;
 //   | "beforeOver"
 //   | "none" // == false == "" == null
 //   | "over"; // == "child"
+
+export type DndOptionsType = {
+  /**
+   * Expand nodes after n milliseconds of hovering
+   * Default: 1500
+   */
+  autoExpandMS: 1500;
+  // /**
+  //  * Additional offset for drop-marker with hitMode = "before"/"after"
+  //  * Default:
+  //  */
+  // dropMarkerInsertOffsetX: -16;
+  // /**
+  //  * Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
+  //  * Default:
+  //  */
+  // dropMarkerOffsetX: -24;
+  // /**
+  //  * Root Container used for drop marker (could be a shadow root)
+  //  * (#1021 `document.body` is not available yet)
+  //  * Default:
+  //  */
+  // dropMarkerParent: "body";
+  /**
+   * true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
+   * Default: false
+   */
+  multiSource: false;
+  /**
+   * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+   * Default: "all"
+   */
+  effectAllowed: "all";
+  // /**
+  //  * 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
+  //  * Default:
+  //  */
+  // dropEffect: "auto";
+  /**
+   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
+   * Default: "move"
+   */
+  dropEffectDefault: string;
+  /**
+   * Prevent dropping nodes from different Wunderbaum trees
+   * Default: false
+   */
+  preventForeignNodes: boolean;
+  /**
+   * Prevent dropping items on unloaded lazy Wunderbaum tree nodes
+   * Default: true
+   */
+  preventLazyParents: boolean;
+  /**
+   * Prevent dropping items other than Wunderbaum tree nodes
+   * Default: false
+   */
+  preventNonNodes: boolean;
+  /**
+   * Prevent dropping nodes on own descendants
+   * Default: true
+   */
+  preventRecursion: boolean;
+  /**
+   * Prevent dropping nodes under same direct parent
+   * Default: false
+   */
+  preventSameParent: false;
+  /**
+   * Prevent dropping nodes 'before self', etc. (move only)
+   * Default: true
+   */
+  preventVoidMoves: boolean;
+  /**
+   * Enable auto-scrolling while dragging
+   * Default: true
+   */
+  scroll: boolean;
+  /**
+   * Active top/bottom margin in pixel
+   * Default: 20
+   */
+  scrollSensitivity: 20;
+  /**
+   * Pixel per event
+   * Default: 5
+   */
+  scrollSpeed: 5;
+  // /**
+  //  * Allow dragging of nodes to different IE windows
+  //  * Default: false
+  //  */
+  // setTextTypeJson: boolean;
+  /**
+   * Optional callback passed to `toDict` on dragStart @since 2.38
+   * Default: null
+   */
+  sourceCopyHook: null;
+  // Events (drag support)
+  /**
+   * Callback(sourceNode, data), return true, to enable dnd drag
+   * Default: null
+   */
+  dragStart?: WbNodeEventType;
+  /**
+   * Callback(sourceNode, data)
+   * Default: null
+   */
+  dragDrag: null;
+  /**
+   * Callback(sourceNode, data)
+   * Default: null
+   */
+  dragEnd: null;
+  // Events (drop support)
+  /**
+   * Callback(targetNode, data), return true, to enable dnd drop
+   * Default: null
+   */
+  dragEnter: null;
+  /**
+   * Callback(targetNode, data)
+   * Default: null
+   */
+  dragOver: null;
+  /**
+   * Callback(targetNode, data), return false to prevent autoExpand
+   * Default: null
+   */
+  dragExpand: null;
+  /**
+   * Callback(targetNode, data)
+   * Default: null
+   */
+  dragDrop: null;
+  /**
+   * Callback(targetNode, data)
+   * Default: null
+   */
+  dragLeave: null;
+};
 
 export class DndExtension extends WunderbaumExtension {
   // public dropMarkerElem?: HTMLElement;
@@ -78,7 +219,7 @@ export class DndExtension extends WunderbaumExtension {
     // this.$scrollParent = $temp.scrollParent();
     // $temp.remove();
     const tree = this.tree;
-    const dndOpts = tree.options.dnd;
+    const dndOpts = tree.options.dnd!;
 
     // Enable drag support if dragStart() is specified:
     if (dndOpts.dragStart) {
@@ -153,7 +294,7 @@ export class DndExtension extends WunderbaumExtension {
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
   protected autoScroll(event: DragEvent): number {
     let tree = this.tree,
-      dndOpts = tree.options.dnd,
+      dndOpts = tree.options.dnd!,
       sp = tree.scrollContainer,
       sensitivity = dndOpts.scrollSensitivity,
       speed = dndOpts.scrollSpeed,

@@ -28,18 +28,18 @@ export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
-export type WbEventType = {
+export type WbTreeEventType = {
   name: string;
   event: Event;
   tree: Wunderbaum;
   // node?: WunderbaumNode;
   [key: string]: unknown;
 };
-export type WbNodeEventType = WbEventType & {
+export type WbNodeEventType = WbTreeEventType & {
   node: WunderbaumNode;
 };
 
-export type WbCallbackType = (e: WbEventType) => any;
+export type WbTreeCallbackType = (e: WbTreeEventType) => any;
 export type WbNodeCallbackType = (e: WbNodeEventType) => any;
 
 export type FilterModeType = null | "dim" | "hide";
@@ -64,11 +64,10 @@ export type ApplyCommandType =
   | "parent"
   | "right"
   | "up";
+
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
-
 export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
-
 export type DndModeType = "before" | "after" | "over";
 
 export enum ChangeType {
@@ -76,6 +75,8 @@ export enum ChangeType {
   row = "row",
   structure = "structure",
   status = "status",
+  vscroll = "vscroll",
+  header = "header",
 }
 
 export enum NodeStatusType {

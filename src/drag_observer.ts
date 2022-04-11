@@ -34,7 +34,7 @@ type DragObserverOptionsType = {
 };
 
 /**
- * Monitor mouse movement, drag, etc.
+ * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
  */
 export class DragObserver {
   protected _handler;

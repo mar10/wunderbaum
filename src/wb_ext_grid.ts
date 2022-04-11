@@ -39,6 +39,7 @@ export class GridExtension extends WunderbaumExtension {
 
   protected handleDrag(e: DragCallbackArgType): void {
     const info = Wunderbaum.getEventInfo(e.event);
+    // this.tree.options.
     this.tree.log(`${e.type}(${e.dx})`, e, info);
   }
 }
