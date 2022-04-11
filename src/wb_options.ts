@@ -72,22 +72,41 @@ export interface WunderbaumOptions {
    */
   columns?: Array<any>;
   /**
-   *
+   * If true, add a `wb-skeleton` class to all nodes, that will result in a
+   * 'glow' effect. Typically used with initial dummy nodes, while loading the
+   * real data.
    * Default: false.
    */
   skeleton: false;
   /**
-   *
-   * Default: false.
+   * Translation map for some system messages.
    */
   strings: any; //[key: string] string;
   /**
+   *  Default: 3 (4 in local debug setup)
    */
   debugLevel: number;
-  minExpandLevel: 0;
-  escapeTitles: true;
-  headerHeightPx: 22;
-  autoCollapse: false;
+  /**
+   * Number of levels that are forced to be expanded, and have no expander icon.
+   *  Default: 0
+   */
+  minExpandLevel: number;
+  // escapeTitles: boolean;
+  /**
+   * Height of the header row div.
+   * Default: 22
+   */
+  headerHeightPx: number;
+  /**
+   * Height of a node row div.
+   * Default: 22
+   */
+  heightPx: number;
+  /**
+   * Collapse siblings when a node is expanded.
+   * Default: false
+   */
+  autoCollapse: boolean;
   // --- Extensions ---
   dnd: any; // = {};
   filter: any; // = {};

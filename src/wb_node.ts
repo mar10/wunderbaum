@@ -1290,10 +1290,11 @@ export class WunderbaumNode {
 
     if (this.titleWithHighlight) {
       titleSpan.innerHTML = this.titleWithHighlight;
-    } else if (tree.options.escapeTitles) {
-      titleSpan.textContent = this.title;
     } else {
-      titleSpan.innerHTML = this.title;
+      // } else if (tree.options.escapeTitles) {
+      titleSpan.textContent = this.title;
+      // } else {
+      //   titleSpan.innerHTML = this.title;
     }
     // Set the width of the title span, so overflow ellipsis work
     if (!treeOptions.skeleton) {

@@ -9,7 +9,6 @@ import {
   escapeHtml,
   escapeRegex,
   extend,
-  extractHtmlText,
   onEvent,
 } from "./util";
 import { NodeFilterCallback, NodeStatusType } from "./common";
@@ -79,7 +78,7 @@ export class FilterExtension extends WunderbaumExtension {
       count = 0,
       tree = this.tree,
       treeOpts = tree.options,
-      escapeTitles = treeOpts.escapeTitles,
+      // escapeTitles = treeOpts.escapeTitles,
       prevAutoCollapse = treeOpts.autoCollapse,
       opts = extend({}, treeOpts.filter, _opts),
       hideMode = opts.mode === "hide",
@@ -118,35 +117,36 @@ export class FilterExtension extends WunderbaumExtension {
         if (!node.title) {
           return false;
         }
-        let text = escapeTitles ? node.title : extractHtmlText(node.title);
+        // let text = escapeTitles ? node.title : extractHtmlText(node.title);
+        let text = node.title;
         // `.match` instead of `.test` to get the capture groups
         let res = text.match(re);
 
         if (res && opts.highlight) {
-          if (escapeTitles) {
-            if (opts.fuzzy) {
-              temp = _markFuzzyMatchedChars(text, res, escapeTitles);
-            } else {
-              // #740: we must not apply the marks to escaped entity names, e.g. `&quot;`
-              // Use some exotic characters to mark matches:
-              temp = text.replace(reHighlight, function (s) {
-                return START_MARKER + s + END_MARKER;
-              });
-            }
-            // now we can escape the title...
-            node.titleWithHighlight = escapeHtml(temp)
-              // ... and finally insert the desired `<mark>` tags
-              .replace(RE_START_MARKER, "<mark>")
-              .replace(RE_END_MARTKER, "</mark>");
+          // if (escapeTitles) {
+          if (opts.fuzzy) {
+            temp = _markFuzzyMatchedChars(text, res, true);
           } else {
-            if (opts.fuzzy) {
-              node.titleWithHighlight = _markFuzzyMatchedChars(text, res);
-            } else {
-              node.titleWithHighlight = text.replace(reHighlight, function (s) {
-                return "<mark>" + s + "</mark>";
-              });
-            }
+            // #740: we must not apply the marks to escaped entity names, e.g. `&quot;`
+            // Use some exotic characters to mark matches:
+            temp = text.replace(reHighlight, function (s) {
+              return START_MARKER + s + END_MARKER;
+            });
           }
+          // now we can escape the title...
+          node.titleWithHighlight = escapeHtml(temp)
+            // ... and finally insert the desired `<mark>` tags
+            .replace(RE_START_MARKER, "<mark>")
+            .replace(RE_END_MARTKER, "</mark>");
+          // } else {
+          //   if (opts.fuzzy) {
+          //     node.titleWithHighlight = _markFuzzyMatchedChars(text, res);
+          //   } else {
+          //     node.titleWithHighlight = text.replace(reHighlight, function (s) {
+          //       return "<mark>" + s + "</mark>";
+          //     });
+          //   }
+          // }
           // node.debug("filter", escapeTitles, text, node.titleWithHighlight);
         }
         return !!res;
@@ -266,9 +266,9 @@ export class FilterExtension extends WunderbaumExtension {
    * [ext-filter] Reset the filter.
    */
   clearFilter() {
-    let tree = this.tree,
-      // statusNode = tree.root.findDirectChild(KEY_NODATA),
-      escapeTitles = tree.options.escapeTitles;
+    let tree = this.tree;
+    // statusNode = tree.root.findDirectChild(KEY_NODATA),
+    // escapeTitles = tree.options.escapeTitles;
     // enhanceTitle = tree.options.enhanceTitle,
     tree.enableUpdate(false);
 
@@ -284,11 +284,11 @@ export class FilterExtension extends WunderbaumExtension {
       if (node.match && node._rowElem) {
         // #491, #601
         let titleElem = node._rowElem.querySelector("span.wb-title")!;
-        if (escapeTitles) {
-          titleElem.textContent = node.title;
-        } else {
-          titleElem.innerHTML = node.title;
-        }
+        // if (escapeTitles) {
+        titleElem.textContent = node.title;
+        // } else {
+        //   titleElem.innerHTML = node.title;
+        // }
         node._callEvent("enhanceTitle", { titleElem: titleElem });
       }
       delete node.match;
@@ -330,7 +330,7 @@ export class FilterExtension extends WunderbaumExtension {
 function _markFuzzyMatchedChars(
   text: string,
   matches: RegExpMatchArray,
-  escapeTitles = false
+  escapeTitles = true
 ) {
   let matchingIndices = [];
   // get the indices of matched characters (Iterate through `RegExpMatchArray`)
@@ -350,7 +350,7 @@ function _markFuzzyMatchedChars(
   // Map each `text` char to its position and store in `textPoses`.
   let textPoses = text.split("");
   if (escapeTitles) {
-    // If escaping the title, then wrap the matchng char within exotic chars
+    // If escaping the title, then wrap the matching char within exotic chars
     matchingIndices.forEach(function (v) {
       textPoses[v] = START_MARKER + textPoses[v] + END_MARKER;
     });

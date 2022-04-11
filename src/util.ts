@@ -16,7 +16,7 @@ export const MOUSE_BUTTONS: { [key: number]: string } = {
 
 export const MAX_INT = 9007199254740991;
 const userInfo = _getUserInfo();
-/**True if the user is using a macOS platform. */
+/**True if the client is using a macOS platform. */
 export const isMac = userInfo.isMac;
 
 const REX_HTML = /[&<>"'/]/g; // Escape those characters
@@ -186,7 +186,7 @@ export function escapeTooltip(s: string): string {
 /** TODO */
 export function extractHtmlText(s: string) {
   if (s.indexOf(">") >= 0) {
-    error("not implemented");
+    error("Not implemented");
     // return $("<div/>").html(s).text();
   }
   return s;
@@ -315,7 +315,7 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
         input.valueAsNumber = value;
         break;
       case "radio":
-        assert(false, "not implemented");
+        error("Not implemented");
         // const name = input.name;
         // const checked = input.parentElement!.querySelector(
         //   `input[name="${name}"]:checked`
@@ -338,7 +338,7 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
   // return value;
 }
 
-/** Return an unconnected `HTMLElement` from a HTML string. */
+/** Create and return an unconnected `HTMLElement` from a HTML string. */
 export function elemFromHtml(html: string): HTMLElement {
   const t = document.createElement("template");
   t.innerHTML = html.trim();
@@ -372,10 +372,12 @@ export function eventTargetFromSelector(
 }
 
 /**
- * Return a descriptive string for a keyboard or mouse event.
+ * Return a canonical descriptive string for a keyboard or mouse event.
  *
  * The result also contains a prefix for modifiers if any, for example
  * `"x"`, `"F2"`, `"Control+Home"`, or `"Shift+clickright"`.
+ * This is especially useful in `switch` statements, to make sure that modifier
+ * keys are considered and handled correctly.
  */
 export function eventToString(event: Event): string {
   let key = (<KeyboardEvent>event).key,
@@ -410,7 +412,13 @@ export function eventToString(event: Event): string {
   return s.join("+");
 }
 
-// TODO: use Object.assign()?
+/**
+ * Copy allproperties from one or more source objects to a target object.
+ *
+ * @returns the modified target object.
+ */
+// TODO: use Object.assign()? --> https://stackoverflow.com/a/42740894
+// TODO: support deep merge --> https://stackoverflow.com/a/42740894
 export function extend(...args: any[]) {
   for (let i = 1; i < args.length; i++) {
     let arg = args[i];
@@ -426,18 +434,22 @@ export function extend(...args: any[]) {
   return args[0];
 }
 
+/** Return true if `obj` is of type `array`. */
 export function isArray(obj: any) {
   return Array.isArray(obj);
 }
 
+/** Return true if `obj` is of type `Object` and has no propertied. */
 export function isEmptyObject(obj: any) {
   return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
 
+/** Return true if `obj` is of type `function`. */
 export function isFunction(obj: any) {
   return typeof obj === "function";
 }
 
+/** Return true if `obj` is of type `Object`. */
 export function isPlainObject(obj: any) {
   return Object.prototype.toString.call(obj) === "[object Object]";
 }
@@ -592,6 +604,13 @@ export async function sleep(ms: number) {
 
 /**
  * Set or rotate checkbox status with support for tri-state.
+ *
+ * An initial 'indeterminate' state becomes 'checked' on the first call.
+ *
+ * If the input element has the class 'wb-tristate' assigned, the sequence is:<br>
+ * 'indeterminate' -> 'checked' -> 'unchecked' -> 'indeterminate' -> ...<br>
+ * Otherwise we toggle like <br>
+ * 'checked' -> 'unchecked' -> 'checked' -> ...
  */
 export function toggleCheckbox(
   element: HTMLElement | string,
@@ -662,6 +681,7 @@ export function toSet(val: any): Set<string> {
   throw new Error("Cannot convert to Set<string>: " + val);
 }
 
+/**Return a canonical string representation for an object's type (e.g. 'array', 'number', ...) */
 export function type(obj: any): string {
   return Object.prototype.toString
     .call(obj)

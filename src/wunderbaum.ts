@@ -126,7 +126,7 @@ export class Wunderbaum {
         rowHeightPx: ROW_HEIGHT,
         columns: null,
         types: null,
-        escapeTitles: true,
+        // escapeTitles: true,
         showSpinner: false,
         checkbox: true,
         minExpandLevel: 0,
