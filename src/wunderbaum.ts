@@ -41,7 +41,7 @@ import { WunderbaumOptions } from "./wb_options";
 
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
-const MAX_CHANGED_NODES = 10;
+// const MAX_CHANGED_NODES = 10;
 
 /**
  * A persistent plain object or array.
@@ -95,6 +95,7 @@ export class Wunderbaum {
   protected changedSince = 0;
   protected changes = new Set<ChangeType>();
   protected changedNodes = new Set<WunderbaumNode>();
+  protected changeRedrawPending = false;
 
   // --- FILTER ---
   public filterMode: FilterModeType = null;
@@ -315,10 +316,8 @@ export class Wunderbaum {
         .finally(() => {
           this.element.querySelector("progress.spinner")?.remove();
           this.element.classList.remove("wb-initializing");
-          // this.updateViewport();
         });
     } else {
-      // this.updateViewport();
       readyDeferred.resolve();
     }
 
@@ -330,14 +329,11 @@ export class Wunderbaum {
 
     // --- Bind listeners
     this.scrollContainer.addEventListener("scroll", (e: Event) => {
-      this.updateViewport();
+      this.setModified(ChangeType.vscroll);
     });
 
-    // window.addEventListener("resize", (e: Event) => {
-    //   this.updateViewport();
-    // });
     this.resizeObserver = new ResizeObserver((entries) => {
-      this.updateViewport();
+      this.setModified(ChangeType.vscroll);
       console.log("ResizeObserver: Size changed", entries);
     });
     this.resizeObserver.observe(this.element);
@@ -847,7 +843,7 @@ export class Wunderbaum {
     // public cellNavMode = false;
     // public lastQuicksearchTime = 0;
     // public lastQuicksearchTerm = "";
-    this.updateViewport();
+    this.setModified(ChangeType.structure);
   }
 
   /**
@@ -1304,6 +1300,7 @@ export class Wunderbaum {
     let start = opts?.startIdx;
     let end = opts?.endIdx;
     const obsoleteViewNodes = this.viewNodes;
+    const newNodesOnly = !!util.getOption(opts, "newNodesOnly");
 
     this.viewNodes = new Set();
     let viewNodes = this.viewNodes;
@@ -1328,9 +1325,10 @@ export class Wunderbaum {
       if (idx < start || idx > end) {
         node._callEvent("discard");
         node.removeMarkup();
-      } else {
-        // if (!node._rowElem || prevIdx != idx) {
+      } else if (!node._rowElem || !newNodesOnly) {
         node.render({ top: top });
+        // }else{
+        //   node.log("ignrored render")
       }
       idx++;
       top += height;
@@ -1404,7 +1402,7 @@ export class Wunderbaum {
         height
       );
       this.scrollContainer.scrollTop = newTop;
-      this.updateViewport();
+      this.setModified(ChangeType.vscroll);
     }
   }
 
@@ -1480,20 +1478,47 @@ export class Wunderbaum {
     if (!(node instanceof WunderbaumNode)) {
       options = node;
     }
-    if (!this.changedSince) {
-      this.changedSince = Date.now();
+    if (this._disableUpdate) {
+      return;
     }
-    this.changes.add(change);
-    if (change === ChangeType.structure) {
-      this.changedNodes.clear();
-    } else if (node && !this.changes.has(ChangeType.structure)) {
-      if (this.changedNodes.size < MAX_CHANGED_NODES) {
-        this.changedNodes.add(node);
-      } else {
-        this.changes.add(ChangeType.structure);
-        this.changedNodes.clear();
-      }
+    const immediate = !!util.getOption(options, "immediate");
+
+    switch (change) {
+      case ChangeType.any:
+      case ChangeType.structure:
+      case ChangeType.header:
+        this.changeRedrawPending = true;
+        this.updateViewport(immediate);
+        break;
+      case ChangeType.vscroll:
+        this.updateViewport(immediate);
+        break;
+      case ChangeType.row:
+      case ChangeType.status:
+        // Single nodes are immedialtely updated if already inside the viewport
+        // (otherwise we can ignore)
+        if (node._rowElem) {
+          node.render();
+        }
+        break;
+      default:
+        util.error(`Invalid change type ${change}`);
     }
+
+    // if (!this.changedSince) {
+    //   this.changedSince = Date.now();
+    // }
+    // this.changes.add(change);
+    // if (change === ChangeType.structure) {
+    //   this.changedNodes.clear();
+    // } else if (node && !this.changes.has(ChangeType.structure)) {
+    //   if (this.changedNodes.size < MAX_CHANGED_NODES) {
+    //     this.changedNodes.add(node);
+    //   } else {
+    //     this.changes.add(ChangeType.structure);
+    //     this.changedNodes.clear();
+    //   }
+    // }
     // this.log("setModified(" + change + ")", node);
   }
 
@@ -1578,6 +1603,9 @@ export class Wunderbaum {
     if (this._disableUpdate) {
       return;
     }
+    const newNodesOnly = !this.changeRedrawPending;
+    this.changeRedrawPending = false;
+
     let height = this.scrollContainer.clientHeight;
     // We cannot get the height for absolut positioned parent, so look at first col
     // let headerHeight = this.headerElement.clientHeight
@@ -1596,6 +1624,7 @@ export class Wunderbaum {
     this.render({
       startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_MAX_PREFETCH),
       endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_MAX_PREFETCH),
+      newNodesOnly: newNodesOnly,
     });
     this._callEvent("update");
   }

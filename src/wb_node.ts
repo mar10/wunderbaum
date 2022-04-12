@@ -236,7 +236,7 @@ export class WunderbaumNode {
       //   this.fixSelection3FromEndNodes();
       // }
       // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
-      this.tree.setModified(ChangeType.structure, this);
+      this.tree.setModified(ChangeType.structure);
       return nodeList[0];
     } finally {
       this.tree.enableUpdate(true);
@@ -784,7 +784,7 @@ export class WunderbaumNode {
 
       if (wasExpanded) {
         this.expanded = true;
-        this.tree.updateViewport();
+        this.tree.setModified(ChangeType.structure);
       } else {
         this.render(); // Fix expander icon to 'loaded'
       }
@@ -956,7 +956,7 @@ export class WunderbaumNode {
       }, true);
     }
 
-    tree.updateViewport();
+    tree.setModified(ChangeType.structure);
     // TODO: fix selection state
     // TODO: fix active state
   }
@@ -1035,7 +1035,7 @@ export class WunderbaumNode {
     if (!this.isRootNode()) {
       this.expanded = false;
     }
-    this.tree.updateViewport();
+    this.tree.setModified(ChangeType.structure);
   }
 
   /** Remove all HTML markup from the DOM. */
@@ -1343,7 +1343,7 @@ export class WunderbaumNode {
     this.expanded = false;
     this.lazy = true;
     this.children = null;
-    this.tree.updateViewport();
+    this.tree.setModified(ChangeType.structure);
   }
 
   /** Convert node (or whole branch) into a plain object.
@@ -1483,7 +1483,7 @@ export class WunderbaumNode {
             }) === false
           ) {
             tree.activeNode = null;
-            prev?.setDirty(ChangeType.status);
+            prev?.setModified();
             return;
           }
         }
@@ -1494,8 +1494,8 @@ export class WunderbaumNode {
 
     if (prev !== this) {
       tree.activeNode = this;
-      prev?.setDirty(ChangeType.status);
-      this.setDirty(ChangeType.status);
+      prev?.setModified();
+      this.setModified();
     }
     if (
       options &&
@@ -1511,16 +1511,9 @@ export class WunderbaumNode {
     this.scrollIntoView();
   }
 
-  setDirty(type: ChangeType) {
-    if (this.tree._disableUpdate) {
-      return;
-    }
-    if (type === ChangeType.structure) {
-      this.tree.updateViewport();
-    } else if (this._rowElem) {
-      // otherwise not in viewport, so no need to render
-      this.render();
-    }
+  setModified(change: ChangeType = ChangeType.status) {
+    util.assert(change === ChangeType.status);
+    this.tree.setModified(ChangeType.row, this);
   }
 
   async setExpanded(flag: boolean = true, options?: any) {
@@ -1538,7 +1531,7 @@ export class WunderbaumNode {
       await this.loadLazy();
     }
     this.expanded = flag;
-    this.setDirty(ChangeType.structure);
+    this.tree.setModified(ChangeType.structure);
   }
 
   setIcon() {
@@ -1549,8 +1542,8 @@ export class WunderbaumNode {
   setFocus(flag: boolean = true, options?: any) {
     const prev = this.tree.focusNode;
     this.tree.focusNode = this;
-    prev?.setDirty(ChangeType.status);
-    this.setDirty(ChangeType.status);
+    prev?.setModified();
+    this.setModified();
   }
 
   setSelected(flag: boolean = true, options?: any) {
@@ -1559,7 +1552,7 @@ export class WunderbaumNode {
       this._callEvent("select", { flag: flag });
     }
     this.selected = !!flag;
-    this.setDirty(ChangeType.status);
+    this.setModified();
   }
 
   /** Show node status (ok, loading, error, noData) using styles and a dummy child node.
@@ -1650,13 +1643,13 @@ export class WunderbaumNode {
       default:
         util.error("invalid node status " + status);
     }
-    tree.updateViewport();
+    tree.setModified(ChangeType.structure);
     return statusNode;
   }
 
   setTitle(title: string): void {
     this.title = title;
-    this.setDirty(ChangeType.status);
+    this.setModified();
     // this.triggerModify("rename"); // TODO
   }
 
