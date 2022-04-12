@@ -58,6 +58,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
         console.log(e.name, e);
         // Simulate async storage that also validates:
         return e.util.setTimeoutPromise(() => {
+          e.inputElem.setCustomValidity("")
           if( e.newValue.match(/.*\d.*/)){
             e.inputElem.setCustomValidity("No numbers please.")
             return false;
