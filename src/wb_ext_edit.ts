@@ -252,6 +252,14 @@ export class EditExtension extends WunderbaumExtension {
     node.logDebug(`stopEditTitle(${apply})`, opts, focusElem, newValue);
 
     if (apply && newValue !== null && newValue !== node.title) {
+      const errMsg = focusElem.validationMessage;
+      if (errMsg) {
+        // input element's native validation failed
+        throw new Error(
+          `Input validation failed for "${newValue}": ${errMsg}.`
+        );
+      }
+
       const colElem = node.getColElem(0)!;
 
       this._applyChange("edit.apply", node, colElem, {
