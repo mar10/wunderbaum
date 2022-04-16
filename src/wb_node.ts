@@ -1194,7 +1194,7 @@ export class WunderbaumNode {
         ofsTitlePx += ICON_WIDTH;
       }
 
-      if (treeOptions.minExpandLevel && level > treeOptions.minExpandLevel) {
+      if (!treeOptions.minExpandLevel || level > treeOptions.minExpandLevel) {
         expanderSpan = document.createElement("i");
         nodeElem.appendChild(expanderSpan);
         ofsTitlePx += ICON_WIDTH;
