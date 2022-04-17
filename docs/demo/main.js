@@ -128,7 +128,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       }
     },
     update: function (e) {
-      console.log(e.name, e);
+      // console.log(e.name, e);
       showStatus(this);
     },
   });

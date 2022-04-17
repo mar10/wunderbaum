@@ -10,6 +10,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     element: document.querySelector("#nav-tree"),
     checkbox: false,
     minExpandLevel: 2,
+    debugLevel: 2,
     types: {
       link: { icon: "bi bi-link-45deg", classes: "wb-helper-link" },
       code: { icon: "bi bi-file-code" },

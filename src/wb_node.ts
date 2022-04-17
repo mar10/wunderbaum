@@ -739,7 +739,7 @@ export class WunderbaumNode {
           util.assert(!this.parent);
           tree.columns = data.columns;
           delete data.columns;
-          tree.renderHeader();
+          tree.updateColumns({ calculateCols: false });
         }
         this._loadSourceObject(data);
       }
@@ -777,7 +777,7 @@ export class WunderbaumNode {
       }
       util.assert(
         util.isArray(source) || (source && source.url),
-        "The lazyLoad event must return a node list, `{url: ...}` or false."
+        "The lazyLoad event must return a node list, `{url: ...}`, or false."
       );
 
       await this.load(source); // also calls setStatus('ok')
@@ -786,11 +786,12 @@ export class WunderbaumNode {
         this.expanded = true;
         this.tree.setModified(ChangeType.structure);
       } else {
-        this.render(); // Fix expander icon to 'loaded'
+        this.setModified(); // Fix expander icon to 'loaded'
       }
     } catch (e) {
+      this.logError("Error during loadLazy()", e);
+      this._callEvent("error", { error: e });
       this.setStatus(NodeStatusType.error, "" + e);
-      // } finally {
     }
     return;
   }
@@ -998,11 +999,13 @@ export class WunderbaumNode {
   remove() {
     const tree = this.tree;
     const pos = this.parent.children!.indexOf(this);
+    this.triggerModify("remove");
     this.parent.children!.splice(pos, 1);
     this.visit((n) => {
       n.removeMarkup();
       tree._unregisterNode(n);
     }, true);
+    tree.setModified(ChangeType.structure);
   }
 
   /** Remove all descendants of this node. */
@@ -1135,6 +1138,10 @@ export class WunderbaumNode {
       tree.navMode === NavigationMode.row ? null : tree.activeColIdx;
     // let colElems: HTMLElement[];
     const isNew = !rowDiv;
+    util.assert(
+      !isNew || (opts && opts.after),
+      "opts.after expected, unless updating"
+    );
 
     util.assert(!this.isRootNode());
     //
@@ -1329,9 +1336,17 @@ export class WunderbaumNode {
     }
 
     // Attach to DOM as late as possible
-    // if (!this._rowElem) {
-    tree.nodeListElement.appendChild(rowDiv);
-    // }
+    const after = opts ? opts.after : "last";
+    switch (after) {
+      case "first":
+        tree.nodeListElement.prepend(rowDiv);
+        break;
+      case "last":
+        tree.nodeListElement.appendChild(rowDiv);
+        break;
+      default:
+        opts.after.after(rowDiv);
+    }
   }
 
   /**
@@ -1524,7 +1539,7 @@ export class WunderbaumNode {
       this.getLevel() < this.getOption("minExpandLevel") &&
       !util.getOption(options, "force")
     ) {
-      this.logDebug("Ignored collapse request.");
+      this.logDebug("Ignored collapse request below expandLevel.");
       return;
     }
     if (flag && this.lazy && this.children == null) {
@@ -1562,7 +1577,7 @@ export class WunderbaumNode {
     message?: string,
     details?: string
   ): WunderbaumNode | null {
-    let tree = this.tree;
+    const tree = this.tree;
     let statusNode: WunderbaumNode | null = null;
 
     const _clearStatusNode = () => {
@@ -1647,6 +1662,7 @@ export class WunderbaumNode {
     return statusNode;
   }
 
+  /** Rename this node. */
   setTitle(title: string): void {
     this.title = title;
     this.setModified();
@@ -1678,7 +1694,10 @@ export class WunderbaumNode {
    * @param {string} operation Type of change: 'add', 'remove', 'rename', 'move', 'data', ...
    * @param {object} [extra]
    */
-  triggerModify(operation: string, extra: any) {
+  triggerModify(operation: string, extra?: any) {
+    if (!this.parent) {
+      return;
+    }
     this.parent.triggerModifyChild(operation, this, extra);
   }
 

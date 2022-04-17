@@ -48,7 +48,23 @@ and updates to the demo page.
 Checkout the project from GiHub, then
 
 ```bash
+$ cd path/to/project
+$ yarn
 $ yarn dev
+```
+
+you can now edit the files in `.../wunderbaum/src` folder.
+TypeScript and SCSS files are automatically transpiled to the `.../wunderbaum/build` folder.
+
+Reformat according to the style guide, generate API documentation, run unit tests,
+build, or compile a version using these commands:
+
+```bash
 $ yarn format
 $ yarn docs
+$ yarn test
+$ yarn build
 ```
+
+Don't forget to call `yarn format` regularly and before committing:
+Formatting errors will be rejected by the CI pipeline.

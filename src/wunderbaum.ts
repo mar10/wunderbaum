@@ -80,8 +80,8 @@ export class Wunderbaum {
 
   public activeNode: WunderbaumNode | null = null;
   public focusNode: WunderbaumNode | null = null;
-  _disableUpdate = 0;
-  _disableUpdateCount = 0;
+  // _disableUpdate = 0;
+  protected _disableUpdateCount = 0;
 
   /** Shared properties, referenced by `node.type`. */
   public types: { [key: string]: any } = {};
@@ -95,7 +95,7 @@ export class Wunderbaum {
   protected changedSince = 0;
   protected changes = new Set<ChangeType>();
   protected changedNodes = new Set<WunderbaumNode>();
-  protected changeRedrawPending = false;
+  protected changeRedrawRequestPending = false;
 
   // --- FILTER ---
   public filterMode: FilterModeType = null;
@@ -922,7 +922,9 @@ export class Wunderbaum {
     // this._disableUpdate = Date.now();
     try {
       this.enableUpdate(false);
-      return func();
+      const res = func();
+      util.assert(!(res instanceof Promise));
+      return res;
     } finally {
       this.enableUpdate(true);
       // if (!prev && this._disableUpdate === start) {
@@ -1189,7 +1191,7 @@ export class Wunderbaum {
       res.colIdx = idx;
     } else {
       // Somewhere near the title
-      if (event.type !== "mousemove") {
+      if (event.type !== "mousemove" && !(event instanceof KeyboardEvent)) {
         console.warn("getEventInfo(): not found", event, res);
       }
       return res;
@@ -1290,84 +1292,6 @@ export class Wunderbaum {
     }
   }
 
-  /** */
-  protected render(opts?: any): boolean {
-    const label = this.logTime("render");
-    let idx = 0;
-    let top = 0;
-    const height = ROW_HEIGHT;
-    let modified = false;
-    let start = opts?.startIdx;
-    let end = opts?.endIdx;
-    const obsoleteViewNodes = this.viewNodes;
-    const newNodesOnly = !!util.getOption(opts, "newNodesOnly");
-
-    this.viewNodes = new Set();
-    let viewNodes = this.viewNodes;
-    // this.debug("render", opts);
-    util.assert(start != null && end != null);
-
-    // Make sure start is always even, so the alternating row colors don't
-    // change when scrolling:
-    if (start % 2) {
-      start--;
-    }
-
-    this.visitRows(function (node) {
-      const prevIdx = node._rowIdx;
-
-      viewNodes.add(node);
-      obsoleteViewNodes.delete(node);
-      if (prevIdx !== idx) {
-        node._rowIdx = idx;
-        modified = true;
-      }
-      if (idx < start || idx > end) {
-        node._callEvent("discard");
-        node.removeMarkup();
-      } else if (!node._rowElem || !newNodesOnly) {
-        node.render({ top: top });
-        // }else{
-        //   node.log("ignrored render")
-      }
-      idx++;
-      top += height;
-    });
-    for (const prevNode of obsoleteViewNodes) {
-      prevNode._callEvent("discard");
-      prevNode.removeMarkup();
-    }
-    // Resize tree container
-    this.nodeListElement.style.height = "" + top + "px";
-    // this.log("render()", this.nodeListElement.style.height);
-    this.logTimeEnd(label);
-    return modified;
-  }
-
-  /**Recalc and apply header columns from `this.columns`. */
-  renderHeader() {
-    if (!this.headerElement) {
-      return;
-    }
-    const headerRow = this.headerElement.querySelector(".wb-row")!;
-    util.assert(headerRow);
-    headerRow.innerHTML = "<span class='wb-col'></span>".repeat(
-      this.columns.length
-    );
-
-    for (let i = 0; i < this.columns.length; i++) {
-      const col = this.columns[i];
-      const colElem = <HTMLElement>headerRow.children[i];
-
-      colElem.style.left = col._ofsPx + "px";
-      colElem.style.width = col._widthPx + "px";
-      // colElem.textContent = col.title || col.id;
-      const title = util.escapeHtml(col.title || col.id);
-      colElem.innerHTML = `<span class="wb-col-title">${title}</span> <span class="wb-col-resizer"></span>`;
-      // colElem.innerHTML = `${title} <span class="wb-col-resizer"></span>`;
-    }
-  }
-
   /**
    * Make sure that this node is scrolled into the viewport.
    *
@@ -1463,10 +1387,10 @@ export class Wunderbaum {
     }
   }
 
-  /** */
+  /** Schedule an update request to reflect a tree change. */
   setModified(change: ChangeType, options?: any): void;
 
-  /** */
+  /** Schedule an update request to reflect a single node modification. */
   setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
 
   /* */
@@ -1475,11 +1399,16 @@ export class Wunderbaum {
     node?: WunderbaumNode | any,
     options?: any
   ): void {
+    if (this._disableUpdateCount) {
+      // Assuming that we redraw all when enableUpdate() is re-enabled.
+      this.log(
+        `IGNORED setModified(${change}) node=${node} (disable level ${this._disableUpdateCount})`
+      );
+      return;
+    }
+    this.log(`setModified(${change}) node=${node}`);
     if (!(node instanceof WunderbaumNode)) {
       options = node;
-    }
-    if (this._disableUpdate) {
-      return;
     }
     const immediate = !!util.getOption(options, "immediate");
 
@@ -1487,7 +1416,7 @@ export class Wunderbaum {
       case ChangeType.any:
       case ChangeType.structure:
       case ChangeType.header:
-        this.changeRedrawPending = true;
+        this.changeRedrawRequestPending = true;
         this.updateViewport(immediate);
         break;
       case ChangeType.vscroll:
@@ -1504,22 +1433,6 @@ export class Wunderbaum {
       default:
         util.error(`Invalid change type ${change}`);
     }
-
-    // if (!this.changedSince) {
-    //   this.changedSince = Date.now();
-    // }
-    // this.changes.add(change);
-    // if (change === ChangeType.structure) {
-    //   this.changedNodes.clear();
-    // } else if (node && !this.changes.has(ChangeType.structure)) {
-    //   if (this.changedNodes.size < MAX_CHANGED_NODES) {
-    //     this.changedNodes.add(node);
-    //   } else {
-    //     this.changes.add(ChangeType.structure);
-    //     this.changedNodes.clear();
-    //   }
-    // }
-    // this.log("setModified(" + change + ")", node);
   }
 
   setStatus(
@@ -1531,65 +1444,93 @@ export class Wunderbaum {
   }
 
   /** Update column headers and width. */
-  updateColumns(opts: any) {
-    let modified = false;
-    let minWidth = 4;
-    let vpWidth = this.element.clientWidth;
+  updateColumns(opts?: any) {
+    opts = Object.assign({ calculateCols: true, updateRows: true }, opts);
+    const minWidth = 4;
+    const vpWidth = this.element.clientWidth;
     let totalWeight = 0;
     let fixedWidth = 0;
 
-    // Gather width requests
-    this._columnsById = {};
-    for (let col of this.columns) {
-      this._columnsById[<string>col.id] = col;
-      let cw = col.width;
+    let modified = false;
 
-      if (!cw || cw === "*") {
-        col._weight = 1.0;
-        totalWeight += 1.0;
-      } else if (typeof cw === "number") {
-        col._weight = cw;
-        totalWeight += cw;
-      } else if (typeof cw === "string" && cw.endsWith("px")) {
-        col._weight = 0;
-        let px = parseFloat(cw.slice(0, -2));
-        if (col._widthPx != px) {
-          modified = true;
-          col._widthPx = px;
-        }
-        fixedWidth += px;
-      } else {
-        util.error("Invalid column width: " + cw);
-      }
-    }
-    // Share remaining space between non-fixed columns
-    let restPx = Math.max(0, vpWidth - fixedWidth);
-    let ofsPx = 0;
+    if (opts.calculateCols) {
+      // Gather width requests
+      this._columnsById = {};
+      for (let col of this.columns) {
+        this._columnsById[<string>col.id] = col;
+        let cw = col.width;
 
-    for (let col of this.columns) {
-      if (col._weight) {
-        let px = Math.max(minWidth, (restPx * col._weight) / totalWeight);
-        if (col._widthPx != px) {
-          modified = true;
-          col._widthPx = px;
+        if (!cw || cw === "*") {
+          col._weight = 1.0;
+          totalWeight += 1.0;
+        } else if (typeof cw === "number") {
+          col._weight = cw;
+          totalWeight += cw;
+        } else if (typeof cw === "string" && cw.endsWith("px")) {
+          col._weight = 0;
+          let px = parseFloat(cw.slice(0, -2));
+          if (col._widthPx != px) {
+            modified = true;
+            col._widthPx = px;
+          }
+          fixedWidth += px;
+        } else {
+          util.error("Invalid column width: " + cw);
         }
       }
-      col._ofsPx = ofsPx;
-      ofsPx += col._widthPx;
+      // Share remaining space between non-fixed columns
+      const restPx = Math.max(0, vpWidth - fixedWidth);
+      let ofsPx = 0;
+
+      for (let col of this.columns) {
+        if (col._weight) {
+          const px = Math.max(minWidth, (restPx * col._weight) / totalWeight);
+          if (col._widthPx != px) {
+            modified = true;
+            col._widthPx = px;
+          }
+        }
+        col._ofsPx = ofsPx;
+        ofsPx += col._widthPx;
+      }
     }
     // Every column has now a calculated `_ofsPx` and `_widthPx`
     // this.logInfo("UC", this.columns, vpWidth, this.element.clientWidth, this.element);
     // console.trace();
     // util.error("BREAK");
     if (modified) {
-      this.renderHeader();
-      if (opts.render !== false) {
-        this.render();
+      this._renderHeaderMarkup();
+      if (opts.updateRows) {
+        this._updateRows();
       }
     }
   }
 
-  /** Render all rows that are visible in the viewport. */
+  /* Create/update header markup from `this.columns` definition. */
+  protected _renderHeaderMarkup() {
+    if (!this.headerElement) {
+      return;
+    }
+    const headerRow = this.headerElement.querySelector(".wb-row")!;
+    util.assert(headerRow);
+    headerRow.innerHTML = "<span class='wb-col'></span>".repeat(
+      this.columns.length
+    );
+
+    for (let i = 0; i < this.columns.length; i++) {
+      const col = this.columns[i];
+      const colElem = <HTMLElement>headerRow.children[i];
+
+      colElem.style.left = col._ofsPx + "px";
+      colElem.style.width = col._widthPx + "px";
+      // colElem.textContent = col.title || col.id;
+      const title = util.escapeHtml(col.title || col.id);
+      colElem.innerHTML = `<span class="wb-col-title">${title}</span> <span class="wb-col-resizer"></span>`;
+      // colElem.innerHTML = `${title} <span class="wb-col-resizer"></span>`;
+    }
+  }
+
+  /** Render all rows that are visible in the viewport (async). */
   updateViewport(immediate = false) {
     // Call the `throttle` wrapper for `this._updateViewport()` which will
     // execute immediately on the leading edge of a sequence:
@@ -1599,20 +1540,27 @@ export class Wunderbaum {
     }
   }
 
+  /* This is the actual update method, which is wrapped inside a throttle method.
+   * This protected method should not be called directly but via
+   * `tree.updateViewport()` or `tree.setModified()`.
+   * It calls `updateColumns()` and `_updateRows()`.
+   */
   protected _updateViewport() {
-    if (this._disableUpdate) {
+    if (this._disableUpdateCount) {
+      this.log(
+        `IGNORED _updateViewport() disable level: ${this._disableUpdateCount}`
+      );
       return;
     }
-    const newNodesOnly = !this.changeRedrawPending;
-    this.changeRedrawPending = false;
+    const newNodesOnly = !this.changeRedrawRequestPending;
+    this.changeRedrawRequestPending = false;
 
     let height = this.scrollContainer.clientHeight;
-    // We cannot get the height for absolut positioned parent, so look at first col
+    // We cannot get the height for absolute positioned parent, so look at first col
     // let headerHeight = this.headerElement.clientHeight
     // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
     const headerHeight = this.options.headerHeightPx;
     const wantHeight = this.element.clientHeight - headerHeight;
-    const ofs = this.scrollContainer.scrollTop;
 
     if (Math.abs(height - wantHeight) > 1.0) {
       // this.log("resize", height, wantHeight);
@@ -1620,13 +1568,119 @@ export class Wunderbaum {
       height = wantHeight;
     }
 
-    this.updateColumns({ render: false });
-    this.render({
-      startIdx: Math.max(0, ofs / ROW_HEIGHT - RENDER_MAX_PREFETCH),
-      endIdx: Math.max(0, (ofs + height) / ROW_HEIGHT + RENDER_MAX_PREFETCH),
-      newNodesOnly: newNodesOnly,
-    });
+    this.updateColumns({ updateRows: false });
+
+    this._updateRows({ newNodesOnly: newNodesOnly });
+
     this._callEvent("update");
+  }
+
+  /* Assert that TR order matches the natural node order */
+  protected _validateRows(): boolean {
+    let trs = this.nodeListElement.childNodes;
+    let i = 0;
+    let prev = -1;
+    let ok = true;
+    trs.forEach((element) => {
+      const tr = element as HTMLTableRowElement;
+      const top = Number.parseInt(tr.style.top);
+      // if (i < 4) {
+      //   const n = (<any>tr)._wb_node;
+      //   console.info(
+      //     `TR#${i}, rowIdx=${n._rowIdx} , top=${top}px: '${n.title}'`
+      //   );
+      // }
+      if (top <= prev) {
+        console.warn(`TR order mismatch at index ${i}: top=${top}px`);
+        // throw new Error("fault");
+        ok = false;
+      }
+      prev = top;
+      i++;
+    });
+    return ok;
+  }
+
+  /**
+   * - Traverse all *visible* of the whole tree, i.e. skip collapsed nodes.
+   * - Add all visible node to `tree.viewNodes`.
+   * - Renumber `node._rowIdx` for all visible nodes.
+   * - Calculate the index range that mmust be rendered to fill the viewport
+   *   (including upper and lower prefetch)
+   * -
+   */
+  protected _updateRows(opts?: any): boolean {
+    const label = this.logTime("_updateRows");
+
+    opts = Object.assign({ newNodesOnly: false }, opts);
+    const newNodesOnly = !!opts.newNodesOnly;
+
+    const row_height = ROW_HEIGHT;
+    const vp_height = this.scrollContainer.clientHeight;
+    const prefetch = RENDER_MAX_PREFETCH;
+    const ofs = this.scrollContainer.scrollTop;
+
+    let startIdx = Math.max(0, ofs / row_height - prefetch);
+    startIdx = Math.floor(startIdx);
+    // Make sure start is always even, so the alternating row colors don't
+    // change when scrolling:
+    if (startIdx % 2) {
+      startIdx--;
+    }
+    let endIdx = Math.max(0, (ofs + vp_height) / row_height + prefetch);
+    endIdx = Math.ceil(endIdx);
+
+    const obsoleteViewNodes = this.viewNodes;
+    this.viewNodes = new Set();
+    const viewNodes = this.viewNodes;
+    // this.debug("render", opts);
+
+    let idx = 0;
+    let top = 0;
+    let modified = false;
+    let prevElem: HTMLDivElement | "first" | "last" = "first";
+
+    this.visitRows(function (node) {
+      // console.log("visit", node)
+      const rowElem = node._rowElem;
+
+      viewNodes.add(node);
+      obsoleteViewNodes.delete(node);
+
+      if (node._rowIdx !== idx) {
+        node._rowIdx = idx;
+        modified = true;
+      }
+      if (idx < startIdx || idx > endIdx) {
+        if (rowElem) {
+          node._callEvent("discard");
+          node.removeMarkup();
+        }
+      } else if (!rowElem || !newNodesOnly) {
+        node.render({ top: top, after: prevElem });
+        // console.log("render", top, prevElem, "=>", node._rowElem);
+        prevElem = node._rowElem!;
+        // }else{
+        //   node.log("ignrored render")
+      } else if (rowElem) {
+        prevElem = rowElem;
+      }
+      idx++;
+      top += row_height;
+    });
+    for (const prevNode of obsoleteViewNodes) {
+      prevNode._callEvent("discard");
+      prevNode.removeMarkup();
+    }
+    // Resize tree container
+    this.nodeListElement.style.height = "" + top + "px";
+    // this.log(
+    //   `render(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
+    //   this.nodeListElement.style.height
+    // );
+    this.logTimeEnd(label);
+    this._validateRows();
+    return modified;
   }
 
   /** Call callback(node) for all nodes in hierarchical order (depth-first).
@@ -1801,14 +1855,26 @@ export class Wunderbaum {
     const columns = options.columns || source.columns;
     if (columns) {
       this.columns = options.columns;
-      this.renderHeader();
-      // this.updateColumns({ render: false });
+      // this._renderHeaderMarkup();
+      this.updateColumns({ calculateCols: false });
     }
     return this.root.load(source);
   }
 
   /**
+   * Disable render requests during operations that would trigger many updates.
    *
+   * ```js
+   * try {
+   *   tree.enableUpdate(false);
+   *   // ... (long running operation that would trigger many updates)
+   *   foo();
+   *   // ... NOTE: make sure that async operations have finished
+   *   await foo();
+   * } finally {
+   *   tree.enableUpdate(true);
+   * }
+   * ```
    */
   public enableUpdate(flag: boolean): void {
     /*
@@ -1816,19 +1882,24 @@ export class Wunderbaum {
     1   >-------------------------------------<
     2      >--------------------<
     3         >--------------------------<
-
-      5
-
     */
-    // this.logDebug( `enableUpdate(${flag}): count=${this._disableUpdateCount}...` );
     if (flag) {
-      util.assert(this._disableUpdateCount > 0);
+      util.assert(
+        this._disableUpdateCount > 0,
+        "enableUpdate(true) was called too often"
+      );
       this._disableUpdateCount--;
+      this.logDebug(
+        `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
+      );
       if (this._disableUpdateCount === 0) {
         this.updateViewport();
       }
     } else {
       this._disableUpdateCount++;
+      this.logDebug(
+        `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
+      );
       // this._disableUpdate = Date.now();
     }
     // return !flag; // return previous value
