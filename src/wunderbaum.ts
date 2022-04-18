@@ -49,71 +49,82 @@ import { WunderbaumOptions } from "./wb_options";
  * See also [[WunderbaumOptions]].
  */
 export class Wunderbaum {
-  static version: string = "@VERSION"; // Set to semver by 'grunt release'
-  static sequence = 0;
+  protected static sequence = 0;
+
+  /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
+  public static version: string = "@VERSION"; // Set to semver by 'grunt release'
 
   /** The invisible root node, that holds all visible top level nodes. */
-  readonly root: WunderbaumNode;
-  readonly id: string;
+  public readonly root: WunderbaumNode;
+  /** Unique tree ID as passed to constructor. Defaults to `"wb_SEQUENCE"`. */
+  public readonly id: string;
+  /** The `div` container element that was passed to the constructor. */
+  public readonly element: HTMLDivElement;
+  /** The `div.wb-header` element if any. */
+  public readonly headerElement: HTMLDivElement | null;
+  /** The `div.wb-scroll-container` element that contains the `nodeListElement`. */
+  public readonly scrollContainer: HTMLDivElement;
+  /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
+  public readonly nodeListElement: HTMLDivElement;
 
-  readonly element: HTMLDivElement;
-  // readonly treeElement: HTMLDivElement;
-  readonly headerElement: HTMLDivElement | null;
-  readonly scrollContainer: HTMLDivElement;
-  readonly nodeListElement: HTMLDivElement;
-  readonly _updateViewportThrottled: DebouncedFunction<(...args: any) => void>;
-
+  protected readonly _updateViewportThrottled: DebouncedFunction<
+    (...args: any) => void
+  >;
   protected extensionList: WunderbaumExtension[] = [];
   protected extensions: ExtensionsDict = {};
-  // protected extensionMap = new Map<string, WunderbaumExtension>();
 
   /** Merged options from constructor args and tree- and extension defaults. */
   public options: WunderbaumOptions;
 
   protected keyMap = new Map<string, WunderbaumNode>();
   protected refKeyMap = new Map<string, Set<WunderbaumNode>>();
-  protected viewNodes = new Set<WunderbaumNode>();
-  // protected rows: WunderbaumNode[] = [];
-  // protected _rowCount = 0;
+  // protected viewNodes = new Set<WunderbaumNode>();
+  protected treeRowCount = 0;
+  protected _disableUpdateCount = 0;
 
   // protected eventHandlers : Array<function> = [];
 
+  /** Currently active node if any. */
   public activeNode: WunderbaumNode | null = null;
+  /** Current node hat has keyboard focus if any. */
   public focusNode: WunderbaumNode | null = null;
-  // _disableUpdate = 0;
-  protected _disableUpdateCount = 0;
 
   /** Shared properties, referenced by `node.type`. */
   public types: { [key: string]: any } = {};
   /** List of column definitions. */
   public columns: any[] = [];
-  public _columnsById: { [key: string]: any } = {};
 
-  protected resizeObserver;
+  protected _columnsById: { [key: string]: any } = {};
+  protected resizeObserver: ResizeObserver;
 
   // Modification Status
-  protected changedSince = 0;
-  protected changes = new Set<ChangeType>();
-  protected changedNodes = new Set<WunderbaumNode>();
+  // protected changedSince = 0;
+  // protected changes = new Set<ChangeType>();
+  // protected changedNodes = new Set<WunderbaumNode>();
   protected changeRedrawRequestPending = false;
+
+  /** A Promise that is resolved when the tree was initialized (similar to `init(e)` event). */
+  public readonly ready: Promise<any>;
+  /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
+  public static util = util;
+  /** Expose some useful methods of the util.ts module as `tree._util`. */
+  public _util = util;
 
   // --- FILTER ---
   public filterMode: FilterModeType = null;
 
   // --- KEYNAV ---
+  /** @internal Use `setColumn()`/`getActiveColElem()`*/
   public activeColIdx = 0;
+  /** @internal */
   public navMode = NavigationMode.row;
+  /** @internal */
   public lastQuicksearchTime = 0;
+  /** @internal */
   public lastQuicksearchTerm = "";
 
   // --- EDIT ---
   protected lastClickTime = 0;
-
-  readonly ready: Promise<any>;
-
-  public static util = util;
-  // TODO: make accessible in compiled JS like this?
-  public _util = util;
 
   constructor(options: WunderbaumOptions) {
     let opts = (this.options = util.extend(
@@ -399,40 +410,19 @@ export class Wunderbaum {
           forceClose: true,
         });
       }
-      // if (flag && !this.activeNode ) {
-      //   setTimeout(() => {
-      //     if (!this.activeNode) {
-      //       const firstNode = this.getFirstChild();
-      //       if (firstNode && !firstNode?.isStatusNode()) {
-      //         firstNode.logInfo("Activate on focus", e);
-      //         firstNode.setActive(true, { event: e });
-      //       }
-      //     }
-      //   }, 10);
-      // }
     });
   }
 
-  /** */
-  // _renderHeader(){
-  //   const coldivs = "<span class='wb-col'></span>".repeat(this.columns.length);
-  //   this.element.innerHTML = `
-  //     <div class='wb-header'>
-  //       <div class='wb-row'>
-  //         ${coldivs}
-  //       </div>
-  //     </div>`;
-
-  // }
-
-  /** Return a Wunderbaum instance, from element, index, or event.
+  /**
+   * Return a Wunderbaum instance, from element, id, index, or event.
    *
-   * @example
-   * getTree();  // Get first Wunderbaum instance on page
-   * getTree(1);  // Get second Wunderbaum instance on page
-   * getTree(event);  // Get tree for this mouse- or keyboard event
-   * getTree("foo");  // Get tree for this `tree.options.id`
+   * ```js
+   * getTree();         // Get first Wunderbaum instance on page
+   * getTree(1);        // Get second Wunderbaum instance on page
+   * getTree(event);    // Get tree for this mouse- or keyboard event
+   * getTree("foo");    // Get tree for this `tree.options.id`
    * getTree("#tree");  // Get tree for this matching element
+   * ```
    */
   public static getTree(
     el?: Element | Event | number | string | WunderbaumNode
@@ -474,9 +464,8 @@ export class Wunderbaum {
     return null;
   }
 
-  /** Return a WunderbaumNode instance from element, event.
-   *
-   * @param  el
+  /**
+   * Return a WunderbaumNode instance from element or event.
    */
   public static getNode(el: Element | Event): WunderbaumNode | null {
     if (!el) {
@@ -497,7 +486,7 @@ export class Wunderbaum {
     return null;
   }
 
-  /** */
+  /** @internal */
   protected _registerExtension(extension: WunderbaumExtension): void {
     this.extensionList.push(extension);
     this.extensions[extension.id] = extension;
@@ -541,7 +530,7 @@ export class Wunderbaum {
     (node.tree as any) = null;
     (node.parent as any) = null;
     // node.title = "DISPOSED: " + node.title
-    this.viewNodes.delete(node);
+    // this.viewNodes.delete(node);
     node.removeMarkup();
   }
 
@@ -566,7 +555,9 @@ export class Wunderbaum {
     return res;
   }
 
-  /** Call tree method or extension method if defined.
+  /**
+   * Call tree method or extension method if defined.
+   *
    * Example:
    * ```js
    * tree._callMethod("edit.startEdit", "arg1", "arg2")
@@ -583,7 +574,9 @@ export class Wunderbaum {
     }
   }
 
-  /** Call event handler if defined in tree.options.
+  /**
+   * Call event handler if defined in tree or tree.EXTENSION options.
+   *
    * Example:
    * ```js
    * tree._callEvent("edit.beforeEdit", {foo: 42})
@@ -603,7 +596,7 @@ export class Wunderbaum {
     }
   }
 
-  /** Return the topmost visible node in the viewport */
+  /** Return the topmost visible node in the viewport. */
   protected _firstNodeInView(complete = true) {
     let topIdx: number, node: WunderbaumNode;
     if (complete) {
@@ -621,7 +614,7 @@ export class Wunderbaum {
     return <WunderbaumNode>node!;
   }
 
-  /** Return the lowest visible node in the viewport */
+  /** Return the lowest visible node in the viewport. */
   protected _lastNodeInView(complete = true) {
     let bottomIdx: number, node: WunderbaumNode;
     if (complete) {
@@ -647,7 +640,7 @@ export class Wunderbaum {
     return <WunderbaumNode>node!;
   }
 
-  /** Return preceeding visible node in the viewport */
+  /** Return preceeding visible node in the viewport. */
   protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
     this.visitRows(
       (n) => {
@@ -661,7 +654,7 @@ export class Wunderbaum {
     return node;
   }
 
-  /** Return following visible node in the viewport */
+  /** Return following visible node in the viewport. */
   protected _getNextNodeInView(node?: WunderbaumNode, ofs = 1) {
     this.visitRows(
       (n) => {
@@ -675,23 +668,27 @@ export class Wunderbaum {
     return node;
   }
 
+  /**
+   * Append (or insert) a list of toplevel nodes.
+   *
+   * @see {@link WunderbaumNode.addChildren}
+   */
   addChildren(nodeData: any, options?: any): WunderbaumNode {
     return this.root.addChildren(nodeData, options);
   }
 
   /**
-   * Apply a modification (or navigation) operation on the tree or active node.
-   * @returns
+   * Apply a modification (or navigation) operation on the **tree or active node**.
    */
   applyCommand(cmd: ApplyCommandType, opts?: any): any;
 
   /**
-   * Apply a modification (or navigation) operation on a node.
-   * @returns
+   * Apply a modification (or navigation) operation on a **node**.
+   * @see {@link WunderbaumNode.applyCommand}
    */
   applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, opts?: any): any;
 
-  /*
+  /**
    * Apply a modification or navigation operation.
    *
    * Most of these commands simply map to a node or tree method.
@@ -822,7 +819,8 @@ export class Wunderbaum {
     this.root.children = null;
     this.keyMap.clear();
     this.refKeyMap.clear();
-    this.viewNodes.clear();
+    // this.viewNodes.clear();
+    this.treeRowCount = 0;
     this.activeNode = null;
     this.focusNode = null;
 
@@ -831,9 +829,9 @@ export class Wunderbaum {
     // this._columnsById = {};
 
     // Modification Status
-    this.changedSince = 0;
-    this.changes.clear();
-    this.changedNodes.clear();
+    // this.changedSince = 0;
+    // this.changes.clear();
+    // this.changedNodes.clear();
 
     // // --- FILTER ---
     // public filterMode: FilterModeType = null;
@@ -865,10 +863,11 @@ export class Wunderbaum {
   /**
    * Return `tree.option.NAME` (also resolving if this is a callback).
    *
-   * See also [[WunderbaumNode.getOption()]] to consider `node.NAME` setting and
-   * `tree.types[node.type].NAME`.
+   * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+   * to consider `node.NAME` setting and `tree.types[node.type].NAME`.
    *
-   * @param name option name (use dot notation to access extension option, e.g. `filter.mode`)
+   * @param name option name (use dot notation to access extension option, e.g.
+   * `filter.mode`)
    */
   getOption(name: string, defaultValue?: any): any {
     let ext;
@@ -917,9 +916,6 @@ export class Wunderbaum {
 
   /** Run code, but defer `updateViewport()` until done. */
   runWithoutUpdate(func: () => any, hint = null): void {
-    // const prev = this._disableUpdate;
-    // const start = Date.now();
-    // this._disableUpdate = Date.now();
     try {
       this.enableUpdate(false);
       const res = func();
@@ -927,9 +923,6 @@ export class Wunderbaum {
       return res;
     } finally {
       this.enableUpdate(true);
-      // if (!prev && this._disableUpdate === start) {
-      //   this._disableUpdate = 0;
-      // }
     }
   }
 
@@ -946,14 +939,15 @@ export class Wunderbaum {
   }
 
   /** Return the number of nodes in the data model.*/
-  count(visible = false) {
+  count(visible = false): number {
     if (visible) {
-      return this.viewNodes.size;
+      return this.treeRowCount;
+      // return this.viewNodes.size;
     }
     return this.keyMap.size;
   }
 
-  /* Internal sanity check. */
+  /** @internal sanity check. */
   _check() {
     let i = 0;
     this.visit((n) => {
@@ -965,27 +959,32 @@ export class Wunderbaum {
     // util.assert(this.keyMap.size === i);
   }
 
-  /**Find all nodes that matches condition.
+  /**
+   * Find all nodes that matches condition.
    *
    * @param match title string to search for, or a
    *     callback function that returns `true` if a node is matched.
-   * @see [[WunderbaumNode.findAll]]
+   *
+   * @see {@link WunderbaumNode.findAll}
    */
   findAll(match: string | MatcherType) {
     return this.root.findAll(match);
   }
 
-  /**Find first node that matches condition.
+  /**
+   * Find first node that matches condition.
    *
    * @param match title string to search for, or a
    *     callback function that returns `true` if a node is matched.
-   * @see [[WunderbaumNode.findFirst]]
+   * @see {@link WunderbaumNode.findFirst}
+   *
    */
   findFirst(match: string | MatcherType) {
     return this.root.findFirst(match);
   }
 
-  /** Find the next visible node that starts with `match`, starting at `startNode`
+  /**
+   * Find the next visible node that starts with `match`, starting at `startNode`
    * and wrap-around at the end.
    */
   findNextNode(
@@ -1023,7 +1022,8 @@ export class Wunderbaum {
     return res;
   }
 
-  /** Find a node relative to another node.
+  /**
+   * Find a node relative to another node.
    *
    * @param node
    * @param where 'down', 'first', 'last', 'left', 'parent', 'right', or 'up'.
@@ -1118,7 +1118,7 @@ export class Wunderbaum {
   }
 
   /**
-   * Return the active cell of the currently active node or null.
+   * Return the active cell (`span.wb-col`) of the currently active node or null.
    */
   getActiveColElem() {
     if (this.activeNode && this.activeColIdx >= 0) {
@@ -1227,7 +1227,8 @@ export class Wunderbaum {
     return this._callMethod("edit.isEditingTitle");
   }
 
-  /** Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
+  /**
+   * Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
    */
   isLoading(): boolean {
     var res = false;
@@ -1242,8 +1243,10 @@ export class Wunderbaum {
     return res;
   }
 
-  /** Alias for `logDebug` */
-  log = this.logDebug; // Alias
+  /** Alias for {@link Wunderbaum.logDebug}.
+   * @alias Wunderbaum.logDebug
+   */
+  log = this.logDebug;
 
   /** Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
@@ -1261,7 +1264,7 @@ export class Wunderbaum {
     }
   }
 
-  /* Log to console if opts.debugLevel >= 3 */
+  /** Log to console if opts.debugLevel >= 3 */
   logInfo(...args: any[]) {
     if (this.options.debugLevel >= 3) {
       Array.prototype.unshift.call(args, this.toString());
@@ -1330,29 +1333,12 @@ export class Wunderbaum {
     }
   }
 
-  /** */
-  setCellMode(mode: NavigationMode) {
-    // util.assert(this.cellNavMode);
-    // util.assert(0 <= colIdx && colIdx < this.columns.length);
-    if (mode === this.navMode) {
-      return;
-    }
-    const prevMode = this.navMode;
-    const cellMode = mode !== NavigationMode.row;
-
-    this.navMode = mode;
-    if (cellMode && prevMode === NavigationMode.row) {
-      this.setColumn(0);
-    }
-    this.element.classList.toggle("wb-cell-mode", cellMode);
-    this.element.classList.toggle(
-      "wb-cell-edit-mode",
-      mode === NavigationMode.cellEdit
-    );
-    this.setModified(ChangeType.row, this.activeNode);
-  }
-
-  /** */
+  /**
+   * Set column #colIdx to 'active'.
+   *
+   * This higlights the column header and -cells by adding the `wb-active` class.
+   * Available in cell-nav and cell-edit mode, not in row-mode.
+   */
   setColumn(colIdx: number) {
     util.assert(this.navMode !== NavigationMode.row);
     util.assert(0 <= colIdx && colIdx < this.columns.length);
@@ -1378,7 +1364,7 @@ export class Wunderbaum {
     }
   }
 
-  /** */
+  /** Set or remove keybaord focus to the tree container. */
   setFocus(flag = true) {
     if (flag) {
       this.element.focus();
@@ -1393,7 +1379,6 @@ export class Wunderbaum {
   /** Schedule an update request to reflect a single node modification. */
   setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
 
-  /* */
   setModified(
     change: ChangeType,
     node?: WunderbaumNode | any,
@@ -1401,9 +1386,9 @@ export class Wunderbaum {
   ): void {
     if (this._disableUpdateCount) {
       // Assuming that we redraw all when enableUpdate() is re-enabled.
-      this.log(
-        `IGNORED setModified(${change}) node=${node} (disable level ${this._disableUpdateCount})`
-      );
+      // this.log(
+      //   `IGNORED setModified(${change}) node=${node} (disable level ${this._disableUpdateCount})`
+      // );
       return;
     }
     this.log(`setModified(${change}) node=${node}`);
@@ -1435,6 +1420,29 @@ export class Wunderbaum {
     }
   }
 
+  /** Set the tree's navigation mode. */
+  setNavigationMode(mode: NavigationMode) {
+    // util.assert(this.cellNavMode);
+    // util.assert(0 <= colIdx && colIdx < this.columns.length);
+    if (mode === this.navMode) {
+      return;
+    }
+    const prevMode = this.navMode;
+    const cellMode = mode !== NavigationMode.row;
+
+    this.navMode = mode;
+    if (cellMode && prevMode === NavigationMode.row) {
+      this.setColumn(0);
+    }
+    this.element.classList.toggle("wb-cell-mode", cellMode);
+    this.element.classList.toggle(
+      "wb-cell-edit-mode",
+      mode === NavigationMode.cellEdit
+    );
+    this.setModified(ChangeType.row, this.activeNode);
+  }
+
+  /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
   setStatus(
     status: NodeStatusType,
     message?: string,
@@ -1506,7 +1514,9 @@ export class Wunderbaum {
     }
   }
 
-  /* Create/update header markup from `this.columns` definition. */
+  /** Create/update header markup from `this.columns` definition.
+   * @internal
+   */
   protected _renderHeaderMarkup() {
     if (!this.headerElement) {
       return;
@@ -1530,7 +1540,7 @@ export class Wunderbaum {
     }
   }
 
-  /** Render all rows that are visible in the viewport (async). */
+  /** Render header and all rows that are visible in the viewport (async, throttled). */
   updateViewport(immediate = false) {
     // Call the `throttle` wrapper for `this._updateViewport()` which will
     // execute immediately on the leading edge of a sequence:
@@ -1540,10 +1550,12 @@ export class Wunderbaum {
     }
   }
 
-  /* This is the actual update method, which is wrapped inside a throttle method.
+  /**
+   * This is the actual update method, which is wrapped inside a throttle method.
    * This protected method should not be called directly but via
    * `tree.updateViewport()` or `tree.setModified()`.
    * It calls `updateColumns()` and `_updateRows()`.
+   * @internal
    */
   protected _updateViewport() {
     if (this._disableUpdateCount) {
@@ -1575,7 +1587,10 @@ export class Wunderbaum {
     this._callEvent("update");
   }
 
-  /* Assert that TR order matches the natural node order */
+  /**
+   * Assert that TR order matches the natural node order
+   * @internal
+   */
   protected _validateRows(): boolean {
     let trs = this.nodeListElement.childNodes;
     let i = 0;
@@ -1584,14 +1599,16 @@ export class Wunderbaum {
     trs.forEach((element) => {
       const tr = element as HTMLTableRowElement;
       const top = Number.parseInt(tr.style.top);
+      const n = (<any>tr)._wb_node;
       // if (i < 4) {
-      //   const n = (<any>tr)._wb_node;
       //   console.info(
       //     `TR#${i}, rowIdx=${n._rowIdx} , top=${top}px: '${n.title}'`
       //   );
       // }
       if (top <= prev) {
-        console.warn(`TR order mismatch at index ${i}: top=${top}px`);
+        console.warn(
+          `TR order mismatch at index ${i}: top=${top}px, node=${n}`
+        );
         // throw new Error("fault");
         ok = false;
       }
@@ -1601,11 +1618,11 @@ export class Wunderbaum {
     return ok;
   }
 
-  /**
+  /*
    * - Traverse all *visible* of the whole tree, i.e. skip collapsed nodes.
-   * - Add all visible node to `tree.viewNodes`.
+   * - Store count of rows to `tree.treeRowCount`.
    * - Renumber `node._rowIdx` for all visible nodes.
-   * - Calculate the index range that mmust be rendered to fill the viewport
+   * - Calculate the index range that must be rendered to fill the viewport
    *   (including upper and lower prefetch)
    * -
    */
@@ -1630,10 +1647,15 @@ export class Wunderbaum {
     let endIdx = Math.max(0, (ofs + vp_height) / row_height + prefetch);
     endIdx = Math.ceil(endIdx);
 
-    const obsoleteViewNodes = this.viewNodes;
-    this.viewNodes = new Set();
-    const viewNodes = this.viewNodes;
+    // const obsoleteViewNodes = this.viewNodes;
+    // this.viewNodes = new Set();
+    // const viewNodes = this.viewNodes;
     // this.debug("render", opts);
+    const obsoleteNodes = new Set<WunderbaumNode>();
+    this.nodeListElement.childNodes.forEach((elem) => {
+      const tr = elem as HTMLTableRowElement;
+      obsoleteNodes.add((<any>tr)._wb_node);
+    });
 
     let idx = 0;
     let top = 0;
@@ -1642,38 +1664,41 @@ export class Wunderbaum {
 
     this.visitRows(function (node) {
       // console.log("visit", node)
-      const rowElem = node._rowElem;
+      const rowDiv = node._rowElem;
 
-      viewNodes.add(node);
-      obsoleteViewNodes.delete(node);
-
+      // Renumber all expanded nodes
       if (node._rowIdx !== idx) {
         node._rowIdx = idx;
         modified = true;
       }
+
       if (idx < startIdx || idx > endIdx) {
-        if (rowElem) {
-          node._callEvent("discard");
-          node.removeMarkup();
+        // row is outside viewport bounds
+        if (rowDiv) {
+          prevElem = rowDiv;
         }
-      } else if (!rowElem || !newNodesOnly) {
+      } else if (rowDiv && newNodesOnly) {
+        obsoleteNodes.delete(node);
+        // no need to update existing node markup
+        rowDiv.style.top = idx * ROW_HEIGHT + "px";
+        prevElem = rowDiv;
+      } else {
+        obsoleteNodes.delete(node);
+        // Create new markup
         node.render({ top: top, after: prevElem });
         // console.log("render", top, prevElem, "=>", node._rowElem);
         prevElem = node._rowElem!;
-        // }else{
-        //   node.log("ignrored render")
-      } else if (rowElem) {
-        prevElem = rowElem;
       }
       idx++;
       top += row_height;
     });
-    for (const prevNode of obsoleteViewNodes) {
-      prevNode._callEvent("discard");
-      prevNode.removeMarkup();
+    this.treeRowCount = idx;
+    for (const n of obsoleteNodes) {
+      n._callEvent("discard");
+      n.removeMarkup();
     }
     // Resize tree container
-    this.nodeListElement.style.height = "" + top + "px";
+    this.nodeListElement.style.height = `${top}px`;
     // this.log(
     //   `render(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
     //   this.nodeListElement.style.height
@@ -1683,17 +1708,24 @@ export class Wunderbaum {
     return modified;
   }
 
-  /** Call callback(node) for all nodes in hierarchical order (depth-first).
+  /**
+   * Call callback(node) for all nodes in hierarchical order (depth-first).
    *
    * @param {function} callback the callback function.
-   *     Return false to stop iteration, return "skip" to skip this node and children only.
+   *     Return false to stop iteration, return "skip" to skip this node and
+   *     children only.
    * @returns {boolean} false, if the iterator was stopped.
    */
   visit(callback: (node: WunderbaumNode) => any) {
     return this.root.visit(callback, false);
   }
 
-  /** Call fn(node) for all nodes in vertical order, top down (or bottom up).<br>
+  /**
+   * Call fn(node) for all nodes in vertical order, top down (or bottom up).
+   *
+   * Note that this considers expansion state, i.e. children of collapsed nodes
+   * are skipped.
+   *
    * Stop iteration, if fn() returns false.<br>
    * Return false if iteration was stopped.
    *
@@ -1794,7 +1826,8 @@ export class Wunderbaum {
     return true;
   }
 
-  /** Call fn(node) for all nodes in vertical order, bottom up.
+  /**
+   * Call fn(node) for all nodes in vertical order, bottom up.
    * @internal
    */
   protected _visitRowsUp(
@@ -1849,7 +1882,12 @@ export class Wunderbaum {
     return true;
   }
 
-  /** . */
+  /**
+   * Reload the tree with a new source.
+   *
+   * Previous data is cleared.
+   * Pass `options.columns` to define a header (may also be part of `source.columns`).
+   */
   load(source: any, options: any = {}) {
     this.clear();
     const columns = options.columns || source.columns;
@@ -1889,17 +1927,17 @@ export class Wunderbaum {
         "enableUpdate(true) was called too often"
       );
       this._disableUpdateCount--;
-      this.logDebug(
-        `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
-      );
+      // this.logDebug(
+      //   `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
+      // );
       if (this._disableUpdateCount === 0) {
         this.updateViewport();
       }
     } else {
       this._disableUpdateCount++;
-      this.logDebug(
-        `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
-      );
+      // this.logDebug(
+      //   `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
+      // );
       // this._disableUpdate = Date.now();
     }
     // return !flag; // return previous value

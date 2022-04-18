@@ -3,6 +3,7 @@
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
+/** @module util */
 
 /** Readable names for `MouseEvent.button` */
 export const MOUSE_BUTTONS: { [key: number]: string } = {

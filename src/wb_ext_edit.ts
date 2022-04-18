@@ -162,7 +162,7 @@ export class EditExtension extends WunderbaumExtension {
           break;
         case "F2":
           if (trigger.indexOf("F2") >= 0) {
-            // tree.setCellMode(NavigationMode.cellEdit);
+            // tree.setNavigationMode(NavigationMode.cellEdit);
             this.startEditTitle();
             return false;
           }
@@ -207,6 +207,7 @@ export class EditExtension extends WunderbaumExtension {
     if (validity) {
       // Permanently apply  input validations (CSS and tooltip)
       inputElem.addEventListener("keydown", (e) => {
+        inputElem.setCustomValidity("");
         if (!inputElem.reportValidity()) {
           // node?.logInfo(`Invalid input: '${inputElem.value}'`);
         }

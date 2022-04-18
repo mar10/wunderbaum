@@ -25,6 +25,9 @@ import {
   TEST_IMG,
   ApplyCommandType,
   AddNodeType,
+  SetActiveOptions,
+  SetExpandedOptions,
+  SetSelectedOptions,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -66,6 +69,13 @@ const NODE_ATTRS = new Set<string>([
   "unselectableStatus",
 ]);
 
+/**
+ * A single tree node.
+ *
+ * **NOTE:** <br>
+ * Generally you should not modify properties directly, since this may break
+ * the internal bookkeeping.
+ */
 export class WunderbaumNode {
   static sequence = 0;
 
@@ -73,19 +83,32 @@ export class WunderbaumNode {
   public tree: Wunderbaum;
   /** Parent node (null for the invisible root node `tree.root`). */
   public parent: WunderbaumNode;
+  /** Name of the node.
+   * @see Use {@link setTitle} to modify. */
   public title: string;
+  /** Unique key. Passed with constructor or defaults to `SEQUENCE`.
+   * @see Use {@link setKey} to modify. */
   public readonly key: string;
+  /** Reference key. Unlike {@link key}, a `refKey` may occur multiple
+   * times within a tree (in this case we have 'clone nodes').
+   * @see Use {@link setKey} to modify.
+   */
   public readonly refKey: string | undefined = undefined;
   public children: WunderbaumNode[] | null = null;
   public checkbox?: boolean;
   public colspan?: boolean;
   public icon?: boolean | string;
   public lazy: boolean = false;
+  /** Expansion state.
+   * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
   public expanded: boolean = false;
+  /** Selection state.
+   * @see {@link isSelected}, {@link setSelected}. */
   public selected: boolean = false;
   public type?: string;
   public tooltip?: string;
-  /** Additional classes added to `div.wb-row`. */
+  /** Additional classes added to `div.wb-row`.
+   * @see {@link addClass}, {@link removeClass}, {@link toggleClass}. */
   public extraClasses = new Set<string>();
   /** Custom data that was passed to the constructor */
   public data: any = {};
@@ -100,6 +123,7 @@ export class WunderbaumNode {
   public match?: boolean; // Added and removed by filter code
   public subMatchCount?: number = 0;
   public subMatchBadge?: HTMLElement;
+  /** @internal */
   public titleWithHighlight?: string;
   public _filterAutoExpanded?: boolean;
 
@@ -276,7 +300,8 @@ export class WunderbaumNode {
 
   /**
    * Apply a modification (or navigation) operation.
-   * @see Wunderbaum#applyCommand
+   *
+   * @see {@link Wunderbaum.applyCommand}
    */
   applyCommand(cmd: ApplyCommandType, opts: any): any {
     return this.tree.applyCommand(cmd, this, opts);
@@ -1336,16 +1361,18 @@ export class WunderbaumNode {
     }
 
     // Attach to DOM as late as possible
-    const after = opts ? opts.after : "last";
-    switch (after) {
-      case "first":
-        tree.nodeListElement.prepend(rowDiv);
-        break;
-      case "last":
-        tree.nodeListElement.appendChild(rowDiv);
-        break;
-      default:
-        opts.after.after(rowDiv);
+    if (isNew) {
+      const after = opts ? opts.after : "last";
+      switch (after) {
+        case "first":
+          tree.nodeListElement.prepend(rowDiv);
+          break;
+        case "last":
+          tree.nodeListElement.appendChild(rowDiv);
+          break;
+        default:
+          opts.after.after(rowDiv);
+      }
     }
   }
 
@@ -1424,14 +1451,15 @@ export class WunderbaumNode {
    *
    * Evaluation sequence:
    *
-   * If `tree.options.<name>` is a callback that returns something, use that.
-   * Else if `node.<name>` is defined, use that.
-   * Else if `tree.types[<node.type>]` is a value, use that.
-   * Else if `tree.options.<name>` is a value, use that.
-   * Else use `defaultValue`.
+   * - If `tree.options.<name>` is a callback that returns something, use that.
+   * - Else if `node.<name>` is defined, use that.
+   * - Else if `tree.types[<node.type>]` is a value, use that.
+   * - Else if `tree.options.<name>` is a value, use that.
+   * - Else use `defaultValue`.
    *
    * @param name name of the option property (on node and tree)
    * @param defaultValue return this if nothing else matched
+   * {@link Wunderbaum.getOption|Wunderbaum.getOption()}
    */
   getOption(name: string, defaultValue?: any) {
     let tree = this.tree;
@@ -1469,17 +1497,23 @@ export class WunderbaumNode {
     return value ?? defaultValue;
   }
 
+  /** Make sure that this node is visible in the viewport.
+   * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo()}
+   */
   async scrollIntoView(options?: any) {
     return this.tree.scrollTo(this);
   }
 
-  async setActive(flag: boolean = true, options?: any) {
+  /**
+   * Activate this node, deactivate previous, send events, activate column and scroll int viewport.
+   */
+  async setActive(flag: boolean = true, options?: SetActiveOptions) {
     const tree = this.tree;
     const prev = tree.activeNode;
     const retrigger = options?.retrigger;
-    const noEvent = options?.noEvent;
+    const noEvents = options?.noEvents;
 
-    if (!noEvent) {
+    if (!noEvents) {
       let orgEvent = options?.event;
       if (flag) {
         if (prev !== this || retrigger) {
@@ -1523,15 +1557,13 @@ export class WunderbaumNode {
     // requestAnimationFrame(() => {
     //   this.scrollIntoView();
     // })
-    this.scrollIntoView();
+    return this.scrollIntoView();
   }
 
-  setModified(change: ChangeType = ChangeType.status) {
-    util.assert(change === ChangeType.status);
-    this.tree.setModified(ChangeType.row, this);
-  }
-
-  async setExpanded(flag: boolean = true, options?: any) {
+  /**
+   * Expand or collapse this node.
+   */
+  async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
     // alert("" + this.getLevel() + ", "+ this.getOption("minExpandLevel");
     if (
       !flag &&
@@ -1549,11 +1581,10 @@ export class WunderbaumNode {
     this.tree.setModified(ChangeType.structure);
   }
 
-  setIcon() {
-    throw new Error("Not yet implemented");
-    // this.setDirty(ChangeType.status);
-  }
-
+  /**
+   * Set keyboard focus here.
+   * @see {@link setActive}
+   */
   setFocus(flag: boolean = true, options?: any) {
     const prev = this.tree.focusNode;
     this.tree.focusNode = this;
@@ -1561,7 +1592,25 @@ export class WunderbaumNode {
     this.setModified();
   }
 
-  setSelected(flag: boolean = true, options?: any) {
+  /** Set a new icon path or class. */
+  setIcon() {
+    throw new Error("Not yet implemented");
+    // this.setModified();
+  }
+
+  /** Change node's {@link key} and/or {@link refKey}.  */
+  setKey(key: string | null, refKey: string | null) {
+    throw new Error("Not yet implemented");
+  }
+
+  /** Schedule a render, typically called to update after a status or data change. */
+  setModified(change: ChangeType = ChangeType.status) {
+    util.assert(change === ChangeType.status);
+    this.tree.setModified(ChangeType.row, this);
+  }
+
+  /** Modify the check/uncheck state. */
+  setSelected(flag: boolean = true, options?: SetSelectedOptions) {
     const prev = this.selected;
     if (!!flag !== prev) {
       this._callEvent("select", { flag: flag });
@@ -1570,8 +1619,7 @@ export class WunderbaumNode {
     this.setModified();
   }
 
-  /** Show node status (ok, loading, error, noData) using styles and a dummy child node.
-   */
+  /** Display node status (ok, loading, error, noData) using styles and a dummy child node. */
   setStatus(
     status: NodeStatusType,
     message?: string,
@@ -1701,8 +1749,11 @@ export class WunderbaumNode {
     this.parent.triggerModifyChild(operation, this, extra);
   }
 
-  /** Call fn(node) for all child nodes in hierarchical order (depth-first).<br>
-   * Stop iteration, if fn() returns false. Skip current branch, if fn() returns "skip".<br>
+  /**
+   * Call fn(node) for all child nodes in hierarchical order (depth-first).
+   *
+   * Stop iteration, if fn() returns false. Skip current branch, if fn()
+   * returns "skip".<br>
    * Return false if iteration was stopped.
    *
    * @param {function} callback the callback function.
@@ -1758,7 +1809,8 @@ export class WunderbaumNode {
     return true;
   }
 
-  /** Call fn(node) for all sibling nodes.<br>
+  /**
+   * Call fn(node) for all sibling nodes.<br>
    * Stop iteration, if fn() returns false.<br>
    * Return false if iteration was stopped.
    *

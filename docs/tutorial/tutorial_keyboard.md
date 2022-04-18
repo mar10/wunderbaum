@@ -109,7 +109,7 @@ const tree = new Wunderbaum({
 
 ### Related Methods
 
-- `tree.setCellMode(mode: NavigationMode)`
+- `tree.setNavigationMode(mode: NavigationMode)`
 - `tree.setColumn(colIdx: number)`
 - `tree.setEnabled(flag: boolean)`
 

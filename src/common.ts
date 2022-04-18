@@ -137,6 +137,35 @@ export enum NavigationMode {
   cellEdit = "cellEdit",
 }
 
+export type SetActiveOptions = {
+  /** Generate (de)activate event, even if node already has this status. */
+  retrigger?: boolean;
+  /** Don not generate (de)activate event. */
+  noEvents?: boolean;
+  /** Optional original event that will be passed to the (de)activat handler. */
+  event?: Event;
+  /** Call {@link setColumn}. */
+  colIdx?: number;
+};
+
+export type SetExpandedOptions = {
+  /** Ignore {@link minExpandLevel}. @default false */
+  force?: boolean;
+  /** Avoid smooth scrolling. @default false */
+  noAnimation?: boolean;
+  /** Do not send events. @default false */
+  noEvents?: boolean;
+  /** Scroll to bring expanded nodes into viewport. @default false */
+  scrollIntoView?: boolean;
+};
+
+export type SetSelectedOptions = {
+  /** Ignore restrictions. @default false */
+  force?: boolean;
+  /** Do not send events. @default false */
+  noEvents?: boolean;
+};
+
 /** Define which keys are handled by embedded <input> control, and should
  * *not* be passed to tree navigation handler in cell-edit mode: */
 export const INPUT_KEYS = {

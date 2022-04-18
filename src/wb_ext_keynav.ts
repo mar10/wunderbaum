@@ -94,7 +94,7 @@ export class KeynavExtension extends WunderbaumExtension {
           if (!node.expanded && (node.children || node.lazy)) {
             eventName = "Add"; // expand
           } else if (navModeOption === NavigationModeOption.startRow) {
-            tree.setCellMode(NavigationMode.cellNav);
+            tree.setNavigationMode(NavigationMode.cellNav);
             return;
           }
           break;
@@ -164,10 +164,10 @@ export class KeynavExtension extends WunderbaumExtension {
           break;
         case "Escape":
           if (tree.navMode === NavigationMode.cellEdit) {
-            tree.setCellMode(NavigationMode.cellNav);
+            tree.setNavigationMode(NavigationMode.cellNav);
             handled = true;
           } else if (tree.navMode === NavigationMode.cellNav) {
-            tree.setCellMode(NavigationMode.row);
+            tree.setNavigationMode(NavigationMode.row);
             handled = true;
           }
           break;
@@ -176,7 +176,7 @@ export class KeynavExtension extends WunderbaumExtension {
             tree.setColumn(tree.activeColIdx - 1);
             handled = true;
           } else if (navModeOption !== NavigationModeOption.cell) {
-            tree.setCellMode(NavigationMode.row);
+            tree.setNavigationMode(NavigationMode.row);
             handled = true;
           }
           break;
