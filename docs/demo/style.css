@@ -57,6 +57,7 @@ div.grid-wrapper main.view {
   grid-column: 2;
   grid-row: 3;
   padding: 5px;
+  padding-top: 2px;
 }
 
 div.grid-wrapper section.footer {
@@ -94,4 +95,9 @@ output.tree-version {
   font-size: 40%;
   font-family: 'Courier New', Courier, monospace;
   font-weight: lighter;
+}
+
+output#parentPath {
+  font-size: 50%;
+  /* font-family: 'Courier New', Courier, monospace; */
 }

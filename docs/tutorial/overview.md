@@ -9,7 +9,7 @@ Read [migrate](/tutorial/migrate.md) for details and migration hints.
 
 ## Design Goals
 
-- Create a **Tree-grid** control with emphasis on "tree".<br>
+- Create a **treegrid** control with emphasis on "tree".<br>
   Depending on the number of columns and nesting depth, Wunderbaum can also be
   used as a **plain tree**, **plain grid**, or a **simple list** control.
 - **Performant** and efficient handling of **big data structures**.

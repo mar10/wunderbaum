@@ -8,7 +8,7 @@ Editing is supported in two different ways:
      Use the `edit.trigger` option and implement the `edit.apply()` callback
      to enable this.
 
-  2. In a tree grid, there is also general support for embedded input elements
+  2. In a treegrid, there is also general support for embedded input elements
      in column cells, like checkboxes, text fields, etc.<br>
      Note that *Wunderbaum* does **not** implement fancy input controls though.
      Rather think of it as a framework that makes it easy to use standard or

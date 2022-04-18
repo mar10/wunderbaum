@@ -101,7 +101,7 @@ Common options include:
 <dt>columns</dt>
 <dd>
     A list of maps that define column headers.
-    If this option is set, Wunderbaum becomes a tree grid control instead
+    If this option is set, Wunderbaum becomes a treegrid control instead
     of a plain tree.
     Column definitions can be passed as tree option, or be part of a
     `source` response.
@@ -281,7 +281,7 @@ const tree = new mar10.Wunderbaum({
 
 ### Column Definitions
 
-Column definitions are required to turn a plain Wunderbaum tree into a tree-grid.
+Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
 
 ?> See `Grid` for details.
 

@@ -58,9 +58,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
         console.log(e.name, e);
         // Simulate async storage that also validates:
         return e.util.setTimeoutPromise(() => {
-          e.inputElem.setCustomValidity("")
-          if( e.newValue.match(/.*\d.*/)){
-            e.inputElem.setCustomValidity("No numbers please.")
+          e.inputElem.setCustomValidity("");
+          if (e.newValue.match(/.*\d.*/)) {
+            e.inputElem.setCustomValidity("No numbers please.");
             return false;
           }
         }, 1000);
@@ -129,6 +129,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
     update: function (e) {
       // console.log(e.name, e);
+      let path = e.tree.getTopmostVpNode(false)?.getPath();
+      document.getElementById("parentPath").textContent = `${path}`;
       showStatus(this);
     },
   });

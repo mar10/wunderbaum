@@ -8,9 +8,19 @@ type PromiseCallbackType = (val: any) => void;
 type finallyCallbackType = () => void;
 
 /**
- * Deferred is a ES6 Promise, that exposes the resolve() and reject()` method.
+ * Implement a ES6 Promise, that exposes a resolve() and reject() method.
  *
- * Loosely mimics [`jQuery.Deferred`](https://api.jquery.com/category/deferred-object/).
+ * Loosely mimics {@link https://api.jquery.com/category/deferred-object/ | jQuery.Deferred}.
+ * Example:
+ * ```js
+ * function foo() {
+ *   let dfd = new Deferred(),
+ *   ...
+ *   dfd.resolve('foo')
+ *   ...
+ *   return dfd.promise();
+ * }
+ * ```
  */
 export class Deferred {
   private _promise: Promise<any>;

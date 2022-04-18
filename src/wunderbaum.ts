@@ -610,7 +610,7 @@ export class Wunderbaum {
   }
 
   /** Return the topmost visible node in the viewport. */
-  protected _firstNodeInView(complete = true) {
+  getTopmostVpNode(complete = true) {
     let topIdx: number;
     const gracePy = 1; // ignore subpixel scrolling
 
@@ -625,7 +625,7 @@ export class Wunderbaum {
   }
 
   /** Return the lowest visible node in the viewport. */
-  protected _lastNodeInView(complete = true) {
+  getLowestVpNode(complete = true) {
     let bottomIdx: number;
     if (complete) {
       bottomIdx =
@@ -1094,7 +1094,7 @@ export class Wunderbaum {
         res = this._getNextNodeInView(node);
         break;
       case "pageDown":
-        const bottomNode = this._lastNodeInView();
+        const bottomNode = this.getLowestVpNode();
         // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
 
         if (node._rowIdx! < bottomNode._rowIdx!) {
@@ -1107,7 +1107,7 @@ export class Wunderbaum {
         if (node._rowIdx === 0) {
           res = node;
         } else {
-          const topNode = this._firstNodeInView();
+          const topNode = this.getTopmostVpNode();
           // this.logDebug(`${where}(${node}) -> ${topNode}`);
 
           if (node._rowIdx! > topNode._rowIdx!) {
@@ -1913,7 +1913,7 @@ export class Wunderbaum {
    *   tree.enableUpdate(false);
    *   // ... (long running operation that would trigger many updates)
    *   foo();
-   *   // ... NOTE: make sure that async operations have finished
+   *   // ... NOTE: make sure that async operations have finished, e.g.
    *   await foo();
    * } finally {
    *   tree.enableUpdate(true);

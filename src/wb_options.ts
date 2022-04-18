@@ -36,6 +36,21 @@ export interface WbNodeData {
  *   ...
  * });
  * ```
+ *
+ * Event handlers are also passed as callbacks
+ *
+ * ```js
+ * const tree = new mar10.Wunderbaum({
+ *   ...
+ *   init: (e) => {
+ *     console.log(`Tree ${e.tree} was initialized and loaded.`)
+ *   },
+ *   activate: (e) => {
+ *     console.log(`Node ${e.node} was activated.`)
+ *   },
+ *   ...
+ * });
+ * ```
  */
 export interface WunderbaumOptions {
   /**
@@ -142,21 +157,21 @@ export interface WunderbaumOptions {
   grid: any; // = {};
   // --- Events ---
   /**
-   * Called after initial data was loaded and tree markup was rendered.
-   * Check `e.error` for status.
-   * @category Callback
-   */
-  init?: (e: WbTreeEventType) => void;
-  /**
-   *
-   * @category Callback
-   */
-  update?: (e: WbTreeEventType) => void;
-  /**
    *
    * @category Callback
    */
   activate?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  change?: (e: WbNodeEventType) => void;
+  /**
+   *
+   * Return `false` to prevent default handling, e.g. activating the node.
+   * @category Callback
+   */
+  click?: (e: WbTreeEventType) => void;
   /**
    *
    * @category Callback
@@ -166,22 +181,7 @@ export interface WunderbaumOptions {
    *
    * @category Callback
    */
-  change?: (e: WbNodeEventType) => void;
-  /**
-   *
-   * @category Callback
-   */
-  click?: (e: WbTreeEventType) => void;
-  /**
-   *
-   * @category Callback
-   */
   discard?: (e: WbNodeEventType) => void;
-  /**
-   *
-   * @category Callback
-   */
-  error?: (e: WbTreeEventType) => void;
   /**
    *
    * @category Callback
@@ -189,17 +189,39 @@ export interface WunderbaumOptions {
   enhanceTitle?: (e: WbNodeEventType) => void;
   /**
    *
+   * @category Callback
+   */
+  error?: (e: WbTreeEventType) => void;
+  /**
+   *
    * Check `e.flag` for status.
    * @category Callback
    */
   focus?: (e: WbTreeEventType) => void;
+  /**
+   * Fires when the tree markup was created and the initial source data was loaded.
+   * Typical use cases would be activating a node, setting focus, enabling other
+   * controls on the page, etc.<br>
+   * Check `e.error` for status.
+   * @category Callback
+   */
+  init?: (e: WbTreeEventType) => void;
   /**
    *
    * @category Callback
    */
   keydown?: (e: WbNodeEventType) => void;
   /**
-   * Called after data was loaded from local storage.
+   * Fires when a node that was marked 'lazy', is expanded for the first time.
+   * Typically we return an endpoint URL or the Promise of a fetch request that
+   * provides a (potentially nested) list of child nodes.
+   * @category Callback
+   */
+  lazyLoad?: (e: WbNodeEventType) => void;
+  /**
+   * Fires when data was loaded (initial request, reload, or lazy loading),
+   * after the data is applied and rendered.
+   * @category Callback
    */
   load?: (e: WbNodeEventType) => void;
   /**
@@ -207,12 +229,19 @@ export interface WunderbaumOptions {
    */
   modifyChild?: (e: WbNodeEventType) => void;
   /**
-   *
+   * Fires when data was fetched (initial request, reload, or lazy loading),
+   * but before the data is applied and rendered.
+   * Here we can modify and adjust the received data, for example to convert an
+   * external response to native Wunderbaum syntax.
    * @category Callback
    */
   receive?: (e: WbNodeEventType) => void;
   /**
-   *
+   * Fires when a node is about to be displayed.
+   * The default HTML markup is already created, but not yet added to the DOM.
+   * Now we can tweak the markup, create HTML elements in this node's column
+   * cells, etc.
+   * See also `Custom Rendering` for details.
    * @category Callback
    */
   render?: (e: WbNodeEventType) => void;
@@ -227,4 +256,9 @@ export interface WunderbaumOptions {
    * @category Callback
    */
   select?: (e: WbNodeEventType) => void;
+  /**
+   * Fires when the viewport content was updated, after scroling, expanding etc.
+   * @category Callback
+   */
+  update?: (e: WbTreeEventType) => void;
 }
