@@ -596,17 +596,12 @@ export class Wunderbaum {
     }
   }
 
-  /** Return the topmost visible node in the viewport. */
-  protected _firstNodeInView(complete = true) {
-    let topIdx: number, node: WunderbaumNode;
-    if (complete) {
-      topIdx = Math.ceil(this.scrollContainer.scrollTop / ROW_HEIGHT);
-    } else {
-      topIdx = Math.floor(this.scrollContainer.scrollTop / ROW_HEIGHT);
-    }
+  /** Return the node for  given row index. */
+  protected _getNodeByRowIdx(idx: number): WunderbaumNode | null {
     // TODO: start searching from active node (reverse)
+    let node: WunderbaumNode | null = null;
     this.visitRows((n) => {
-      if (n._rowIdx === topIdx) {
+      if (n._rowIdx === idx) {
         node = n;
         return false;
       }
@@ -614,9 +609,24 @@ export class Wunderbaum {
     return <WunderbaumNode>node!;
   }
 
+  /** Return the topmost visible node in the viewport. */
+  protected _firstNodeInView(complete = true) {
+    let topIdx: number;
+    const gracePy = 1; // ignore subpixel scrolling
+
+    if (complete) {
+      topIdx = Math.ceil(
+        (this.scrollContainer.scrollTop - gracePy) / ROW_HEIGHT
+      );
+    } else {
+      topIdx = Math.floor(this.scrollContainer.scrollTop / ROW_HEIGHT);
+    }
+    return this._getNodeByRowIdx(topIdx)!;
+  }
+
   /** Return the lowest visible node in the viewport. */
   protected _lastNodeInView(complete = true) {
-    let bottomIdx: number, node: WunderbaumNode;
+    let bottomIdx: number;
     if (complete) {
       bottomIdx =
         Math.floor(
@@ -630,14 +640,8 @@ export class Wunderbaum {
             ROW_HEIGHT
         ) - 1;
     }
-    // TODO: start searching from active node
-    this.visitRows((n) => {
-      if (n._rowIdx === bottomIdx) {
-        node = n;
-        return false;
-      }
-    });
-    return <WunderbaumNode>node!;
+    bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
+    return this._getNodeByRowIdx(bottomIdx)!;
   }
 
   /** Return preceeding visible node in the viewport. */
@@ -1033,7 +1037,7 @@ export class Wunderbaum {
    */
   findRelatedNode(node: WunderbaumNode, where: string, includeHidden = false) {
     let res = null;
-    let pageSize = Math.floor(this.scrollContainer.clientHeight / ROW_HEIGHT);
+    const pageSize = Math.floor(this.scrollContainer.clientHeight / ROW_HEIGHT);
 
     switch (where) {
       case "parent":
@@ -1090,21 +1094,23 @@ export class Wunderbaum {
         res = this._getNextNodeInView(node);
         break;
       case "pageDown":
-        let bottomNode = this._lastNodeInView();
-        // this.logDebug(where, this.focusNode, bottomNode);
+        const bottomNode = this._lastNodeInView();
+        // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
 
-        if (this.focusNode !== bottomNode) {
+        if (node._rowIdx! < bottomNode._rowIdx!) {
           res = bottomNode;
         } else {
           res = this._getNextNodeInView(node, pageSize);
         }
         break;
       case "pageUp":
-        if (this.focusNode && this.focusNode._rowIdx === 0) {
-          res = this.focusNode;
+        if (node._rowIdx === 0) {
+          res = node;
         } else {
-          let topNode = this._firstNodeInView();
-          if (this.focusNode !== topNode) {
+          const topNode = this._firstNodeInView();
+          // this.logDebug(`${where}(${node}) -> ${topNode}`);
+
+          if (node._rowIdx! > topNode._rowIdx!) {
             res = topNode;
           } else {
             res = this._getPrevNodeInView(node, pageSize);

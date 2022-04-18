@@ -399,8 +399,7 @@ export class WunderbaumNode {
 
   /** Find a node relative to self.
    *
-   * @param where The keyCode that would normally trigger this move,
-   *		or a keyword ('down', 'first', 'last', 'left', 'parent', 'right', 'up').
+   * @see {@link Wunderbaum.findRelatedNode|tree.findRelatedNode()}
    */
   findRelatedNode(where: string, includeHidden = false) {
     return this.tree.findRelatedNode(this, where, includeHidden);
@@ -1004,20 +1003,20 @@ export class WunderbaumNode {
     where = KEY_TO_ACTION_DICT[where] || where;
 
     // Otherwise activate or focus the related node
-    let node = this.findRelatedNode(where);
-    if (node) {
-      // setFocus/setActive will scroll later (if autoScroll is specified)
-      try {
-        node.makeVisible({ scrollIntoView: false });
-      } catch (e) {} // #272
-      node.setFocus();
-      if (options?.activate === false) {
-        return Promise.resolve(this);
-      }
-      return node.setActive(true, { event: options?.event });
+    const node = this.findRelatedNode(where);
+    if (!node) {
+      this.logWarn(`Could not find related node '${where}'.`);
+      return Promise.resolve(this);
     }
-    this.logWarn("Could not find related node '" + where + "'.");
-    return Promise.resolve(this);
+    // setFocus/setActive will scroll later (if autoScroll is specified)
+    try {
+      node.makeVisible({ scrollIntoView: false });
+    } catch (e) {} // #272
+    node.setFocus();
+    if (options?.activate === false) {
+      return Promise.resolve(this);
+    }
+    return node.setActive(true, { event: options?.event });
   }
 
   /** Delete this node and all descendants. */
