@@ -133,6 +133,8 @@ export class KeynavExtension extends WunderbaumExtension {
         case "Home":
         case "Control+End":
         case "Control+Home":
+        case "Meta+ArrowDown":
+        case "Meta+ArrowUp":
         case "PageDown":
         case "PageUp":
           node.navigate(eventName, { activate: activate, event: event });
@@ -193,6 +195,8 @@ export class KeynavExtension extends WunderbaumExtension {
         case "Home":
         case "Control+End":
         case "Control+Home":
+        case "Meta+ArrowDown":
+        case "Meta+ArrowUp":
         case "PageDown":
         case "PageUp":
           node.navigate(eventName, { activate: activate, event: event });

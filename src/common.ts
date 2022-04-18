@@ -202,6 +202,8 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   Home: "firstCol",
   "Control+End": "last",
   "Control+Home": "first",
+  "Meta+ArrowDown": "last", // macOs
+  "Meta+ArrowUp": "first", // macOs
   "*": "expandAll",
   Multiply: "expandAll",
   PageDown: "pageDown",

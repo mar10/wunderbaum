@@ -1391,7 +1391,7 @@ export class Wunderbaum {
       // );
       return;
     }
-    this.log(`setModified(${change}) node=${node}`);
+    // this.log(`setModified(${change}) node=${node}`);
     if (!(node instanceof WunderbaumNode)) {
       options = node;
     }
