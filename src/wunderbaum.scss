@@ -392,7 +392,8 @@ div.wunderbaum {
 
   &.wb-rainbow {
     @for $i from 1 through length($level-rainbow) {
-      i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
+      i.wb-expander:nth-child(#{length($level-rainbow)}n + #{$i}),
+      i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) { 
         background: nth($level-rainbow, $i);
       }
     }
@@ -401,16 +402,19 @@ div.wunderbaum {
   /* Fade out expanders, when container is not hovered or active */
   &.wb-fade-expander {
     i.wb-expander {
-      transition: opacity 1.5s;
-      opacity: 0;
+      // only text-alpha is animated, since we want to keep the background color
+      // transition: opacity 1.5s;
+      // opacity: 0;
+      transition: color 1.5s;
+      color: rgba($node-text-color, 0);
     }
     div.wb-row.wb-loading i.wb-expander,
     &:hover i.wb-expander,
     &:focus i.wb-expander,
     &:focus-within i.wb-expander,
     [class*="wb-statusnode-"] i.wb-expander {
-      transition: opacity 0.6s;
-      opacity: 1;
+      transition: color 0.6s;
+      color: $node-text-color;
     }
   }
 
