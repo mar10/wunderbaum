@@ -23,7 +23,7 @@ const tree = new Wunderbaum({
   render: function (e) {
     const node = e.node;
     const util = e.util;
-    // console.log(e.name, e.isNew, e);
+    // console.log(e.type, e.isNew, e);
   },
 });
 ```

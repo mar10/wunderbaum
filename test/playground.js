@@ -81,7 +81,7 @@ const tree = new Wunderbaum({
   // },
   activate: (e) => {
     tree.log(
-      e.name,
+      e.type,
       e,
       e.node.toDict(false, (d) => {
         d._org_key = d.key;
@@ -91,7 +91,7 @@ const tree = new Wunderbaum({
   },
   click: (e) => {
     tree.log(
-      e.name,
+      e.type,
       e,
       e.node.toDict(false, (d) => {
         d._org_key = d.key;
@@ -106,7 +106,7 @@ const tree = new Wunderbaum({
     // let value = Wunderbaum.util.getValueFromElem(e.info.colElem);
     let value = e.inputValue;
     // e.inputElem.checked = false
-    e.node.log(e.name, e, value);
+    e.node.log(e.type, e, value);
 
     // TODO: We could validate `inputValue` and call on error:
     // Wunderbaum.util.setValueToElem( e.inputElem, prevValue);
@@ -115,11 +115,11 @@ const tree = new Wunderbaum({
       // Read the value from the input control that triggered the change event:
       //
       e.node.data[e.info.colId] = value;
-      // tree.log(e.name, e);
+      // tree.log(e.type, e);
     }, 1500);
   },
   render: (e) => {
-    e.node.log(e.name, e);
+    e.node.log(e.type, e);
     //
     if (e.isNew) {
       // e.colInfosById["favorite"].elem.appendChild(

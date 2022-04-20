@@ -29,7 +29,7 @@ export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
 export type WbTreeEventType = {
-  name: string;
+  type: string;
   event: Event;
   tree: Wunderbaum;
   // node?: WunderbaumNode;

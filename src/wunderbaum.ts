@@ -582,17 +582,17 @@ export class Wunderbaum {
    * tree._callEvent("edit.beforeEdit", {foo: 42})
    * ```
    */
-  _callEvent(name: string, extra?: any): any {
-    const [p, n] = name.split(".");
+  _callEvent(type: string, extra?: any): any {
+    const [p, n] = type.split(".");
     const opts = this.options as any;
     const func = n ? opts[p][n] : opts[p];
     if (func) {
       return func.call(
         this,
-        util.extend({ name: name, tree: this, util: this._util }, extra)
+        util.extend({ type: type, tree: this, util: this._util }, extra)
       );
       // } else {
-      //   this.logError(`Triggering undefined event '${name}'.`)
+      //   this.logError(`Triggering undefined event '${type}'.`)
     }
   }
 

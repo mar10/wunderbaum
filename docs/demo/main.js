@@ -48,14 +48,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
       trigger: ["clickActive", "F2", "macEnter"],
       select: true,
       beforeEdit: function (e) {
-        console.log(e.name, e);
+        console.log(e.type, e);
         // return false;
       },
       edit: function (e) {
-        console.log(e.name, e);
+        console.log(e.type, e);
       },
       apply: function (e) {
-        console.log(e.name, e);
+        console.log(e.type, e);
         // Simulate async storage that also validates:
         return e.util.setTimeoutPromise(() => {
           e.inputElem.setCustomValidity("");
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
     },
     lazyLoad: function (e) {
-      console.log(e.name, e);
+      console.log(e.type, e);
       // return { url: "../assets/ajax-lazy-sample.json" };
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -87,13 +87,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
       });
     },
     change: function (e) {
-      console.log(e.name, e);
+      console.log(e.type, e);
       return e.util.setTimeoutPromise(() => {
         e.node.data.sale = e.inputValue;
       }, 1000);
     },
     render: function (e) {
-      // console.log(e.name, e.isNew, e);
+      // console.log(e.type, e.isNew, e);
       const node = e.node;
       const util = e.util;
 
@@ -128,9 +128,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
       }
     },
     update: function (e) {
-      // console.log(e.name, e);
-      let path = e.tree.getTopmostVpNode(false)?.getPath();
-      document.getElementById("parentPath").textContent = `${path}`;
+      // console.log(e.type, e);
+      try {
+        // TODO: may only fail until release 0.0.4
+        const path = e.tree.getTopmostVpNode(false)?.getPath();
+        document.getElementById("parentPath").textContent = `${path}`;
+      } catch (error) {}
       showStatus(this);
     },
   });

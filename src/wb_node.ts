@@ -197,9 +197,9 @@ export class WunderbaumNode {
    * node._callEvent("edit.beforeEdit", {foo: 42})
    * ```
    */
-  _callEvent(name: string, extra?: any): any {
+  _callEvent(type: string, extra?: any): any {
     return this.tree._callEvent(
-      name,
+      type,
       util.extend(
         {
           node: this,

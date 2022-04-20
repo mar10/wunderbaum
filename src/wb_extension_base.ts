@@ -38,14 +38,14 @@ export abstract class WunderbaumExtension {
     this.tree.element.classList.add("wb-ext-" + this.id);
   }
 
-  // protected callEvent(name: string, extra?: any): any {
-  //   let func = this.extensionOpts[name];
+  // protected callEvent(type: string, extra?: any): any {
+  //   let func = this.extensionOpts[type];
   //   if (func) {
   //     return func.call(
   //       this.tree,
   //       util.extend(
   //         {
-  //           event: this.id + "." + name,
+  //           event: this.id + "." + type,
   //         },
   //         extra
   //       )
