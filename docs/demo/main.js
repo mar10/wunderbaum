@@ -131,7 +131,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
       // console.log(e.type, e);
       try {
         // TODO: may only fail until release 0.0.4
-        const path = e.tree.getTopmostVpNode(false)?.getPath();
+        let path = e.tree.getTopmostVpNode(true)?.getPath(false, "title", " > ");
+        path = path ? path + " >" : "";
         document.getElementById("parentPath").textContent = `${path}`;
       } catch (error) {}
       showStatus(this);
