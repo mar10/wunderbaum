@@ -35,3 +35,10 @@ div.wb-scroll-container {
     scroll-behavior: smooth;
 }
 ```
+
+```css
+div.wunderbaum:focus-visible {
+  /* Suppress system focus outline. */
+  outline-style: none;
+}
+```

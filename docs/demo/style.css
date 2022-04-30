@@ -71,8 +71,8 @@ div.grid-wrapper div.statbar {
   padding: 1px 4px;
 }
 
+/* Suppress system focus border. */
 div.wunderbaum:focus-visible {
-  /* Suppress system focus border. */
   outline-style: none;
 }
 

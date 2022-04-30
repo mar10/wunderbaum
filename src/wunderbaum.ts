@@ -35,7 +35,7 @@ import {
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
-import { DebouncedFunction, throttle } from "./debounce";
+// import { DebouncedFunction, throttle } from "./debounce";
 import { EditExtension } from "./wb_ext_edit";
 import { WunderbaumOptions } from "./wb_options";
 
@@ -67,9 +67,7 @@ export class Wunderbaum {
   /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
   public readonly nodeListElement: HTMLDivElement;
 
-  protected readonly _updateViewportThrottled: DebouncedFunction<
-    (...args: any) => void
-  >;
+  protected readonly _updateViewportThrottled: (...args: any) => void;
   protected extensionList: WunderbaumExtension[] = [];
   protected extensions: ExtensionsDict = {};
 
@@ -229,12 +227,9 @@ export class Wunderbaum {
       this.navMode = NavigationMode.cellNav;
     }
 
-    this._updateViewportThrottled = throttle(
-      () => {
-        this._updateViewport();
-      },
-      opts.updateThrottleWait,
-      { leading: true, trailing: true }
+    this._updateViewportThrottled = util.addaptiveThrottle(
+      this._updateViewport.bind(this),
+      {}
     );
 
     // --- Create Markup
@@ -1550,9 +1545,10 @@ export class Wunderbaum {
   updateViewport(immediate = false) {
     // Call the `throttle` wrapper for `this._updateViewport()` which will
     // execute immediately on the leading edge of a sequence:
-    this._updateViewportThrottled();
     if (immediate) {
-      this._updateViewportThrottled.flush();
+      this._updateViewport();
+    } else {
+      this._updateViewportThrottled();
     }
   }
 
@@ -1615,7 +1611,7 @@ export class Wunderbaum {
         console.warn(
           `TR order mismatch at index ${i}: top=${top}px, node=${n}`
         );
-        // throw new Error("fault");
+        throw new Error("fault");
         ok = false;
       }
       prev = top;

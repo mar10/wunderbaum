@@ -575,13 +575,14 @@ export function overrideMethod(
 
 /** Run function after ms milliseconds and return a promise that resolves when done. */
 export function setTimeoutPromise(
+  this: unknown,
   callback: (...args: any[]) => void,
   ms: number
 ) {
   return new Promise((resolve, reject) => {
     setTimeout(() => {
       try {
-        resolve(callback.apply(self));
+        resolve(callback.apply(this));
       } catch (err) {
         reject(err);
       }
@@ -688,4 +689,82 @@ export function type(obj: any): string {
     .call(obj)
     .replace(/^\[object (.+)\]$/, "$1")
     .toLowerCase();
+}
+
+/**
+ * Return a function that can be called instead of `callback`, but guarantees
+ * a limited execution rate.
+ * The execution rate is calculated based on the runtime duration of the
+ * previous call.
+ * Example:
+ * ```js
+ * throttledFoo = util.addaptiveThrottle(foo.bind(this), {});
+ * throttledFoo();
+ * throttledFoo();
+ * ```
+ */
+export function addaptiveThrottle(
+  this: unknown,
+  callback: (...args: any[]) => void,
+  options: any
+) {
+  let waiting = 0; // Initially, we're not waiting
+  let pendingArgs: any = null;
+  const opts = Object.assign(
+    {
+      minDelay: 16,
+      defaultDelay: 200,
+      maxDelay: 5000,
+      delayFactor: 2.0,
+    },
+    options
+  );
+  const minDelay = Math.max(16, +opts.minDelay);
+  const maxDelay = +opts.maxDelay;
+
+  const throttledFn = (...args: any[]) => {
+    if (waiting) {
+      pendingArgs = args;
+      // console.log(`addaptiveThrottle() queing request #${waiting}...`, args);
+      waiting += 1;
+    } else {
+      // Prevent invocations while running or blocking
+      waiting = 1;
+      const useArgs = pendingArgs;
+      pendingArgs = null;
+
+      // console.log(`addaptiveThrottle() execute...`, useArgs);
+      const start = Date.now();
+      try {
+        callback.apply(this, useArgs);
+      } catch (error) {
+        console.error(error);
+      }
+      const elap = Date.now() - start;
+
+      const curDelay = Math.min(
+        Math.max(minDelay, elap * opts.delayFactor),
+        maxDelay
+      );
+      const useDelay = Math.max(minDelay, curDelay - elap);
+      console.log(
+        `addaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
+        pendingArgs
+      );
+      setTimeout(() => {
+        // Unblock, and trigger pending requests if any
+        const skipped = waiting - 1;
+        waiting = 0; // And allow future invocations
+        if (pendingArgs != null) {
+          // There was another request while running or waiting
+          console.log(
+            `addaptiveThrottle() re-trigger (missed ${skipped})...`,
+            pendingArgs
+          );
+          throttledFn.apply(this, pendingArgs);
+        }
+      }, useDelay);
+    }
+  };
+  return throttledFn;
 }
