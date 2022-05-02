@@ -71,12 +71,20 @@ export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
 export type DndModeType = "before" | "after" | "over";
 
 export enum ChangeType {
+  /** Re-render the whole viewport, headers, and all rows. */
   any = "any",
-  row = "row",
-  structure = "structure",
-  status = "status",
-  vscroll = "vscroll",
+  /** Update current row title, icon, columns, and status. */
+  data = "data",
+  /** Redraw the header and update the width of all row columns. */
   header = "header",
+  /** Re-render the whole current row. */
+  row = "row",
+  /** Alias for 'any'. */
+  structure = "structure",
+  /** Update current row's classes, to reflect active, selected, ... */
+  status = "status",
+  /** Update the 'top' property of all rows. */
+  vscroll = "vscroll",
 }
 
 export enum NodeStatusType {

@@ -340,13 +340,14 @@ export class Wunderbaum {
 
     this.resizeObserver = new ResizeObserver((entries) => {
       this.setModified(ChangeType.vscroll);
-      console.log("ResizeObserver: Size changed", entries);
+      // this.log("ResizeObserver: Size changed", entries);
     });
     this.resizeObserver.observe(this.element);
 
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
       const node = info.node;
+      // this.log("click", info, e);
 
       if (
         this._callEvent("click", { event: e, node: node, info: info }) === false
@@ -379,8 +380,6 @@ export class Wunderbaum {
           node.setSelected(!node.isSelected());
         }
       }
-      // if(e.target.classList.)
-      // this.log("click", info);
       this.lastClickTime = Date.now();
     });
 
@@ -1344,19 +1343,20 @@ export class Wunderbaum {
     util.assert(this.navMode !== NavigationMode.row);
     util.assert(0 <= colIdx && colIdx < this.columns.length);
     this.activeColIdx = colIdx;
-    // node.setActive(true, { column: tree.activeColIdx + 1 });
-    this.setModified(ChangeType.row, this.activeNode);
+
     // Update `wb-active` class for all headers
     if (this.headerElement) {
       for (let rowDiv of this.headerElement.children) {
-        // for (let rowDiv of document.querySelector("div.wb-header").children) {
         let i = 0;
         for (let colDiv of rowDiv.children) {
           (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
         }
       }
     }
-    // Update `wb-active` class for all cell divs
+
+    this.activeNode?.setModified(ChangeType.status);
+
+    // Update `wb-active` class for all cell spans
     for (let rowDiv of this.nodeListElement.children) {
       let i = 0;
       for (let colDiv of rowDiv.children) {
@@ -1409,11 +1409,12 @@ export class Wunderbaum {
         this.updateViewport(immediate);
         break;
       case ChangeType.row:
+      case ChangeType.data:
       case ChangeType.status:
         // Single nodes are immedialtely updated if already inside the viewport
         // (otherwise we can ignore)
         if (node._rowElem) {
-          node.render();
+          node.render({ change: change });
         }
         break;
       default:
@@ -1440,7 +1441,8 @@ export class Wunderbaum {
       "wb-cell-edit-mode",
       mode === NavigationMode.cellEdit
     );
-    this.setModified(ChangeType.row, this.activeNode);
+    // this.setModified(ChangeType.row, this.activeNode);
+    this.activeNode?.setModified(ChangeType.status);
   }
 
   /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
@@ -1581,10 +1583,13 @@ export class Wunderbaum {
       this.scrollContainer.style.height = wantHeight + "px";
       height = wantHeight;
     }
+    // console.profile(`_updateViewport()`)
 
     this.updateColumns({ updateRows: false });
 
     this._updateRows({ newNodesOnly: newNodesOnly });
+
+    // console.profileEnd(`_updateViewport()`)
 
     this._callEvent("update");
   }
@@ -1607,11 +1612,13 @@ export class Wunderbaum {
       //     `TR#${i}, rowIdx=${n._rowIdx} , top=${top}px: '${n.title}'`
       //   );
       // }
-      if (top <= prev) {
-        console.warn(
-          `TR order mismatch at index ${i}: top=${top}px, node=${n}`
+      if (prev >= 0 && top !== prev + ROW_HEIGHT) {
+        n.logWarn(
+          `TR order mismatch at index ${i}: top=${top}px != ${
+            prev + ROW_HEIGHT
+          }`
         );
-        throw new Error("fault");
+        // throw new Error("fault");
         ok = false;
       }
       prev = top;
@@ -1630,7 +1637,7 @@ export class Wunderbaum {
    */
   protected _updateRows(opts?: any): boolean {
     const label = this.logTime("_updateRows");
-
+    // this.log("_updateRows", opts)
     opts = Object.assign({ newNodesOnly: false }, opts);
     const newNodesOnly = !!opts.newNodesOnly;
 
@@ -1665,7 +1672,7 @@ export class Wunderbaum {
     let prevElem: HTMLDivElement | "first" | "last" = "first";
 
     this.visitRows(function (node) {
-      // console.log("visit", node)
+      // node.log("visit")
       const rowDiv = node._rowElem;
 
       // Renumber all expanded nodes
@@ -1687,8 +1694,11 @@ export class Wunderbaum {
       } else {
         obsoleteNodes.delete(node);
         // Create new markup
+        if (rowDiv) {
+          rowDiv.style.top = idx * ROW_HEIGHT + "px";
+        }
         node.render({ top: top, after: prevElem });
-        // console.log("render", top, prevElem, "=>", node._rowElem);
+        // node.log("render", top, prevElem, "=>", node._rowElem);
         prevElem = node._rowElem!;
       }
       idx++;

@@ -330,13 +330,12 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
         break;
       case "text":
       default:
-        input.innerText = value;
+        input.value = value || "";
     }
   } else if (tag === "SELECT") {
     const select = <HTMLSelectElement>elem;
     select.value = value;
   }
-  // return value;
 }
 
 /** Create and return an unconnected `HTMLElement` from a HTML string. */
@@ -730,7 +729,7 @@ export function addaptiveThrottle(
     } else {
       // Prevent invocations while running or blocking
       waiting = 1;
-      const useArgs = pendingArgs;
+      const useArgs = args; // pendingArgs || args;
       pendingArgs = null;
 
       // console.log(`addaptiveThrottle() execute...`, useArgs);
@@ -747,20 +746,20 @@ export function addaptiveThrottle(
         maxDelay
       );
       const useDelay = Math.max(minDelay, curDelay - elap);
-      console.log(
-        `addaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
-        pendingArgs
-      );
+      // console.log(
+      //   `addaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
+      //   pendingArgs
+      // );
       setTimeout(() => {
         // Unblock, and trigger pending requests if any
-        const skipped = waiting - 1;
+        // const skipped = waiting - 1;
         waiting = 0; // And allow future invocations
         if (pendingArgs != null) {
           // There was another request while running or waiting
-          console.log(
-            `addaptiveThrottle() re-trigger (missed ${skipped})...`,
-            pendingArgs
-          );
+          // console.log(
+          //   `addaptiveThrottle() re-trigger (missed ${skipped})...`,
+          //   pendingArgs
+          // );
           throttledFn.apply(this, pendingArgs);
         }
       }, useDelay);

@@ -1143,13 +1143,15 @@ export class WunderbaumNode {
     return iconSpan;
   }
 
-  /** Create HTML markup for this node, i.e. the whole row. */
-  render(opts?: any) {
+  /**
+   * Create a whole new `<div class="wb-row">` element.
+   * @see {@link Wunderbaumode.render}
+   */
+  protected _render_markup(opts: any) {
     const tree = this.tree;
     const treeOptions = tree.options;
     const checkbox = this.getOption("checkbox") !== false;
     const columns = tree.columns;
-    const typeInfo = this.type ? tree.types[this.type] : null;
     const level = this.getLevel();
     let elem: HTMLElement;
     let nodeElem: HTMLElement;
@@ -1160,15 +1162,206 @@ export class WunderbaumNode {
     let expanderSpan: HTMLElement | null = null;
     const activeColIdx =
       tree.navMode === NavigationMode.row ? null : tree.activeColIdx;
-    // let colElems: HTMLElement[];
+
     const isNew = !rowDiv;
+    util.assert(isNew);
     util.assert(
       !isNew || (opts && opts.after),
       "opts.after expected, unless updating"
     );
-
     util.assert(!this.isRootNode());
-    //
+
+    rowDiv = document.createElement("div");
+    rowDiv.classList.add("wb-row");
+
+    rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
+
+    this._rowElem = rowDiv;
+
+    // Attach a node reference to the DOM Element:
+    (<any>rowDiv)._wb_node = this;
+
+    nodeElem = document.createElement("span");
+    nodeElem.classList.add("wb-node", "wb-col");
+    rowDiv.appendChild(nodeElem);
+
+    let ofsTitlePx = 0;
+
+    if (checkbox) {
+      checkboxSpan = document.createElement("i");
+      checkboxSpan.classList.add("wb-checkbox");
+      nodeElem.appendChild(checkboxSpan);
+      ofsTitlePx += ICON_WIDTH;
+    }
+
+    for (let i = level - 1; i > 0; i--) {
+      elem = document.createElement("i");
+      elem.classList.add("wb-indent");
+      nodeElem.appendChild(elem);
+      ofsTitlePx += ICON_WIDTH;
+    }
+
+    if (!treeOptions.minExpandLevel || level > treeOptions.minExpandLevel) {
+      expanderSpan = document.createElement("i");
+      expanderSpan.classList.add("wb-expander");
+      nodeElem.appendChild(expanderSpan);
+      ofsTitlePx += ICON_WIDTH;
+    }
+
+    iconSpan = this._createIcon(nodeElem);
+    if (iconSpan) {
+      ofsTitlePx += ICON_WIDTH;
+    }
+
+    titleSpan = document.createElement("span");
+    titleSpan.classList.add("wb-title");
+    nodeElem.appendChild(titleSpan);
+
+    this._callEvent("enhanceTitle", { titleSpan: titleSpan });
+
+    // Store the width of leading icons with the node, so we can calculate
+    // the width of the embedded title span later
+    (<any>nodeElem)._ofsTitlePx = ofsTitlePx;
+
+    // Support HTML5 drag-n-drop
+    if (tree.options.dnd!.dragStart) {
+      nodeElem.draggable = true;
+    }
+
+    // Render columns
+    if (!this.colspan && columns.length > 1) {
+      let colIdx = 0;
+      for (let col of columns) {
+        colIdx++;
+
+        let colElem;
+        if (col.id === "*") {
+          colElem = nodeElem;
+        } else {
+          colElem = document.createElement("span");
+          colElem.classList.add("wb-col");
+          rowDiv.appendChild(colElem);
+        }
+        if (colIdx === activeColIdx) {
+          colElem.classList.add("wb-active");
+        }
+        // Add classes from `columns` definition to `<div.wb-col>` cells
+        col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
+
+        colElem.style.left = col._ofsPx + "px";
+        colElem.style.width = col._widthPx + "px";
+        if (isNew && col.html) {
+          if (typeof col.html === "string") {
+            colElem.innerHTML = col.html;
+          }
+        }
+      }
+    }
+
+    // Now go on and fill in data and update classes
+    opts.isNew = true;
+    this._render_data(opts);
+
+    // Attach to DOM as late as possible
+    const after = opts ? opts.after : "last";
+    switch (after) {
+      case "first":
+        tree.nodeListElement.prepend(rowDiv);
+        break;
+      case "last":
+        tree.nodeListElement.appendChild(rowDiv);
+        break;
+      default:
+        opts.after.after(rowDiv);
+    }
+  }
+
+  /**
+   * Render `node.title`, `.icon` into an existing row.
+   *
+   * @see {@link Wunderbaumode.render}
+   */
+  protected _render_data(opts: any) {
+    util.assert(this._rowElem);
+
+    const tree = this.tree;
+    const treeOptions = tree.options;
+    const rowDiv = this._rowElem!;
+    const isNew = !!opts.isNew; // Called by _render_markup()?
+    const columns = tree.columns;
+    const typeInfo = this.type ? tree.types[this.type] : null;
+
+    // Row markup already exists
+    const nodeElem = rowDiv.querySelector("span.wb-node") as HTMLSpanElement;
+    const titleSpan = nodeElem.querySelector(
+      "span.wb-title"
+    ) as HTMLSpanElement;
+
+    if (this.titleWithHighlight) {
+      titleSpan.innerHTML = this.titleWithHighlight;
+    } else {
+      titleSpan.textContent = this.title;
+    }
+
+    // Set the width of the title span, so overflow ellipsis work
+    if (!treeOptions.skeleton) {
+      if (this.colspan) {
+        let vpWidth = tree.element.clientWidth;
+        titleSpan.style.width =
+          vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
+      } else {
+        titleSpan.style.width =
+          columns[0]._widthPx -
+          (<any>nodeElem)._ofsTitlePx -
+          ROW_EXTRA_PAD +
+          "px";
+      }
+    }
+
+    // Update row classes
+    opts.isDataChange = true;
+    this._render_status(opts);
+
+    // Let user modify the result
+    if (this.statusNodeType) {
+      this._callEvent("renderStatusNode", {
+        isNew: isNew,
+        nodeElem: nodeElem,
+      });
+    } else if (this.parent) {
+      // Skip root node
+      this._callEvent("render", {
+        isNew: isNew,
+        isDataChange: true,
+        nodeElem: nodeElem,
+        typeInfo: typeInfo,
+        colInfosById: this._getRenderInfo(),
+      });
+    }
+  }
+
+  /**
+   * Update row classes to reflect active, focuses, etc.
+   * @see {@link Wunderbaumode.render}
+   */
+  protected _render_status(opts: any) {
+    // this.log("_render_status", opts);
+    const tree = this.tree;
+    const treeOptions = tree.options;
+    const typeInfo = this.type ? tree.types[this.type] : null;
+    const rowDiv = this._rowElem!;
+
+    // Row markup already exists
+    const nodeElem = rowDiv.querySelector("span.wb-node") as HTMLSpanElement;
+    const expanderSpan = nodeElem.querySelector(
+      "i.wb-expander"
+    ) as HTMLLIElement;
+    const checkboxSpan = nodeElem.querySelector(
+      "i.wb-checkbox"
+    ) as HTMLLIElement;
+    // TODO: update icon (if not opts.isNew)
+    // const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
+
     let rowClasses = ["wb-row"];
     this.expanded ? rowClasses.push("wb-expanded") : 0;
     this.lazy ? rowClasses.push("wb-lazy") : 0;
@@ -1184,117 +1377,17 @@ export class WunderbaumNode {
     this.match ? rowClasses.push("wb-match") : 0;
     this.subMatchCount ? rowClasses.push("wb-submatch") : 0;
     treeOptions.skeleton ? rowClasses.push("wb-skeleton") : 0;
-    // TODO: no need to hide!
-    // !(this.match || this.subMatchCount) ? rowClasses.push("wb-hide") : 0;
 
-    if (rowDiv) {
-      // Row markup already exists
-      nodeElem = rowDiv.querySelector("span.wb-node") as HTMLElement;
-      titleSpan = nodeElem.querySelector("span.wb-title") as HTMLElement;
-      expanderSpan = nodeElem.querySelector("i.wb-expander") as HTMLElement;
-      checkboxSpan = nodeElem.querySelector("i.wb-checkbox") as HTMLElement;
-      iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
-      // TODO: we need this, when icons should be replacable
-      // iconSpan = this._createIcon(nodeElem, iconSpan);
-
-      // colElems = (<unknown>(
-      //   rowDiv.querySelectorAll("span.wb-col")
-      // )) as HTMLElement[];
-    } else {
-      rowDiv = document.createElement("div");
-      // rowDiv.classList.add("wb-row");
-      // Attach a node reference to the DOM Element:
-      (<any>rowDiv)._wb_node = this;
-
-      nodeElem = document.createElement("span");
-      nodeElem.classList.add("wb-node", "wb-col");
-      rowDiv.appendChild(nodeElem);
-
-      let ofsTitlePx = 0;
-
-      if (checkbox) {
-        checkboxSpan = document.createElement("i");
-        nodeElem.appendChild(checkboxSpan);
-        ofsTitlePx += ICON_WIDTH;
-      }
-
-      for (let i = level - 1; i > 0; i--) {
-        elem = document.createElement("i");
-        elem.classList.add("wb-indent");
-        nodeElem.appendChild(elem);
-        ofsTitlePx += ICON_WIDTH;
-      }
-
-      if (!treeOptions.minExpandLevel || level > treeOptions.minExpandLevel) {
-        expanderSpan = document.createElement("i");
-        nodeElem.appendChild(expanderSpan);
-        ofsTitlePx += ICON_WIDTH;
-      }
-
-      iconSpan = this._createIcon(nodeElem);
-      if (iconSpan) {
-        ofsTitlePx += ICON_WIDTH;
-      }
-
-      titleSpan = document.createElement("span");
-      titleSpan.classList.add("wb-title");
-      nodeElem.appendChild(titleSpan);
-
-      this._callEvent("enhanceTitle", { titleSpan: titleSpan });
-
-      // Store the width of leading icons with the node, so we can calculate
-      // the width of the embedded title span later
-      (<any>nodeElem)._ofsTitlePx = ofsTitlePx;
-      if (tree.options.dnd!.dragStart) {
-        nodeElem.draggable = true;
-      }
-
-      // Render columns
-      // colElems = [];
-      if (!this.colspan && columns.length > 1) {
-        let colIdx = 0;
-        for (let col of columns) {
-          colIdx++;
-
-          let colElem;
-          if (col.id === "*") {
-            colElem = nodeElem;
-          } else {
-            colElem = document.createElement("span");
-            colElem.classList.add("wb-col");
-            // colElem.textContent = "" + col.id;
-            rowDiv.appendChild(colElem);
-          }
-          if (colIdx === activeColIdx) {
-            colElem.classList.add("wb-active");
-          }
-          // Add classes from `columns` definition to `<div.wb-col>` cells
-          col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
-
-          colElem.style.left = col._ofsPx + "px";
-          colElem.style.width = col._widthPx + "px";
-          // colElems.push(colElem);
-          if (isNew && col.html) {
-            if (typeof col.html === "string") {
-              colElem.innerHTML = col.html;
-            }
-          }
-        }
-      }
-    }
-
-    // --- From here common code starts (either new or existing markup):
-
-    rowDiv.className = rowClasses.join(" "); // Reset prev. classes
+    // Replace previous classes:
+    rowDiv.className = rowClasses.join(" ");
 
     // Add classes from `node.extraClasses`
     rowDiv.classList.add(...this.extraClasses);
+
     // Add classes from `tree.types[node.type]`
     if (typeInfo && typeInfo.classes) {
       rowDiv.classList.add(...typeInfo.classes);
     }
-    // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
-    rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
 
     if (expanderSpan) {
       if (this.isExpandable(false)) {
@@ -1318,60 +1411,42 @@ export class WunderbaumNode {
         checkboxSpan.className = "wb-checkbox " + iconMap.checkUnchecked;
       }
     }
-
-    if (this.titleWithHighlight) {
-      titleSpan.innerHTML = this.titleWithHighlight;
-    } else {
-      // } else if (tree.options.escapeTitles) {
-      titleSpan.textContent = this.title;
-      // } else {
-      //   titleSpan.innerHTML = this.title;
-    }
-    // Set the width of the title span, so overflow ellipsis work
-    if (!treeOptions.skeleton) {
-      if (this.colspan) {
-        let vpWidth = tree.element.clientWidth;
-        titleSpan.style.width =
-          vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
-      } else {
-        titleSpan.style.width =
-          columns[0]._widthPx -
-          (<any>nodeElem)._ofsTitlePx -
-          ROW_EXTRA_PAD +
-          "px";
+    // Fix active cell in cell-nav mode
+    if (!opts.isNew) {
+      let i = 0;
+      for (let colSpan of rowDiv.children) {
+        colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
       }
     }
+  }
 
-    this._rowElem = rowDiv;
-
-    if (this.statusNodeType) {
-      this._callEvent("renderStatusNode", {
-        isNew: isNew,
-        nodeElem: nodeElem,
-      });
-    } else if (this.parent) {
-      // Skip root node
-      this._callEvent("render", {
-        isNew: isNew,
-        nodeElem: nodeElem,
-        typeInfo: typeInfo,
-        colInfosById: this._getRenderInfo(),
-      });
+  /**
+   * Create or update node's markup.
+   *
+   * `options.change` defaults to ChangeType.data, which updates the title,
+   * icon, and status. It also triggers the `render` event, that lets the user
+   * create or update the content of embeded cell elements.<br>
+   *
+   * If only the status or other class-only modifications have changed,
+   * `options.change` should be set to ChangeType.status instead for best
+   * efficiency.
+   */
+  render(options?: any) {
+    // this.log("render", options);
+    const opts = Object.assign({ change: ChangeType.data }, options);
+    if (!this._rowElem) {
+      opts.change = "row";
     }
-
-    // Attach to DOM as late as possible
-    if (isNew) {
-      const after = opts ? opts.after : "last";
-      switch (after) {
-        case "first":
-          tree.nodeListElement.prepend(rowDiv);
-          break;
-        case "last":
-          tree.nodeListElement.appendChild(rowDiv);
-          break;
-        default:
-          opts.after.after(rowDiv);
-      }
+    switch (opts.change) {
+      case "status":
+        this._render_status(opts);
+        break;
+      case "data":
+        this._render_data(opts);
+        break;
+      default:
+        this._render_markup(opts);
+        break;
     }
   }
 
@@ -1542,8 +1617,8 @@ export class WunderbaumNode {
 
     if (prev !== this) {
       tree.activeNode = this;
-      prev?.setModified();
-      this.setModified();
+      prev?.setModified(ChangeType.status);
+      this.setModified(ChangeType.status);
     }
     if (
       options &&
@@ -1602,10 +1677,16 @@ export class WunderbaumNode {
     throw new Error("Not yet implemented");
   }
 
-  /** Schedule a render, typically called to update after a status or data change. */
-  setModified(change: ChangeType = ChangeType.status) {
-    util.assert(change === ChangeType.status);
-    this.tree.setModified(ChangeType.row, this);
+  /**
+   * Schedule a render, typically called to update after a status or data change.
+   *
+   * `change` defaults to 'data', which handles modifcations of title, icon,
+   * and column content. It can be reduced to 'ChangeType.status' if only
+   * active/focus/selected state has changed.
+   */
+  setModified(change: ChangeType = ChangeType.data) {
+    util.assert(change === ChangeType.status || change === ChangeType.data);
+    this.tree.setModified(change, this);
   }
 
   /** Modify the check/uncheck state. */

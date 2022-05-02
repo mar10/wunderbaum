@@ -105,5 +105,6 @@ output#parentPath {
   display: block;
   padding: 1px 3px;
   height: 12px;
-  background-color: #dedede;
+  /* background-color: #dedede; */
+  background-color: whitesmoke;
 }

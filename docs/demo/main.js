@@ -87,10 +87,21 @@ document.addEventListener("DOMContentLoaded", (event) => {
       });
     },
     change: function (e) {
+      const info = e.info;
+      const colId = info.colId;
+
       console.log(e.type, e);
+      // For demo purposes, simulate a backend delay:
       return e.util.setTimeoutPromise(() => {
-        e.node.data.sale = e.inputValue;
-      }, 1000);
+        // Assumption: we named column.id === node.data.NAME
+        switch (colId) {
+          case "sale":
+          case "details":
+            e.node.data[colId] = e.inputValue;
+            break;
+        }
+        // e.node.setModified()
+      }, 500);
     },
     render: function (e) {
       // console.log(e.type, e.isNew, e);
@@ -100,10 +111,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
       if (node.type === "folder" || !node.type) {
         return;
       }
-
-      // const colInfos = e.colInfosById
-      // colInfos["price"].elem.textContent = "$ " + node.data.price.toFixed(2);
-      // colInfos["qty"].elem.textContent = node.data.qty.toLocaleString();
 
       for (const col of Object.values(e.colInfosById)) {
         switch (col.id) {
@@ -117,8 +124,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
             col.elem.textContent = node.data.qty.toLocaleString();
             break;
           case "sale": // checkbox control
-            col.elem.innerHTML = "<input type='checkbox'>";
+      console.log(e.type, e);
+
+            if (e.isNew) {
+              col.elem.innerHTML = "<input type='checkbox'>";
+            }
+            // Cast value to bool, since we don't want tri-state behavior
             util.setValueToElem(col.elem, !!node.data.sale);
+            break;
+          case "details": // text control
+            if (e.isNew) {
+              col.elem.innerHTML = "<input type='text'>";
+            }
+            util.setValueToElem(col.elem, node.data.details);
             break;
           default:
             // Assumption: we named column.id === node.data.NAME
@@ -129,12 +147,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
     },
     update: function (e) {
       // console.log(e.type, e);
-      try {
-        // TODO: may only fail until release 0.0.4
-        let path = e.tree.getTopmostVpNode(true)?.getPath(false, "title", " > ");
-        path = path ? path + " >" : "";
-        document.getElementById("parentPath").textContent = `${path}`;
-      } catch (error) {}
+      let path = e.tree.getTopmostVpNode(true)?.getPath(false, "title", " > ");
+      path = path ? path + " >" : "";
+      document.getElementById("parentPath").textContent = `${path}`;
       showStatus(this);
     },
   });
