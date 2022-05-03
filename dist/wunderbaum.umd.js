@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -305,14 +305,13 @@
                   break;
               case "text":
               default:
-                  input.innerText = value;
+                  input.value = value || "";
           }
       }
       else if (tag === "SELECT") {
           const select = elem;
           select.value = value;
       }
-      // return value;
   }
   /** Create and return an unconnected `HTMLElement` from a HTML string. */
   function elemFromHtml(html) {
@@ -485,7 +484,7 @@
       return new Promise((resolve, reject) => {
           setTimeout(() => {
               try {
-                  resolve(callback.apply(self));
+                  resolve(callback.apply(this));
               }
               catch (err) {
                   reject(err);
@@ -579,6 +578,72 @@
           .replace(/^\[object (.+)\]$/, "$1")
           .toLowerCase();
   }
+  /**
+   * Return a function that can be called instead of `callback`, but guarantees
+   * a limited execution rate.
+   * The execution rate is calculated based on the runtime duration of the
+   * previous call.
+   * Example:
+   * ```js
+   * throttledFoo = util.addaptiveThrottle(foo.bind(this), {});
+   * throttledFoo();
+   * throttledFoo();
+   * ```
+   */
+  function addaptiveThrottle(callback, options) {
+      let waiting = 0; // Initially, we're not waiting
+      let pendingArgs = null;
+      const opts = Object.assign({
+          minDelay: 16,
+          defaultDelay: 200,
+          maxDelay: 5000,
+          delayFactor: 2.0,
+      }, options);
+      const minDelay = Math.max(16, +opts.minDelay);
+      const maxDelay = +opts.maxDelay;
+      const throttledFn = (...args) => {
+          if (waiting) {
+              pendingArgs = args;
+              // console.log(`addaptiveThrottle() queing request #${waiting}...`, args);
+              waiting += 1;
+          }
+          else {
+              // Prevent invocations while running or blocking
+              waiting = 1;
+              const useArgs = args; // pendingArgs || args;
+              pendingArgs = null;
+              // console.log(`addaptiveThrottle() execute...`, useArgs);
+              const start = Date.now();
+              try {
+                  callback.apply(this, useArgs);
+              }
+              catch (error) {
+                  console.error(error);
+              }
+              const elap = Date.now() - start;
+              const curDelay = Math.min(Math.max(minDelay, elap * opts.delayFactor), maxDelay);
+              const useDelay = Math.max(minDelay, curDelay - elap);
+              // console.log(
+              //   `addaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
+              //   pendingArgs
+              // );
+              setTimeout(() => {
+                  // Unblock, and trigger pending requests if any
+                  // const skipped = waiting - 1;
+                  waiting = 0; // And allow future invocations
+                  if (pendingArgs != null) {
+                      // There was another request while running or waiting
+                      // console.log(
+                      //   `addaptiveThrottle() re-trigger (missed ${skipped})...`,
+                      //   pendingArgs
+                      // );
+                      throttledFn.apply(this, pendingArgs);
+                  }
+              }, useDelay);
+          }
+      };
+      return throttledFn;
+  }
 
   var util = /*#__PURE__*/Object.freeze({
     __proto__: null,
@@ -614,13 +679,14 @@
     toggleCheckbox: toggleCheckbox,
     getOption: getOption,
     toSet: toSet,
-    type: type
+    type: type,
+    addaptiveThrottle: addaptiveThrottle
   });
 
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
   const ROW_HEIGHT = 22;
@@ -630,12 +696,20 @@
   const TEST_IMG = new RegExp(/\.|\//); // strings are considered image urls if they contain '.' or '/'
   var ChangeType;
   (function (ChangeType) {
+      /** Re-render the whole viewport, headers, and all rows. */
       ChangeType["any"] = "any";
-      ChangeType["row"] = "row";
-      ChangeType["structure"] = "structure";
-      ChangeType["status"] = "status";
-      ChangeType["vscroll"] = "vscroll";
+      /** Update current row title, icon, columns, and status. */
+      ChangeType["data"] = "data";
+      /** Redraw the header and update the width of all row columns. */
       ChangeType["header"] = "header";
+      /** Re-render the whole current row. */
+      ChangeType["row"] = "row";
+      /** Alias for 'any'. */
+      ChangeType["structure"] = "structure";
+      /** Update current row's classes, to reflect active, selected, ... */
+      ChangeType["status"] = "status";
+      /** Update the 'top' property of all rows. */
+      ChangeType["vscroll"] = "vscroll";
   })(ChangeType || (ChangeType = {}));
   var NodeStatusType;
   (function (NodeStatusType) {
@@ -736,7 +810,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -759,14 +833,14 @@
       init() {
           this.tree.element.classList.add("wb-ext-" + this.id);
       }
-      // protected callEvent(name: string, extra?: any): any {
-      //   let func = this.extensionOpts[name];
+      // protected callEvent(type: string, extra?: any): any {
+      //   let func = this.extensionOpts[type];
       //   if (func) {
       //     return func.call(
       //       this.tree,
       //       util.extend(
       //         {
-      //           event: this.id + "." + name,
+      //           event: this.id + "." + type,
       //         },
       //         extra
       //       )
@@ -1023,75 +1097,11 @@
       debounced.pending = pending;
       return debounced;
   }
-  /**
-   * Creates a throttled function that only invokes `func` at most once per
-   * every `wait` milliseconds (or once per browser frame). The throttled function
-   * comes with a `cancel` method to cancel delayed `func` invocations and a
-   * `flush` method to immediately invoke them. Provide `options` to indicate
-   * whether `func` should be invoked on the leading and/or trailing edge of the
-   * `wait` timeout. The `func` is invoked with the last arguments provided to the
-   * throttled function. Subsequent calls to the throttled function return the
-   * result of the last `func` invocation.
-   *
-   * **Note:** If `leading` and `trailing` options are `true`, `func` is
-   * invoked on the trailing edge of the timeout only if the throttled function
-   * is invoked more than once during the `wait` timeout.
-   *
-   * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-   * until the next tick, similar to `setTimeout` with a timeout of `0`.
-   *
-   * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
-   * invocation will be deferred until the next frame is drawn (typically about
-   * 16ms).
-   *
-   * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-   * for details over the differences between `throttle` and `debounce`.
-   *
-   * @since 0.1.0
-   * @category Function
-   * @param {Function} func The function to throttle.
-   * @param {number} [wait=0]
-   *  The number of milliseconds to throttle invocations to; if omitted,
-   *  `requestAnimationFrame` is used (if available).
-   * @param {Object} [options={}] The options object.
-   * @param {boolean} [options.leading=true]
-   *  Specify invoking on the leading edge of the timeout.
-   * @param {boolean} [options.trailing=true]
-   *  Specify invoking on the trailing edge of the timeout.
-   * @returns {Function} Returns the new throttled function.
-   * @example
-   *
-   * // Avoid excessively updating the position while scrolling.
-   * jQuery(window).on('scroll', throttle(updatePosition, 100))
-   *
-   * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
-   * const throttled = throttle(renewToken, 300000, { 'trailing': false })
-   * jQuery(element).on('click', throttled)
-   *
-   * // Cancel the trailing throttled invocation.
-   * jQuery(window).on('popstate', throttled.cancel)
-   */
-  function throttle(func, wait = 0, options = {}) {
-      let leading = true;
-      let trailing = true;
-      if (typeof func !== "function") {
-          throw new TypeError("Expected a function");
-      }
-      if (isObject(options)) {
-          leading = "leading" in options ? !!options.leading : leading;
-          trailing = "trailing" in options ? !!options.trailing : trailing;
-      }
-      return debounce(func, wait, {
-          leading,
-          trailing,
-          maxWait: wait,
-      });
-  }
 
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1385,7 +1395,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   class KeynavExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1575,7 +1585,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1615,7 +1625,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -1883,7 +1893,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2017,7 +2027,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2054,12 +2064,22 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
-   * Deferred is a ES6 Promise, that exposes the resolve() and reject()` method.
+   * Implement a ES6 Promise, that exposes a resolve() and reject() method.
    *
-   * Loosely mimics [`jQuery.Deferred`](https://api.jquery.com/category/deferred-object/).
+   * Loosely mimics {@link https://api.jquery.com/category/deferred-object/ | jQuery.Deferred}.
+   * Example:
+   * ```js
+   * function foo() {
+   *   let dfd = new Deferred(),
+   *   ...
+   *   dfd.resolve('foo')
+   *   ...
+   *   return dfd.promise();
+   * }
+   * ```
    */
   class Deferred {
       constructor() {
@@ -2097,7 +2117,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Top-level properties that can be passed with `data`. */
   const NODE_PROPS = new Set([
@@ -2231,8 +2251,8 @@
        * node._callEvent("edit.beforeEdit", {foo: 42})
        * ```
        */
-      _callEvent(name, extra) {
-          return this.tree._callEvent(name, extend({
+      _callEvent(type, extra) {
+          return this.tree._callEvent(type, extend({
               node: this,
               typeInfo: this.type ? this.tree.types[this.type] : {},
           }, extra));
@@ -3069,13 +3089,15 @@
           // this.log("_createIcon: ", iconSpan);
           return iconSpan;
       }
-      /** Create HTML markup for this node, i.e. the whole row. */
-      render(opts) {
+      /**
+       * Create a whole new `<div class="wb-row">` element.
+       * @see {@link Wunderbaumode.render}
+       */
+      _render_markup(opts) {
           const tree = this.tree;
           const treeOptions = tree.options;
           const checkbox = this.getOption("checkbox") !== false;
           const columns = tree.columns;
-          const typeInfo = this.type ? tree.types[this.type] : null;
           const level = this.getLevel();
           let elem;
           let nodeElem;
@@ -3085,11 +3107,171 @@
           let iconSpan;
           let expanderSpan = null;
           const activeColIdx = tree.navMode === NavigationMode.row ? null : tree.activeColIdx;
-          // let colElems: HTMLElement[];
           const isNew = !rowDiv;
+          assert(isNew);
           assert(!isNew || (opts && opts.after), "opts.after expected, unless updating");
           assert(!this.isRootNode());
-          //
+          rowDiv = document.createElement("div");
+          rowDiv.classList.add("wb-row");
+          rowDiv.style.top = this._rowIdx * ROW_HEIGHT + "px";
+          this._rowElem = rowDiv;
+          // Attach a node reference to the DOM Element:
+          rowDiv._wb_node = this;
+          nodeElem = document.createElement("span");
+          nodeElem.classList.add("wb-node", "wb-col");
+          rowDiv.appendChild(nodeElem);
+          let ofsTitlePx = 0;
+          if (checkbox) {
+              checkboxSpan = document.createElement("i");
+              checkboxSpan.classList.add("wb-checkbox");
+              nodeElem.appendChild(checkboxSpan);
+              ofsTitlePx += ICON_WIDTH;
+          }
+          for (let i = level - 1; i > 0; i--) {
+              elem = document.createElement("i");
+              elem.classList.add("wb-indent");
+              nodeElem.appendChild(elem);
+              ofsTitlePx += ICON_WIDTH;
+          }
+          if (!treeOptions.minExpandLevel || level > treeOptions.minExpandLevel) {
+              expanderSpan = document.createElement("i");
+              expanderSpan.classList.add("wb-expander");
+              nodeElem.appendChild(expanderSpan);
+              ofsTitlePx += ICON_WIDTH;
+          }
+          iconSpan = this._createIcon(nodeElem);
+          if (iconSpan) {
+              ofsTitlePx += ICON_WIDTH;
+          }
+          titleSpan = document.createElement("span");
+          titleSpan.classList.add("wb-title");
+          nodeElem.appendChild(titleSpan);
+          this._callEvent("enhanceTitle", { titleSpan: titleSpan });
+          // Store the width of leading icons with the node, so we can calculate
+          // the width of the embedded title span later
+          nodeElem._ofsTitlePx = ofsTitlePx;
+          // Support HTML5 drag-n-drop
+          if (tree.options.dnd.dragStart) {
+              nodeElem.draggable = true;
+          }
+          // Render columns
+          if (!this.colspan && columns.length > 1) {
+              let colIdx = 0;
+              for (let col of columns) {
+                  colIdx++;
+                  let colElem;
+                  if (col.id === "*") {
+                      colElem = nodeElem;
+                  }
+                  else {
+                      colElem = document.createElement("span");
+                      colElem.classList.add("wb-col");
+                      rowDiv.appendChild(colElem);
+                  }
+                  if (colIdx === activeColIdx) {
+                      colElem.classList.add("wb-active");
+                  }
+                  // Add classes from `columns` definition to `<div.wb-col>` cells
+                  col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
+                  colElem.style.left = col._ofsPx + "px";
+                  colElem.style.width = col._widthPx + "px";
+                  if (isNew && col.html) {
+                      if (typeof col.html === "string") {
+                          colElem.innerHTML = col.html;
+                      }
+                  }
+              }
+          }
+          // Now go on and fill in data and update classes
+          opts.isNew = true;
+          this._render_data(opts);
+          // Attach to DOM as late as possible
+          const after = opts ? opts.after : "last";
+          switch (after) {
+              case "first":
+                  tree.nodeListElement.prepend(rowDiv);
+                  break;
+              case "last":
+                  tree.nodeListElement.appendChild(rowDiv);
+                  break;
+              default:
+                  opts.after.after(rowDiv);
+          }
+      }
+      /**
+       * Render `node.title`, `.icon` into an existing row.
+       *
+       * @see {@link Wunderbaumode.render}
+       */
+      _render_data(opts) {
+          assert(this._rowElem);
+          const tree = this.tree;
+          const treeOptions = tree.options;
+          const rowDiv = this._rowElem;
+          const isNew = !!opts.isNew; // Called by _render_markup()?
+          const columns = tree.columns;
+          const typeInfo = this.type ? tree.types[this.type] : null;
+          // Row markup already exists
+          const nodeElem = rowDiv.querySelector("span.wb-node");
+          const titleSpan = nodeElem.querySelector("span.wb-title");
+          if (this.titleWithHighlight) {
+              titleSpan.innerHTML = this.titleWithHighlight;
+          }
+          else {
+              titleSpan.textContent = this.title;
+          }
+          // Set the width of the title span, so overflow ellipsis work
+          if (!treeOptions.skeleton) {
+              if (this.colspan) {
+                  let vpWidth = tree.element.clientWidth;
+                  titleSpan.style.width =
+                      vpWidth - nodeElem._ofsTitlePx - ROW_EXTRA_PAD + "px";
+              }
+              else {
+                  titleSpan.style.width =
+                      columns[0]._widthPx -
+                          nodeElem._ofsTitlePx -
+                          ROW_EXTRA_PAD +
+                          "px";
+              }
+          }
+          // Update row classes
+          opts.isDataChange = true;
+          this._render_status(opts);
+          // Let user modify the result
+          if (this.statusNodeType) {
+              this._callEvent("renderStatusNode", {
+                  isNew: isNew,
+                  nodeElem: nodeElem,
+              });
+          }
+          else if (this.parent) {
+              // Skip root node
+              this._callEvent("render", {
+                  isNew: isNew,
+                  isDataChange: true,
+                  nodeElem: nodeElem,
+                  typeInfo: typeInfo,
+                  colInfosById: this._getRenderInfo(),
+              });
+          }
+      }
+      /**
+       * Update row classes to reflect active, focuses, etc.
+       * @see {@link Wunderbaumode.render}
+       */
+      _render_status(opts) {
+          // this.log("_render_status", opts);
+          const tree = this.tree;
+          const treeOptions = tree.options;
+          const typeInfo = this.type ? tree.types[this.type] : null;
+          const rowDiv = this._rowElem;
+          // Row markup already exists
+          const nodeElem = rowDiv.querySelector("span.wb-node");
+          const expanderSpan = nodeElem.querySelector("i.wb-expander");
+          const checkboxSpan = nodeElem.querySelector("i.wb-checkbox");
+          // TODO: update icon (if not opts.isNew)
+          // const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
           let rowClasses = ["wb-row"];
           this.expanded ? rowClasses.push("wb-expanded") : 0;
           this.lazy ? rowClasses.push("wb-lazy") : 0;
@@ -3104,102 +3286,14 @@
           this.match ? rowClasses.push("wb-match") : 0;
           this.subMatchCount ? rowClasses.push("wb-submatch") : 0;
           treeOptions.skeleton ? rowClasses.push("wb-skeleton") : 0;
-          // TODO: no need to hide!
-          // !(this.match || this.subMatchCount) ? rowClasses.push("wb-hide") : 0;
-          if (rowDiv) {
-              // Row markup already exists
-              nodeElem = rowDiv.querySelector("span.wb-node");
-              titleSpan = nodeElem.querySelector("span.wb-title");
-              expanderSpan = nodeElem.querySelector("i.wb-expander");
-              checkboxSpan = nodeElem.querySelector("i.wb-checkbox");
-              iconSpan = nodeElem.querySelector("i.wb-icon");
-              // TODO: we need this, when icons should be replacable
-              // iconSpan = this._createIcon(nodeElem, iconSpan);
-              // colElems = (<unknown>(
-              //   rowDiv.querySelectorAll("span.wb-col")
-              // )) as HTMLElement[];
-          }
-          else {
-              rowDiv = document.createElement("div");
-              // rowDiv.classList.add("wb-row");
-              // Attach a node reference to the DOM Element:
-              rowDiv._wb_node = this;
-              nodeElem = document.createElement("span");
-              nodeElem.classList.add("wb-node", "wb-col");
-              rowDiv.appendChild(nodeElem);
-              let ofsTitlePx = 0;
-              if (checkbox) {
-                  checkboxSpan = document.createElement("i");
-                  nodeElem.appendChild(checkboxSpan);
-                  ofsTitlePx += ICON_WIDTH;
-              }
-              for (let i = level - 1; i > 0; i--) {
-                  elem = document.createElement("i");
-                  elem.classList.add("wb-indent");
-                  nodeElem.appendChild(elem);
-                  ofsTitlePx += ICON_WIDTH;
-              }
-              if (!treeOptions.minExpandLevel || level > treeOptions.minExpandLevel) {
-                  expanderSpan = document.createElement("i");
-                  nodeElem.appendChild(expanderSpan);
-                  ofsTitlePx += ICON_WIDTH;
-              }
-              iconSpan = this._createIcon(nodeElem);
-              if (iconSpan) {
-                  ofsTitlePx += ICON_WIDTH;
-              }
-              titleSpan = document.createElement("span");
-              titleSpan.classList.add("wb-title");
-              nodeElem.appendChild(titleSpan);
-              this._callEvent("enhanceTitle", { titleSpan: titleSpan });
-              // Store the width of leading icons with the node, so we can calculate
-              // the width of the embedded title span later
-              nodeElem._ofsTitlePx = ofsTitlePx;
-              if (tree.options.dnd.dragStart) {
-                  nodeElem.draggable = true;
-              }
-              // Render columns
-              // colElems = [];
-              if (!this.colspan && columns.length > 1) {
-                  let colIdx = 0;
-                  for (let col of columns) {
-                      colIdx++;
-                      let colElem;
-                      if (col.id === "*") {
-                          colElem = nodeElem;
-                      }
-                      else {
-                          colElem = document.createElement("span");
-                          colElem.classList.add("wb-col");
-                          // colElem.textContent = "" + col.id;
-                          rowDiv.appendChild(colElem);
-                      }
-                      if (colIdx === activeColIdx) {
-                          colElem.classList.add("wb-active");
-                      }
-                      // Add classes from `columns` definition to `<div.wb-col>` cells
-                      col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
-                      colElem.style.left = col._ofsPx + "px";
-                      colElem.style.width = col._widthPx + "px";
-                      // colElems.push(colElem);
-                      if (isNew && col.html) {
-                          if (typeof col.html === "string") {
-                              colElem.innerHTML = col.html;
-                          }
-                      }
-                  }
-              }
-          }
-          // --- From here common code starts (either new or existing markup):
-          rowDiv.className = rowClasses.join(" "); // Reset prev. classes
+          // Replace previous classes:
+          rowDiv.className = rowClasses.join(" ");
           // Add classes from `node.extraClasses`
           rowDiv.classList.add(...this.extraClasses);
           // Add classes from `tree.types[node.type]`
           if (typeInfo && typeInfo.classes) {
               rowDiv.classList.add(...typeInfo.classes);
           }
-          // rowDiv.style.top = (this._rowIdx! * 1.1) + "em";
-          rowDiv.style.top = this._rowIdx * ROW_HEIGHT + "px";
           if (expanderSpan) {
               if (this.isExpandable(false)) {
                   if (this.expanded) {
@@ -3227,59 +3321,41 @@
                   checkboxSpan.className = "wb-checkbox " + iconMap.checkUnchecked;
               }
           }
-          if (this.titleWithHighlight) {
-              titleSpan.innerHTML = this.titleWithHighlight;
-          }
-          else {
-              // } else if (tree.options.escapeTitles) {
-              titleSpan.textContent = this.title;
-              // } else {
-              //   titleSpan.innerHTML = this.title;
-          }
-          // Set the width of the title span, so overflow ellipsis work
-          if (!treeOptions.skeleton) {
-              if (this.colspan) {
-                  let vpWidth = tree.element.clientWidth;
-                  titleSpan.style.width =
-                      vpWidth - nodeElem._ofsTitlePx - ROW_EXTRA_PAD + "px";
-              }
-              else {
-                  titleSpan.style.width =
-                      columns[0]._widthPx -
-                          nodeElem._ofsTitlePx -
-                          ROW_EXTRA_PAD +
-                          "px";
+          // Fix active cell in cell-nav mode
+          if (!opts.isNew) {
+              let i = 0;
+              for (let colSpan of rowDiv.children) {
+                  colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
               }
           }
-          this._rowElem = rowDiv;
-          if (this.statusNodeType) {
-              this._callEvent("renderStatusNode", {
-                  isNew: isNew,
-                  nodeElem: nodeElem,
-              });
+      }
+      /**
+       * Create or update node's markup.
+       *
+       * `options.change` defaults to ChangeType.data, which updates the title,
+       * icon, and status. It also triggers the `render` event, that lets the user
+       * create or update the content of embeded cell elements.<br>
+       *
+       * If only the status or other class-only modifications have changed,
+       * `options.change` should be set to ChangeType.status instead for best
+       * efficiency.
+       */
+      render(options) {
+          // this.log("render", options);
+          const opts = Object.assign({ change: ChangeType.data }, options);
+          if (!this._rowElem) {
+              opts.change = "row";
           }
-          else if (this.parent) {
-              // Skip root node
-              this._callEvent("render", {
-                  isNew: isNew,
-                  nodeElem: nodeElem,
-                  typeInfo: typeInfo,
-                  colInfosById: this._getRenderInfo(),
-              });
-          }
-          // Attach to DOM as late as possible
-          if (isNew) {
-              const after = opts ? opts.after : "last";
-              switch (after) {
-                  case "first":
-                      tree.nodeListElement.prepend(rowDiv);
-                      break;
-                  case "last":
-                      tree.nodeListElement.appendChild(rowDiv);
-                      break;
-                  default:
-                      opts.after.after(rowDiv);
-              }
+          switch (opts.change) {
+              case "status":
+                  this._render_status(opts);
+                  break;
+              case "data":
+                  this._render_data(opts);
+                  break;
+              default:
+                  this._render_markup(opts);
+                  break;
           }
       }
       /**
@@ -3437,8 +3513,8 @@
           }
           if (prev !== this) {
               tree.activeNode = this;
-              prev === null || prev === void 0 ? void 0 : prev.setModified();
-              this.setModified();
+              prev === null || prev === void 0 ? void 0 : prev.setModified(ChangeType.status);
+              this.setModified(ChangeType.status);
           }
           if (options &&
               options.colIdx != null &&
@@ -3488,10 +3564,16 @@
       setKey(key, refKey) {
           throw new Error("Not yet implemented");
       }
-      /** Schedule a render, typically called to update after a status or data change. */
-      setModified(change = ChangeType.status) {
-          assert(change === ChangeType.status);
-          this.tree.setModified(ChangeType.row, this);
+      /**
+       * Schedule a render, typically called to update after a status or data change.
+       *
+       * `change` defaults to 'data', which handles modifcations of title, icon,
+       * and column content. It can be reduced to 'ChangeType.status' if only
+       * active/focus/selected state has changed.
+       */
+      setModified(change = ChangeType.data) {
+          assert(change === ChangeType.status || change === ChangeType.data);
+          this.tree.setModified(change, this);
       }
       /** Modify the check/uncheck state. */
       setSelected(flag = true, options) {
@@ -3687,7 +3769,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.3, Mon, 18 Apr 2022 11:52:44 GMT (https://github.com/mar10/wunderbaum)
+   * v0.0.4, Tue, 03 May 2022 06:21:31 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -3978,8 +4060,8 @@
    * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
    * Released under the MIT license.
    *
-   * @version v0.0.3
-   * @date Mon, 18 Apr 2022 11:52:44 GMT
+   * @version v0.0.4
+   * @date Tue, 03 May 2022 06:21:31 GMT
    */
   // const class_prefix = "wb-";
   // const node_props: string[] = ["title", "key", "refKey"];
@@ -4123,9 +4205,7 @@
               opts.navigationMode === NavigationModeOption.startCell) {
               this.navMode = NavigationMode.cellNav;
           }
-          this._updateViewportThrottled = throttle(() => {
-              this._updateViewport();
-          }, opts.updateThrottleWait, { leading: true, trailing: true });
+          this._updateViewportThrottled = addaptiveThrottle(this._updateViewport.bind(this), {});
           // --- Create Markup
           this.element = elemFromSelector(opts.element);
           assert(!!this.element, `Invalid 'element' option: ${opts.element}`);
@@ -4209,12 +4289,13 @@
           });
           this.resizeObserver = new ResizeObserver((entries) => {
               this.setModified(ChangeType.vscroll);
-              console.log("ResizeObserver: Size changed", entries);
+              // this.log("ResizeObserver: Size changed", entries);
           });
           this.resizeObserver.observe(this.element);
           onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
               const info = Wunderbaum.getEventInfo(e);
               const node = info.node;
+              // this.log("click", info, e);
               if (this._callEvent("click", { event: e, node: node, info: info }) === false) {
                   this.lastClickTime = Date.now();
                   return false;
@@ -4242,8 +4323,6 @@
                       node.setSelected(!node.isSelected());
                   }
               }
-              // if(e.target.classList.)
-              // this.log("click", info);
               this.lastClickTime = Date.now();
           });
           onEvent(this.element, "keydown", (e) => {
@@ -4427,14 +4506,14 @@
        * tree._callEvent("edit.beforeEdit", {foo: 42})
        * ```
        */
-      _callEvent(name, extra) {
-          const [p, n] = name.split(".");
+      _callEvent(type, extra) {
+          const [p, n] = type.split(".");
           const opts = this.options;
           const func = n ? opts[p][n] : opts[p];
           if (func) {
-              return func.call(this, extend({ name: name, tree: this, util: this._util }, extra));
+              return func.call(this, extend({ type: type, tree: this, util: this._util }, extra));
               // } else {
-              //   this.logError(`Triggering undefined event '${name}'.`)
+              //   this.logError(`Triggering undefined event '${type}'.`)
           }
       }
       /** Return the node for  given row index. */
@@ -4450,7 +4529,7 @@
           return node;
       }
       /** Return the topmost visible node in the viewport. */
-      _firstNodeInView(complete = true) {
+      getTopmostVpNode(complete = true) {
           let topIdx;
           const gracePy = 1; // ignore subpixel scrolling
           if (complete) {
@@ -4462,7 +4541,7 @@
           return this._getNodeByRowIdx(topIdx);
       }
       /** Return the lowest visible node in the viewport. */
-      _lastNodeInView(complete = true) {
+      getLowestVpNode(complete = true) {
           let bottomIdx;
           if (complete) {
               bottomIdx =
@@ -4877,7 +4956,7 @@
                   res = this._getNextNodeInView(node);
                   break;
               case "pageDown":
-                  const bottomNode = this._lastNodeInView();
+                  const bottomNode = this.getLowestVpNode();
                   // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
                   if (node._rowIdx < bottomNode._rowIdx) {
                       res = bottomNode;
@@ -4891,7 +4970,7 @@
                       res = node;
                   }
                   else {
-                      const topNode = this._firstNodeInView();
+                      const topNode = this.getTopmostVpNode();
                       // this.logDebug(`${where}(${node}) -> ${topNode}`);
                       if (node._rowIdx > topNode._rowIdx) {
                           res = topNode;
@@ -5100,22 +5179,21 @@
        * Available in cell-nav and cell-edit mode, not in row-mode.
        */
       setColumn(colIdx) {
+          var _a;
           assert(this.navMode !== NavigationMode.row);
           assert(0 <= colIdx && colIdx < this.columns.length);
           this.activeColIdx = colIdx;
-          // node.setActive(true, { column: tree.activeColIdx + 1 });
-          this.setModified(ChangeType.row, this.activeNode);
           // Update `wb-active` class for all headers
           if (this.headerElement) {
               for (let rowDiv of this.headerElement.children) {
-                  // for (let rowDiv of document.querySelector("div.wb-header").children) {
                   let i = 0;
                   for (let colDiv of rowDiv.children) {
                       colDiv.classList.toggle("wb-active", i++ === colIdx);
                   }
               }
           }
-          // Update `wb-active` class for all cell divs
+          (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.setModified(ChangeType.status);
+          // Update `wb-active` class for all cell spans
           for (let rowDiv of this.nodeListElement.children) {
               let i = 0;
               for (let colDiv of rowDiv.children) {
@@ -5156,11 +5234,12 @@
                   this.updateViewport(immediate);
                   break;
               case ChangeType.row:
+              case ChangeType.data:
               case ChangeType.status:
                   // Single nodes are immedialtely updated if already inside the viewport
                   // (otherwise we can ignore)
                   if (node._rowElem) {
-                      node.render();
+                      node.render({ change: change });
                   }
                   break;
               default:
@@ -5169,6 +5248,7 @@
       }
       /** Set the tree's navigation mode. */
       setNavigationMode(mode) {
+          var _a;
           // util.assert(this.cellNavMode);
           // util.assert(0 <= colIdx && colIdx < this.columns.length);
           if (mode === this.navMode) {
@@ -5182,7 +5262,8 @@
           }
           this.element.classList.toggle("wb-cell-mode", cellMode);
           this.element.classList.toggle("wb-cell-edit-mode", mode === NavigationMode.cellEdit);
-          this.setModified(ChangeType.row, this.activeNode);
+          // this.setModified(ChangeType.row, this.activeNode);
+          (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.setModified(ChangeType.status);
       }
       /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
       setStatus(status, message, details) {
@@ -5274,9 +5355,11 @@
       updateViewport(immediate = false) {
           // Call the `throttle` wrapper for `this._updateViewport()` which will
           // execute immediately on the leading edge of a sequence:
-          this._updateViewportThrottled();
           if (immediate) {
-              this._updateViewportThrottled.flush();
+              this._updateViewport();
+          }
+          else {
+              this._updateViewportThrottled();
           }
       }
       /**
@@ -5304,8 +5387,10 @@
               this.scrollContainer.style.height = wantHeight + "px";
               height = wantHeight;
           }
+          // console.profile(`_updateViewport()`)
           this.updateColumns({ updateRows: false });
           this._updateRows({ newNodesOnly: newNodesOnly });
+          // console.profileEnd(`_updateViewport()`)
           this._callEvent("update");
       }
       /**
@@ -5326,8 +5411,8 @@
               //     `TR#${i}, rowIdx=${n._rowIdx} , top=${top}px: '${n.title}'`
               //   );
               // }
-              if (top <= prev) {
-                  console.warn(`TR order mismatch at index ${i}: top=${top}px, node=${n}`);
+              if (prev >= 0 && top !== prev + ROW_HEIGHT) {
+                  n.logWarn(`TR order mismatch at index ${i}: top=${top}px != ${prev + ROW_HEIGHT}`);
                   // throw new Error("fault");
                   ok = false;
               }
@@ -5346,6 +5431,7 @@
        */
       _updateRows(opts) {
           const label = this.logTime("_updateRows");
+          // this.log("_updateRows", opts)
           opts = Object.assign({ newNodesOnly: false }, opts);
           const newNodesOnly = !!opts.newNodesOnly;
           const row_height = ROW_HEIGHT;
@@ -5375,7 +5461,7 @@
           let modified = false;
           let prevElem = "first";
           this.visitRows(function (node) {
-              // console.log("visit", node)
+              // node.log("visit")
               const rowDiv = node._rowElem;
               // Renumber all expanded nodes
               if (node._rowIdx !== idx) {
@@ -5397,8 +5483,11 @@
               else {
                   obsoleteNodes.delete(node);
                   // Create new markup
+                  if (rowDiv) {
+                      rowDiv.style.top = idx * ROW_HEIGHT + "px";
+                  }
                   node.render({ top: top, after: prevElem });
-                  // console.log("render", top, prevElem, "=>", node._rowElem);
+                  // node.log("render", top, prevElem, "=>", node._rowElem);
                   prevElem = node._rowElem;
               }
               idx++;
@@ -5584,7 +5673,7 @@
        *   tree.enableUpdate(false);
        *   // ... (long running operation that would trigger many updates)
        *   foo();
-       *   // ... NOTE: make sure that async operations have finished
+       *   // ... NOTE: make sure that async operations have finished, e.g.
        *   await foo();
        * } finally {
        *   tree.enableUpdate(true);
@@ -5647,7 +5736,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.0.3"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.0.4"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 

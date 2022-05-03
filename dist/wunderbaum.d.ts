@@ -165,7 +165,7 @@ declare module "util" {
       */
     export function overrideMethod(instance: any, methodName: string, handler: FunctionType, ctx?: any): void;
     /** Run function after ms milliseconds and return a promise that resolves when done. */
-    export function setTimeoutPromise(callback: (...args: any[]) => void, ms: number): Promise<unknown>;
+    export function setTimeoutPromise(this: unknown, callback: (...args: any[]) => void, ms: number): Promise<unknown>;
     /**
      * Wait `ms` microseconds.
      *
@@ -200,6 +200,19 @@ declare module "util" {
     export function toSet(val: any): Set<string>;
     /**Return a canonical string representation for an object's type (e.g. 'array', 'number', ...) */
     export function type(obj: any): string;
+    /**
+     * Return a function that can be called instead of `callback`, but guarantees
+     * a limited execution rate.
+     * The execution rate is calculated based on the runtime duration of the
+     * previous call.
+     * Example:
+     * ```js
+     * throttledFoo = util.addaptiveThrottle(foo.bind(this), {});
+     * throttledFoo();
+     * throttledFoo();
+     * ```
+     */
+    export function addaptiveThrottle(this: unknown, callback: (...args: any[]) => void, options: any): (...args: any[]) => void;
 }
 declare module "deferred" {
     /*!
@@ -210,9 +223,19 @@ declare module "deferred" {
     type PromiseCallbackType = (val: any) => void;
     type finallyCallbackType = () => void;
     /**
-     * Deferred is a ES6 Promise, that exposes the resolve() and reject()` method.
+     * Implement a ES6 Promise, that exposes a resolve() and reject() method.
      *
-     * Loosely mimics [`jQuery.Deferred`](https://api.jquery.com/category/deferred-object/).
+     * Loosely mimics {@link https://api.jquery.com/category/deferred-object/ | jQuery.Deferred}.
+     * Example:
+     * ```js
+     * function foo() {
+     *   let dfd = new Deferred(),
+     *   ...
+     *   dfd.resolve('foo')
+     *   ...
+     *   return dfd.promise();
+     * }
+     * ```
      */
     export class Deferred {
         private _promise;
@@ -423,6 +446,21 @@ declare module "wb_options" {
      *   ...
      * });
      * ```
+     *
+     * Event handlers are also passed as callbacks
+     *
+     * ```js
+     * const tree = new mar10.Wunderbaum({
+     *   ...
+     *   init: (e) => {
+     *     console.log(`Tree ${e.tree} was initialized and loaded.`)
+     *   },
+     *   activate: (e) => {
+     *     console.log(`Node ${e.node} was activated.`)
+     *   },
+     *   ...
+     * });
+     * ```
      */
     export interface WunderbaumOptions {
         /**
@@ -524,21 +562,21 @@ declare module "wb_options" {
         filter: any;
         grid: any;
         /**
-         * Called after initial data was loaded and tree markup was rendered.
-         * Check `e.error` for status.
-         * @category Callback
-         */
-        init?: (e: WbTreeEventType) => void;
-        /**
-         *
-         * @category Callback
-         */
-        update?: (e: WbTreeEventType) => void;
-        /**
          *
          * @category Callback
          */
         activate?: (e: WbNodeEventType) => void;
+        /**
+         *
+         * @category Callback
+         */
+        change?: (e: WbNodeEventType) => void;
+        /**
+         *
+         * Return `false` to prevent default handling, e.g. activating the node.
+         * @category Callback
+         */
+        click?: (e: WbTreeEventType) => void;
         /**
          *
          * @category Callback
@@ -548,22 +586,7 @@ declare module "wb_options" {
          *
          * @category Callback
          */
-        change?: (e: WbNodeEventType) => void;
-        /**
-         *
-         * @category Callback
-         */
-        click?: (e: WbTreeEventType) => void;
-        /**
-         *
-         * @category Callback
-         */
         discard?: (e: WbNodeEventType) => void;
-        /**
-         *
-         * @category Callback
-         */
-        error?: (e: WbTreeEventType) => void;
         /**
          *
          * @category Callback
@@ -571,17 +594,39 @@ declare module "wb_options" {
         enhanceTitle?: (e: WbNodeEventType) => void;
         /**
          *
+         * @category Callback
+         */
+        error?: (e: WbTreeEventType) => void;
+        /**
+         *
          * Check `e.flag` for status.
          * @category Callback
          */
         focus?: (e: WbTreeEventType) => void;
+        /**
+         * Fires when the tree markup was created and the initial source data was loaded.
+         * Typical use cases would be activating a node, setting focus, enabling other
+         * controls on the page, etc.<br>
+         * Check `e.error` for status.
+         * @category Callback
+         */
+        init?: (e: WbTreeEventType) => void;
         /**
          *
          * @category Callback
          */
         keydown?: (e: WbNodeEventType) => void;
         /**
-         * Called after data was loaded from local storage.
+         * Fires when a node that was marked 'lazy', is expanded for the first time.
+         * Typically we return an endpoint URL or the Promise of a fetch request that
+         * provides a (potentially nested) list of child nodes.
+         * @category Callback
+         */
+        lazyLoad?: (e: WbNodeEventType) => void;
+        /**
+         * Fires when data was loaded (initial request, reload, or lazy loading),
+         * after the data is applied and rendered.
+         * @category Callback
          */
         load?: (e: WbNodeEventType) => void;
         /**
@@ -589,12 +634,19 @@ declare module "wb_options" {
          */
         modifyChild?: (e: WbNodeEventType) => void;
         /**
-         *
+         * Fires when data was fetched (initial request, reload, or lazy loading),
+         * but before the data is applied and rendered.
+         * Here we can modify and adjust the received data, for example to convert an
+         * external response to native Wunderbaum syntax.
          * @category Callback
          */
         receive?: (e: WbNodeEventType) => void;
         /**
-         *
+         * Fires when a node is about to be displayed.
+         * The default HTML markup is already created, but not yet added to the DOM.
+         * Now we can tweak the markup, create HTML elements in this node's column
+         * cells, etc.
+         * See also `Custom Rendering` for details.
          * @category Callback
          */
         render?: (e: WbNodeEventType) => void;
@@ -609,6 +661,11 @@ declare module "wb_options" {
          * @category Callback
          */
         select?: (e: WbNodeEventType) => void;
+        /**
+         * Fires when the viewport content was updated, after scroling, expanding etc.
+         * @category Callback
+         */
+        update?: (e: WbTreeEventType) => void;
     }
 }
 declare module "wb_node" {
@@ -689,7 +746,7 @@ declare module "wb_node" {
          * node._callEvent("edit.beforeEdit", {foo: 42})
          * ```
          */
-        _callEvent(name: string, extra?: any): any;
+        _callEvent(type: string, extra?: any): any;
         /**
          * Append (or insert) a list of child nodes.
          *
@@ -874,8 +931,34 @@ declare module "wb_node" {
             [key: string]: any;
         };
         protected _createIcon(parentElem: HTMLElement, replaceChild?: HTMLElement): HTMLElement | null;
-        /** Create HTML markup for this node, i.e. the whole row. */
-        render(opts?: any): void;
+        /**
+         * Create a whole new `<div class="wb-row">` element.
+         * @see {@link Wunderbaumode.render}
+         */
+        protected _render_markup(opts: any): void;
+        /**
+         * Render `node.title`, `.icon` into an existing row.
+         *
+         * @see {@link Wunderbaumode.render}
+         */
+        protected _render_data(opts: any): void;
+        /**
+         * Update row classes to reflect active, focuses, etc.
+         * @see {@link Wunderbaumode.render}
+         */
+        protected _render_status(opts: any): void;
+        /**
+         * Create or update node's markup.
+         *
+         * `options.change` defaults to ChangeType.data, which updates the title,
+         * icon, and status. It also triggers the `render` event, that lets the user
+         * create or update the content of embeded cell elements.<br>
+         *
+         * If only the status or other class-only modifications have changed,
+         * `options.change` should be set to ChangeType.status instead for best
+         * efficiency.
+         */
+        render(options?: any): void;
         /**
          * Remove all children, collapse, and set the lazy-flag, so that the lazyLoad
          * event is triggered on next expand.
@@ -930,7 +1013,13 @@ declare module "wb_node" {
         setIcon(): void;
         /** Change node's {@link key} and/or {@link refKey}.  */
         setKey(key: string | null, refKey: string | null): void;
-        /** Schedule a render, typically called to update after a status or data change. */
+        /**
+         * Schedule a render, typically called to update after a status or data change.
+         *
+         * `change` defaults to 'data', which handles modifcations of title, icon,
+         * and column content. It can be reduced to 'ChangeType.status' if only
+         * active/focus/selected state has changed.
+         */
         setModified(change?: ChangeType): void;
         /** Modify the check/uncheck state. */
         setSelected(flag?: boolean, options?: SetSelectedOptions): void;
@@ -999,7 +1088,7 @@ declare module "common" {
     export type NodeVisitResponse = "skip" | boolean | void;
     export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
     export type WbTreeEventType = {
-        name: string;
+        type: string;
         event: Event;
         tree: Wunderbaum;
         [key: string]: unknown;
@@ -1016,12 +1105,20 @@ declare module "common" {
     export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
     export type DndModeType = "before" | "after" | "over";
     export enum ChangeType {
+        /** Re-render the whole viewport, headers, and all rows. */
         any = "any",
+        /** Update current row title, icon, columns, and status. */
+        data = "data",
+        /** Redraw the header and update the width of all row columns. */
+        header = "header",
+        /** Re-render the whole current row. */
         row = "row",
+        /** Alias for 'any'. */
         structure = "structure",
+        /** Update current row's classes, to reflect active, selected, ... */
         status = "status",
-        vscroll = "vscroll",
-        header = "header"
+        /** Update the 'top' property of all rows. */
+        vscroll = "vscroll"
     }
     export enum NodeStatusType {
         ok = "ok",
@@ -1427,7 +1524,6 @@ declare module "wunderbaum" {
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
     import { NavigationMode, ChangeType, FilterModeType, MatcherType, NodeStatusType, TargetType as NodeRegion, ApplyCommandType } from "common";
     import { WunderbaumNode } from "wb_node";
-    import { DebouncedFunction } from "debounce";
     import { WunderbaumOptions } from "wb_options";
     /**
      * A persistent plain object or array.
@@ -1450,7 +1546,7 @@ declare module "wunderbaum" {
         readonly scrollContainer: HTMLDivElement;
         /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
         readonly nodeListElement: HTMLDivElement;
-        protected readonly _updateViewportThrottled: DebouncedFunction<(...args: any) => void>;
+        protected readonly _updateViewportThrottled: (...args: any) => void;
         protected extensionList: WunderbaumExtension[];
         protected extensions: ExtensionsDict;
         /** Merged options from constructor args and tree- and extension defaults. */
@@ -1534,13 +1630,13 @@ declare module "wunderbaum" {
          * tree._callEvent("edit.beforeEdit", {foo: 42})
          * ```
          */
-        _callEvent(name: string, extra?: any): any;
+        _callEvent(type: string, extra?: any): any;
         /** Return the node for  given row index. */
         protected _getNodeByRowIdx(idx: number): WunderbaumNode | null;
         /** Return the topmost visible node in the viewport. */
-        protected _firstNodeInView(complete?: boolean): WunderbaumNode;
+        getTopmostVpNode(complete?: boolean): WunderbaumNode;
         /** Return the lowest visible node in the viewport. */
-        protected _lastNodeInView(complete?: boolean): WunderbaumNode;
+        getLowestVpNode(complete?: boolean): WunderbaumNode;
         /** Return preceeding visible node in the viewport. */
         protected _getPrevNodeInView(node?: WunderbaumNode, ofs?: number): WunderbaumNode;
         /** Return following visible node in the viewport. */
@@ -1781,7 +1877,7 @@ declare module "wunderbaum" {
          *   tree.enableUpdate(false);
          *   // ... (long running operation that would trigger many updates)
          *   foo();
-         *   // ... NOTE: make sure that async operations have finished
+         *   // ... NOTE: make sure that async operations have finished, e.g.
          *   await foo();
          * } finally {
          *   tree.enableUpdate(true);
