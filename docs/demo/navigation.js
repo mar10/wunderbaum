@@ -62,14 +62,23 @@ document.addEventListener("DOMContentLoaded", (event) => {
             title: "Editable",
             type: "code",
             code: (tree) => {
-                tree.load("../assets/ajax-tree-editable.json");
+              tree.load("../assets/ajax-tree-editable.json");
             },
           },
         ],
       },
     ],
     init: (e) => {
-      e.tree.findFirst("Products").setActive(true, {noEvents: true})
+      e.tree.findFirst("Products").setActive(true, { noEvents: true })
+    },
+    keydown: (e) => {
+      const node = e.tree.getActiveNode();
+
+      // e.tree.logWarn(e.type, e, node);
+      if (e.eventName === "Enter" && node && node.type === "code") {
+        const demoTree = mar10.Wunderbaum.getTree("demo");
+        node.data.code(demoTree);
+      }
     },
     click: (e) => {
       switch (e.node.type) {

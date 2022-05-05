@@ -172,7 +172,7 @@ export class WunderbaumNode {
    * @internal
    */
   toString() {
-    return "WunderbaumNode@" + this.key + "<'" + this.title + "'>";
+    return `WunderbaumNode@${this.key}<'${this.title}'>`;
   }
 
   // /** Return an option value. */
@@ -1823,9 +1823,9 @@ export class WunderbaumNode {
    * @param {object} [extra]
    */
   triggerModify(operation: string, extra?: any) {
-    if (!this.parent) {
-      return;
-    }
+    // if (!this.parent) {
+    //   return;
+    // }
     this.parent.triggerModifyChild(operation, this, extra);
   }
 

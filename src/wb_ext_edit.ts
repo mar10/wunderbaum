@@ -205,7 +205,7 @@ export class EditExtension extends WunderbaumExtension {
     titleSpan.innerHTML = inputHtml;
     const inputElem = titleSpan.firstElementChild as HTMLInputElement;
     if (validity) {
-      // Permanently apply  input validations (CSS and tooltip)
+      // Permanently apply input validations (CSS and tooltip)
       inputElem.addEventListener("keydown", (e) => {
         inputElem.setCustomValidity("");
         if (!inputElem.reportValidity()) {

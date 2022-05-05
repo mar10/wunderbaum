@@ -43,6 +43,18 @@ import { WunderbaumOptions } from "./wb_options";
 // const node_props: string[] = ["title", "key", "refKey"];
 // const MAX_CHANGED_NODES = 10;
 
+class WbSystemRoot extends WunderbaumNode {
+  constructor(tree: Wunderbaum) {
+    super(tree, <WunderbaumNode>(<unknown>null), {
+      key: "__root__",
+      title: tree.id,
+    });
+  }
+  toString() {
+    return `WbSystemRoot@${this.key}<'${this.tree.id}'>`;
+  }
+}
+
 /**
  * A persistent plain object or array.
  *
@@ -187,10 +199,7 @@ export class Wunderbaum {
       });
 
     this.id = opts.id || "wb_" + ++Wunderbaum.sequence;
-    this.root = new WunderbaumNode(this, <WunderbaumNode>(<unknown>null), {
-      key: "__root__",
-      // title: "__root__",
-    });
+    this.root = new WbSystemRoot(this);
 
     this._registerExtension(new KeynavExtension(this));
     this._registerExtension(new EditExtension(this));
@@ -386,9 +395,11 @@ export class Wunderbaum {
     util.onEvent(this.element, "keydown", (e) => {
       const info = Wunderbaum.getEventInfo(e);
       const eventName = util.eventToString(e);
+      const node = info.node || this.getFocusNode();
+
       this._callHook("onKeyEvent", {
         event: e,
-        node: info.node,
+        node: node,
         info: info,
         eventName: eventName,
       });
@@ -1219,7 +1230,7 @@ export class Wunderbaum {
    * @internal
    */
   toString() {
-    return "Wunderbaum<'" + this.id + "'>";
+    return `Wunderbaum<'${this.id}'>`;
   }
 
   /** Return true if any node is currently in edit-title mode. */
@@ -1594,38 +1605,38 @@ export class Wunderbaum {
     this._callEvent("update");
   }
 
-  /**
-   * Assert that TR order matches the natural node order
-   * @internal
-   */
-  protected _validateRows(): boolean {
-    let trs = this.nodeListElement.childNodes;
-    let i = 0;
-    let prev = -1;
-    let ok = true;
-    trs.forEach((element) => {
-      const tr = element as HTMLTableRowElement;
-      const top = Number.parseInt(tr.style.top);
-      const n = (<any>tr)._wb_node;
-      // if (i < 4) {
-      //   console.info(
-      //     `TR#${i}, rowIdx=${n._rowIdx} , top=${top}px: '${n.title}'`
-      //   );
-      // }
-      if (prev >= 0 && top !== prev + ROW_HEIGHT) {
-        n.logWarn(
-          `TR order mismatch at index ${i}: top=${top}px != ${
-            prev + ROW_HEIGHT
-          }`
-        );
-        // throw new Error("fault");
-        ok = false;
-      }
-      prev = top;
-      i++;
-    });
-    return ok;
-  }
+  // /**
+  //  * Assert that TR order matches the natural node order
+  //  * @internal
+  //  */
+  // protected _validateRows(): boolean {
+  //   let trs = this.nodeListElement.childNodes;
+  //   let i = 0;
+  //   let prev = -1;
+  //   let ok = true;
+  //   trs.forEach((element) => {
+  //     const tr = element as HTMLTableRowElement;
+  //     const top = Number.parseInt(tr.style.top);
+  //     const n = (<any>tr)._wb_node;
+  //     // if (i < 4) {
+  //     //   console.info(
+  //     //     `TR#${i}, rowIdx=${n._rowIdx} , top=${top}px: '${n.title}'`
+  //     //   );
+  //     // }
+  //     if (prev >= 0 && top !== prev + ROW_HEIGHT) {
+  //       n.logWarn(
+  //         `TR order mismatch at index ${i}: top=${top}px != ${
+  //           prev + ROW_HEIGHT
+  //         }`
+  //       );
+  //       // throw new Error("fault");
+  //       ok = false;
+  //     }
+  //     prev = top;
+  //     i++;
+  //   });
+  //   return ok;
+  // }
 
   /*
    * - Traverse all *visible* of the whole tree, i.e. skip collapsed nodes.
@@ -1716,7 +1727,7 @@ export class Wunderbaum {
     //   this.nodeListElement.style.height
     // );
     this.logTimeEnd(label);
-    this._validateRows();
+    // this._validateRows();
     return modified;
   }
 

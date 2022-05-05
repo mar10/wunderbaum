@@ -124,7 +124,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
             col.elem.textContent = node.data.qty.toLocaleString();
             break;
           case "sale": // checkbox control
-      console.log(e.type, e);
+            console.log(e.type, e);
 
             if (e.isNew) {
               col.elem.innerHTML = "<input type='checkbox'>";
