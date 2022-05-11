@@ -63,14 +63,14 @@ export class EditExtension extends WunderbaumExtension {
 
     node.log(`_applyChange(${eventName})`, extra);
 
-    colElem.classList.add("wb-dirty");
+    colElem.classList.add("wb-busy");
     colElem.classList.remove("wb-error");
     try {
       res = node._callEvent(eventName, extra);
     } catch (err) {
       node.logError(`Error in ${eventName} event handler`, err);
       colElem.classList.add("wb-error");
-      colElem.classList.remove("wb-dirty");
+      colElem.classList.remove("wb-busy");
     }
     // Convert scalar return value to a resolved promise
     if (!(res instanceof Promise)) {
@@ -82,7 +82,7 @@ export class EditExtension extends WunderbaumExtension {
         colElem.classList.add("wb-error");
       })
       .finally(() => {
-        colElem.classList.remove("wb-dirty");
+        colElem.classList.remove("wb-busy");
       });
     return res;
   }

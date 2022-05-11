@@ -153,8 +153,8 @@ div.wunderbaum {
         font-style: italic;
       }
 
-      &.wb-dirty,
-      .wb-col.wb-dirty {
+      &.wb-busy,
+      .wb-col.wb-busy {
         font-style: italic;
         background: repeating-linear-gradient(
           45deg,
@@ -163,7 +163,7 @@ div.wunderbaum {
           $grid-color 5px,
           $grid-color 10px
         );
-        animation: wb-dirty-animation 2s linear infinite;
+        animation: wb-busy-animation 2s linear infinite;
       }
 
       &.wb-error,
@@ -584,7 +584,7 @@ div.wunderbaum {
   }
 }
 
-@keyframes wb-dirty-animation {
+@keyframes wb-busy-animation {
   0% {
     background-position: 0 0;
   }

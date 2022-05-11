@@ -90,7 +90,7 @@ const tree = new Wunderbaum({
 
 ```css
 input.wb-input-edit {}
-span.wb-col.wb-dirty {}
+span.wb-col.wb-busy {}
 span.wb-col.wb-error {}
 span.wb-col input:invalid {}
 ```
@@ -151,7 +151,7 @@ const tree = new Wunderbaum({
 ### Related CSS Rules
 
 ```css
-span.wb-col.wb-dirty {}
+span.wb-col.wb-busy {}
 span.wb-col.wb-error {}
 span.wb-col input:invalid {}
 ```
