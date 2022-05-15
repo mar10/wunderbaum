@@ -109,7 +109,8 @@ export enum TargetType {
 export let iconMap = {
   error: "bi bi-exclamation-triangle",
   // loading: "bi bi-hourglass-split",
-  loading: "bi bi-arrow-repeat wb-spin",
+  loading: "bi bi-chevron-down wb-busy",
+  // loading: "bi bi-arrow-repeat wb-spin",
   // loading: '<div class="spinner-border spinner-border-sm" role="status"> <span class="visually-hidden">Loading...</span> </div>',
   // noData: "bi bi-search",
   noData: "bi bi-question-circle",
