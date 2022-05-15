@@ -1,9 +1,13 @@
 <html>
-    <head>
-        <link rel="stylesheet" media="screen" href="../build/wunderbaum.css" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
-        <style>
-          * {box-sizing: border-box;}
+
+<head>
+    <link rel="stylesheet" media="screen" href="../build/wunderbaum.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css" />
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
         /* span.wb-node:hover::before {
 color: red;
             content: url(../docs/assets/drop_marker_insert_16x64.png);
@@ -12,12 +16,45 @@ color: red;
             top: 12px;
             z-index: 10;
         } */
-        </style>
+        div.busy {
+            /* 
+            For our stripe pattern, we want a frictionless transition at
+            the bottom, when repeating in y-direction:
+            h: height of row = 22px
+            d: spacing between stripes
+                (2 * d)^2 = 2 * h^2
+            =>  d = sqrt(2 * h^2) / 2
+                  = 15.56px
+            */
+            height: 22px;
+            width: 330px;
+            font-style: italic;
+            background: repeating-linear-gradient(45deg,
+                    white,
+                    white 3.88px,
+                    silver 3.88px,
+                    silver 7.78px);
+            animation: wb-busy-animation 1.8s linear infinite;
+        }
 
-        <script defer type="module" src="playground.js"></script>
-    </head>
-    <body>
-        <div id="tree">
-        </div>
-    </body>
+        @keyframes wb-busy-animation {
+            0% {
+                background-position: 0 0;
+            }
+
+            100% {
+                background-position: 0 22px;
+            }
+        }
+    </style>
+
+    <script defer type="module" src="playground.js"></script>
+</head>
+
+<body>
+    <div class="busy wb-busy"></div>
+    <div id="tree">
+    </div>
+</body>
+
 </html>

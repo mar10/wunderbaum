@@ -156,12 +156,27 @@ div.wunderbaum {
       &.wb-busy,
       .wb-col.wb-busy {
         font-style: italic;
+
+        // For our stripe pattern, we want a frictionless transition at
+        // the bottom, when repeating in y-direction:
+        // h: height of row = 22px
+        // d: spacing between stripe pairs (white + gray)
+        // Calculate the spacing that will lead to a minimal quadratic
+        // pattern with a height of h pixels:
+        //
+        //     (2 * d)^2 = 2 * h^2
+        // =>  d = sqrt(2 * h^2) / 2
+        //       = 15.56px
+        // We use the half distance to get a finer stripe pattern:
+        //     d/2 = 7.78
         background: repeating-linear-gradient(
           45deg,
-          $hover-color,
-          $hover-color 5px,
-          $grid-color 5px,
-          $grid-color 10px
+          // $hover-color,
+          // $hover-color 3.88px,
+          transparent,
+          transparent 3.88px,
+          $grid-color 3.88px,
+          $grid-color 7.78px
         );
         animation: wb-busy-animation 2s linear infinite;
       }
@@ -590,6 +605,6 @@ div.wunderbaum {
   }
 
   100% {
-    background-position: -70px 0;
+    background-position: 0 $row-outer-height;
   }
 }
