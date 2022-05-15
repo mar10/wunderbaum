@@ -81,6 +81,11 @@ div.wunderbaum {
     //    outline-style: none;
   }
 
+  &.wb-disabled {
+    opacity: 0.7;
+    pointer-events: none;
+  }
+
   div.wb-scroll-container {
     position: relative;
     overflow: auto;

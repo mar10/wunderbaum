@@ -62,6 +62,7 @@ class WbSystemRoot extends WunderbaumNode {
  */
 export class Wunderbaum {
   protected static sequence = 0;
+  protected enabled = true;
 
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
   public static version: string = "@VERSION"; // Set to semver by 'grunt release'
@@ -905,12 +906,13 @@ export class Wunderbaum {
   setOption(name: string, value: any): void {
     if (name.indexOf(".") === -1) {
       (this.options as any)[name] = value;
-      // switch (name) {
-      //   case value:
-      //     break;
-      //   default:
-      //     break;
-      // }
+      switch (name) {
+        case "enable":
+          this.setEnabled(!!value);
+          break;
+        default:
+          break;
+      }
       return;
     }
     const parts = name.split(".");
@@ -1454,6 +1456,18 @@ export class Wunderbaum {
     );
     // this.setModified(ChangeType.row, this.activeNode);
     this.activeNode?.setModified(ChangeType.status);
+  }
+
+  /** Disable mouse and keyboard interaction (return prev. state). */
+  setEnabled(flag: boolean = true): boolean {
+    const prev = this.enabled;
+    this.element.classList.toggle("wb-disabled", !flag);
+    return prev;
+  }
+
+  /** Return false if tree is disabled. */
+  isEnabled(): boolean {
+    return this.enabled;
   }
 
   /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
