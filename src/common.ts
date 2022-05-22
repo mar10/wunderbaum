@@ -70,6 +70,7 @@ export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
 export type DndModeType = "before" | "after" | "over";
 
+/** Possible values for `setModified()`. */
 export enum ChangeType {
   /** Re-render the whole viewport, headers, and all rows. */
   any = "any",
@@ -87,6 +88,7 @@ export enum ChangeType {
   vscroll = "vscroll",
 }
 
+/** Possible values for `setStatus()`. */
 export enum NodeStatusType {
   ok = "ok",
   loading = "loading",
@@ -95,7 +97,7 @@ export enum NodeStatusType {
   // paging = "paging",
 }
 
-/**Define the subregion of a node, where an event occurred. */
+/** Define the subregion of a node, where an event occurred. */
 export enum TargetType {
   unknown = "",
   checkbox = "checkbox",
@@ -108,8 +110,8 @@ export enum TargetType {
 
 export let iconMap = {
   error: "bi bi-exclamation-triangle",
-  // loading: "bi bi-hourglass-split",
-  loading: "bi bi-chevron-down wb-busy",
+  // loading: "bi bi-hourglass-split wb-busy",
+  loading: "bi bi-chevron-right wb-busy",
   // loading: "bi bi-arrow-repeat wb-spin",
   // loading: '<div class="spinner-border spinner-border-sm" role="status"> <span class="visually-hidden">Loading...</span> </div>',
   // noData: "bi bi-search",
@@ -133,6 +135,7 @@ export let iconMap = {
 
 export const KEY_NODATA = "__not_found__";
 
+/** Initial navigation mode and possible transition. */
 export enum NavigationModeOption {
   startRow = "startRow", // Start with row mode, but allow cell-nav mode
   cell = "cell", // Cell-nav mode only
@@ -140,43 +143,15 @@ export enum NavigationModeOption {
   row = "row", // Row mode only
 }
 
+/** Tree's current navigation mode (see `tree.setNavigationMode()`). */
 export enum NavigationMode {
   row = "row",
   cellNav = "cellNav",
   cellEdit = "cellEdit",
 }
 
-export type SetActiveOptions = {
-  /** Generate (de)activate event, even if node already has this status. */
-  retrigger?: boolean;
-  /** Don not generate (de)activate event. */
-  noEvents?: boolean;
-  /** Optional original event that will be passed to the (de)activat handler. */
-  event?: Event;
-  /** Call {@link setColumn}. */
-  colIdx?: number;
-};
-
-export type SetExpandedOptions = {
-  /** Ignore {@link minExpandLevel}. @default false */
-  force?: boolean;
-  /** Avoid smooth scrolling. @default false */
-  noAnimation?: boolean;
-  /** Do not send events. @default false */
-  noEvents?: boolean;
-  /** Scroll to bring expanded nodes into viewport. @default false */
-  scrollIntoView?: boolean;
-};
-
-export type SetSelectedOptions = {
-  /** Ignore restrictions. @default false */
-  force?: boolean;
-  /** Do not send events. @default false */
-  noEvents?: boolean;
-};
-
 /** Define which keys are handled by embedded <input> control, and should
- * *not* be passed to tree navigation handler in cell-edit mode: */
+ * *not* be passed to tree navigation handler in cell-edit mode. */
 export const INPUT_KEYS = {
   text: ["left", "right", "home", "end", "backspace"],
   number: ["up", "down", "left", "right", "home", "end", "backspace"],
@@ -194,6 +169,38 @@ export const NAVIGATE_IN_INPUT_KEYS: Set<string> = new Set([
   "Enter",
   "Escape",
 ]);
+
+/** Possible values for `node.setActive()`. */
+export type SetActiveOptions = {
+  /** Generate (de)activate event, even if node already has this status. */
+  retrigger?: boolean;
+  /** Do not generate (de)activate event. */
+  noEvents?: boolean;
+  /** Optional original event that will be passed to the (de)activate handler. */
+  event?: Event;
+  /** Call {@link setColumn}. */
+  colIdx?: number;
+};
+
+/** Possible values for `node.setExpanded()`. */
+export type SetExpandedOptions = {
+  /** Ignore {@link minExpandLevel}. @default false */
+  force?: boolean;
+  /** Avoid smooth scrolling. @default false */
+  noAnimation?: boolean;
+  /** Do not send events. @default false */
+  noEvents?: boolean;
+  /** Scroll to bring expanded nodes into viewport. @default false */
+  scrollIntoView?: boolean;
+};
+
+/** Possible values for `node.setSelected()`. */
+export type SetSelectedOptions = {
+  /** Ignore restrictions. @default false */
+  force?: boolean;
+  /** Do not send events. @default false */
+  noEvents?: boolean;
+};
 
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
@@ -221,7 +228,7 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   Subtract: "collapse",
 };
 
-/** */
+/** Return a callback that returns true if the node title contains a substring (case-insensitive). */
 export function makeNodeTitleMatcher(s: string): MatcherType {
   s = escapeRegex(s.toLowerCase());
   return function (node: WunderbaumNode) {
@@ -229,7 +236,7 @@ export function makeNodeTitleMatcher(s: string): MatcherType {
   };
 }
 
-/** */
+/** Return a callback that returns true if the node title starts with a string (case-insensitive). */
 export function makeNodeTitleStartMatcher(s: string): MatcherType {
   s = escapeRegex(s);
   const reMatch = new RegExp("^" + s, "i");

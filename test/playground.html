@@ -8,43 +8,25 @@
             box-sizing: border-box;
         }
 
-        /* span.wb-node:hover::before {
-color: red;
+        div.wunderbaum {
+            height: 80%;
+        }
+        /* 
+        span.wb-node:hover::before {
+            color: red;
             content: url(../docs/assets/drop_marker_insert_16x64.png);
             position: absolute;
             left: 20px;
             top: 12px;
             z-index: 10;
-        } */
-        div.busy {
-            /* 
-            For our stripe pattern, we want a frictionless transition at
-            the bottom, when repeating in y-direction:
-            h: height of row = 22px
-            d: spacing between stripes
-                (2 * d)^2 = 2 * h^2
-            =>  d = sqrt(2 * h^2) / 2
-                  = 15.56px
-            */
-            height: 22px;
-            width: 330px;
-            font-style: italic;
-            background: repeating-linear-gradient(45deg,
-                    white,
-                    white 3.88px,
-                    silver 3.88px,
-                    silver 7.78px);
-            animation: wb-busy-animation 1.8s linear infinite;
+        } 
+        */
+        div.wunderbaum span.wb-col > input {
+            border: 1px;
+            padding: 1px;
         }
-
-        @keyframes wb-busy-animation {
-            0% {
-                background-position: 0 0;
-            }
-
-            100% {
-                background-position: 0 22px;
-            }
+        div.wunderbaum span.wb-col > input[type=date] {
+            padding: 0;
         }
     </style>
 
@@ -52,7 +34,7 @@ color: red;
 </head>
 
 <body>
-    <div class="busy wb-busy"></div>
+    <button id="btnEnable">Enable</button>
     <div id="tree">
     </div>
 </body>

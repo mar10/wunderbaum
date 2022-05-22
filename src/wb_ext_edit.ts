@@ -130,15 +130,14 @@ export class EditExtension extends WunderbaumExtension {
     const eventName = eventToString(event);
     const tree = this.tree;
     const trigger = this.getPluginOption("trigger");
-    const inputElem =
-      event.target && event.target.closest("input,[contenteditable]");
-    // let handled = true;
+    // const inputElem =
+    //   event.target && event.target.closest("input,[contenteditable]");
 
     tree.logDebug(`_preprocessKeyEvent: ${eventName}`);
 
     // --- Title editing: apply/discard ---
-    if (inputElem) {
-      //this.isEditingTitle()) {
+    // if (inputElem) {
+    if (this.isEditingTitle()) {
       switch (eventName) {
         case "Enter":
           this._stopEditTitle(true, { event: event });

@@ -5,6 +5,8 @@
 
 import { Wunderbaum } from "../build/wunderbaum.esm.js";
 
+const util = Wunderbaum.util;
+
 function elementFromHtml(html) {
   const t = document.createElement("template");
   t.innerHTML = html.trim();
@@ -23,7 +25,7 @@ function setTimeoutPromise(callback, ms) {
   });
 }
 
-const ModeElemTemplate = `<select  tabindex='-1'>
+const ModeElemTemplate = `<select tabindex='-1'>
   <option value='1'>O1</option>
   <option value='2'>O2</option>
 </select>`;
@@ -33,9 +35,11 @@ const tree = new Wunderbaum({
   element: "#tree",
   // checkbox: false,
   id: "Playground",
+  // enabled: false,
+  debugLevel: 4,
   // header: "Playground",
   columns: [
-    { title: "test", id: "*" },
+    { title: "test", id: "*", width: "200px" },
     {
       title: "Fav",
       id: "favorite",
@@ -43,8 +47,9 @@ const tree = new Wunderbaum({
       classes: "wb-helper-center",
       html: "<input type=checkbox tabindex='-1'>",
     },
-    { title: "tag", id: "tag", width: "100px", html: "<input type=text tabindex='-1'>"},
+    { title: "Details", id: "details", width: "*", html: "<input type=text tabindex='-1'>" },
     { title: "Mode", id: "mode", width: "100px" },
+    { title: "Date", id: "date", width: "100px", html: "<input type=date tabindex='-1'>" },
   ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
@@ -99,41 +104,47 @@ const tree = new Wunderbaum({
       })
     );
   },
-  deactivate: (e) => {},
-  discard: (e) => {},
+  deactivate: (e) => { },
+  discard: (e) => { },
   change: (e) => {
-    // Simulate delayed behavior
-    // let value = Wunderbaum.util.getValueFromElem(e.info.colElem);
-    let value = e.inputValue;
-    // e.inputElem.checked = false
-    e.node.log(e.type, e, value);
+    const node = e.node;
+    const value = e.inputValue;
 
-    // TODO: We could validate `inputValue` and call on error:
-    // Wunderbaum.util.setValueToElem( e.inputElem, prevValue);
-
+    node.log(e.type, e, value);
+    
+    // Simulate a async/delayed behavior:
     return setTimeoutPromise(() => {
+      // Simulate a validation error
+      if( value === "x" ){
+        throw new Error("No x please")
+      }
       // Read the value from the input control that triggered the change event:
-      //
-      e.node.data[e.info.colId] = value;
-      // tree.log(e.type, e);
+      node.data[e.info.colId] = value;
     }, 1500);
   },
   render: (e) => {
     e.node.log(e.type, e);
     //
     if (e.isNew) {
-      // e.colInfosById["favorite"].elem.appendChild(
-      //   elementFromHtml(`<input type=checkbox>`)
-      // );
+      // Most columns are automatically handled using the `tree.columns.ID.html`
+      // setting, but here we do it explicitly:
       e.colInfosById["mode"].elem.appendChild(
         elementFromHtml(ModeElemTemplate)
       );
     }
-    // Wunderbaum.util.setValueToElem(
-    //   e.colInfosById.favorite.elem,
-    //   true //e.node.data.favorite
-    // );
-  },
+    for (const col of Object.values(e.colInfosById)) {
+      switch (col.id) {
+        case "favorite":  // checkbox
+        case "mode": 
+        case "date":
+          case "details": 
+          // Assumption: we named column.id === node.data.NAME
+          util.setValueToElem(col.elem, e.node.data[col.id]);
+          break;
+        default:
+          break;
+      }
+    }  },
 });
 
 console.log(`Created  ${tree}`);
@@ -141,7 +152,6 @@ console.log(`Created  ${tree}`);
 tree.ready
   .then(() => {
     console.log(`${tree} is ready.`);
-    // tree.root.setStatus("loading")
   })
   .catch((err) => {
     console.error(`${tree} init failed.`, err);

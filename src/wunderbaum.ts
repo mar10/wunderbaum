@@ -1,11 +1,12 @@
 /*!
  * wunderbaum.ts
  *
- * A tree control.
+ * A treegrid control.
  *
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
+ * https://github.com/mar10/wunderbaum
+ * 
  * Released under the MIT license.
- *
  * @version @VERSION
  * @date @DATE
  */
@@ -315,6 +316,13 @@ export class Wunderbaum {
     }
 
     this._initExtensions();
+
+    // --- apply iinitial options
+    ["enabled"].forEach((optName) => {
+      if (opts[optName] != null) {
+        this.setOption(optName, opts[optName]);
+      }
+    });
 
     // --- Load initial data
     if (opts.source) {
@@ -904,10 +912,11 @@ export class Wunderbaum {
    * @param value
    */
   setOption(name: string, value: any): void {
+    this.log(`setOption(${name}, ${value})`);
     if (name.indexOf(".") === -1) {
       (this.options as any)[name] = value;
       switch (name) {
-        case "enable":
+        case "enabled":
           this.setEnabled(!!value);
           break;
         default:
@@ -1461,6 +1470,7 @@ export class Wunderbaum {
   /** Disable mouse and keyboard interaction (return prev. state). */
   setEnabled(flag: boolean = true): boolean {
     const prev = this.enabled;
+    this.enabled = !!flag;
     this.element.classList.toggle("wb-disabled", !flag);
     return prev;
   }

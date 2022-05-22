@@ -682,7 +682,7 @@ export function toSet(val: any): Set<string> {
   throw new Error("Cannot convert to Set<string>: " + val);
 }
 
-/**Return a canonical string representation for an object's type (e.g. 'array', 'number', ...) */
+/** Return a canonical string representation for an object's type (e.g. 'array', 'number', ...). */
 export function type(obj: any): string {
   return Object.prototype.toString
     .call(obj)
