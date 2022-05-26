@@ -300,7 +300,9 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
 
     switch (type) {
       case "checkbox":
-        input.indeterminate = value == null;
+        // An explicit `null` value is interpreted as 'indeterminate'.
+        // `undefined` is interpreted as 'unchecked'
+        input.indeterminate = value === null;
         input.checked = !!value;
         break;
       case "date":
