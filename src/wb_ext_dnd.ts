@@ -245,8 +245,8 @@ export class DndExtension extends WunderbaumExtension {
     const ltn = this.lastTargetNode;
     this.lastEnterStamp = 0;
     if (ltn) {
-      ltn.removeClass(
-        "wb-drop-target wb-drop-over wb-drop-after wb-drop-before"
+      ltn.setClass(
+        "wb-drop-target wb-drop-over wb-drop-after wb-drop-before", false
       );
       this.lastTargetNode = null;
     }
@@ -360,7 +360,7 @@ export class DndExtension extends WunderbaumExtension {
       // This event occurs very often...
       // --- dragend ---
     } else if (e.type === "dragend") {
-      srcNode.removeClass("wb-drag-source");
+      srcNode.setClass("wb-drag-source", false);
       this.srcNode = null;
       if (this.lastTargetNode) {
         this._leaveNode();
@@ -450,9 +450,9 @@ export class DndExtension extends WunderbaumExtension {
       if (!region) {
         return; // We already rejected in dragenter
       }
-      targetNode.toggleClass("wb-drop-over", region === "over");
-      targetNode.toggleClass("wb-drop-before", region === "before");
-      targetNode.toggleClass("wb-drop-after", region === "after");
+      targetNode.setClass("wb-drop-over", region === "over");
+      targetNode.setClass("wb-drop-before", region === "before");
+      targetNode.setClass("wb-drop-after", region === "after");
       // console.log("dragover", e);
 
       // dt.dropEffect = this.lastDropEffect!;

@@ -5,7 +5,7 @@
  *
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
  * https://github.com/mar10/wunderbaum
- * 
+ *
  * Released under the MIT license.
  * @version @VERSION
  * @date @DATE

@@ -335,7 +335,7 @@ export class EditExtension extends WunderbaumExtension {
       return;
     }
     const newNode = node.addNode(init, mode);
-    newNode.addClass("wb-edit-new");
+    newNode.setClass("wb-edit-new");
     this.relatedNode = node;
 
     // Don't filter new nodes:

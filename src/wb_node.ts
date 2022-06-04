@@ -50,7 +50,7 @@ const NODE_PROPS = new Set<string>([
 const NODE_ATTRS = new Set<string>([
   "checkbox",
   "expanded",
-  "extraClasses", // TODO: rename to classes
+  "classes",
   "folder",
   "icon",
   "iconTooltip",
@@ -108,8 +108,8 @@ export class WunderbaumNode {
   public type?: string;
   public tooltip?: string;
   /** Additional classes added to `div.wb-row`.
-   * @see {@link addClass}, {@link removeClass}, {@link toggleClass}. */
-  public extraClasses = new Set<string>();
+   * @see {@link hasClass}, {@link setClass}. */
+  public classes: Set<string> | null = null; //new Set<string>();
   /** Custom data that was passed to the constructor */
   public data: any = {};
   // --- Node Status ---
@@ -150,9 +150,7 @@ export class WunderbaumNode {
     this.lazy = data.lazy === true;
     this.selected = data.selected === true;
     if (data.classes) {
-      for (const c of data.classes.split(" ")) {
-        this.extraClasses.add(c.trim());
-      }
+      this.setClass(data.classes);
     }
     // Store custom fields as `node.data`
     for (const [key, value] of Object.entries(data)) {
@@ -307,28 +305,39 @@ export class WunderbaumNode {
     return this.tree.applyCommand(cmd, this, opts);
   }
 
-  addClass(className: string | string[] | Set<string>) {
+  /**
+   * Add/remove one or more classes to `<div class='wb-row'>`.
+   *
+   * This also maintains `node.classes`, so the class will survive a re-render.
+   *
+   * @param className one or more class names. Multiple classes can be passed
+   *     as space-separated string, array of strings, or set of strings.
+   */
+  setClass(
+    className: string | string[] | Set<string>,
+    flag: boolean = true
+  ): void {
     const cnSet = util.toSet(className);
-    cnSet.forEach((cn) => {
-      this.extraClasses.add(cn);
-      this._rowElem?.classList.add(cn);
-    });
-  }
-
-  removeClass(className: string | string[] | Set<string>) {
-    const cnSet = util.toSet(className);
-    cnSet.forEach((cn) => {
-      this.extraClasses.delete(cn);
-      this._rowElem?.classList.remove(cn);
-    });
-  }
-
-  toggleClass(className: string | string[] | Set<string>, flag: boolean) {
-    const cnSet = util.toSet(className);
-    cnSet.forEach((cn) => {
-      flag ? this.extraClasses.add(cn) : this.extraClasses.delete(cn);
-      this._rowElem?.classList.toggle(cn, flag);
-    });
+    if (flag) {
+      if (this.classes === null) {
+        this.classes = new Set<string>();
+      }
+      cnSet.forEach((cn) => {
+        this.classes!.add(cn);
+        this._rowElem?.classList.toggle(cn, flag);
+      });
+    } else {
+      if (this.classes === null) {
+        return;
+      }
+      cnSet.forEach((cn) => {
+        this.classes!.delete(cn);
+        this._rowElem?.classList.toggle(cn, flag);
+      });
+      if(this.classes.size === 0) {
+        this.classes = null;
+      }
+    }
   }
 
   /** */
@@ -525,6 +534,11 @@ export class WunderbaumNode {
       return true; // One or more child nodes
     }
     return !!(this.children && this.children.length);
+  }
+
+  /** Return true if node has className set. */
+  hasClass(className: string): boolean {
+    return this.classes ? this.classes.has(className) : false;
   }
 
   /** Return true if this node is the currently active tree node. */
@@ -1381,8 +1395,8 @@ export class WunderbaumNode {
     // Replace previous classes:
     rowDiv.className = rowClasses.join(" ");
 
-    // Add classes from `node.extraClasses`
-    rowDiv.classList.add(...this.extraClasses);
+    // Add classes from `node.classes`
+    this.classes ? rowDiv.classList.add(...this.classes) : 0;
 
     // Add classes from `tree.types[node.type]`
     if (typeInfo && typeInfo.classes) {
