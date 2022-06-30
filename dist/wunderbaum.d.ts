@@ -63,7 +63,7 @@ declare module "util" {
      *
      * If a `<span class="wb-col">` is passed, the first child input is used.
      * Depending on the target element type, `value` is interpreted accordingly.
-     * For example for a checkbox, a value of true, false, or null is returned if the
+     * For example for a checkbox, a value of true, false, or null is returned if
      * the element is checked, unchecked, or indeterminate.
      * For datetime input control a numerical value is assumed, etc.
      *
@@ -198,7 +198,7 @@ declare module "util" {
     export function getOption(opts: any, name: string, defaultValue?: any): any;
     /** Convert an Array or space-separated string to a Set. */
     export function toSet(val: any): Set<string>;
-    /**Return a canonical string representation for an object's type (e.g. 'array', 'number', ...) */
+    /** Return a canonical string representation for an object's type (e.g. 'array', 'number', ...). */
     export function type(obj: any): string;
     /**
      * Return a function that can be called instead of `callback`, but guarantees
@@ -207,12 +207,12 @@ declare module "util" {
      * previous call.
      * Example:
      * ```js
-     * throttledFoo = util.addaptiveThrottle(foo.bind(this), {});
+     * throttledFoo = util.adaptiveThrottle(foo.bind(this), {});
      * throttledFoo();
      * throttledFoo();
      * ```
      */
-    export function addaptiveThrottle(this: unknown, callback: (...args: any[]) => void, options: any): (...args: any[]) => void;
+    export function adaptiveThrottle(this: unknown, callback: (...args: any[]) => void, options: any): (...args: any[]) => void;
 }
 declare module "deferred" {
     /*!
@@ -433,6 +433,39 @@ declare module "wb_options" {
         checkbox?: boolean | string;
         children?: Array<WbNodeData>;
     }
+    export interface ColumnDefinition {
+        /** Column ID (pass "*" for the main tree nodes column ) */
+        id: string;
+        /** Column header (defaults to id) */
+        title: string;
+        /** Column width or weight.
+         * Either an absolute pixel value (e.g. `"50px"`) or a relative weight (e.g. `1`)
+         * that is used to calculate the width  inside the remaining available space.
+         * Default: `"*"`, which is interpreted as `1`.
+         */
+        width?: string | number;
+        /** Only used for columns with a relative weight.
+         * Default: `4px`.
+         */
+        minWidth?: string | number;
+        /** Optional class names that are added to all `span.wb-col` elements of that column.*/
+        classes?: string;
+        /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
+        html: string;
+    }
+    export interface TypeDefinition {
+        /** En/disable checkbox for matching nodes.*/
+        checkbox?: boolean | BoolOptionResolver;
+        /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
+        classes?: string;
+        /**Default icon for matching nodes.*/
+        icon?: boolean | string | BoolOptionResolver;
+        /**
+         * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+         * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
+         */
+        _any: any;
+    }
     /**
      * Available options for [[Wunderbaum]].
      *
@@ -489,7 +522,9 @@ declare module "wb_options" {
          *
          * Default: `{}`.
          */
-        types?: any;
+        types?: {
+            [key: string]: TypeDefinition;
+        };
         /**
          * A list of maps that define column headers. If this option is set,
          * Wunderbaum becomes a treegrid control instead of a plain tree.
@@ -497,7 +532,7 @@ declare module "wb_options" {
          * response.
          * Default: `[]` meaning this is a plain tree.
          */
-        columns?: Array<any>;
+        columns?: Array<ColumnDefinition>;
         /**
          * If true, add a `wb-skeleton` class to all nodes, that will result in a
          * 'glow' effect. Typically used with initial dummy nodes, while loading the
@@ -516,7 +551,7 @@ declare module "wb_options" {
         debugLevel: number;
         /**
          * Number of levels that are forced to be expanded, and have no expander icon.
-         *  Default: 0
+         * Default: 0
          */
         minExpandLevel?: number;
         /**
@@ -534,6 +569,11 @@ declare module "wb_options" {
          * Default: false
          */
         autoCollapse?: boolean;
+        /**
+         * HTMLElement that receives the top nodes breadcrumb.
+         * Default: undefined
+         */
+        attachBreadcrumb?: HTMLElement;
         /**
          * Default:  NavigationModeOption.startRow
          */
@@ -557,8 +597,17 @@ declare module "wb_options" {
         /**
          * Default: true
          */
+        enabled?: boolean;
+        /**
+         * Default: false
+         */
+        fixedCol?: boolean;
+        /**
+         * Default: true
+         */
         quicksearch?: boolean;
         dnd?: DndOptionsType;
+        edit: any;
         filter: any;
         grid: any;
         /**
@@ -1104,6 +1153,7 @@ declare module "common" {
     export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
     export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
     export type DndModeType = "before" | "after" | "over";
+    /** Possible values for `setModified()`. */
     export enum ChangeType {
         /** Re-render the whole viewport, headers, and all rows. */
         any = "any",
@@ -1120,13 +1170,14 @@ declare module "common" {
         /** Update the 'top' property of all rows. */
         vscroll = "vscroll"
     }
+    /** Possible values for `setStatus()`. */
     export enum NodeStatusType {
         ok = "ok",
         loading = "loading",
         error = "error",
         noData = "noData"
     }
-    /**Define the subregion of a node, where an event occurred. */
+    /** Define the subregion of a node, where an event occurred. */
     export enum TargetType {
         unknown = "",
         checkbox = "checkbox",
@@ -1154,45 +1205,21 @@ declare module "common" {
         doc: string;
     };
     export const KEY_NODATA = "__not_found__";
+    /** Initial navigation mode and possible transition. */
     export enum NavigationModeOption {
         startRow = "startRow",
         cell = "cell",
         startCell = "startCell",
         row = "row"
     }
+    /** Tree's current navigation mode (see `tree.setNavigationMode()`). */
     export enum NavigationMode {
         row = "row",
         cellNav = "cellNav",
         cellEdit = "cellEdit"
     }
-    export type SetActiveOptions = {
-        /** Generate (de)activate event, even if node already has this status. */
-        retrigger?: boolean;
-        /** Don not generate (de)activate event. */
-        noEvents?: boolean;
-        /** Optional original event that will be passed to the (de)activat handler. */
-        event?: Event;
-        /** Call {@link setColumn}. */
-        colIdx?: number;
-    };
-    export type SetExpandedOptions = {
-        /** Ignore {@link minExpandLevel}. @default false */
-        force?: boolean;
-        /** Avoid smooth scrolling. @default false */
-        noAnimation?: boolean;
-        /** Do not send events. @default false */
-        noEvents?: boolean;
-        /** Scroll to bring expanded nodes into viewport. @default false */
-        scrollIntoView?: boolean;
-    };
-    export type SetSelectedOptions = {
-        /** Ignore restrictions. @default false */
-        force?: boolean;
-        /** Do not send events. @default false */
-        noEvents?: boolean;
-    };
     /** Define which keys are handled by embedded <input> control, and should
-     * *not* be passed to tree navigation handler in cell-edit mode: */
+     * *not* be passed to tree navigation handler in cell-edit mode. */
     export const INPUT_KEYS: {
         text: string[];
         number: string[];
@@ -1204,13 +1231,42 @@ declare module "common" {
     };
     /** Key codes that trigger grid navigation, even when inside an input element. */
     export const NAVIGATE_IN_INPUT_KEYS: Set<string>;
+    /** Possible values for `node.setActive()`. */
+    export type SetActiveOptions = {
+        /** Generate (de)activate event, even if node already has this status. */
+        retrigger?: boolean;
+        /** Do not generate (de)activate event. */
+        noEvents?: boolean;
+        /** Optional original event that will be passed to the (de)activate handler. */
+        event?: Event;
+        /** Call {@link setColumn}. */
+        colIdx?: number;
+    };
+    /** Possible values for `node.setExpanded()`. */
+    export type SetExpandedOptions = {
+        /** Ignore {@link minExpandLevel}. @default false */
+        force?: boolean;
+        /** Avoid smooth scrolling. @default false */
+        noAnimation?: boolean;
+        /** Do not send events. @default false */
+        noEvents?: boolean;
+        /** Scroll to bring expanded nodes into viewport. @default false */
+        scrollIntoView?: boolean;
+    };
+    /** Possible values for `node.setSelected()`. */
+    export type SetSelectedOptions = {
+        /** Ignore restrictions. @default false */
+        force?: boolean;
+        /** Do not send events. @default false */
+        noEvents?: boolean;
+    };
     /** Map `KeyEvent.key` to navigation action. */
     export const KEY_TO_ACTION_DICT: {
         [key: string]: string;
     };
-    /** */
+    /** Return a callback that returns true if the node title contains a substring (case-insensitive). */
     export function makeNodeTitleMatcher(s: string): MatcherType;
-    /** */
+    /** Return a callback that returns true if the node title starts with a string (case-insensitive). */
     export function makeNodeTitleStartMatcher(s: string): MatcherType;
 }
 declare module "debounce" {
@@ -1356,6 +1412,7 @@ declare module "wb_ext_filter" {
         lastFilterArgs: IArguments | null;
         constructor(tree: Wunderbaum);
         init(): void;
+        setPluginOption(name: string, value: any): void;
         _applyFilterNoUpdate(filter: string | NodeFilterCallback, branchMode: boolean, _opts: any): void;
         _applyFilterImpl(filter: string | NodeFilterCallback, branchMode: boolean, _opts: any): number;
         /**
@@ -1385,6 +1442,7 @@ declare module "wb_ext_keynav" {
     import { WunderbaumExtension } from "wb_extension_base";
     export class KeynavExtension extends WunderbaumExtension {
         constructor(tree: Wunderbaum);
+        protected _getEmbeddedInputElem(elem: any, setFocus?: boolean): HTMLInputElement | null;
         onKeyEvent(data: any): boolean | undefined;
     }
 }
@@ -1511,18 +1569,19 @@ declare module "wunderbaum" {
     /*!
      * wunderbaum.ts
      *
-     * A tree control.
+     * A treegrid control.
      *
      * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
-     * Released under the MIT license.
+     * https://github.com/mar10/wunderbaum
      *
+     * Released under the MIT license.
      * @version @VERSION
      * @date @DATE
      */
     import "./wunderbaum.scss";
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { NavigationMode, ChangeType, FilterModeType, MatcherType, NodeStatusType, TargetType as NodeRegion, ApplyCommandType } from "common";
+    import { NavigationMode, ChangeType, FilterModeType, MatcherType, NodeStatusType, TargetType as NodeRegion, ApplyCommandType, SetActiveOptions } from "common";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     /**
@@ -1532,6 +1591,7 @@ declare module "wunderbaum" {
      */
     export class Wunderbaum {
         protected static sequence: number;
+        protected enabled: boolean;
         /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
         static version: string;
         /** The invisible root node, that holds all visible top level nodes. */
@@ -1543,7 +1603,7 @@ declare module "wunderbaum" {
         /** The `div.wb-header` element if any. */
         readonly headerElement: HTMLDivElement | null;
         /** The `div.wb-scroll-container` element that contains the `nodeListElement`. */
-        readonly scrollContainer: HTMLDivElement;
+        readonly scrollContainerElement: HTMLDivElement;
         /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
         readonly nodeListElement: HTMLDivElement;
         protected readonly _updateViewportThrottled: (...args: any) => void;
@@ -1670,7 +1730,7 @@ declare module "wunderbaum" {
          * Return `tree.option.NAME` (also resolving if this is a callback).
          *
          * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
-         * to consider `node.NAME` setting and `tree.types[node.type].NAME`.
+         * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
          *
          * @param name option name (use dot notation to access extension option, e.g.
          * `filter.mode`)
@@ -1688,6 +1748,8 @@ declare module "wunderbaum" {
         runWithoutUpdate(func: () => any, hint?: any): void;
         /** Recursively expand all expandable nodes (triggers lazy load id needed). */
         expandAll(flag?: boolean): Promise<void>;
+        /** Recursively select all nodes. */
+        selectAll(flag?: boolean): void;
         /** Return the number of nodes in the data model.*/
         count(visible?: boolean): number;
         /** @internal sanity check. */
@@ -1710,6 +1772,15 @@ declare module "wunderbaum" {
          *
          */
         findFirst(match: string | MatcherType): WunderbaumNode;
+        /**
+         * Find first node that matches condition.
+         *
+         * @param match title string to search for, or a
+         *     callback function that returns `true` if a node is matched.
+         * @see {@link WunderbaumNode.findFirst}
+         *
+         */
+        findKey(key: string): WunderbaumNode | undefined;
         /**
          * Find the next visible node that starts with `match`, starting at `startNode`
          * and wrap-around at the end.
@@ -1784,14 +1855,24 @@ declare module "wunderbaum" {
         /** Log to console if opts.debugLevel >= 2 */
         logWarn(...args: any[]): void;
         /**
-         * Make sure that this node is scrolled into the viewport.
+         * Make sure that this node is vertically scrolled into the viewport.
+         *
+         * @param {object} [options=null] {topNode: null, effects: ..., parent: ...}
+         *     this node will remain visible in
+         *     any case, even if `this` is outside the scroll pane.
+         */
+        scrollTo(opts: any): void;
+        /**
+         * Make sure that this node is horizontally scrolled into the viewport.
+         *
+         * Used for `fixedCol` mode.
          *
          * @param {boolean | PlainObject} [effects=false] animation options.
          * @param {object} [options=null] {topNode: null, effects: ..., parent: ...}
          *     this node will remain visible in
          *     any case, even if `this` is outside the scroll pane.
          */
-        scrollTo(opts: any): void;
+        scrollToHorz(opts: any): void;
         /**
          * Set column #colIdx to 'active'.
          *
@@ -1800,6 +1881,8 @@ declare module "wunderbaum" {
          */
         setColumn(colIdx: number): void;
         /** Set or remove keybaord focus to the tree container. */
+        setActiveNode(key: string, flag?: boolean, options?: SetActiveOptions): void;
+        /** Set or remove keybaord focus to the tree container. */
         setFocus(flag?: boolean): void;
         /** Schedule an update request to reflect a tree change. */
         setModified(change: ChangeType, options?: any): void;
@@ -1807,8 +1890,14 @@ declare module "wunderbaum" {
         setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
         /** Set the tree's navigation mode. */
         setNavigationMode(mode: NavigationMode): void;
+        /** Disable mouse and keyboard interaction (return prev. state). */
+        setEnabled(flag?: boolean): boolean;
+        /** Return false if tree is disabled. */
+        isEnabled(): boolean;
         /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
         setStatus(status: NodeStatusType, message?: string, details?: string): WunderbaumNode | null;
+        /** Add or redefine node type definitions. */
+        setTypes(types: any, replace?: boolean): void;
         /** Update column headers and width. */
         updateColumns(opts?: any): void;
         /** Create/update header markup from `this.columns` definition.
@@ -1825,11 +1914,6 @@ declare module "wunderbaum" {
          * @internal
          */
         protected _updateViewport(): void;
-        /**
-         * Assert that TR order matches the natural node order
-         * @internal
-         */
-        protected _validateRows(): boolean;
         protected _updateRows(opts?: any): boolean;
         /**
          * Call callback(node) for all nodes in hierarchical order (depth-first).
@@ -1865,10 +1949,10 @@ declare module "wunderbaum" {
         /**
          * Reload the tree with a new source.
          *
-         * Previous data is cleared.
-         * Pass `options.columns` to define a header (may also be part of `source.columns`).
+         * Previous data is cleared. Note that also column- and type defintions may
+         * be passed with the `source` object.
          */
-        load(source: any, options?: any): Promise<void>;
+        load(source: any): Promise<void>;
         /**
          * Disable render requests during operations that would trigger many updates.
          *

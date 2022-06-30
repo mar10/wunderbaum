@@ -23,6 +23,43 @@ export interface WbNodeData {
   // ...any?: Any;
 }
 
+export interface ColumnDefinition {
+  /** Column ID (pass "*" for the main tree nodes column ) */
+  id: string;
+  /** Column header (defaults to id) */
+  title: string;
+  /** Column width or weight.
+   * Either an absolute pixel value (e.g. `"50px"`) or a relative weight (e.g. `1`)
+   * that is used to calculate the width  inside the remaining available space.
+   * Default: `"*"`, which is interpreted as `1`.
+   */
+  width?: string | number;
+  /** Only used for columns with a relative weight.
+   * Default: `4px`.
+   */
+  minWidth?: string | number;
+  /** Optional class names that are added to all `span.wb-col` elements of that column.*/
+  classes?: string;
+  /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
+  html: string;
+}
+
+export interface TypeDefinition {
+  // /** Type ID that matches `node.type`. */
+  // id: string;
+  /** En/disable checkbox for matching nodes.*/
+  checkbox?: boolean | BoolOptionResolver;
+  /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
+  classes?: string;
+  /**Default icon for matching nodes.*/
+  icon?: boolean | string | BoolOptionResolver;
+  /**
+   * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+   * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
+   */
+  _any: any;
+}
+
 /**
  * Available options for [[Wunderbaum]].
  *
@@ -79,7 +116,7 @@ export interface WunderbaumOptions {
    *
    * Default: `{}`.
    */
-  types?: any; //[key: string]: any;
+  types?: { [key: string]: TypeDefinition };
   /**
    * A list of maps that define column headers. If this option is set,
    * Wunderbaum becomes a treegrid control instead of a plain tree.
@@ -87,7 +124,7 @@ export interface WunderbaumOptions {
    * response.
    * Default: `[]` meaning this is a plain tree.
    */
-  columns?: Array<any>;
+  columns?: Array<ColumnDefinition>;
   /**
    * If true, add a `wb-skeleton` class to all nodes, that will result in a
    * 'glow' effect. Typically used with initial dummy nodes, while loading the
@@ -106,7 +143,7 @@ export interface WunderbaumOptions {
   debugLevel: number;
   /**
    * Number of levels that are forced to be expanded, and have no expander icon.
-   *  Default: 0
+   * Default: 0
    */
   minExpandLevel?: number;
   // escapeTitles: boolean;
@@ -125,6 +162,11 @@ export interface WunderbaumOptions {
    * Default: false
    */
   autoCollapse?: boolean;
+  /**
+   * HTMLElement that receives the top nodes breadcrumb.
+   * Default: undefined
+   */
+  attachBreadcrumb?: HTMLElement;
   /**
    * Default:  NavigationModeOption.startRow
    */
@@ -145,17 +187,29 @@ export interface WunderbaumOptions {
    * Default: 200
    */
   updateThrottleWait?: number;
+  /**
+   * Default: true
+   */
+  enabled?: boolean;
+  /**
+   * Default: false
+   */
+  fixedCol?: boolean;
+
   // --- KeyNav ---
   /**
    * Default: true
    */
   quicksearch?: boolean;
 
-  // --- Extensions ---
+  // --- Extensions ------------------------------------------------------------
   dnd?: DndOptionsType; // = {};
+  edit: any; // = {};
   filter: any; // = {};
   grid: any; // = {};
-  // --- Events ---
+
+  // --- Events ----------------------------------------------------------------
+
   /**
    *
    * @category Callback

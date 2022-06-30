@@ -5,7 +5,7 @@
  */
 
 import {
-  NAVIGATE_IN_INPUT_KEYS,
+  // NAVIGATE_IN_INPUT_KEYS,
   NavigationMode,
   NavigationModeOption,
 } from "./common";

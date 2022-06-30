@@ -705,9 +705,13 @@ export class WunderbaumNode {
       "If `source` is an object, it must have a `children` property"
     );
     if (source.types) {
-      // TODO: convert types.classes to Set()
-      util.extend(tree.types, source.types);
+      tree.setTypes(source.types, false);
     }
+    if (source.columns) {
+      tree.columns = source.columns;
+      tree.updateColumns({ calculateCols: false });
+    }
+
     this.addChildren(source.children);
 
     this._callEvent("load");

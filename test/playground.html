@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 
 <head>
@@ -8,25 +9,14 @@
             box-sizing: border-box;
         }
 
+        html,
+        body {
+            height: 100%
+        }
+
         div.wunderbaum {
             height: 80%;
-        }
-        /* 
-        span.wb-node:hover::before {
-            color: red;
-            content: url(../docs/assets/drop_marker_insert_16x64.png);
-            position: absolute;
-            left: 20px;
-            top: 12px;
-            z-index: 10;
-        } 
-        */
-        div.wunderbaum span.wb-col > input {
-            border: 1px;
-            padding: 1px;
-        }
-        div.wunderbaum span.wb-col > input[type=date] {
-            padding: 0;
+            width: 640px;
         }
     </style>
 
@@ -34,7 +24,7 @@
 </head>
 
 <body>
-    <button id="btnEnable">Enable</button>
+    <button class="demo-btn" data-action="toggleEnable">Enable</button>
     <div id="tree">
     </div>
 </body>

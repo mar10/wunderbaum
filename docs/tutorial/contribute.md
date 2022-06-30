@@ -30,7 +30,8 @@ Do not forget to add an entry to the `CHANGELOG.md`.
 
 ## Request New Features
 
-Features can be requested and discussed in the [bug tracker](https://github.com/mar10/wunderbaum/issues).
+Features can be requested and discussed in the [bug tracker](https://github.com/mar10/wunderbaum/issues),
+or - often more adequate - in the [discussion forum](https://github.com/mar10/wunderbaum/discussions).
 
 ?> Please understand that feature requests sometimes are rejected due to the lack
 of resources, or because they do not fit into the _greater plan_ or paradigm.<br>

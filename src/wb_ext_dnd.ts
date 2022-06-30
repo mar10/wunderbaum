@@ -295,7 +295,7 @@ export class DndExtension extends WunderbaumExtension {
   protected autoScroll(event: DragEvent): number {
     let tree = this.tree,
       dndOpts = tree.options.dnd!,
-      sp = tree.scrollContainer,
+      sp = tree.scrollContainerElement,
       sensitivity = dndOpts.scrollSensitivity,
       speed = dndOpts.scrollSpeed,
       scrolled = 0;
