@@ -353,7 +353,7 @@ export class DndExtension extends WunderbaumExtension {
       setTimeout(() => {
         // Decouple this call, so the CSS is applied to the node, but not to
         // the system generated drag image
-        srcNode.addClass("wb-drag-source");
+        srcNode.setClass("wb-drag-source");
       }, 0);
 
       // --- drag ---
@@ -425,7 +425,7 @@ export class DndExtension extends WunderbaumExtension {
       }
       this.lastAllowedDropRegions = regionSet;
       this.lastDropEffect = dt.dropEffect;
-      targetNode.addClass("wb-drop-target");
+      targetNode.setClass("wb-drop-target");
 
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
