@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -682,7 +682,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
 const ROW_HEIGHT = 22;
@@ -811,7 +811,7 @@ function makeNodeTitleStartMatcher(s) {
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1102,7 +1102,7 @@ function debounce(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1407,7 +1407,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 class KeynavExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1651,7 +1651,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1691,7 +1691,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -1761,7 +1761,7 @@ class DndExtension extends WunderbaumExtension {
         const ltn = this.lastTargetNode;
         this.lastEnterStamp = 0;
         if (ltn) {
-            ltn.removeClass("wb-drop-target wb-drop-over wb-drop-after wb-drop-before");
+            ltn.setClass("wb-drop-target wb-drop-over wb-drop-after wb-drop-before", false);
             this.lastTargetNode = null;
         }
     }
@@ -1855,13 +1855,13 @@ class DndExtension extends WunderbaumExtension {
             setTimeout(() => {
                 // Decouple this call, so the CSS is applied to the node, but not to
                 // the system generated drag image
-                srcNode.addClass("wb-drag-source");
+                srcNode.setClass("wb-drag-source");
             }, 0);
             // --- drag ---
         }
         else if (e.type === "drag") ;
         else if (e.type === "dragend") {
-            srcNode.removeClass("wb-drag-source");
+            srcNode.setClass("wb-drag-source", false);
             this.srcNode = null;
             if (this.lastTargetNode) {
                 this._leaveNode();
@@ -1915,7 +1915,7 @@ class DndExtension extends WunderbaumExtension {
             }
             this.lastAllowedDropRegions = regionSet;
             this.lastDropEffect = dt.dropEffect;
-            targetNode.addClass("wb-drop-target");
+            targetNode.setClass("wb-drop-target");
             e.preventDefault(); // Allow drop (Drop operation is denied by default)
             return false;
             // --- dragover ---
@@ -1934,9 +1934,9 @@ class DndExtension extends WunderbaumExtension {
             if (!region) {
                 return; // We already rejected in dragenter
             }
-            targetNode.toggleClass("wb-drop-over", region === "over");
-            targetNode.toggleClass("wb-drop-before", region === "before");
-            targetNode.toggleClass("wb-drop-after", region === "after");
+            targetNode.setClass("wb-drop-over", region === "over");
+            targetNode.setClass("wb-drop-before", region === "before");
+            targetNode.setClass("wb-drop-after", region === "after");
             // console.log("dragover", e);
             // dt.dropEffect = this.lastDropEffect!;
             e.preventDefault(); // Allow drop (Drop operation is denied by default)
@@ -1959,7 +1959,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2093,7 +2093,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2130,7 +2130,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2183,7 +2183,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 /** Top-level properties that can be passed with `data`. */
 const NODE_PROPS = new Set([
@@ -2202,7 +2202,7 @@ const NODE_PROPS = new Set([
 const NODE_ATTRS = new Set([
     "checkbox",
     "expanded",
-    "extraClasses",
+    "classes",
     "folder",
     "icon",
     "iconTooltip",
@@ -2244,8 +2244,8 @@ class WunderbaumNode {
          * @see {@link isSelected}, {@link setSelected}. */
         this.selected = false;
         /** Additional classes added to `div.wb-row`.
-         * @see {@link addClass}, {@link removeClass}, {@link toggleClass}. */
-        this.extraClasses = new Set();
+         * @see {@link hasClass}, {@link setClass}. */
+        this.classes = null; //new Set<string>();
         /** Custom data that was passed to the constructor */
         this.data = {};
         this._isLoading = false;
@@ -2274,9 +2274,7 @@ class WunderbaumNode {
         this.lazy = data.lazy === true;
         this.selected = data.selected === true;
         if (data.classes) {
-            for (const c of data.classes.split(" ")) {
-                this.extraClasses.add(c.trim());
-            }
+            this.setClass(data.classes);
         }
         // Store custom fields as `node.data`
         for (const [key, value] of Object.entries(data)) {
@@ -2416,29 +2414,39 @@ class WunderbaumNode {
     applyCommand(cmd, opts) {
         return this.tree.applyCommand(cmd, this, opts);
     }
-    addClass(className) {
+    /**
+     * Add/remove one or more classes to `<div class='wb-row'>`.
+     *
+     * This also maintains `node.classes`, so the class will survive a re-render.
+     *
+     * @param className one or more class names. Multiple classes can be passed
+     *     as space-separated string, array of strings, or set of strings.
+     */
+    setClass(className, flag = true) {
         const cnSet = toSet(className);
-        cnSet.forEach((cn) => {
-            var _a;
-            this.extraClasses.add(cn);
-            (_a = this._rowElem) === null || _a === void 0 ? void 0 : _a.classList.add(cn);
-        });
-    }
-    removeClass(className) {
-        const cnSet = toSet(className);
-        cnSet.forEach((cn) => {
-            var _a;
-            this.extraClasses.delete(cn);
-            (_a = this._rowElem) === null || _a === void 0 ? void 0 : _a.classList.remove(cn);
-        });
-    }
-    toggleClass(className, flag) {
-        const cnSet = toSet(className);
-        cnSet.forEach((cn) => {
-            var _a;
-            flag ? this.extraClasses.add(cn) : this.extraClasses.delete(cn);
-            (_a = this._rowElem) === null || _a === void 0 ? void 0 : _a.classList.toggle(cn, flag);
-        });
+        if (flag) {
+            if (this.classes === null) {
+                this.classes = new Set();
+            }
+            cnSet.forEach((cn) => {
+                var _a;
+                this.classes.add(cn);
+                (_a = this._rowElem) === null || _a === void 0 ? void 0 : _a.classList.toggle(cn, flag);
+            });
+        }
+        else {
+            if (this.classes === null) {
+                return;
+            }
+            cnSet.forEach((cn) => {
+                var _a;
+                this.classes.delete(cn);
+                (_a = this._rowElem) === null || _a === void 0 ? void 0 : _a.classList.toggle(cn, flag);
+            });
+            if (this.classes.size === 0) {
+                this.classes = null;
+            }
+        }
     }
     /** */
     async expandAll(flag = true) {
@@ -2611,6 +2619,10 @@ class WunderbaumNode {
             return true; // One or more child nodes
         }
         return !!(this.children && this.children.length);
+    }
+    /** Return true if node has className set. */
+    hasClass(className) {
+        return this.classes ? this.classes.has(className) : false;
     }
     /** Return true if this node is the currently active tree node. */
     isActive() {
@@ -3357,8 +3369,8 @@ class WunderbaumNode {
         treeOptions.skeleton ? rowClasses.push("wb-skeleton") : 0;
         // Replace previous classes:
         rowDiv.className = rowClasses.join(" ");
-        // Add classes from `node.extraClasses`
-        rowDiv.classList.add(...this.extraClasses);
+        // Add classes from `node.classes`
+        this.classes ? rowDiv.classList.add(...this.classes) : 0;
         // Add classes from `tree.types[node.type]`
         if (typeInfo && typeInfo.classes) {
             rowDiv.classList.add(...typeInfo.classes);
@@ -3838,7 +3850,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
- * v0.0.5-0, Sun, 21 Aug 2022 06:54:35 GMT (https://github.com/mar10/wunderbaum)
+ * v0.0.5, Sun, 21 Aug 2022 15:04:31 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -4111,7 +4123,7 @@ class EditExtension extends WunderbaumExtension {
             return;
         }
         const newNode = node.addNode(init, mode);
-        newNode.addClass("wb-edit-new");
+        newNode.setClass("wb-edit-new");
         this.relatedNode = node;
         // Don't filter new nodes:
         newNode.match = true;
@@ -4130,8 +4142,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.0.5-0
- * @date Sun, 21 Aug 2022 06:54:35 GMT
+ * @version v0.0.5
+ * @date Sun, 21 Aug 2022 15:04:31 GMT
  */
 // const class_prefix = "wb-";
 // const node_props: string[] = ["title", "key", "refKey"];
@@ -5421,11 +5433,14 @@ class Wunderbaum {
                 error(`Invalid change type ${change}`);
         }
     }
+    /** Get the tree's navigation mode. */
+    getNavigationMode() {
+        return this.navMode;
+    }
     /** Set the tree's navigation mode. */
     setNavigationMode(mode) {
         var _a;
-        // util.assert(this.cellNavMode);
-        // util.assert(0 <= colIdx && colIdx < this.columns.length);
+        assert(mode in NavigationMode, `Invalid mode '${mode}'`);
         if (mode === this.navMode) {
             return;
         }
@@ -5450,6 +5465,10 @@ class Wunderbaum {
     /** Return false if tree is disabled. */
     isEnabled() {
         return this.enabled;
+    }
+    /** Return true if tree has one or more data columns in addition to the plain nodes. */
+    isGrid() {
+        return this.columns && this.columns.length > 1;
     }
     /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
     setStatus(status, message, details) {
@@ -5966,7 +5985,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.0.5-0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.0.5"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 

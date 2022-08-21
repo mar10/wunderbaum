@@ -765,8 +765,8 @@ declare module "wb_node" {
         type?: string;
         tooltip?: string;
         /** Additional classes added to `div.wb-row`.
-         * @see {@link addClass}, {@link removeClass}, {@link toggleClass}. */
-        extraClasses: Set<string>;
+         * @see {@link hasClass}, {@link setClass}. */
+        classes: Set<string> | null;
         /** Custom data that was passed to the constructor */
         data: any;
         statusNodeType?: string;
@@ -822,9 +822,15 @@ declare module "wb_node" {
          * @see {@link Wunderbaum.applyCommand}
          */
         applyCommand(cmd: ApplyCommandType, opts: any): any;
-        addClass(className: string | string[] | Set<string>): void;
-        removeClass(className: string | string[] | Set<string>): void;
-        toggleClass(className: string | string[] | Set<string>, flag: boolean): void;
+        /**
+         * Add/remove one or more classes to `<div class='wb-row'>`.
+         *
+         * This also maintains `node.classes`, so the class will survive a re-render.
+         *
+         * @param className one or more class names. Multiple classes can be passed
+         *     as space-separated string, array of strings, or set of strings.
+         */
+        setClass(className: string | string[] | Set<string>, flag?: boolean): void;
         /** */
         expandAll(flag?: boolean): Promise<void>;
         /**Find all nodes that match condition (excluding self).
@@ -881,6 +887,8 @@ declare module "wb_node" {
          * Return undefined if not sure, i.e. the node is lazy and not yet loaded.
          */
         hasChildren(): boolean;
+        /** Return true if node has className set. */
+        hasClass(className: string): boolean;
         /** Return true if this node is the currently active tree node. */
         isActive(): boolean;
         /** Return true if this node is a *direct* child of `other`.
@@ -1888,12 +1896,16 @@ declare module "wunderbaum" {
         setModified(change: ChangeType, options?: any): void;
         /** Schedule an update request to reflect a single node modification. */
         setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
+        /** Get the tree's navigation mode. */
+        getNavigationMode(): NavigationMode;
         /** Set the tree's navigation mode. */
         setNavigationMode(mode: NavigationMode): void;
         /** Disable mouse and keyboard interaction (return prev. state). */
         setEnabled(flag?: boolean): boolean;
         /** Return false if tree is disabled. */
         isEnabled(): boolean;
+        /** Return true if tree has one or more data columns in addition to the plain nodes. */
+        isGrid(): boolean;
         /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
         setStatus(status: NodeStatusType, message?: string, details?: string): WunderbaumNode | null;
         /** Add or redefine node type definitions. */
