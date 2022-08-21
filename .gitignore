@@ -8,3 +8,5 @@ sauce_connect.*
 .pyftpsync-meta.json
 .DS_Store
 docs/tutorial/FT_*.md
+__pycache__
+test/generator/fixture.json
