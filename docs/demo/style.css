@@ -19,6 +19,16 @@ body {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+}
+
+ul {
+  padding: revert;
+}
+
+body {
+  /* `<!DOCTYPE html>` switches to standard mode, which would define 
+  100% as content height. We want 100% to interpreted as viewport height: */
+  height: 100%;
   /* prevent scrollbars, which would break `100vh` */
   overflow: hidden;
 }
@@ -49,11 +59,14 @@ div.grid-wrapper section.header {
   grid-column: 2;
   grid-row: 2;
   padding: 5px;
+  font-size: 90%;
 }
 
 div.grid-wrapper main.view {
   grid-column: 2;
   grid-row: 3;
+  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  overflow: hidden;
 }
 
 div.grid-wrapper section.footer {
@@ -61,6 +74,7 @@ div.grid-wrapper section.footer {
   grid-column: 2;
   grid-row: 4;
   padding: 5px;
+  font-size: 90%;
 }
 
 div.grid-wrapper div.statbar {
@@ -81,7 +95,7 @@ div#demo-tree {
   height: calc(100% - 12px);
   /* Leave some space for the blue focus outline*/
   /* padding: 5px;  */
-}  
+}
 
 div#nav-tree {
   background-color: transparent;
@@ -94,17 +108,72 @@ div.wunderbaum.wb-skeleton.wb-initializing {
   background-repeat: no-repeat;
 }
 
+div.welcome-page {
+  padding: 4px 4px;
+}
+
+output.error {
+  color: red;
+}
+
 output.tree-version {
   font-size: 40%;
   font-family: 'Courier New', Courier, monospace;
   font-weight: lighter;
 }
 
-output#parentPath {
+output#parentPath:not(.hidden) {
   font-size: 60%;
   display: block;
   padding: 1px 3px;
   height: 12px;
   /* background-color: #dedede; */
   background-color: whitesmoke;
+}
+
+.hide-on-welcome.hidden {
+  display: none;
+}
+
+hr {
+  margin: 1px 0;
+  border: none;
+  background-color: darkslateblue;
+  height: 1px;
+}
+
+
+a {
+  text-decoration: none;
+}
+
+a:hover,
+a:active {
+  text-decoration: underline;
+}
+
+a.neutral,
+a.neutral:hover,
+a.neutral:active {
+  text-decoration: none;
+  color: unset;
+}
+
+button.icon-button,
+button.toggle-button {
+  border: 1px solid whitesmoke;
+  border-radius: 3px;
+  background-color: whitesmoke;
+  color: royalblue;
+  padding: 1px 2px;
+}
+
+button.icon-button:hover,
+button.toggle-button:hover {
+  border-color: royalblue;
+}
+
+button.toggle-button.checked {
+  background-color: royalblue;
+  color: whitesmoke;
 }

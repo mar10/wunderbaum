@@ -198,7 +198,7 @@ export function extractHtmlText(s: string) {
  *
  * If a `<span class="wb-col">` is passed, the first child input is used.
  * Depending on the target element type, `value` is interpreted accordingly.
- * For example for a checkbox, a value of true, false, or null is returned if the
+ * For example for a checkbox, a value of true, false, or null is returned if
  * the element is checked, unchecked, or indeterminate.
  * For datetime input control a numerical value is assumed, etc.
  *
@@ -300,7 +300,9 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
 
     switch (type) {
       case "checkbox":
-        input.indeterminate = value == null;
+        // An explicit `null` value is interpreted as 'indeterminate'.
+        // `undefined` is interpreted as 'unchecked'
+        input.indeterminate = value === null;
         input.checked = !!value;
         break;
       case "date":
@@ -697,12 +699,12 @@ export function type(obj: any): string {
  * previous call.
  * Example:
  * ```js
- * throttledFoo = util.addaptiveThrottle(foo.bind(this), {});
+ * throttledFoo = util.adaptiveThrottle(foo.bind(this), {});
  * throttledFoo();
  * throttledFoo();
  * ```
  */
-export function addaptiveThrottle(
+export function adaptiveThrottle(
   this: unknown,
   callback: (...args: any[]) => void,
   options: any
@@ -724,7 +726,7 @@ export function addaptiveThrottle(
   const throttledFn = (...args: any[]) => {
     if (waiting) {
       pendingArgs = args;
-      // console.log(`addaptiveThrottle() queing request #${waiting}...`, args);
+      // console.log(`adaptiveThrottle() queing request #${waiting}...`, args);
       waiting += 1;
     } else {
       // Prevent invocations while running or blocking
@@ -732,7 +734,7 @@ export function addaptiveThrottle(
       const useArgs = args; // pendingArgs || args;
       pendingArgs = null;
 
-      // console.log(`addaptiveThrottle() execute...`, useArgs);
+      // console.log(`adaptiveThrottle() execute...`, useArgs);
       const start = Date.now();
       try {
         callback.apply(this, useArgs);
@@ -747,7 +749,7 @@ export function addaptiveThrottle(
       );
       const useDelay = Math.max(minDelay, curDelay - elap);
       // console.log(
-      //   `addaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
+      //   `adaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
       //   pendingArgs
       // );
       setTimeout(() => {
@@ -757,7 +759,7 @@ export function addaptiveThrottle(
         if (pendingArgs != null) {
           // There was another request while running or waiting
           // console.log(
-          //   `addaptiveThrottle() re-trigger (missed ${skipped})...`,
+          //   `adaptiveThrottle() re-trigger (missed ${skipped})...`,
           //   pendingArgs
           // );
           throttledFn.apply(this, pendingArgs);

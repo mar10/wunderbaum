@@ -28,6 +28,7 @@ export class FilterExtension extends WunderbaumExtension {
 
   constructor(tree: Wunderbaum) {
     super(tree, "filter", {
+      attachInput: null, // Element or selector of an input control for filter query strings
       autoApply: true, // Re-apply last filter if lazy data is loaded
       autoExpand: false, // Expand all branches that contain matches while filtered
       counter: true, // Show a badge with number of matching child nodes near parent icons
@@ -36,14 +37,14 @@ export class FilterExtension extends WunderbaumExtension {
       hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
       highlight: true, // Highlight matches by wrapping inside <mark> tags
       leavesOnly: false, // Match end nodes only
-      mode: "hide", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+      mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
       noData: true, // Display a 'no data' status node if result is empty
     });
   }
 
   init() {
     super.init();
-    let attachInput = this.getPluginOption("attachInput");
+    const attachInput = this.getPluginOption("attachInput");
     if (attachInput) {
       this.queryInput = elemFromSelector(attachInput) as HTMLInputElement;
       onEvent(
@@ -54,6 +55,17 @@ export class FilterExtension extends WunderbaumExtension {
           this.filterNodes(this.queryInput!.value.trim(), {});
         }, 700)
       );
+    }
+  }
+
+  setPluginOption(name: string, value: any): void {
+    // alert("filter opt=" + name + ", " + value)
+    super.setPluginOption(name, value);
+    switch (name) {
+      case "mode":
+        this.tree.filterMode = value === "hide" ? "hide" : "dim";
+        this.tree.updateFilter();
+        break;
     }
   }
 

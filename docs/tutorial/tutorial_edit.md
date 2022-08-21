@@ -57,7 +57,7 @@ const tree = new Wunderbaum({
      *
      * Return `false` to keep the input control open (not always possible).
      *
-     * It is also possible to return a `Promise` (e.g. from an ajax request).
+     * We can also return a `Promise` (e.g. from an ajax request).
      * In this case, the cell is marked 'busy' while updating.
      *
      * Implementing this event is optional. By default, `node.setTitle()` is
@@ -68,13 +68,13 @@ const tree = new Wunderbaum({
       const oldValue = e.oldValue;
       const newValue = e.newValue;
       const inputElem = e.inputElem;
-      // Simulate an async storage call that handles validation
+      // An async storage call that handles validation
       return storeMyStuff(node.refKey, newValue).then(() => {
         if( ...) {
           e.inputElem.setCustomValidity("Invalid for *reasons*: " + e.newValue)
           return false;
         }
-      }, 1000);
+      };
     },
   },
 });
@@ -126,12 +126,10 @@ const tree = new Wunderbaum({
   },
   /**
    * Called when an input control, that is embedded in a node's row, fires a
-   * `change` event. This is the case when we rendered input elements in other
-   * colum cells.
+   * `change` event.
    *
-   * Return a string value or a Promise.
-   * It is also possible to return a `Promise` (e.g. from an ajax request).
-   * In this case, the cell is marled 'busy' while updating.
+   * Return a string value or a Promise (e.g. from an ajax request).
+   * In the latter case, the cell is marked 'busy' while updating.
    */
   change: function (e) {
     const node = e.node;
