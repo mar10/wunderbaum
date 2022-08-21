@@ -14,10 +14,12 @@
     const is_local = !!window.location.hostname.match(/127.0.0.1/);
     const folder = is_local ? "build" : "dist";
     if (is_local) {
+      // Use current developer code
       document.title += " (DEV)";
       document.write(`<link rel="stylesheet" href="../../${folder}/wunderbaum.css" />`);
       document.write(`<script defer src="../../${folder}/wunderbaum.umd.js"\>\</script\>`);
     } else {
+      // Use latest published release
       document.write(`<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.css" />`);
       document.write(`<script defer src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.umd.min.js"\>\</script\>`);
     }
@@ -52,8 +54,8 @@
         <button type="button" id="disable-tree" class="toggle-button" 
           title="Disable tree">
           <i class="bi bi-pause-circle"></i></button>
-        <button type="button" id="enable-gridnav" class="toggle-button" 
-          title="Enable cell-navigation mode (tregrids only)">
+        <button type="button" id="enable-celldnav" class="toggle-button" 
+          title="Enable cell-navigation mode (treegrids only)">
           <i class="bi bi-grid-3x3-gap"></i></button>
         &vert;
         <label><input type="checkbox" class="auto-class-setter" data-classname="wb-rainbow"> wb-rainbow</label>,
@@ -70,7 +72,6 @@
         <!-- <button id="collapse-all" class="icon-button"><i class="bi bi-dash-square"></i></button> -->
         <button id="toggle-expand-all" class="icon-button" title="Expand/Collapse all"><i class="bi bi-plus-slash-minus"></i></button>
         <button id="toggle-select-all" class="icon-button" title="(De)Select all"><i class="bi bi-check2-square"></i></button>
-        <!-- <a id="expand-all" href="#">Expand all</a> &mdash;  <a id="collapse-all" href="#">Collapse all</a> -->
         &vert;
         <label for="filterQuery">Filter:</label>
         <input id="filterQuery" type="search" placeholder="Enter search query" autofocus>

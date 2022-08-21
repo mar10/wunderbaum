@@ -5,7 +5,7 @@
  * https://github.com/mar10/wunderbaum
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with ...
+ A treegrid with .... Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
  `;
 
 new mar10.Wunderbaum({

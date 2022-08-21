@@ -593,20 +593,24 @@ div.wunderbaum {
 // }
 
 /* RTL support */
-.wb-helper-start {
+.wb-helper-start,
+.wb-helper-start > input {
   text-align: left;
 }
 
-.wb-helper-end {
+.wb-helper-end,
+.wb-helper-end > input {
   text-align: right;
 }
 
 .wb-rtl {
-  .wb-helper-start {
+  .wb-helper-start,
+  .wb-helper-start > input {
     text-align: right;
   }
 
-  .wb-helper-end {
+  .wb-helper-end,
+  .wb-helper-end > input {
     text-align: left;
   }
 }

@@ -334,7 +334,7 @@ export class WunderbaumNode {
         this.classes!.delete(cn);
         this._rowElem?.classList.toggle(cn, flag);
       });
-      if(this.classes.size === 0) {
+      if (this.classes.size === 0) {
         this.classes = null;
       }
     }

@@ -1,5 +1,5 @@
 {
-  "columns": [
+  "columns_unused": [
     { "id": "*", "title": "Product", "width": "250px" },
     { "id": "author", "title": "Author", "width": "200px" },
     { "id": "year", "title": "Year", "width": "50px", "classes": "wb-helper-end" },

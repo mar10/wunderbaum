@@ -5,7 +5,7 @@
  * https://github.com/mar10/wunderbaum
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with embedded input controls.
+ A treegrid with embedded input controls (also renam,e nodes, but no filter or d'n'd).
  `;
 
 new mar10.Wunderbaum({
@@ -21,36 +21,16 @@ new mar10.Wunderbaum({
   columns: [
     { id: "*", title: "Product", width: "250px" },
     { id: "author", title: "Author", width: "200px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
+    { id: "year", title: "Year", width: "75px", classes: "wb-helper-end" },
+    { id: "qty", title: "Qty", width: "75px", classes: "wb-helper-end" },
     {
       id: "price",
       title: "Price ($)",
       width: "80px",
       classes: "wb-helper-end",
     },
-    // In order to test horizontal scrolling, we need a minimal width:
-    { id: "details", title: "Details", width: "*", minWidth: "600px" },
+    { id: "details", title: "Details", width: "*", minWidth: "100px" },
   ],
-  dnd: {
-    dragStart: (e) => {
-      if (e.node.type === "folder") {
-        return false;
-      }
-      e.event.dataTransfer.effectAllowed = "all";
-      return true;
-    },
-    dragEnter: (e) => {
-      if (e.node.type === "folder") {
-        e.event.dataTransfer.dropEffect = "copy";
-        return "over";
-      }
-      return ["before", "after"];
-    },
-    drop: (e) => {
-      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
-    },
-  },
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],
     select: true,
@@ -75,36 +55,31 @@ new mar10.Wunderbaum({
   },
   filter: {
     attachInput: "input#filterQuery",
-    // mode: "dim",
   },
   init: (e) => {
-    // e.tree.setFocus();
   },
   load: function (e) {
-    // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
-  },
-  lazyLoad: function (e) {
-    console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-sample.json" };
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-sample.json" });
-      }, 1500);
-    });
   },
   change: function (e) {
+    const util = e.util;
     const info = e.info;
     const colId = info.colId;
 
-    console.log(e.type, e);
+    // console.log(e.type, util.getValueFromElem(e.inputElem, true));
     // For demo purposes, simulate a backend delay:
     return e.util.setTimeoutPromise(() => {
       // Assumption: we named column.id === node.data.NAME
       switch (colId) {
-        case "sale":
+        case "author":
         case "details":
-          e.node.data[colId] = e.inputValue;
+        case "price":
+        case "qty":
+        case "sale": // checkbox control
+        case "year":
+          // We can hand-code and customize it like so:
+          // e.node.data[colId] = e.inputValue;
+          // ... but this helper should work in most cases:
+          e.node.data[colId] = util.getValueFromElem(e.inputElem, true);
           break;
       }
       // e.node.setModified()
@@ -118,32 +93,48 @@ new mar10.Wunderbaum({
     if (node.type === "folder" || !node.type) {
       return;
     }
-
+    // Render embedded input controls for all data columns
     for (const col of Object.values(e.colInfosById)) {
       switch (col.id) {
         case "*":
           // node icon & title is rendered by the core
           break;
-        case "price":
-          col.elem.textContent = "$ " + node.data.price.toFixed(2);
-          break;
-        case "qty": // thousands separator
-          col.elem.textContent = node.data.qty.toLocaleString();
-          break;
-        case "sale": // checkbox control
-          console.log(e.type, e);
-
+        case "author":
           if (e.isNew) {
-            col.elem.innerHTML = "<input type='checkbox'>";
+            col.elem.innerHTML = "<input type='text'>";
           }
-          // Cast value to bool, since we don't want tri-state behavior
-          util.setValueToElem(col.elem, !!node.data.sale);
+          util.setValueToElem(col.elem, node.data.author);
           break;
         case "details": // text control
           if (e.isNew) {
             col.elem.innerHTML = "<input type='text'>";
           }
           util.setValueToElem(col.elem, node.data.details);
+          break;
+        case "price":
+          if (e.isNew) {
+            col.elem.innerHTML = "<input type='number' min='0.00' step='0.01'>";
+          }
+          util.setValueToElem(col.elem, node.data.price.toFixed(2));
+          break;
+        case "qty":
+          if (e.isNew) {
+            col.elem.innerHTML = "<input type='number' min='0'>";
+          }
+          util.setValueToElem(col.elem, node.data.qty);
+          break;
+        case "sale": // checkbox control
+          if (e.isNew) {
+            col.elem.innerHTML = "<input type='checkbox'>";
+          }
+          // Cast value to bool, since we don't want tri-state behavior
+          util.setValueToElem(col.elem, !!node.data.sale);
+          break;
+        case "year": // thousands separator
+          if (e.isNew) {
+            col.elem.innerHTML = "<input type='number' max='9999'>";
+          }
+          util.setValueToElem(col.elem, node.data.year);
           break;
         default:
           // Assumption: we named column.id === node.data.NAME

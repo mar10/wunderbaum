@@ -107,6 +107,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     tree.setOption("enabled", !flag);
   })
+  toggleButtonCreate("#enable-celldnav", (e, flag) => {
+    const tree = mar10.Wunderbaum.getTree("demo");
+    if (tree.getNavigationMode() === "row" && tree.isGrid()) {
+      tree.setNavigationMode("cellNav")
+    } else {
+      tree.setNavigationMode("row")
+    }
+    return tree.getNavigationMode() !== "row"
+  })
   document.querySelector("#toggle-expand-all").addEventListener("click", (e) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     tree.expandAll(!tree.getFirstChild().isExpanded());
@@ -127,7 +136,10 @@ function toggleButtonCreate(selector, onChange) {
   buttonElem.classList.add("toggle-button")
   buttonElem.addEventListener("click", (e) => {
     buttonElem.classList.toggle("checked")
-    onChange(e, buttonElem.classList.contains("checked"))
+    const res = onChange(e, buttonElem.classList.contains("checked"));
+    if (typeof res === "boolean") {
+      buttonElem.classList.toggle("checked", res)
+    }
   })
 }
 
@@ -207,7 +219,7 @@ function reconfigureTree(tag = null) {
   loadScript(url).then(() => {
     demoTree = mar10.Wunderbaum.getTree("demo");
     console.debug(`Script ${url} was run. tree:`, demoTree);//, demoTree?.options);
-    if(!demoTree){
+    if (!demoTree) {
       detailsElem.innerHTML = "&nbsp;";
       console.timeEnd(label)
       return
@@ -221,6 +233,8 @@ function reconfigureTree(tag = null) {
         .classList.toggle("checked", !!demoTree.getOption("checkbox"));
       document.getElementById("filter-hide")
         .classList.toggle("checked", demoTree.getOption("filter.mode") === "hide");
+      document.getElementById("filter-hide")
+        .classList.toggle("checked", demoTree.isGrid() && demoTree.getNavigationMode() === "row");
     })
 
   }).catch((e) => {

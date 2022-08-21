@@ -30,28 +30,9 @@ new mar10.Wunderbaum({
       width: "80px",
       classes: "wb-helper-end",
     },
-    // In order to test horizontal scrolling, we need a minimal width:
+    // In order to test horizontal scrolling, we need a large minimal width:
     { id: "details", title: "Details", width: "*", minWidth: "600px" },
   ],
-  dnd: {
-    dragStart: (e) => {
-      if (e.node.type === "folder") {
-        return false;
-      }
-      e.event.dataTransfer.effectAllowed = "all";
-      return true;
-    },
-    dragEnter: (e) => {
-      if (e.node.type === "folder") {
-        e.event.dataTransfer.dropEffect = "copy";
-        return "over";
-      }
-      return ["before", "after"];
-    },
-    drop: (e) => {
-      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
-    },
-  },
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],
     select: true,

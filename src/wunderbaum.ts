@@ -1538,10 +1538,14 @@ export class Wunderbaum {
     }
   }
 
+  /** Get the tree's navigation mode. */
+  getNavigationMode(): NavigationMode {
+    return this.navMode;
+  }
+
   /** Set the tree's navigation mode. */
   setNavigationMode(mode: NavigationMode) {
-    // util.assert(this.cellNavMode);
-    // util.assert(0 <= colIdx && colIdx < this.columns.length);
+    util.assert(mode in NavigationMode, `Invalid mode '${mode}'`);
     if (mode === this.navMode) {
       return;
     }
@@ -1572,6 +1576,11 @@ export class Wunderbaum {
   /** Return false if tree is disabled. */
   isEnabled(): boolean {
     return this.enabled;
+  }
+
+  /** Return true if tree has one or more data columns in addition to the plain nodes. */
+  isGrid(): boolean {
+    return this.columns && this.columns.length > 1;
   }
 
   /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */

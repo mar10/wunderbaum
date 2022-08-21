@@ -246,7 +246,8 @@ export class DndExtension extends WunderbaumExtension {
     this.lastEnterStamp = 0;
     if (ltn) {
       ltn.setClass(
-        "wb-drop-target wb-drop-over wb-drop-after wb-drop-before", false
+        "wb-drop-target wb-drop-over wb-drop-after wb-drop-before",
+        false
       );
       this.lastTargetNode = null;
     }
