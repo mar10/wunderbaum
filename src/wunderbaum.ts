@@ -351,7 +351,7 @@ export class Wunderbaum {
 
     // --- Bind listeners
     this.element.addEventListener("scroll", (e: Event) => {
-      this.log("scroll", e);
+      // this.log("scroll", e);
       this.setModified(ChangeType.vscroll);
     });
     // this.scrollContainerElement.addEventListener("scroll", (e: Event) => {
@@ -1761,8 +1761,7 @@ export class Wunderbaum {
     if (this.options.attachBreadcrumb) {
       let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
       path = path ? path + " >" : "";
-      console.log("attachBreadcrumb: " + path);
-      this.options.attachBreadcrumb.textContent = `${path}`;
+      this.options.attachBreadcrumb.textContent = path;
     }
     this._callEvent("update");
   }

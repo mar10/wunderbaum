@@ -9,13 +9,6 @@ document.getElementById("demo-info").innerHTML = `
 A simple tree with filter, rename, drag'n'drop, lazy-loading.
 `;
 
-/* <a href="../index.html#/tutorial/tutorial_keyboard">Keyboard Navigation</a> &mdash;
-<a href="../index.html#/tutorial/tutorial_dnd">Drag and Drop</a> &mdash;
-<a href="../index.html#/tutorial/tutorial_select">Select</a> &mdash;
-<a href="../index.html#/tutorial/tutorial_filter">Filter/Search</a> &mdash;
-<a href="../index.html#/tutorial/tutorial_edit">Edit</a> */
-
-
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),

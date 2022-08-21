@@ -113,27 +113,11 @@ document.addEventListener("DOMContentLoaded", (event) => {
   });
   document.querySelector("#toggle-select-all").addEventListener("click", (e) => {
     const tree = mar10.Wunderbaum.getTree("demo");
+    const label = tree.logTime(`selectAll()`)
     tree.selectAll(!tree.getFirstChild().isSelected());
+    tree.logTimeEnd(label)
   });
 });
-
-/**
- * 
- * @param {*} tree 
- * @param {*} options 
- */
-function showStatus(tree, options) {
-  const info = document.querySelector("#tree-info");
-  const elemCount = document.querySelector("#demo-tree .wb-node-list")
-    .childElementCount;
-  const msg =
-    `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
-      .count(true)
-      .toLocaleString()}, rendered: ${elemCount}` + `.`;
-
-  info.textContent = msg;
-  tree._check();
-}
 
 /**
  * Toggle button
@@ -152,11 +136,11 @@ function toggleButtonCreate(selector, onChange) {
  */
 function loadScript(url, async = true, module = true, type = "text/javascript", destroyExisting = true) {
   return new Promise((resolve, reject) => {
-    const sourceLink = document.getElementById("sourceLink");
-
     console.log(`Loading script ${url}...`)
+    // Update address of 'Source Code' link:
+    const sourceLink = document.getElementById("sourceLink");
     sourceLink.setAttribute("href", url);
-
+    // Remove previously loaded demo scripts and event listeners:
     if (destroyExisting) {
       document.querySelectorAll("script.demo-case-handler").forEach(elem => {
         console.log("Remove old script:", elem);
@@ -180,7 +164,7 @@ function loadScript(url, async = true, module = true, type = "text/javascript", 
       resolve(e);
     });
     scriptElem.addEventListener("error", (e) => {
-      console.error(`Loading script ${url}... ERROR.`, e)
+      console.error(`Loading script ${url}... ERROR:`, e)
       reject(e);
     });
 
@@ -204,6 +188,8 @@ function reconfigureTree(tag = null) {
   tag = tag.replace(/^#/, "")
   tag = tag || "demo-welcome";
   const isWelcome = tag === "demo-welcome";
+  const label = `reconfigureTree(${tag})`
+  console.time(label)
 
   window.location.hash = tag;
 
@@ -220,11 +206,17 @@ function reconfigureTree(tag = null) {
 
   loadScript(url).then(() => {
     demoTree = mar10.Wunderbaum.getTree("demo");
-    console.info(`Script ${url} was run. tree:`, demoTree, demoTree.options);
+    console.debug(`Script ${url} was run. tree:`, demoTree);//, demoTree?.options);
+    if(!demoTree){
+      detailsElem.innerHTML = "&nbsp;";
+      console.timeEnd(label)
+      return
+    }
 
     // Update GUI controls from current tree settings.
     demoTree.ready.then(() => {
-      console.info("Reloaded tree is initialized!")
+      console.timeEnd(label)
+      // console.info("Reloaded tree is initialized!")
       document.getElementById("show-checkboxes")
         .classList.toggle("checked", !!demoTree.getOption("checkbox"));
       document.getElementById("filter-hide")
@@ -235,4 +227,27 @@ function reconfigureTree(tag = null) {
     detailsElem.classList.add("error");
     detailsElem.innerHTML = `${e}`;
   });
+}
+
+/**
+ * 
+ * @param {*} tree 
+ * @param {*} options 
+ */
+function showStatus(tree, options) {
+  // const tree = mar10.Wunderbaum.getTree("demo");
+  const info = document.querySelector("#tree-info");
+  if (!tree) {
+    info.textContent = "n.a.";
+    return;
+  }
+  const elemCount = document.querySelector("#demo-tree .wb-node-list")
+    .childElementCount;
+  const msg =
+    `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
+      .count(true)
+      .toLocaleString()}, rendered: ${elemCount}` + `.`;
+
+  info.textContent = msg;
+  tree._check();
 }
