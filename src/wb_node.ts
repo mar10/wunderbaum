@@ -1666,7 +1666,7 @@ export class WunderbaumNode {
     if (
       !flag &&
       this.isExpanded() &&
-      this.getLevel() < this.getOption("minExpandLevel") &&
+      this.getLevel() <= this.getOption("minExpandLevel") &&
       !util.getOption(options, "force")
     ) {
       this.logDebug("Ignored collapse request below expandLevel.");

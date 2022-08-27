@@ -143,6 +143,7 @@ export interface WunderbaumOptions {
   debugLevel: number;
   /**
    * Number of levels that are forced to be expanded, and have no expander icon.
+   * E.g. 1 would keep all toplevel nodes expanded.
    * Default: 0
    */
   minExpandLevel?: number;
