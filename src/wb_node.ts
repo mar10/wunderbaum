@@ -1604,9 +1604,9 @@ export class WunderbaumNode {
     const prev = tree.activeNode;
     const retrigger = options?.retrigger;
     const noEvents = options?.noEvents;
+    const orgEvent = options?.event;
 
     if (!noEvents) {
-      let orgEvent = options?.event;
       if (flag) {
         if (prev !== this || retrigger) {
           if (
@@ -1617,14 +1617,14 @@ export class WunderbaumNode {
           ) {
             return;
           }
+          tree.activeNode = null;
+          prev?.setModified(ChangeType.status);
           if (
-            this._callEvent("activate", {
+            this._callEvent("beforeActivate", {
               prevNode: prev,
               orgEvent: orgEvent,
             }) === false
           ) {
-            tree.activeNode = null;
-            prev?.setModified();
             return;
           }
         }
@@ -1646,6 +1646,7 @@ export class WunderbaumNode {
     ) {
       tree.setColumn(options.colIdx);
     }
+    this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
     // requestAnimationFrame(() => {
     //   this.scrollIntoView();
     // })

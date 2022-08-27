@@ -228,6 +228,15 @@ export interface WunderbaumOptions {
   click?: (e: WbTreeEventType) => void;
   /**
    *
+   * Return `false` to prevent default handling, e.g. activating the node.
+   * @category Callback
+   */
+  beforeActivate?: (e: WbNodeEventType) => void;
+  /**
+  /**
+   *
+   * Return `false` to prevent default handling, e.g. deactivating the node
+   * and activating the next.
    * @category Callback
    */
   deactivate?: (e: WbNodeEventType) => void;
