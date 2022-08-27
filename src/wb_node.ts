@@ -1377,8 +1377,6 @@ export class WunderbaumNode {
     const checkboxSpan = nodeElem.querySelector(
       "i.wb-checkbox"
     ) as HTMLLIElement;
-    // TODO: update icon (if not opts.isNew)
-    // const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
 
     let rowClasses = ["wb-row"];
     this.expanded ? rowClasses.push("wb-expanded") : 0;
@@ -1434,6 +1432,11 @@ export class WunderbaumNode {
       let i = 0;
       for (let colSpan of rowDiv.children) {
         colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
+      }
+      // Update icon (if not opts.isNew, which would rebuild markup anyway)
+      const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
+      if (iconSpan) {
+        this._createIcon(nodeElem, iconSpan);
       }
     }
   }
