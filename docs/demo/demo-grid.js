@@ -5,7 +5,9 @@
  * https://github.com/mar10/wunderbaum
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with .... Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
+ A treegrid with renaming, row-nav mode, 'checkbox: true', 'minExpandLevel: 1'.
+ <br>
+ Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
  `;
 
 new mar10.Wunderbaum({
@@ -14,9 +16,11 @@ new mar10.Wunderbaum({
   source: "../assets/ajax-tree-products.json",
   debugLevel: 5,
   attachBreadcrumb: document.getElementById("parentPath"),
-  // checkbox: false,
-  // minExpandLevel: 1,
+  checkbox: true,
+  minExpandLevel: 1,
   // fixedCol: true,
+  // Types are sent as part of the source data:
+  navigationMode: "startRow",
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },
@@ -93,23 +97,6 @@ new mar10.Wunderbaum({
       }, 1500);
     });
   },
-  change: function (e) {
-    const info = e.info;
-    const colId = info.colId;
-
-    console.log(e.type, e);
-    // For demo purposes, simulate a backend delay:
-    return e.util.setTimeoutPromise(() => {
-      // Assumption: we named column.id === node.data.NAME
-      switch (colId) {
-        case "sale":
-        case "details":
-          e.node.data[colId] = e.inputValue;
-          break;
-      }
-      // e.node.setModified()
-    }, 500);
-  },
   render: function (e) {
     // console.log(e.type, e.isNew, e);
     const node = e.node;
@@ -124,27 +111,27 @@ new mar10.Wunderbaum({
         case "*":
           // node icon & title is rendered by the core
           break;
-        case "price":
-          col.elem.textContent = "$ " + node.data.price.toFixed(2);
-          break;
-        case "qty": // thousands separator
-          col.elem.textContent = node.data.qty.toLocaleString();
-          break;
-        case "sale": // checkbox control
-          console.log(e.type, e);
+        // case "price":
+        //   col.elem.textContent = "$ " + node.data.price.toFixed(2);
+        //   break;
+        // case "qty": // thousands separator
+        //   col.elem.textContent = node.data.qty.toLocaleString();
+        //   break;
+        // case "sale": // checkbox control
+        //   console.log(e.type, e);
 
-          if (e.isNew) {
-            col.elem.innerHTML = "<input type='checkbox'>";
-          }
-          // Cast value to bool, since we don't want tri-state behavior
-          util.setValueToElem(col.elem, !!node.data.sale);
-          break;
-        case "details": // text control
-          if (e.isNew) {
-            col.elem.innerHTML = "<input type='text'>";
-          }
-          util.setValueToElem(col.elem, node.data.details);
-          break;
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = "<input type='checkbox'>";
+        //   }
+        //   // Cast value to bool, since we don't want tri-state behavior
+        //   util.setValueToElem(col.elem, !!node.data.sale);
+        //   break;
+        // case "details": // text control
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = "<input type='text'>";
+        //   }
+        //   util.setValueToElem(col.elem, node.data.details);
+        //   break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];

@@ -18,6 +18,7 @@ new mar10.Wunderbaum({
   // checkbox: false,
   // minExpandLevel: 1,
   // fixedCol: true,
+  navigationMode: "row",
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },

@@ -10,9 +10,13 @@ document.getElementById("demo-tree").innerHTML = `
     <br>
     <ul>
     <li>Select a demo in the navigation tree on the right side.</li>
-    <li>Click the <u>Source Code</u> link below the demo trees to view 
+    <li>Use buttons (<i class="bi bi-list-check"></i>, <i class="bi bi-plus-slash-minus"></i>, etc.) 
+        and checkboxes above the demo trees to apply commands.</li>
+    <li>Click the <u>View Source Code</u> link below the demo trees to view 
         implementation details.</li>
-    <li>Check the 
+    <li>The navigation tree on the right of this demo app is also implemented 
+        with Wunderbaum. <br>
+        Check the 
         <a href="./navigation.js" target="_blank">source code of this demo app</a> 
         for some ideas how to implement GUI controls for the tree.</li>
     </ul>

@@ -15,7 +15,7 @@ For example
     <link rel="stylesheet" media="screen" href="../wunderbaum.css" />
     <link
       rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.0/font/bootstrap-icons.css"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.0/font/bootstrap-icons.css"
     />
 
     <script defer src="../wunderbaum.umd.js"></script>

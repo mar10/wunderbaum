@@ -53,16 +53,22 @@ def make_tree(*, spec_list, parent=None, prefix=""):
 def create_fixed_multicheckbox():
     tree = make_tree(
         spec_list=[
-            {"count": 10, "title": "Node {i}", "type": "folder", "expanded": True},
-            {"count": 10, "title": "Node {prefix}", "type": "location"},
-            {"count": 10, "title": "$(name)", "type": "article"},
+            {"count": 10, "title": "Dept. for $(Noun:plural) and $(Noun:plural)", "type": "department", "expanded": True},
+            {"count": 10, "title": "$(Verb) $(noun:plural)", "type": "role"},
+            # {"count": 10, "title": "{prefix}", "type": "location"},
+            {"count": 10, "title": "$(name)", "type": "person"},
         ]
     )
     tree.print()
+    
     child_list = tree.to_dict(mapper=WbNode.serialize_mapper)
+
     type_dict = {
-        "folder": {"icon": "bi bi-folder", "classes": "classo"},
-        "article": {"icon": "bi bi-book"},
+        "department": {"icon": "bi bi-diagram-3"},
+        # "department": {"icon": "bi bi-person-bounding-box"},
+        "role": {"icon": "bi bi-microsoft-teams"},
+        # "location": {"icon": "bi bi-map"},
+        "person": {"icon": "bi bi-person"},
     }
     column_list = [
         {"title": "Title", "id": "*", "width": "200px"},

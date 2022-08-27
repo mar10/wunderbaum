@@ -11,13 +11,15 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),
-  source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+  // source:
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+  source: "../assets/ajax_1k_3_54.json",
   debugLevel: 5,
   attachBreadcrumb: document.getElementById("parentPath"),
-  // checkbox: false,
+  // checkbox: true,
   // minExpandLevel: 1,
   fixedCol: true,
+  navigationMode: "cell",
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },

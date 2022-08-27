@@ -1649,7 +1649,9 @@ export class WunderbaumNode {
     ) {
       tree.setColumn(options.colIdx);
     }
-    this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
+    if (flag && !noEvents) {
+      this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
+    }
     // requestAnimationFrame(() => {
     //   this.scrollIntoView();
     // })

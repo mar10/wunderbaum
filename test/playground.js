@@ -20,6 +20,7 @@ const tree = new Wunderbaum({
   debugLevel: 4,
 
   header: true, //"Playground", 
+  navigationMode: "cell",
 
   // columns: [
   //   { title: "test", id: "*", width: "200px" },

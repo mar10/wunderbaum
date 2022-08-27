@@ -227,17 +227,6 @@ export class Wunderbaum {
     }
     delete opts.types;
 
-    if (this.columns.length === 1) {
-      opts.navigationMode = NavigationModeOption.row;
-    }
-
-    if (
-      opts.navigationMode === NavigationModeOption.cell ||
-      opts.navigationMode === NavigationModeOption.startCell
-    ) {
-      this.navMode = NavigationMode.cellNav;
-    }
-
     this._updateViewportThrottled = util.adaptiveThrottle(
       this._updateViewport.bind(this),
       {}
@@ -341,6 +330,17 @@ export class Wunderbaum {
         });
     } else {
       readyDeferred.resolve();
+    }
+    if (
+      this.columns.length === 1 ||
+      opts.navigationMode === NavigationModeOption.row ||
+      opts.navigationMode === NavigationModeOption.startRow
+    ) {
+      // this.navMode = NavigationMode.row;
+      this.setNavigationMode(NavigationMode.row);
+    } else {
+      // this.navMode = NavigationMode.cellNav;
+      this.setNavigationMode(NavigationMode.cellNav);
     }
 
     // TODO: This is sometimes required, because this.element.clientWidth
@@ -1527,7 +1527,7 @@ export class Wunderbaum {
       case ChangeType.row:
       case ChangeType.data:
       case ChangeType.status:
-        // Single nodes are immedialtely updated if already inside the viewport
+        // Single nodes are immediately updated if already inside the viewport
         // (otherwise we can ignore)
         if (node._rowElem) {
           node.render({ change: change });

@@ -8,7 +8,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.9.0/font/bootstrap-icons.css" />
 
   <script type="text/javascript">
     const is_local = !!window.location.hostname.match(/127.0.0.1/);
@@ -54,7 +54,7 @@
         <button type="button" id="disable-tree" class="toggle-button" 
           title="Disable tree">
           <i class="bi bi-pause-circle"></i></button>
-        <button type="button" id="enable-celldnav" class="toggle-button" 
+        <button type="button" id="enable-cellnav" class="toggle-button" 
           title="Enable cell-navigation mode (treegrids only)">
           <i class="bi bi-grid-3x3-gap"></i></button>
         &vert;
@@ -70,12 +70,15 @@
       <span id="demo-controls" class="hide-on-welcome hidden">
         <!-- <button id="expand-all" class="icon-button"><i class="bi bi-plus-square"></i></button> -->
         <!-- <button id="collapse-all" class="icon-button"><i class="bi bi-dash-square"></i></button> -->
-        <button id="toggle-expand-all" class="icon-button" title="Expand/Collapse all"><i class="bi bi-plus-slash-minus"></i></button>
-        <button id="toggle-select-all" class="icon-button" title="(De)Select all"><i class="bi bi-check2-square"></i></button>
+        <button id="toggle-expand-all" class="icon-button" title="Expand/Collapse all">
+          <i class="bi bi-plus-slash-minus"></i></button>
+        <button id="toggle-select-all" class="icon-button" title="(De)Select all">
+          <i class="bi bi-check2-square"></i></button>
         &vert;
         <label for="filterQuery">Filter:</label>
         <input id="filterQuery" type="search" placeholder="Enter search query" autofocus>
-        <button type="button" id="filter-hide" title="Hide unmatched nodes"><i class="bi bi-funnel"></i></button>
+        <button type="button" id="filter-hide" title="Hide unmatched nodes">
+          <i class="bi bi-funnel"></i></button>
       </span>
     </section>
 
@@ -91,7 +94,7 @@
     <section class="footer">
       <p>
         <a id="sourceLink" href="" target="_blank">
-          <i class="wb-icon bi bi-file-code"></i> Source Code
+          <i class="wb-icon bi bi-file-code"></i> View Source Code
         </a>
       </p>
       <span id="demo-stats" class="hide-on-welcome hidden">

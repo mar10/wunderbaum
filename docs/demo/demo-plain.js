@@ -6,16 +6,19 @@
  */
 
 document.getElementById("demo-info").innerHTML = `
-A simple tree with filter, rename, drag'n'drop, lazy-loading.
+A simple tree with filter, rename, drag'n'drop, lazy-loading.<br>
+100k nodes: click <i class="bi bi-plus-slash-minus"></i> to expand them all.
 `;
 
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),
-  source: "../assets/ajax-tree-products.json",
+  source:
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+  // source: "../assets/ajax-tree-products.json",
   debugLevel: 5,
   attachBreadcrumb: document.getElementById("parentPath"),
-  // checkbox: false,
+  checkbox: true,
   // minExpandLevel: 1,
   types: {},
   dnd: {

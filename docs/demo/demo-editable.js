@@ -5,7 +5,8 @@
  * https://github.com/mar10/wunderbaum
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with embedded input controls (also renam,e nodes, but no filter or d'n'd).
+ A treegrid with embedded input controls (also renaming nodes, but no filter or d'n'd).
+ cell-navigation mode
  `;
 
 new mar10.Wunderbaum({
@@ -14,9 +15,9 @@ new mar10.Wunderbaum({
   source: "../assets/ajax-tree-editable.json",
   debugLevel: 5,
   attachBreadcrumb: document.getElementById("parentPath"),
-  // checkbox: false,
-  // minExpandLevel: 1,
+  // checkbox: true,
   // fixedCol: true,
+  navigationMode: "cell",
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },

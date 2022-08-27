@@ -107,7 +107,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     tree.setOption("enabled", !flag);
   })
-  toggleButtonCreate("#enable-celldnav", (e, flag) => {
+  toggleButtonCreate("#enable-cellnav", (e, flag) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     if (tree.getNavigationMode() === "row" && tree.isGrid()) {
       tree.setNavigationMode("cellNav")
@@ -149,7 +149,7 @@ function toggleButtonCreate(selector, onChange) {
 function loadScript(url, async = true, module = true, type = "text/javascript", destroyExisting = true) {
   return new Promise((resolve, reject) => {
     console.log(`Loading script ${url}...`)
-    // Update address of 'Source Code' link:
+    // Update address of 'View Source Code' link:
     const sourceLink = document.getElementById("sourceLink");
     sourceLink.setAttribute("href", url);
     // Remove previously loaded demo scripts and event listeners:
@@ -233,7 +233,7 @@ function reconfigureTree(tag = null) {
         .classList.toggle("checked", !!demoTree.getOption("checkbox"));
       document.getElementById("filter-hide")
         .classList.toggle("checked", demoTree.getOption("filter.mode") === "hide");
-      document.getElementById("filter-hide")
+      document.getElementById("enable-cellnav")
         .classList.toggle("checked", demoTree.isGrid() && demoTree.getNavigationMode() === "row");
     })
 

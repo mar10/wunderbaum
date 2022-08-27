@@ -9,7 +9,7 @@
 > Potential successor of [Fancytree](https://github.com/mar10/fancytree).<br>
 > **NOTE: Status _experimental_. Do not use in production!**
 
-[![Demo](docs/assets/teaser_1.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
+[![Demo](docs/assets/teaser_2.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
 
 <!-- https://de.wikipedia.org/wiki/Wunderbaum -->
 
