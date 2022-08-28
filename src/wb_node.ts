@@ -28,6 +28,8 @@ import {
   SetActiveOptions,
   SetExpandedOptions,
   SetSelectedOptions,
+  MakeVisibleOptions,
+  ScrollIntoViewOptions,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -880,25 +882,28 @@ export class WunderbaumNode {
    * @param {object} [opts] passed to `setExpanded()`.
    *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
    */
-  async makeVisible(opts: any) {
+  async makeVisible(opts?: MakeVisibleOptions) {
     let i,
       dfd = new Deferred(),
       deferreds = [],
       parents = this.getParentList(false, false),
       len = parents.length,
-      effects = !(opts && opts.noAnimation === true),
+      // effects = !(opts && opts.noAnimation === true),
       scroll = !(opts && opts.scrollIntoView === false);
 
     // Expand bottom-up, so only the top node is animated
     for (i = len - 1; i >= 0; i--) {
       // self.debug("pushexpand" + parents[i]);
-      deferreds.push(parents[i].setExpanded(true, opts));
+      const seOpts = { noAnimation: opts?.noAnimation };
+      deferreds.push(parents[i].setExpanded(true, seOpts));
     }
     Promise.all(deferreds).then(() => {
       // All expands have finished
       // self.debug("expand DONE", scroll);
       if (scroll) {
-        this.scrollIntoView(effects).then(() => {
+        // Make sure markup and _rowIdx is updated before we do the scroll calculations
+        this.tree.updateViewport(true);
+        this.scrollIntoView().then(() => {
           // self.debug("scroll DONE");
           dfd.resolve();
         });
@@ -1595,8 +1600,9 @@ export class WunderbaumNode {
   /** Make sure that this node is visible in the viewport.
    * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo()}
    */
-  async scrollIntoView(options?: any) {
-    return this.tree.scrollTo(this);
+  async scrollIntoView(options?: ScrollIntoViewOptions) {
+    const opts = Object.assign({ node: this }, options);
+    return this.tree.scrollTo(opts);
   }
 
   /**
@@ -1616,13 +1622,7 @@ export class WunderbaumNode {
             prev?._callEvent("deactivate", {
               nextNode: this,
               orgEvent: orgEvent,
-            }) === false
-          ) {
-            return;
-          }
-          tree.activeNode = null;
-          prev?.setModified(ChangeType.status);
-          if (
+            }) === false ||
             this._callEvent("beforeActivate", {
               prevNode: prev,
               orgEvent: orgEvent,
@@ -1630,6 +1630,8 @@ export class WunderbaumNode {
           ) {
             return;
           }
+          tree.activeNode = null;
+          prev?.setModified(ChangeType.status);
         }
       } else if (prev === this || retrigger) {
         this._callEvent("deactivate", { nextNode: null, orgEvent: orgEvent });
@@ -1652,10 +1654,8 @@ export class WunderbaumNode {
     if (flag && !noEvents) {
       this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
     }
-    // requestAnimationFrame(() => {
-    //   this.scrollIntoView();
-    // })
-    return this.scrollIntoView();
+    return this.makeVisible();
+    // return this.scrollIntoView();
   }
 
   /**
@@ -1676,7 +1676,8 @@ export class WunderbaumNode {
       await this.loadLazy();
     }
     this.expanded = flag;
-    this.tree.setModified(ChangeType.structure);
+    const updateOpts = { immediate: !!util.getOption(options, "immediate") };
+    this.tree.setModified(ChangeType.structure, updateOpts);
   }
 
   /**

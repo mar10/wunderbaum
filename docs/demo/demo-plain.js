@@ -5,7 +5,7 @@
  */
 
 document.getElementById("demo-info").innerHTML = `
-A simple tree with filter, rename, drag'n'drop, lazy-loading.<br>
+A simple tree with filter, rename, drag'n'drop, lazy-loading. Auto-focus on init.<br>
 100k nodes: click <i class="bi bi-plus-slash-minus"></i> to expand them all.
 `;
 
@@ -66,7 +66,9 @@ new mar10.Wunderbaum({
     mode: "hide",
   },
   init: (e) => {
-    // e.tree.setFocus();
+    const node = e.tree.findFirst("Jumping dopily")
+    node.setActive()
+    e.tree.setFocus();
   },
   load: function (e) {
     // e.tree.addChildren({ title: "custom1", classes: "wb-error" });

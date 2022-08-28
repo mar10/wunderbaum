@@ -34,6 +34,7 @@ import {
   TargetType as NodeRegion,
   ApplyCommandType,
   SetActiveOptions,
+  ScrollToOptions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -1362,13 +1363,25 @@ export class Wunderbaum {
    *     this node will remain visible in
    *     any case, even if `this` is outside the scroll pane.
    */
-  scrollTo(opts: any) {
+  scrollTo(nodeOrOpts?: ScrollToOptions | WunderbaumNode) {
     const MARGIN = 1;
-    const node = opts.node || this.getActiveNode();
+    let node;
+    if (nodeOrOpts == null) {
+      node = this.getActiveNode();
+      if (!node) {
+        return;
+      }
+    } else if (nodeOrOpts instanceof WunderbaumNode) {
+      node = nodeOrOpts;
+    } else {
+      node = nodeOrOpts.node;
+    }
+    // const scrollParent = this.scrollContainerElement;
+    const scrollParent = this.element;
+    const curTop = scrollParent.scrollTop;
+    const height = scrollParent.clientHeight;
     util.assert(node._rowIdx != null);
-    const curTop = this.scrollContainerElement.scrollTop;
-    const height = this.scrollContainerElement.clientHeight;
-    const nodeOfs = node._rowIdx * ROW_HEIGHT;
+    const nodeOfs = node._rowIdx! * ROW_HEIGHT;
     let newTop;
 
     if (nodeOfs > curTop) {
@@ -1387,7 +1400,7 @@ export class Wunderbaum {
         "scrollTo(" + nodeOfs + "): " + curTop + " => " + newTop,
         height
       );
-      this.scrollContainerElement.scrollTop = newTop;
+      scrollParent.scrollTop = newTop;
       this.setModified(ChangeType.vscroll);
     }
   }
@@ -1817,7 +1830,7 @@ export class Wunderbaum {
    * -
    */
   protected _updateRows(opts?: any): boolean {
-    const label = this.logTime("_updateRows");
+    // const label = this.logTime("_updateRows");
     // this.log("_updateRows", opts)
     opts = Object.assign({ newNodesOnly: false }, opts);
     const newNodesOnly = !!opts.newNodesOnly;
@@ -1896,7 +1909,7 @@ export class Wunderbaum {
     //   `render(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
     //   this.nodeListElement.style.height
     // );
-    this.logTimeEnd(label);
+    // this.logTimeEnd(label);
     // this._validateRows();
     return modified;
   }
