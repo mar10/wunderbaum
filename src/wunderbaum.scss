@@ -61,6 +61,7 @@ $level-rainbow: rgba(255, 255, 232, 1), rgba(240, 255, 240, 1),
 div.wunderbaum {
   box-sizing: border-box;
   height: 100%; // fill parent container
+  min-height: 4px;
   background-color: $background-color;
   margin: 0;
   padding: 0;

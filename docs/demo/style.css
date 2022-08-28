@@ -52,6 +52,8 @@ div.grid-wrapper div.menu {
 div.grid-wrapper nav.nav {
   grid-column: 1;
   grid-row: 2 / 5;
+  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  overflow: hidden;
 }
 
 div.grid-wrapper section.header {
@@ -65,6 +67,7 @@ div.grid-wrapper section.header {
 div.grid-wrapper main.view {
   grid-column: 2;
   grid-row: 3;
+  min-height: 4px;
   /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
   overflow: hidden;
 }

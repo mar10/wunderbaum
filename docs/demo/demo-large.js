@@ -1,8 +1,7 @@
 /**
- * Demo code for wunderbaum.ts
+ * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
- * https://github.com/mar10/wunderbaum
  */
 document.getElementById("demo-info").innerHTML = `
  A treegrid with about 100,000 nodes.
