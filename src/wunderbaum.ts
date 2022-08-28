@@ -35,6 +35,7 @@ import {
   ApplyCommandType,
   SetActiveOptions,
   ScrollToOptions,
+  SetModifiedOptions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -116,6 +117,7 @@ export class Wunderbaum {
   // protected changes = new Set<ChangeType>();
   // protected changedNodes = new Set<WunderbaumNode>();
   protected changeRedrawRequestPending = false;
+  protected changeScrollRequestPending = false;
 
   /** A Promise that is resolved when the tree was initialized (similar to `init(e)` event). */
   public readonly ready: Promise<any>;
@@ -229,7 +231,7 @@ export class Wunderbaum {
     delete opts.types;
 
     this._updateViewportThrottled = util.adaptiveThrottle(
-      this._updateViewport.bind(this),
+      this._updateViewportImmediately.bind(this),
       {}
     );
 
@@ -346,9 +348,10 @@ export class Wunderbaum {
 
     // TODO: This is sometimes required, because this.element.clientWidth
     //       has a wrong value at start???
-    setTimeout(() => {
-      this.updateViewport();
-    }, 50);
+    // setTimeout(() => {
+    //   this.updateViewport();
+    // }, 50);
+    this.setModified(ChangeType.any);
 
     // --- Bind listeners
     this.element.addEventListener("scroll", (e: Event) => {
@@ -944,7 +947,7 @@ export class Wunderbaum {
     return this.element.contains(document.activeElement);
   }
 
-  /** Run code, but defer `updateViewport()` until done. */
+  /** Run code, but defer rendering of viewport until done. */
   runWithoutUpdate(func: () => any, hint = null): void {
     try {
       this.enableUpdate(false);
@@ -1506,7 +1509,7 @@ export class Wunderbaum {
   setModified(
     change: ChangeType,
     node?: WunderbaumNode | any,
-    options?: any
+    options?: SetModifiedOptions
   ): void {
     if (this._disableUpdateCount) {
       // Assuming that we redraw all when enableUpdate() is re-enabled.
@@ -1527,15 +1530,17 @@ export class Wunderbaum {
       });
     }
 
+    let callUpdate = false;
     switch (change) {
       case ChangeType.any:
       case ChangeType.structure:
       case ChangeType.header:
         this.changeRedrawRequestPending = true;
-        this.updateViewport(immediate);
+        callUpdate = true;
         break;
       case ChangeType.vscroll:
-        this.updateViewport(immediate);
+        this.changeScrollRequestPending = true;
+        callUpdate = true;
         break;
       case ChangeType.row:
       case ChangeType.data:
@@ -1548,6 +1553,13 @@ export class Wunderbaum {
         break;
       default:
         util.error(`Invalid change type ${change}`);
+    }
+    if (callUpdate) {
+      if (immediate) {
+        this._updateViewportImmediately();
+      } else {
+        this._updateViewportThrottled();
+      }
     }
   }
 
@@ -1732,33 +1744,41 @@ export class Wunderbaum {
     }
   }
 
-  /** Render header and all rows that are visible in the viewport (async, throttled). */
-  updateViewport(immediate = false) {
-    // Call the `throttle` wrapper for `this._updateViewport()` which will
-    // execute immediately on the leading edge of a sequence:
-    if (immediate) {
-      this._updateViewport();
-    } else {
-      this._updateViewportThrottled();
+  /**
+   * Render pending changes that were scheduled using {@link WunderbaumNode.setModified} if any.
+   *
+   * This is hardly ever neccessary, since we normally either
+   * - call `setModified(ChangeType.TYPE)` (async, throttled), or
+   * - call `setModified(ChangeType.TYPE, {immediate: true})` (synchronous)
+   *
+   * `updatePendingModifications()` will only force immediate execution of
+   * pending async changes if any.
+   */
+  updatePendingModifications() {
+    if (this.changeRedrawRequestPending || this.changeScrollRequestPending) {
+      this._updateViewportImmediately();
     }
   }
 
   /**
    * This is the actual update method, which is wrapped inside a throttle method.
-   * This protected method should not be called directly but via
-   * `tree.updateViewport()` or `tree.setModified()`.
    * It calls `updateColumns()` and `_updateRows()`.
+   *
+   * This protected method should not be called directly but via
+   * {@link WunderbaumNode.setModified}`, {@link Wunderbaum.setModified},
+   * or {@link Wunderbaum.updatePendingModifications}.
    * @internal
    */
-  protected _updateViewport() {
+  protected _updateViewportImmediately() {
     if (this._disableUpdateCount) {
       this.log(
-        `IGNORED _updateViewport() disable level: ${this._disableUpdateCount}`
+        `IGNORED _updateViewportImmediately() disable level: ${this._disableUpdateCount}`
       );
       return;
     }
     const newNodesOnly = !this.changeRedrawRequestPending;
     this.changeRedrawRequestPending = false;
+    this.changeScrollRequestPending = false;
 
     let height = this.scrollContainerElement.clientHeight;
     // We cannot get the height for absolute positioned parent, so look at first col
@@ -1772,13 +1792,13 @@ export class Wunderbaum {
       this.scrollContainerElement.style.height = wantHeight + "px";
       height = wantHeight;
     }
-    // console.profile(`_updateViewport()`)
+    // console.profile(`_updateViewportImmediately()`)
 
     this.updateColumns({ updateRows: false });
 
     this._updateRows({ newNodesOnly: newNodesOnly });
 
-    // console.profileEnd(`_updateViewport()`)
+    // console.profileEnd(`_updateViewportImmediately()`)
 
     if (this.options.attachBreadcrumb) {
       let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
@@ -1822,7 +1842,7 @@ export class Wunderbaum {
   // }
 
   /*
-   * - Traverse all *visible* of the whole tree, i.e. skip collapsed nodes.
+   * - Traverse all *visible* nodes of the whole tree, i.e. skip collapsed nodes.
    * - Store count of rows to `tree.treeRowCount`.
    * - Renumber `node._rowIdx` for all visible nodes.
    * - Calculate the index range that must be rendered to fill the viewport
@@ -2131,8 +2151,9 @@ export class Wunderbaum {
       //   `enableUpdate(${flag}): count -> ${this._disableUpdateCount}...`
       // );
       if (this._disableUpdateCount === 0) {
-        this.changeRedrawRequestPending = true; // make sure, we re-render all markup
-        this.updateViewport();
+        // this.changeRedrawRequestPending = true; // make sure, we re-render all markup
+        // this.updateViewport();
+        this.setModified(ChangeType.any, { immediate: true });
       }
     } else {
       this._disableUpdateCount++;

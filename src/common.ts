@@ -236,6 +236,14 @@ export type SetSelectedOptions = {
   noEvents?: boolean;
 };
 
+/** Possible values for `node.setSetModified()`. */
+export type SetModifiedOptions = {
+  /** Force immediate redraw instead of throttled/async mode. @default false */
+  immediate?: boolean;
+  /** Remove HTML markup of all rendered nodes before redraw. @default false */
+  removeMarkup?: boolean;
+};
+
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   " ": "toggleSelect",

@@ -902,7 +902,7 @@ export class WunderbaumNode {
       // self.debug("expand DONE", scroll);
       if (scroll) {
         // Make sure markup and _rowIdx is updated before we do the scroll calculations
-        this.tree.updateViewport(true);
+        this.tree.updatePendingModifications();
         this.scrollIntoView().then(() => {
           // self.debug("scroll DONE");
           dfd.resolve();
