@@ -89,6 +89,7 @@ export class KeynavExtension extends WunderbaumExtension {
         node.logInfo("Keydown: force focus on active node.");
       }
     }
+    const colspan = node.getOption("colspan");
 
     if (tree.navMode === NavigationMode.row) {
       // -----------------------------------------------------------------------
@@ -231,7 +232,9 @@ export class KeynavExtension extends WunderbaumExtension {
           }
           break;
         case "ArrowLeft":
-          if (tree.activeColIdx > 0) {
+          if (colspan && node.isExpanded()) {
+            node.setExpanded(false);
+          } else if (tree.activeColIdx > 0) {
             tree.setColumn(tree.activeColIdx - 1);
             if (isCellEditMode) {
               this._getEmbeddedInputElem(null, true); // set focus to input
@@ -243,7 +246,9 @@ export class KeynavExtension extends WunderbaumExtension {
           }
           break;
         case "ArrowRight":
-          if (tree.activeColIdx < tree.columns.length - 1) {
+          if (colspan && !node.isExpanded()) {
+            node.setExpanded();
+          } else if (tree.activeColIdx < tree.columns.length - 1) {
             tree.setColumn(tree.activeColIdx + 1);
             if (isCellEditMode) {
               this._getEmbeddedInputElem(null, true); // set focus to input

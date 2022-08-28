@@ -98,7 +98,7 @@ new mar10.Wunderbaum({
     const node = e.node;
     const util = e.util;
 
-    if (node.type === "folder" || !node.type) {
+    if (node.type !== "person") {
       return;
     }
 
