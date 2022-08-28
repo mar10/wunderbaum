@@ -98,6 +98,7 @@ export class WunderbaumNode {
   public readonly refKey: string | undefined = undefined;
   public children: WunderbaumNode[] | null = null;
   public checkbox?: boolean;
+  /** If true, (in grid mode) no cells are rendered, except for the node title.*/
   public colspan?: boolean;
   public icon?: boolean | string;
   public lazy: boolean = false;
@@ -1252,7 +1253,9 @@ export class WunderbaumNode {
     }
 
     // Render columns
-    if (!this.colspan && columns.length > 1) {
+    const colspan = this.getOption("colspan");
+
+    if (!colspan && columns.length > 1) {
       let colIdx = 0;
       for (let col of columns) {
         colIdx++;
@@ -1328,7 +1331,8 @@ export class WunderbaumNode {
 
     // Set the width of the title span, so overflow ellipsis work
     if (!treeOptions.skeleton) {
-      if (this.colspan) {
+      const colspan = this.getOption("colspan");
+      if (colspan) {
         let vpWidth = tree.element.clientWidth;
         titleSpan.style.width =
           vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
@@ -1666,7 +1670,7 @@ export class WunderbaumNode {
     if (
       !flag &&
       this.isExpanded() &&
-      this.getLevel() <= this.getOption("minExpandLevel") &&
+      this.getLevel() <= this.tree.getOption("minExpandLevel") &&
       !util.getOption(options, "force")
     ) {
       this.logDebug("Ignored collapse request below expandLevel.");
@@ -1684,7 +1688,8 @@ export class WunderbaumNode {
    * Set keyboard focus here.
    * @see {@link setActive}
    */
-  setFocus(flag: boolean = true, options?: any) {
+  setFocus(flag: boolean = true) {
+    util.assert(!!flag, "blur is not yet implemented");
     const prev = this.tree.focusNode;
     this.tree.focusNode = this;
     prev?.setModified();

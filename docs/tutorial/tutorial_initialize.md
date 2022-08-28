@@ -157,8 +157,8 @@ const tree = new mar10.Wunderbaum({
 ```
 
 Currently the following options are evaluated as dynamic options:
-`checkbox`, `icon`, `iconTooltip`, `tooltip`, `unselectable`, `unselectableIgnore`,
-`unselectableStatus`.
+`checkbox`, `colspan`, `icon`, `iconTooltip`, `tooltip`, `unselectable`, 
+`unselectableIgnore`, `unselectableStatus`.
 
 See method `node.getOption()` for details.
 
@@ -178,8 +178,8 @@ Note that
 
 - The structure may be nested, e.g. a child node may in turn contain a `children` list.
 - Some attributes are part of the data model:<br>
-  `classes`, `expanded`, `icon`, `key`, `lazy`, `refKey`, `selected`, `title`,
-  `tooltip`, `type`.<br>
+  `classes`, `colspan`, `expanded`, `icon`, `key`, `lazy`, `refKey`, `selected`, 
+  `title`, `tooltip`, `type`.<br>
   They can be accesed as `node.title`, for example,
 - All other properties are stored under the _data_ namespace and are accessed
   like `node.data.author`, for example.

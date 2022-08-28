@@ -49,6 +49,8 @@ export interface TypeDefinition {
   // id: string;
   /** En/disable checkbox for matching nodes.*/
   checkbox?: boolean | BoolOptionResolver;
+  /** En/disable checkbox for matching nodes.*/
+  colspan?: boolean | BoolOptionResolver;
   /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
   classes?: string;
   /**Default icon for matching nodes.*/

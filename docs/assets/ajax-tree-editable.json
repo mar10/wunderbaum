@@ -1,6 +1,6 @@
 {
   "types": {
-    "folder": { "icon": "bi bi-folder" },
+    "folder": { "icon": "bi bi-folder", "colspan": true },
     "book": { "icon": "bi bi-book" },
     "computer": { "icon": "bi bi-laptop" },
     "music": { "icon": "bi bi-disc" },
