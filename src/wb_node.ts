@@ -30,6 +30,7 @@ import {
   SetSelectedOptions,
   MakeVisibleOptions,
   ScrollIntoViewOptions,
+  SetStatusOptions,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -791,7 +792,7 @@ export class WunderbaumNode {
     } catch (error) {
       this.logError("Error during load()", source, error);
       this._callEvent("error", { error: error });
-      this.setStatus(NodeStatusType.error, "" + error);
+      this.setStatus(NodeStatusType.error, { message: "" + error });
       throw error;
     } finally {
       this._requestId = 0;
@@ -836,7 +837,7 @@ export class WunderbaumNode {
     } catch (e) {
       this.logError("Error during loadLazy()", e);
       this._callEvent("error", { error: e });
-      this.setStatus(NodeStatusType.error, "" + e);
+      this.setStatus(NodeStatusType.error, { message: "" + e });
     }
     return;
   }
@@ -1732,10 +1733,12 @@ export class WunderbaumNode {
   /** Display node status (ok, loading, error, noData) using styles and a dummy child node. */
   setStatus(
     status: NodeStatusType,
-    message?: string,
-    details?: string
+    options?: SetStatusOptions
   ): WunderbaumNode | null {
     const tree = this.tree;
+    const message = options?.message;
+    const details = options?.details;
+
     let statusNode: WunderbaumNode | null = null;
 
     const _clearStatusNode = () => {

@@ -171,39 +171,33 @@ export const NAVIGATE_IN_INPUT_KEYS: Set<string> = new Set([
 ]);
 
 /** Possible values for `node.makeVisible()`. */
-export type MakeVisibleOptions = {
+export interface MakeVisibleOptions {
   /** Do not animate expand (currently not implemented). @default false */
   noAnimation?: boolean;
   /** Ignore restrictions. @default true */
   scrollIntoView?: boolean;
   /** Do not send events. @default false */
   noEvents?: boolean;
-};
+}
 
 /** Possible values for `node.scrollIntoView()`. */
-export type ScrollIntoViewOptions = {
+export interface ScrollIntoViewOptions {
   /** Do not animate (currently not implemented). @default false */
   noAnimation?: boolean;
   /** Do not send events. @default false */
   noEvents?: boolean;
   /** Keep this node visible at the top in any case. */
   topNode?: WunderbaumNode;
-};
+}
 
 /** Possible values for `tree.scrollTo()`. */
-export type ScrollToOptions = {
+export interface ScrollToOptions extends ScrollIntoViewOptions {
   /** Which node to scroll into the viewport.*/
   node: WunderbaumNode;
-  /** Keep this node visible at the top in any case. */
-  topNode?: WunderbaumNode;
-  /** Do not animate (currently not implemented). @default false */
-  noAnimation?: boolean;
-  /** Do not send events. @default false */
-  noEvents?: boolean;
-};
+}
 
 /** Possible values for `node.setActive()`. */
-export type SetActiveOptions = {
+export interface SetActiveOptions {
   /** Generate (de)activate event, even if node already has this status. */
   retrigger?: boolean;
   /** Do not generate (de)activate event. */
@@ -212,10 +206,10 @@ export type SetActiveOptions = {
   event?: Event;
   /** Call {@link setColumn}. */
   colIdx?: number;
-};
+}
 
 /** Possible values for `node.setExpanded()`. */
-export type SetExpandedOptions = {
+export interface SetExpandedOptions {
   /** Ignore {@link minExpandLevel}. @default false */
   force?: boolean;
   /** Immediately update viewport (async otherwise). @default false */
@@ -226,23 +220,31 @@ export type SetExpandedOptions = {
   noEvents?: boolean;
   /** Scroll to bring expanded nodes into viewport. @default false */
   scrollIntoView?: boolean;
-};
+}
 
 /** Possible values for `node.setSelected()`. */
-export type SetSelectedOptions = {
+export interface SetSelectedOptions {
   /** Ignore restrictions. @default false */
   force?: boolean;
   /** Do not send events. @default false */
   noEvents?: boolean;
-};
+}
 
 /** Possible values for `node.setSetModified()`. */
-export type SetModifiedOptions = {
+export interface SetModifiedOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
   /** Remove HTML markup of all rendered nodes before redraw. @default false */
   removeMarkup?: boolean;
-};
+}
+
+/** Possible values for `node.setSetModified()`. */
+export interface SetStatusOptions {
+  /** Displayed as status node title. */
+  message?: string;
+  /** Used as tooltip. */
+  details?: string;
+}
 
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_DICT: { [key: string]: string } = {

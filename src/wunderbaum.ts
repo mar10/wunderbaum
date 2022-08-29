@@ -36,6 +36,7 @@ import {
   SetActiveOptions,
   ScrollToOptions,
   SetModifiedOptions,
+  SetStatusOptions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -1611,10 +1612,9 @@ export class Wunderbaum {
   /** Display tree status (ok, loading, error, noData) using styles and a dummy root node. */
   setStatus(
     status: NodeStatusType,
-    message?: string,
-    details?: string
+    options?: SetStatusOptions
   ): WunderbaumNode | null {
-    return this.root.setStatus(status, message, details);
+    return this.root.setStatus(status, options);
   }
   /** Add or redefine node type definitions. */
   setTypes(types: any, replace = true) {
