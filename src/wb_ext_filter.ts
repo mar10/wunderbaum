@@ -11,7 +11,7 @@ import {
   extend,
   onEvent,
 } from "./util";
-import { NodeFilterCallback, NodeStatusType } from "./common";
+import { NodeFilterCallback, NodeStatusType } from "./types";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";

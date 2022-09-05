@@ -11,18 +11,11 @@ import { Wunderbaum } from "./wunderbaum";
 import {
   NavigationMode,
   ChangeType,
-  iconMap,
-  ICON_WIDTH,
-  KEY_TO_ACTION_DICT,
-  makeNodeTitleMatcher,
   MatcherType,
   NodeAnyCallback,
   NodeStatusType,
   NodeVisitCallback,
   NodeVisitResponse,
-  ROW_EXTRA_PAD,
-  ROW_HEIGHT,
-  TEST_IMG,
   ApplyCommandType,
   AddNodeType,
   SetActiveOptions,
@@ -32,6 +25,15 @@ import {
   ScrollIntoViewOptions,
   SetStatusOptions,
   ColumnEventInfos,
+} from "./types";
+import {
+  iconMap,
+  ICON_WIDTH,
+  KEY_TO_ACTION_DICT,
+  makeNodeTitleMatcher,
+  ROW_EXTRA_PAD,
+  ROW_HEIGHT,
+  TEST_IMG,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";

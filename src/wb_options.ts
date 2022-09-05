@@ -10,7 +10,7 @@ import {
   WbNodeEventType,
   WbRenderEventType,
   WbTreeEventType,
-} from "./common";
+} from "./types";
 import { DndOptionsType } from "./wb_ext_dnd";
 
 export interface WbNodeData {

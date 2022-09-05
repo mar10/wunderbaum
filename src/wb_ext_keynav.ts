@@ -8,7 +8,7 @@ import {
   // NAVIGATE_IN_INPUT_KEYS,
   NavigationMode,
   NavigationModeOption,
-} from "./common";
+} from "./types";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";

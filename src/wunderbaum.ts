@@ -23,14 +23,10 @@ import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
 import {
   NavigationMode,
   ChangeType,
-  DEFAULT_DEBUGLEVEL,
   FilterModeType,
-  makeNodeTitleStartMatcher,
   MatcherType,
   NavigationModeOption,
   NodeStatusType,
-  RENDER_MAX_PREFETCH,
-  ROW_HEIGHT,
   TargetType as NodeRegion,
   ApplyCommandType,
   SetActiveOptions,
@@ -39,6 +35,12 @@ import {
   SetStatusOptions,
   NodeTypeInfos,
   ColumnDefinitions,
+} from "./types";
+import {
+  DEFAULT_DEBUGLEVEL,
+  makeNodeTitleStartMatcher,
+  RENDER_MAX_PREFETCH,
+  ROW_HEIGHT,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
