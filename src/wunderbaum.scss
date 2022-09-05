@@ -72,7 +72,7 @@ div.wunderbaum {
   color: $node-text-color;
   border: 2px solid $border-color;
   border-radius: 4px;
-  background-clip: content-box; // Keep color outside rounded borders?
+  background-clip: content-box; // Keep bg color outside rounded borders?
   // overflow: hidden; // avoid unwanted effects when auto-resizing
   overflow-x: auto;
   overflow-y: scroll;
@@ -154,6 +154,7 @@ div.wunderbaum {
       }
     }
   }
+
   &.wb-alternate div.wb-node-list {
     div.wb-row:nth-of-type(even):not(.wb-active):not(.wb-selected) {
       background-color: $alternate-row-color;
@@ -251,27 +252,14 @@ div.wunderbaum {
       // &::after {
       //   content: "|";
       // }
-    }
-  }
-
-  span.wb-col {
-    position: absolute;
-    display: inline-block;
-    // text-overflow: ellipsis;
-    height: $row-inner-height;
-    line-height: $row-inner-height;
-    padding: 0 $col-padding-x;
-    border-right: 1px solid $grid-color;
-
-    &:last-of-type {
-      border-right: none;
+      overflow: visible; // allow resizer to overlap next col
     }
 
-    overflow: visible; // allow resizer to overlap next col
-
+    // <span class='wb-col'> contains <span class='wb-col-title'> and <span class='wb-col-resizer'>
     span.wb-col-title {
       width: 100%;
       overflow: hidden;
+      white-space: nowrap;
       text-overflow: ellipsis;
     }
 
@@ -289,57 +277,72 @@ div.wunderbaum {
     }
   }
 
+  span.wb-col {
+    position: absolute;
+    display: inline-block;
+    // text-overflow: ellipsis;
+    height: $row-inner-height;
+    line-height: $row-inner-height;
+    padding: 0 $col-padding-x;
+    border-right: 1px solid $grid-color;
+
+    &:last-of-type {
+      border-right: none;
+    }
+  }
+
   span.wb-node {
     user-select: none;
     // &:first-of-type {
     //   margin-left: 8px; // leftmost icon gets a little margin
     // }
-  }
 
-  i.wb-checkbox,
-  i.wb-expander,
-  i.wb-icon,
-  i.wb-indent {
-    height: $icon-outer-height;
-    width: $icon-outer-width;
-    padding: $icon-padding-y $icon-padding-x;
-    display: inline-block;
-  }
-
-  /* Fix Bootstrap Icon alignment */
-  i.bi::before {
-    vertical-align: baseline;
-  }
-
-  img.wb-icon {
-    width: $icon-width;
-    height: $icon-height;
-    padding: $icon-padding-y $icon-padding-x;
-    // margin-top: $icon-padding-y;
-  }
-
-  i.wb-indent {
-    // border-left: 1px solid gray;
-    &::before {
-      content: "\00a0";
+    i.wb-checkbox,
+    i.wb-expander,
+    i.wb-icon,
+    i.wb-indent {
+      height: $icon-outer-height;
+      width: $icon-outer-width;
+      padding: $icon-padding-y $icon-padding-x;
+      display: inline-block;
     }
-  }
 
-  i.wb-expander.wb-spin,
-  i.wb-icon.wb-spin {
-    height: unset; // Prevent wobble
-    width: unset;
-    padding: 0 3px;
-    animation: wb-spin-animation 2s linear infinite;
-  }
+    /* Fix Bootstrap Icon alignment */
+    i.bi::before {
+      vertical-align: baseline;
+    }
 
-  span.wb-title {
-    min-width: 1em;
-    // display: inline-block; // fix vertical offset on Chrome?
-    vertical-align: top;
-    overflow-x: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
+    img.wb-icon {
+      width: $icon-width;
+      height: $icon-height;
+      padding: $icon-padding-y $icon-padding-x;
+      // margin-top: $icon-padding-y;
+    }
+
+    i.wb-indent {
+      // border-left: 1px solid gray;
+      &::before {
+        content: "\00a0";
+      }
+    }
+
+    i.wb-expander.wb-spin,
+    i.wb-icon.wb-spin {
+      height: unset; // Prevent wobble
+      width: unset;
+      padding: 0 3px;
+      animation: wb-spin-animation 2s linear infinite;
+    }
+
+    span.wb-title {
+      min-width: 1em;
+      // display: inline-block; // fix vertical offset on Chrome?
+      vertical-align: top;
+      overflow-x: hidden;
+      display: inline-block;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
   }
 
   /* --- GRID --- */

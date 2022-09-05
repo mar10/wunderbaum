@@ -4,7 +4,7 @@
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with renaming, row-nav mode, 'checkbox: true', 'minExpandLevel: 1'.
+ A readonly treegrid with renaming, row/cell navigation mode, 'checkbox: true', 'minExpandLevel: 1'.
  <br>
  Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
  `;
@@ -32,7 +32,7 @@ new mar10.Wunderbaum({
       width: "80px",
       classes: "wb-helper-end",
     },
-    // In order to test horizontal scrolling, we need a minimal width:
+    // In order to test horizontal scrolling, we need a fixed or at least minimal width:
     { id: "details", title: "Details", width: "*", minWidth: "600px" },
   ],
   dnd: {
@@ -99,7 +99,7 @@ new mar10.Wunderbaum({
   render: function (e) {
     // console.log(e.type, e.isNew, e);
     const node = e.node;
-    const util = e.util;
+    // const util = e.util;
 
     for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {

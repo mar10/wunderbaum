@@ -31,7 +31,7 @@ new mar10.Wunderbaum({
       width: "80px",
       classes: "wb-helper-end",
     },
-    // In order to test horizontal scrolling, we need a large minimal width:
+    // In order to test horizontal scrolling, we need a fixed or at least minimal width:
     { id: "details", title: "Details", width: "*", minWidth: "600px" },
   ],
   edit: {
