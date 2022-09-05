@@ -116,15 +116,8 @@ new mar10.Wunderbaum({
     const node = e.node;
     const util = e.util;
 
-    if (node.type === "folder" || !node.type) {
-      return;
-    }
-
-    for (const col of Object.values(e.colInfosById)) {
+    for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
-        case "*":
-          // node icon & title is rendered by the core
-          break;
         case "price":
           col.elem.textContent = "$ " + node.data.price.toFixed(2);
           break;

@@ -37,6 +37,8 @@ import {
   ScrollToOptions,
   SetModifiedOptions,
   SetStatusOptions,
+  NodeTypeInfos,
+  ColumnDefinitions,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -106,9 +108,9 @@ export class Wunderbaum {
   public focusNode: WunderbaumNode | null = null;
 
   /** Shared properties, referenced by `node.type`. */
-  public types: { [key: string]: any } = {};
+  public types: NodeTypeInfos = {};
   /** List of column definitions. */
-  public columns: any[] = [];
+  public columns: ColumnDefinitions = []; // any[] = [];
 
   protected _columnsById: { [key: string]: any } = {};
   protected resizeObserver: ResizeObserver;
@@ -269,8 +271,11 @@ export class Wunderbaum {
       ) as HTMLDivElement;
       for (const colDiv of rowElement.querySelectorAll("div")) {
         this.columns.push({
-          id: colDiv.dataset.id || null,
-          text: "" + colDiv.textContent,
+          id: colDiv.dataset.id || `col_${this.columns.length}`,
+          // id: colDiv.dataset.id || null,
+          title: "" + colDiv.textContent,
+          // text: "" + colDiv.textContent,
+          width: "*", // TODO: read from header span
         });
       }
     } else if (wantHeader) {
@@ -1264,7 +1269,7 @@ export class Wunderbaum {
     if (res.colIdx === -1) {
       res.colIdx = 0;
     }
-    res.colDef = tree?.columns[res.colIdx];
+    res.colDef = <any>tree?.columns[res.colIdx];
     res.colDef != null ? (res.colId = (<any>res.colDef).id) : 0;
     // this.log("Event", event, res);
     return res;
@@ -1420,7 +1425,7 @@ export class Wunderbaum {
    *     any case, even if `this` is outside the scroll pane.
    */
   scrollToHorz(opts: any) {
-    const fixedWidth = this.columns[0]._widthPx;
+    const fixedWidth = this.columns[0]._widthPx!;
     const vpWidth = this.element.clientWidth;
     const scrollLeft = this.element.scrollLeft;
     // if (scrollLeft <= 0) {
@@ -1695,7 +1700,7 @@ export class Wunderbaum {
           }
         }
         col._ofsPx = ofsPx;
-        ofsPx += col._widthPx;
+        ofsPx += col._widthPx!;
       }
       totalWidth = ofsPx;
     }

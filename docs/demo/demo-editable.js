@@ -90,15 +90,9 @@ new mar10.Wunderbaum({
     const node = e.node;
     const util = e.util;
 
-    if (node.type === "folder" || !node.type) {
-      return;
-    }
     // Render embedded input controls for all data columns
-    for (const col of Object.values(e.colInfosById)) {
+    for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
-        case "*":
-          // node icon & title is rendered by the core
-          break;
         case "author":
           if (e.isNew) {
             col.elem.innerHTML = "<input type='text'>";

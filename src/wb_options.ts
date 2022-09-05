@@ -8,6 +8,7 @@ import {
   BoolOptionResolver,
   NavigationModeOption,
   WbNodeEventType,
+  WbRenderEventType,
   WbTreeEventType,
 } from "./common";
 import { DndOptionsType } from "./wb_ext_dnd";
@@ -315,7 +316,7 @@ export interface WunderbaumOptions {
    *
    * @category Callback
    */
-  renderStatusNode?: (e: WbNodeEventType) => void;
+  renderStatusNode?: (e: WbRenderEventType) => void;
   /**
    *
    * Check `e.flag` for status.

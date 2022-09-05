@@ -22,6 +22,6 @@ new mar10.Wunderbaum({
     { title: "Node 2" },
   ],
   activate: (e) => {
-    alert(`Thank you for clicking ${e.node}.`)
+    alert(`Thank you for activating ${e.node}.`)
   },
 });

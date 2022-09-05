@@ -31,6 +31,7 @@ import {
   MakeVisibleOptions,
   ScrollIntoViewOptions,
   SetStatusOptions,
+  ColumnEventInfos,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -344,7 +345,7 @@ export class WunderbaumNode {
     }
   }
 
-  /** */
+  /** Call `setExpanded()` on al child nodes*/
   async expandAll(flag: boolean = true) {
     this.visit((node) => {
       node.setExpanded(flag);
@@ -555,6 +556,13 @@ export class WunderbaumNode {
    */
   isChildOf(other: WunderbaumNode) {
     return this.parent && this.parent === other;
+  }
+
+  /** Return true if this node's title spans all columns, i.e. the node has no
+   * grid cells.
+   */
+  isColspan() {
+    return !!this.getOption("colspan");
   }
 
   /** Return true if this node is a direct or indirect sub node of `other`.
@@ -1099,25 +1107,35 @@ export class WunderbaumNode {
     }
   }
 
-  protected _getRenderInfo() {
-    let colInfosById: { [key: string]: any } = {};
-    let idx = 0;
-    let colElems = this._rowElem
+  protected _getRenderInfo(): any {
+    const allColInfosById: ColumnEventInfos = {};
+    const renderColInfosById: ColumnEventInfos = {};
+    const isColspan = this.isColspan();
+
+    const colElems = this._rowElem
       ? ((<unknown>(
           this._rowElem.querySelectorAll("span.wb-col")
-        )) as HTMLElement[])
+        )) as HTMLSpanElement[])
       : null;
 
+    let idx = 0;
     for (let col of this.tree.columns) {
-      colInfosById[col.id] = {
+      allColInfosById[col.id] = {
         id: col.id,
         idx: idx,
         elem: colElems ? colElems[idx] : null,
         info: col,
       };
+      // renderColInfosById only contains columns that need rendering:
+      if (!isColspan && col.id !== "*") {
+        renderColInfosById[col.id] = allColInfosById[col.id];
+      }
       idx++;
     }
-    return colInfosById;
+    return {
+      allColInfosById: allColInfosById,
+      renderColInfosById: renderColInfosById,
+    };
   }
 
   protected _createIcon(
@@ -1170,7 +1188,7 @@ export class WunderbaumNode {
 
   /**
    * Create a whole new `<div class="wb-row">` element.
-   * @see {@link Wunderbaumode.render}
+   * @see {@link WunderbaumNode.render}
    */
   protected _render_markup(opts: any) {
     const tree = this.tree;
@@ -1254,9 +1272,9 @@ export class WunderbaumNode {
     }
 
     // Render columns
-    const colspan = this.getOption("colspan");
+    const isColspan = this.getOption("colspan");
 
-    if (!colspan && columns.length > 1) {
+    if (!isColspan && columns.length > 1) {
       let colIdx = 0;
       for (let col of columns) {
         colIdx++;
@@ -1306,7 +1324,7 @@ export class WunderbaumNode {
   /**
    * Render `node.title`, `.icon` into an existing row.
    *
-   * @see {@link Wunderbaumode.render}
+   * @see {@link WunderbaumNode.render}
    */
   protected _render_data(opts: any) {
     util.assert(this._rowElem);
@@ -1316,7 +1334,7 @@ export class WunderbaumNode {
     const rowDiv = this._rowElem!;
     const isNew = !!opts.isNew; // Called by _render_markup()?
     const columns = tree.columns;
-    const typeInfo = this.type ? tree.types[this.type] : null;
+    // const typeInfo = this.type ? tree.types[this.type] : null;
 
     // Row markup already exists
     const nodeElem = rowDiv.querySelector("span.wb-node") as HTMLSpanElement;
@@ -1339,7 +1357,7 @@ export class WunderbaumNode {
           vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
       } else {
         titleSpan.style.width =
-          columns[0]._widthPx -
+          columns[0]._widthPx! -
           (<any>nodeElem)._ofsTitlePx -
           ROW_EXTRA_PAD +
           "px";
@@ -1358,19 +1376,22 @@ export class WunderbaumNode {
       });
     } else if (this.parent) {
       // Skip root node
+      const renderInfo = this._getRenderInfo();
+
       this._callEvent("render", {
         isNew: isNew,
-        isDataChange: true,
+        isColspan: this.getOption("colspan"),
+        // isDataChange: true,
         nodeElem: nodeElem,
-        typeInfo: typeInfo,
-        colInfosById: this._getRenderInfo(),
+        allColInfosById: renderInfo.allColInfosById,
+        renderColInfosById: renderInfo.renderColInfosById,
       });
     }
   }
 
   /**
    * Update row classes to reflect active, focuses, etc.
-   * @see {@link Wunderbaumode.render}
+   * @see {@link WunderbaumNode.render}
    */
   protected _render_status(opts: any) {
     // this.log("_render_status", opts);

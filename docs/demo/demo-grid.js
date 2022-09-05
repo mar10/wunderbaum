@@ -101,36 +101,8 @@ new mar10.Wunderbaum({
     const node = e.node;
     const util = e.util;
 
-    if (node.type === "folder" || !node.type) {
-      return;
-    }
-
-    for (const col of Object.values(e.colInfosById)) {
+    for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
-        case "*":
-          // node icon & title is rendered by the core
-          break;
-        // case "price":
-        //   col.elem.textContent = "$ " + node.data.price.toFixed(2);
-        //   break;
-        // case "qty": // thousands separator
-        //   col.elem.textContent = node.data.qty.toLocaleString();
-        //   break;
-        // case "sale": // checkbox control
-        //   console.log(e.type, e);
-
-        //   if (e.isNew) {
-        //     col.elem.innerHTML = "<input type='checkbox'>";
-        //   }
-        //   // Cast value to bool, since we don't want tri-state behavior
-        //   util.setValueToElem(col.elem, !!node.data.sale);
-        //   break;
-        // case "details": // text control
-        //   if (e.isNew) {
-        //     col.elem.innerHTML = "<input type='text'>";
-        //   }
-        //   util.setValueToElem(col.elem, node.data.details);
-        //   break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];

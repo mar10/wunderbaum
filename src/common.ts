@@ -28,19 +28,105 @@ export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
-export type WbTreeEventType = {
+export interface WbTreeEventType {
+  /** Name of the event. */
   type: string;
-  event: Event;
+  /** The affected tree. */
   tree: Wunderbaum;
-  // node?: WunderbaumNode;
+  /** Originating HTML event, e.g. `click` if any. */
+  event?: Event;
+  // [key: string]: unknown;
+}
+
+export interface WbNodeEventType extends WbTreeEventType {
+  /** The affected target node. */
+  node: WunderbaumNode;
+  /**
+   * Contains the node's type information, i.e. `tree.types[node.type]` if
+   * defined. Set to `{}` otherwise. @see {@link Wunderbaum.types}
+   */
+  typeInfo: NodeTypeInfo;
+}
+
+export interface WbRenderEventType extends WbNodeEventType {
+  /**
+   * True if the node's markup was not yet created. In this case the render
+   * event should create embeddeb input controls (in addition to update the
+   * values according to to current node data).
+   */
+  isNew: boolean;
+  /** True if the node only displays the title and is stretched over all remaining columns. */
+  isColspan: boolean;
+  // /** */
+  // isDataChange: boolean;
+  /** The node's `<span class='wb-node'>` element. */
+  nodeElem: HTMLSpanElement;
+  /**
+   * Array of node's `<span class='wb-col'>` elements.
+   * The first element is `<span class='wb-node wb-col'>`, which contains the
+   * node title and icon (`idx: 0`, id: '*'`).
+   */
+  allColInfosById: ColumnEventInfos;
+  /**
+   * Array of node's `<span class='wb-node'>` elements, *that should be rendered*.
+   * In contrast to `allColInfosById`, the node title is not part of this array.
+   * If node.isColspan() is true, this array is empty (`[]`).
+   */
+  renderColInfosById: ColumnEventInfos;
+}
+
+/**
+ * Contains the node's type information, i.e. `tree.types[node.type]` if
+ * defined. @see {@link Wunderbaum.types}
+ */
+export type NodeTypeInfo = {
+  icon?: string;
+  classes?: string;
+  // and more
   [key: string]: unknown;
 };
-export type WbNodeEventType = WbTreeEventType & {
-  node: WunderbaumNode;
-};
+export type NodeTypeInfos = { [type: string]: NodeTypeInfo };
+
+/**
+ * @see {@link `Wunderbaum.columns`}
+ */
+export interface ColumnDefinition {
+  /** Column ID as defined in `tree.columns` definition ("*" for title column). */
+  id: string;
+  // /** */
+  // idx: number;
+  /** */
+  title: string;
+  /** e.g. '75px' or '*'. */
+  width: string;
+  /** e.g. '75px' or '*'. */
+  minWidth?: string;
+  /** Optional classes that are added to the column span. */
+  classes?: string;
+  /** Optional HTML code  that is rendered into the cell span. */
+  html?: string;
+  // Internal use:
+  _weight?: number;
+  _widthPx?: number;
+  _ofsPx?: number;
+}
+export type ColumnDefinitions = Array<ColumnDefinition>;
+
+export interface ColumnEventInfo {
+  /** Column ID as defined in `tree.columns` definition ("*" for title column). */
+  id: string;
+  /** Column index (0: leftmost title column). */
+  idx: number;
+  /** The cell's `<span class='wb-col'>` element (null for plain trees). */
+  elem: HTMLSpanElement | null;
+  /** The value of `tree.columns[]` for the current index. */
+  info: ColumnDefinition;
+}
+export type ColumnEventInfos = { [colId: string]: ColumnEventInfo };
 
 export type WbTreeCallbackType = (e: WbTreeEventType) => any;
 export type WbNodeCallbackType = (e: WbNodeEventType) => any;
+export type WbRenderCallbackType = (e: WbRenderEventType) => void;
 
 export type FilterModeType = null | "dim" | "hide";
 export type ApplyCommandType =

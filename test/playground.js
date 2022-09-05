@@ -21,6 +21,8 @@ const tree = new Wunderbaum({
 
   header: true, //"Playground", 
   navigationMode: "cell",
+  
+  source: "generator/fixture.json",
 
   // columns: [
   //   { title: "test", id: "*", width: "200px" },
@@ -64,8 +66,6 @@ const tree = new Wunderbaum({
   //     { title: "Node 3", type: "book" },
   //   ],
   // },
-
-  source: "generator/fixture.json",
 
   dnd: {
     dragStart: (e) => {
@@ -116,23 +116,20 @@ const tree = new Wunderbaum({
       }
       // Read the value from the input control that triggered the change event:
       node.data[e.info.colId] = value;
-    }, 1500);
+    }, 500);
   },
   render: (e) => {
     e.node.log(e.type, e);
 
-    if (e.isNew) {
-      // Most columns are automatically handled using the `tree.columns.ID.html`
-      // setting, but here - for demo purpose - we do it explicitly:
-      e.colInfosById["mode"].elem.appendChild(
-        util.elemFromHtml(ModeElemTemplate)
-      );
-    }
-    for (const col of Object.values(e.colInfosById)) {
-      if (col.id === "*") {
-        // The node title is handled by the framework.
-        continue;
-      }
+    // if (!e.isNew || e.isColspan) {
+    //   return;
+    // }
+    for (const col of Object.values(e.renderColInfosById)) {
+    // for (const col of Object.values(e.allColInfosById)) {
+    //   if (col.id === "*") {
+    //     // The node title is handled by the framework.
+    //     continue;
+    //   }
       switch (col.id) {
         // case "favorite": // checkbox
         // case "mode":
