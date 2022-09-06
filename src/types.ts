@@ -198,26 +198,6 @@ export enum NavigationMode {
   cellEdit = "cellEdit",
 }
 
-/** Define which keys are handled by embedded <input> control, and should
- * *not* be passed to tree navigation handler in cell-edit mode. */
-export const INPUT_KEYS = {
-  text: ["left", "right", "home", "end", "backspace"],
-  number: ["up", "down", "left", "right", "home", "end", "backspace"],
-  checkbox: [],
-  link: [],
-  radiobutton: ["up", "down"],
-  "select-one": ["up", "down"],
-  "select-multiple": ["up", "down"],
-};
-
-/** Key codes that trigger grid navigation, even when inside an input element. */
-export const NAVIGATE_IN_INPUT_KEYS: Set<string> = new Set([
-  "ArrowDown",
-  "ArrowUp",
-  "Enter",
-  "Escape",
-]);
-
 /** Possible values for `node.makeVisible()`. */
 export interface MakeVisibleOptions {
   /** Do not animate expand (currently not implemented). @default false */

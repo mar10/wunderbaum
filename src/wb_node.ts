@@ -1274,7 +1274,7 @@ export class WunderbaumNode {
     }
 
     // Render columns
-    const isColspan = this.getOption("colspan");
+    const isColspan = this.isColspan();
 
     if (!isColspan && columns.length > 1) {
       let colIdx = 0;
@@ -1336,7 +1336,7 @@ export class WunderbaumNode {
     const rowDiv = this._rowElem!;
     const isNew = !!opts.isNew; // Called by _render_markup()?
     const columns = tree.columns;
-    // const typeInfo = this.type ? tree.types[this.type] : null;
+    const isColspan = this.isColspan();
 
     // Row markup already exists
     const nodeElem = rowDiv.querySelector("span.wb-node") as HTMLSpanElement;
@@ -1352,8 +1352,7 @@ export class WunderbaumNode {
 
     // Set the width of the title span, so overflow ellipsis work
     if (!treeOptions.skeleton) {
-      const colspan = this.getOption("colspan");
-      if (colspan) {
+      if (isColspan) {
         let vpWidth = tree.element.clientWidth;
         titleSpan.style.width =
           vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
@@ -1382,7 +1381,7 @@ export class WunderbaumNode {
 
       this._callEvent("render", {
         isNew: isNew,
-        isColspan: this.getOption("colspan"),
+        isColspan: isColspan,
         // isDataChange: true,
         nodeElem: nodeElem,
         allColInfosById: renderInfo.allColInfosById,

@@ -13,14 +13,14 @@ const ModeElemTemplate = `<select tabindex='-1'>
 
 const tree = new Wunderbaum({
   element: "#tree",
-  // checkbox: false,
+  checkbox: true,
   id: "Playground",
   // enabled: false,
   fixedCol: true,
   debugLevel: 4,
 
   header: true, //"Playground", 
-  navigationMode: "cell",
+  // navigationModeOption: "cell",
   
   source: "generator/fixture.json",
 
@@ -119,22 +119,10 @@ const tree = new Wunderbaum({
     }, 500);
   },
   render: (e) => {
-    e.node.log(e.type, e);
+    // e.node.log(e.type, e);
 
-    // if (!e.isNew || e.isColspan) {
-    //   return;
-    // }
     for (const col of Object.values(e.renderColInfosById)) {
-    // for (const col of Object.values(e.allColInfosById)) {
-    //   if (col.id === "*") {
-    //     // The node title is handled by the framework.
-    //     continue;
-    //   }
       switch (col.id) {
-        // case "favorite": // checkbox
-        // case "mode":
-        // case "date":
-        // case "details":
         default:
           // Assumption: we named column.id === node.data.NAME
           util.setValueToElem(col.elem, e.node.data[col.id]);

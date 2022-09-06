@@ -16,7 +16,7 @@ new mar10.Wunderbaum({
   attachBreadcrumb: document.getElementById("parentPath"),
   // checkbox: true,
   // fixedCol: true,
-  navigationMode: "cell",
+  navigationModeOption: "cell",
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },

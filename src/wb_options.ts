@@ -174,7 +174,7 @@ export interface WunderbaumOptions {
   /**
    * Default:  NavigationModeOption.startRow
    */
-  navigationMode?: NavigationModeOption;
+  navigationModeOption?: NavigationModeOption;
   /**
    * Show/hide header (pass bool or string)
    */
@@ -184,7 +184,9 @@ export interface WunderbaumOptions {
    */
   showSpinner?: boolean;
   /**
-   * Default: true
+   * If true, render a checkbox before the node tile to allow selection with the
+   * mouse.
+   * Default: false.
    */
   checkbox?: boolean | "radio" | BoolOptionResolver;
   /**

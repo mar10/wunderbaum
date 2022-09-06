@@ -19,7 +19,7 @@ new mar10.Wunderbaum({
   minExpandLevel: 1,
   // fixedCol: true,
   // Types are sent as part of the source data:
-  navigationMode: "startRow",
+  navigationModeOption: "startRow",
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },

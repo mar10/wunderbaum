@@ -396,7 +396,13 @@ div.wunderbaum {
         > select {
           width: 100%;
           max-height: $row-inner-height;
+          border: none;
         }
+      }
+      input[type="number"]::-webkit-inner-spin-button,
+      input[type="number"]::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
       }
     }
 
@@ -456,6 +462,13 @@ div.wunderbaum {
       }
     }
   }
+
+  // /* --- INPUT controls in grid --- */
+  // &.wb-lean-input div.wb-node-list div.wb-row span.wb-col {
+  //   input {
+  //     border-color: red;
+  //   }
+  // }
 
   /* --- DND --- */
   div.wb-row.wb-drag-source {

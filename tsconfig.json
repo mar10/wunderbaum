@@ -72,6 +72,7 @@
       "src/wb_node.ts",
       "src/wb_options.ts",
       "src/common.ts",
+      "src/types.ts",
       "src/util.ts",
     ],
     "out": "docs/api",

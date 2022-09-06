@@ -92,7 +92,7 @@ const tree = new Wunderbaum({
   enable: true,
   autoActivate: true,
   checkbox: true,
-  navigationMode: "startRow",  // | "cell" | "startCell" | "row"
+  navigationModeOption: "startRow",  // | "cell" | "startCell" | "row"
   quicksearch: true,
   ...
   // --- Events ---
