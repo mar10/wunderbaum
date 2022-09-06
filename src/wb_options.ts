@@ -6,12 +6,12 @@
 
 import {
   BoolOptionResolver,
+  DndOptionsType,
   NavigationModeOption,
   WbNodeEventType,
   WbRenderEventType,
   WbTreeEventType,
 } from "./types";
-import { DndOptionsType } from "./wb_ext_dnd";
 
 export interface WbNodeData {
   title: string;
@@ -313,12 +313,12 @@ export interface WunderbaumOptions {
    * See also `Custom Rendering` for details.
    * @category Callback
    */
-  render?: (e: WbNodeEventType) => void;
+  render?: (e: WbRenderEventType) => void;
   /**
    *
    * @category Callback
    */
-  renderStatusNode?: (e: WbRenderEventType) => void;
+  renderStatusNode?: (e: WbNodeEventType) => void;
   /**
    *
    * Check `e.flag` for status.

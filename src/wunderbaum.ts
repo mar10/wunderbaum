@@ -19,22 +19,21 @@ import { LoggerExtension } from "./wb_ext_logger";
 import { DndExtension } from "./wb_ext_dnd";
 import { GridExtension } from "./wb_ext_grid";
 import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
-
 import {
-  NavigationMode,
+  ApplyCommandType,
   ChangeType,
+  ColumnDefinitions,
   FilterModeType,
   MatcherType,
+  NavigationMode,
   NavigationModeOption,
   NodeStatusType,
-  TargetType as NodeRegion,
-  ApplyCommandType,
-  SetActiveOptions,
+  NodeTypeInfos,
   ScrollToOptions,
+  SetActiveOptions,
   SetModifiedOptions,
   SetStatusOptions,
-  NodeTypeInfos,
-  ColumnDefinitions,
+  TargetType as NodeRegion,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,

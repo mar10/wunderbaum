@@ -14,6 +14,8 @@ import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
 
+const QUICKSEARCH_DELAY = 500;
+
 export class KeynavExtension extends WunderbaumExtension {
   constructor(tree: Wunderbaum) {
     super(tree, "keynav", {});
@@ -104,7 +106,7 @@ export class KeynavExtension extends WunderbaumExtension {
       ) {
         // Allow to search for longer streaks if typed in quickly
         const stamp = Date.now();
-        if (stamp - tree.lastQuicksearchTime > 500) {
+        if (stamp - tree.lastQuicksearchTime > QUICKSEARCH_DELAY) {
           tree.lastQuicksearchTerm = "";
         }
         tree.lastQuicksearchTime = stamp;
