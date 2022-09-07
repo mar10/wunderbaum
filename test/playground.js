@@ -22,6 +22,7 @@ const tree = new Wunderbaum({
   header: true, //"Playground", 
   // navigationModeOption: "cell",
   
+  // source: "generator/ajax_1k_3_54 t_c.json",
   source: "generator/fixture.json",
 
   // columns: [

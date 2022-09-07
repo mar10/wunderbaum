@@ -10,30 +10,30 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),
-  // source:
-  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
-  source: "../assets/ajax_1k_3_54.json",
+  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+  // source: "../assets/ajax_1k_3_54.json",
+  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
   debugLevel: 5,
   attachBreadcrumb: document.getElementById("parentPath"),
   // checkbox: true,
   // minExpandLevel: 1,
   fixedCol: true,
   navigationModeOption: "cell",
-  types: {},
-  columns: [
-    { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: "200px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
-    {
-      id: "price",
-      title: "Price ($)",
-      width: "80px",
-      classes: "wb-helper-end",
-    },
-    // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-    { id: "details", title: "Details", width: "*", minWidth: "600px" },
-  ],
+  // types: {},
+  // columns: [
+  //   { id: "*", title: "Product", width: "250px" },
+  //   { id: "author", title: "Author", width: "200px" },
+  //   { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
+  //   { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
+  //   {
+  //     id: "price",
+  //     title: "Price ($)",
+  //     width: "80px",
+  //     classes: "wb-helper-end",
+  //   },
+  //   // In order to test horizontal scrolling, we need a fixed or at least minimal width:
+  //   { id: "details", title: "Details", width: "*", minWidth: "600px" },
+  // ],
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],
     select: true,

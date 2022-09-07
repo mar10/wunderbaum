@@ -1302,11 +1302,6 @@ export class WunderbaumNode {
         }
       }
     }
-
-    // Now go on and fill in data and update classes
-    opts.isNew = true;
-    this._render_data(opts);
-
     // Attach to DOM as late as possible
     const after = opts ? opts.after : "last";
     switch (after) {
@@ -1319,6 +1314,9 @@ export class WunderbaumNode {
       default:
         opts.after.after(rowDiv);
     }
+    // Now go on and fill in data and update classes
+    opts.isNew = true;
+    this._render_data(opts);
   }
 
   /**

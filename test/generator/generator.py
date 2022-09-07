@@ -187,8 +187,9 @@ def make_tree(*, spec_list, parent=None, prefix=""):
 
     spec_list = spec_list.copy()
     spec = spec_list.pop(0).copy()
-    count = resolve_random(spec.pop("count"))
+    count = resolve_random(spec.pop(":count"))
     title = spec.pop("title")
+    callback = spec.pop(":callback", None)
 
     for i in range(count):
         i += 1  # 1-based
@@ -201,6 +202,8 @@ def make_tree(*, spec_list, parent=None, prefix=""):
         # Resolve `Randomizer` values
         data = spec.copy()
         resolve_random_dict(data)
+        if callback:
+            callback(data)
 
         wb_node = WbNode(
             t.format(i=i, prefix=p),
@@ -217,7 +220,11 @@ def make_tree(*, spec_list, parent=None, prefix=""):
 # ------------------------------------------------------------------------------
 
 
-def create_fixed_multicheckbox(add_html: bool) -> dict:
+def create_fixed_multicheckbox(
+    *, add_types: bool, add_columns: bool, add_html: bool
+) -> dict:
+
+    CB_COUNT = 50
 
     # --- Node Types ---
 
@@ -233,7 +240,7 @@ def create_fixed_multicheckbox(add_html: bool) -> dict:
         {
             "title": "Title",
             "id": "*",
-            "width": "300px",
+            "width": "250px",
         },
         {
             "title": "Age",
@@ -252,7 +259,11 @@ def create_fixed_multicheckbox(add_html: bool) -> dict:
             "title": "Mood",
             "id": "mood",
             "width": "70px",
-            "html": '<select tabindex="-1"><option value="h">Happy</option><option value="s">Sad</option></select>'
+            "html": """<select tabindex="-1">
+                <option value="h">Happy</option>
+                <option value="s">Sad</option>
+                </select>
+                """
             if add_html
             else None,
         },
@@ -272,36 +283,47 @@ def create_fixed_multicheckbox(add_html: bool) -> dict:
         },
     ]
 
-    for i in range(50):
-        i += 1
+    for i in range(1, CB_COUNT + 1):
         column_list.append(
             {
                 "title": f"#{i}",
                 "id": f"state_{i}",
                 "width": "30px",
                 "classes": "wb-helper-center",
-                "html": "<input type=checkbox tabindex='-1'>",
+                "html": "<input type=checkbox tabindex='-1'>" if add_html else None,
             }
         )
 
     # --- Build nested node dictionary ---
+    def _person_callback(data):
+        # Initialize checkbox values
+        vr = ValueRandomizer(True, probability=0.2)
+        for i in range(1, CB_COUNT + 1):
+            key = f"state_{i}"
+            val = vr.generate()
+            if val is None:
+                data.pop(key, None)
+            else:
+                data[key] = val
+        return
 
     tree = make_tree(
         spec_list=[
             {
-                "count": 2,
+                ":count": 10,
                 "title": "Dept. for $(Noun:plural) and $(Noun:plural)",
                 "type": "department",
-                "expanded": ValueRandomizer(True, probability=0.7),
+                "expanded": ValueRandomizer(True, probability=0.2),
             },
             {
-                "count": 5,
+                ":count": RangeRandomizer(7, 13),
                 "title": "$(Verb) $(noun:plural)",
                 "type": "role",
                 "expanded": ValueRandomizer(True, probability=0.3),
             },
             {
-                "count": RangeRandomizer(0, 10),
+                ":count": RangeRandomizer(0, 20),
+                ":callback": _person_callback,
                 "title": "$(name:middle)",
                 "type": "person",
                 "mood": SampleRandomizer(("h", "s"), probability=0.3),
@@ -324,15 +346,16 @@ def create_fixed_multicheckbox(add_html: bool) -> dict:
 
     # Wunderbaum formatted dict.
     # Can be converted to JSON and directly consumed by Wunderbaum:
-    wb_data = {
-        "types": type_dict,
-        "columns": column_list,
-        "children": child_list,
-    }
+    wb_data = {}
+    if add_types:
+        wb_data["types"] = type_dict
+    if add_columns:
+        wb_data["columns"] = column_list
+    wb_data["children"] = child_list
     return wb_data
 
 
 if __name__ == "__main__":
-    res = create_fixed_multicheckbox(add_html=True)
+    res = create_fixed_multicheckbox(add_types=True, add_columns=True, add_html=True)
     with open("fixture.json", "wt") as fp:
         json.dump(res, fp)

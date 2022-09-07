@@ -293,6 +293,7 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
     if (embeddedInput) {
       return setValueToElem(<HTMLElement>embeddedInput, value);
     }
+    // No embedded input: simply write as escaped html
     span.innerText = "" + value;
   } else if (tag === "INPUT") {
     const input = <HTMLInputElement>elem;
@@ -336,7 +337,12 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
     }
   } else if (tag === "SELECT") {
     const select = <HTMLSelectElement>elem;
-    select.value = value;
+    console.trace(`setValueToElem(${tag}, ${value})`, elem);
+    if (value == null) {
+      select.selectedIndex = -1;
+    } else {
+      select.value = value;
+    }
   }
 }
 
