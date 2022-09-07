@@ -109,7 +109,7 @@ const tree = new Wunderbaum({
 
 ### Related Methods
 
-- `tree.setNavigationMode(mode: NavigationMode)`
+- `tree.setNavigationOption(mode: NavigationOptions)`
 - `tree.setColumn(colIdx: number)`
 - `tree.setEnabled(flag: boolean)`
 
@@ -118,8 +118,5 @@ const tree = new Wunderbaum({
 ```css
 div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
   /* Highlighted cell in cell-nav mode */
-}
-div.wunderbaum.wb-grid.wb-cell-mode.wb-cell-edit-mode div.wb-row.wb-active span.wb-col.wb-active {
-  /* Highlighted cell in cell-edit mode */
 }
 ```

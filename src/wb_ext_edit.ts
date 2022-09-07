@@ -17,7 +17,7 @@ import {
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { AddNodeType, NavigationMode } from "./types";
+import { AddNodeType } from "./types";
 import { WbNodeData } from "./wb_options";
 
 // const START_MARKER = "\uFFF7";
@@ -151,7 +151,7 @@ export class EditExtension extends WunderbaumExtension {
       return false;
     }
     // --- Trigger title editing
-    if (tree.navMode === NavigationMode.row || tree.activeColIdx === 0) {
+    if (tree.isRowNav() || tree.activeColIdx === 0) {
       switch (eventName) {
         case "Enter":
           if (trigger.indexOf("macEnter") >= 0 && isMac) {

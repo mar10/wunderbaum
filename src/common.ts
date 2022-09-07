@@ -47,7 +47,7 @@ export const KEY_NODATA = "__not_found__";
 
 /** Define which keys are handled by embedded <input> control, and should
  * *not* be passed to tree navigation handler in cell-edit mode. */
-export const INPUT_KEYS = {
+export const INPUT_KEYS: { [key: string]: Array<string> } = {
   text: ["left", "right", "home", "end", "backspace"],
   number: ["up", "down", "left", "right", "home", "end", "backspace"],
   checkbox: [],
@@ -58,9 +58,9 @@ export const INPUT_KEYS = {
 };
 
 /** Key codes that trigger grid navigation, even when inside an input element. */
-export const NAVIGATE_IN_INPUT_KEYS: Set<string> = new Set([
-  "ArrowDown",
-  "ArrowUp",
+export const INPUT_BREAKOUT_KEYS: Set<string> = new Set([
+  // "ArrowDown",
+  // "ArrowUp",
   "Enter",
   "Escape",
 ]);

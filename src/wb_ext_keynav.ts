@@ -5,14 +5,14 @@
  */
 
 import {
-  // NAVIGATE_IN_INPUT_KEYS,
-  NavigationMode,
-  NavigationModeOption,
+  // INPUT_BREAKOUT_KEYS,
+  NavigationOptions,
 } from "./types";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
+import { INPUT_BREAKOUT_KEYS } from "./common";
 
 const QUICKSEARCH_DELAY = 500;
 
@@ -21,10 +21,7 @@ export class KeynavExtension extends WunderbaumExtension {
     super(tree, "keynav", {});
   }
 
-  protected _getEmbeddedInputElem(
-    elem: any,
-    setFocus = false
-  ): HTMLInputElement | null {
+  protected _getEmbeddedInputElem(elem: any): HTMLInputElement | null {
     let input = null;
 
     if (elem && elem.type != null) {
@@ -36,11 +33,16 @@ export class KeynavExtension extends WunderbaumExtension {
         input = ace as HTMLInputElement;
       }
     }
-    if (setFocus && input) {
-      this.tree.log("focus", input);
-      input.focus();
-    }
     return input;
+  }
+
+  /* Return true if the current cell's embedded input has keyboard focus. */
+  protected _isCurInputFocused(): boolean {
+    const ace = this.tree
+      .getActiveColElem()
+      ?.querySelector("input:focus,select:focus");
+    console.log(`_isCurInputFocused`, ace);
+    return !!ace;
   }
 
   onKeyEvent(data: any): boolean | undefined {
@@ -49,8 +51,8 @@ export class KeynavExtension extends WunderbaumExtension {
       opts = data.options,
       activate = !event.ctrlKey || opts.autoActivate,
       curInput = this._getEmbeddedInputElem(event.target),
-      navModeOption = opts.navigationModeOption as NavigationModeOption,
-      isCellEditMode = tree.navMode === NavigationMode.cellEdit;
+      navModeOption = opts.navigationModeOption as NavigationOptions;
+    // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
 
     let focusNode,
       eventName = eventToString(event),
@@ -93,7 +95,7 @@ export class KeynavExtension extends WunderbaumExtension {
     }
     const isColspan = node.isColspan();
 
-    if (tree.navMode === NavigationMode.row) {
+    if (tree.isRowNav()) {
       // -----------------------------------------------------------------------
       // --- Row Mode ---
       // -----------------------------------------------------------------------
@@ -132,8 +134,8 @@ export class KeynavExtension extends WunderbaumExtension {
         case "ArrowRight":
           if (!node.expanded && (node.children || node.lazy)) {
             eventName = "Add"; // expand
-          } else if (navModeOption === NavigationModeOption.startRow) {
-            tree.setNavigationMode(NavigationMode.cellNav);
+          } else if (navModeOption === NavigationOptions.startRow) {
+            tree.setCellNav();
             return;
           }
           break;
@@ -186,75 +188,101 @@ export class KeynavExtension extends WunderbaumExtension {
       // --- Cell Mode ---
       // -----------------------------------------------------------------------
       // // Standard navigation (cell mode)
-      // if (isCellEditMode && NAVIGATE_IN_INPUT_KEYS.has(eventName)) {
+      // if (isCellEditMode && INPUT_BREAKOUT_KEYS.has(eventName)) {
       // }
+      const ENTER_EDITS = false;
+      const curInput = this._getEmbeddedInputElem(null);
+      // const curInputType = curInput ? curInput.type || curInput.tagName : "";
+      const inputHasFocus = curInput && this._isCurInputFocused();
+
+      if (inputHasFocus) {
+        if (eventName === "Escape") {
+          // Discard changes
+          node.render();
+        } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
+          // Let current `<input>` handle it
+          node.logDebug(`Ignored ${eventName} inside input`);
+          return;
+        }
+        // const curInputType = curInput.type || curInput.tagName;
+        // const breakoutKeys = INPUT_KEYS[curInputType];
+        // if (!breakoutKeys.includes(eventName)) {
+        //   node.logDebug(`Ignored ${eventName} inside ${curInputType} input`);
+        //   return;
+        // }
+      } else if (curInput) {
+        // On a cell that has an embedded, unfocused <input>
+        if (eventName.length === 1) {
+          curInput.focus();
+          curInput.value = "";
+          node.logDebug(`Focus imput: ${eventName}`);
+          return false;
+        }
+      }
       if (eventName === "Tab") {
         eventName = "ArrowRight";
+        handled = true;
       } else if (eventName === "Shift+Tab") {
         eventName = tree.activeColIdx > 0 ? "ArrowLeft" : "";
+        handled = true;
+      } else if (ENTER_EDITS && eventName === "Enter") {
+        eventName = "F2";
       }
+
       switch (eventName) {
         case " ":
           if (tree.activeColIdx === 0 && node.getOption("checkbox")) {
             node.setSelected(!node.isSelected());
             handled = true;
-          } else {
-            // [Space] key should trigger embedded checkbox
-            const elem = tree.getActiveColElem();
-            const cb = elem?.querySelector(
-              "input[type=checkbox]"
-            ) as HTMLInputElement;
-            cb?.click();
+          } else if (curInput && curInput.matches("[type=checkbox]")) {
+            curInput.click();
+            // toggleCheckbox(curInput)
+            // new Event("change")
+            // curInput.change
+            handled = true;
+          }
+          break;
+        case "F2":
+          if (curInput && !inputHasFocus) {
+            curInput.focus();
+            handled = true;
           }
           break;
         case "Enter":
+          tree.setFocus(); // Blur prev. input if any
           if (tree.activeColIdx === 0 && node.isExpandable()) {
             node.setExpanded(!node.isExpanded());
             handled = true;
-          } else if (
-            !isCellEditMode &&
-            (navModeOption === NavigationModeOption.startCell ||
-              navModeOption === NavigationModeOption.startRow)
-          ) {
-            tree.setNavigationMode(NavigationMode.cellEdit);
-            this._getEmbeddedInputElem(null, true); // set focus to input
+          } else if (curInput && !inputHasFocus) {
+            curInput.focus();
             handled = true;
           }
           break;
         case "Escape":
-          if (tree.navMode === NavigationMode.cellEdit) {
-            tree.setNavigationMode(NavigationMode.cellNav);
-            handled = true;
-          } else if (
-            tree.navMode === NavigationMode.cellNav &&
-            navModeOption !== NavigationModeOption.cell
-          ) {
-            tree.setNavigationMode(NavigationMode.row);
+          tree.setFocus(); // Blur prev. input if any
+          if (tree.isCellNav() && navModeOption !== NavigationOptions.cell) {
+            tree.setCellNav(false); // row-nav mode
             handled = true;
           }
           break;
         case "ArrowLeft":
+          tree.setFocus(); // Blur prev. input if any
           if (isColspan && node.isExpanded()) {
             node.setExpanded(false);
           } else if (tree.activeColIdx > 0) {
             tree.setColumn(tree.activeColIdx - 1);
-            if (isCellEditMode) {
-              this._getEmbeddedInputElem(null, true); // set focus to input
-            }
             handled = true;
-          } else if (navModeOption !== NavigationModeOption.cell) {
-            tree.setNavigationMode(NavigationMode.row);
+          } else if (navModeOption !== NavigationOptions.cell) {
+            tree.setCellNav(false); // row-nav mode
             handled = true;
           }
           break;
         case "ArrowRight":
+          tree.setFocus(); // Blur prev. input if any
           if (isColspan && !node.isExpanded()) {
             node.setExpanded();
           } else if (tree.activeColIdx < tree.columns.length - 1) {
             tree.setColumn(tree.activeColIdx + 1);
-            if (isCellEditMode) {
-              this._getEmbeddedInputElem(null, true); // set focus to input
-            }
             handled = true;
           }
           break;
@@ -270,9 +298,9 @@ export class KeynavExtension extends WunderbaumExtension {
         case "PageDown":
         case "PageUp":
           node.navigate(eventName, { activate: activate, event: event });
-          if (isCellEditMode) {
-            this._getEmbeddedInputElem(null, true); // set focus to input
-          }
+          // if (isCellEditMode) {
+          //   this._getEmbeddedInputElem(null, true); // set focus to input
+          // }
           handled = true;
           break;
         default:

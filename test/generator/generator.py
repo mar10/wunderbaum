@@ -1,11 +1,159 @@
 from abc import ABC, abstractmethod
+from datetime import date, datetime, timedelta
 import json
+import random
+from typing import Any, Sequence, Union
 
 from fabulist import Fabulist
 from nutree.tree import Tree
 
 
 fab = Fabulist()
+
+# ------------------------------------------------------------------------------
+# Randomizers
+# ------------------------------------------------------------------------------
+class Randomizer(ABC):
+    def __init__(self, *, probability: float = None) -> None:
+        assert (
+            probability is None or 0.0 < probability < 1.0
+        ), f"probality mus be in the range [0.0..1.0] or None: {probability}"
+        self.probability = probability
+
+    def _skip_value(self) -> bool:
+        use = self.probability is None or random.random() <= self.probability
+        return not use
+
+    @abstractmethod
+    def generate(self) -> Any:
+        pass
+
+
+class RangeRandomizer(Randomizer):
+    def __init__(
+        self,
+        min_val: Union[float, int],
+        max_val: Union[float, int],
+        *,
+        probability=None,
+    ) -> None:
+        super().__init__(probability=probability)
+        assert type(min_val) is type(max_val)
+        self.is_float = type(min_val) is float
+        self.min = min_val
+        self.max = max_val
+
+    def generate(self) -> Union[float, int, None]:
+        if self._skip_value():
+            return
+        if self.is_float:
+            return random.uniform(self.min, self.max)
+        return random.randrange(self.min, self.max)
+
+
+class DateRangeRandomizer(Randomizer):
+    def __init__(
+        self,
+        min_dt: date,
+        max_dt: Union[date, int],
+        *,
+        as_js_stamp=True,
+        probability=None,
+    ) -> None:
+        super().__init__(probability=probability)
+        if type(max_dt) in (int, float):
+            self.delta_days = max_dt
+            max_dt = min_dt + self.delta_days
+        else:
+            self.delta_days = (max_dt - min_dt).days
+        assert max_dt > min_dt
+        self.min = min_dt
+        self.max = max_dt
+        self.as_js_stamp = as_js_stamp
+
+    def generate(self) -> Union[date, None]:
+        if self._skip_value():
+            return
+        res = self.min + timedelta(days=random.randrange(self.delta_days))
+        if self.as_js_stamp:
+            ONE_DAY = 24 * 60 * 60
+            dt = datetime(res.year, res.month, res.day)
+            stamp_ms = (dt.timestamp() + ONE_DAY) * 1000.0
+            # print(self.min, self.max, self.delta_days, res, stamp_ms)
+            res = stamp_ms
+        return res
+
+
+class ValueRandomizer(Randomizer):
+    def __init__(self, value: Any, *, probability: float) -> None:
+        super().__init__(probability=probability)
+        self.value = value
+
+    def generate(self) -> Any:
+        if self._skip_value():
+            return
+        return self.value
+
+
+class TextRandomizer(Randomizer):
+    def __init__(
+        self, template: Union[str, list], *, probability: float = None
+    ) -> None:
+        super().__init__(probability=probability)
+        self.template = template
+
+    def generate(self) -> Any:
+        if self._skip_value():
+            return
+        return fab.get_quote(self.template)
+
+
+class SampleRandomizer(Randomizer):
+    def __init__(
+        self, sample_list: Sequence, *, counts=None, probability: float = None
+    ) -> None:
+        super().__init__(probability=probability)
+        self.sample_list = sample_list
+        self.counts = counts
+
+    def generate(self) -> Any:
+        if self._skip_value():
+            return
+        return random.sample(self.sample_list, 1, counts=self.counts)[0]
+
+
+# class BoolRandomizer(SampleRandomizer):
+#     def __init__(self, *, allow_none: bool = False) -> None:
+#         if allow_none:
+#             super().__init__((True, False, None))
+#         else:
+#             super().__init__((True, False))
+
+
+def resolve_random(val: Any) -> Any:
+    if isinstance(val, Randomizer):
+        return val.generate()
+    return val
+
+
+def resolve_random_dict(d: dict) -> None:
+    remove = []
+    for key in d.keys():
+        val = d[key]
+        if isinstance(val, Randomizer):
+            val = val.generate()
+            if val is None:  # Skip due to probability
+                remove.append(key)
+            else:
+                d[key] = val
+    for key in remove:
+        d.pop(key)
+    return
+
+
+# ------------------------------------------------------------------------------
+# Tree Builder
+# ------------------------------------------------------------------------------
 
 
 class WbNode:
@@ -39,7 +187,7 @@ def make_tree(*, spec_list, parent=None, prefix=""):
 
     spec_list = spec_list.copy()
     spec = spec_list.pop(0).copy()
-    count = spec.pop("count")
+    count = resolve_random(spec.pop("count"))
     title = spec.pop("title")
 
     for i in range(count):
@@ -49,9 +197,14 @@ def make_tree(*, spec_list, parent=None, prefix=""):
             t = fab.get_quote(title)
         else:
             t = title
+
+        # Resolve `Randomizer` values
+        data = spec.copy()
+        resolve_random_dict(data)
+
         wb_node = WbNode(
             t.format(i=i, prefix=p),
-            data=spec,
+            data=data,
         )
         node = parent.add(wb_node)
         if spec_list:
@@ -59,21 +212,9 @@ def make_tree(*, spec_list, parent=None, prefix=""):
     return parent
 
 
-class Randomizer(ABC):
-    @abstractmethod
-    def generate(self):
-        pass
-
-
-class RangeRandomizer(Randomizer):
-    def __init__(self, min: float | int, max: float | int) -> None:
-        self.min = min
-        self.max = max
-
-
-class SampleRandomizer(Randomizer):
-    def __init__(self, sample_list: list) -> None:
-        self.sample_list = sample_list
+# ------------------------------------------------------------------------------
+# Fixture Definitions
+# ------------------------------------------------------------------------------
 
 
 def create_fixed_multicheckbox(add_html: bool) -> dict:
@@ -92,27 +233,42 @@ def create_fixed_multicheckbox(add_html: bool) -> dict:
         {
             "title": "Title",
             "id": "*",
-            "width": "200px",
-        },
-        {
-            "title": "Details",
-            "id": "details",
             "width": "300px",
-            "html": "<input type=text tabindex='-1'>" if add_html else None,
         },
         {
-            "title": "Mode",
-            "id": "mode",
+            "title": "Age",
+            "id": "age",
             "width": "50px",
-            "html": '<select><option value="a">A</option><option value="b">B</option></select>'
-            if add_html
-            else None,
+            "html": "<input type=number min=0 tabindex='-1'>" if add_html else None,
+            "classes": "wb-helper-end",
         },
         {
             "title": "Date",
             "id": "date",
-            "width": "130px",
-            "html": "<input type=date tabindex='-1'>" if add_html else None,
+            "width": "100px",
+            "html": '<input type=date tabindex="-1">' if add_html else None,
+        },
+        {
+            "title": "Mood",
+            "id": "mood",
+            "width": "70px",
+            "html": '<select tabindex="-1"><option value="h">Happy</option><option value="s">Sad</option></select>'
+            if add_html
+            else None,
+        },
+        # {
+        #     "title": "Tags",
+        #     "id": "tags",
+        #     "width": "100px",
+        #     "html": '<select tabindex="-1" multiple><option value="a">A</option><option value="b">B</option></select>'
+        #     if add_html
+        #     else None,
+        # },
+        {
+            "title": "Remarks",
+            "id": "remarks",
+            "width": "300px",
+            "html": "<input type=text tabindex='-1'>" if add_html else None,
         },
     ]
 
@@ -136,17 +292,28 @@ def create_fixed_multicheckbox(add_html: bool) -> dict:
                 "count": 2,
                 "title": "Dept. for $(Noun:plural) and $(Noun:plural)",
                 "type": "department",
-                "expanded": True,
+                "expanded": ValueRandomizer(True, probability=0.7),
             },
             {
-                "count": 2,
+                "count": 5,
                 "title": "$(Verb) $(noun:plural)",
                 "type": "role",
+                "expanded": ValueRandomizer(True, probability=0.3),
             },
             {
-                "count": 2,
-                "title": "$(name)",
+                "count": RangeRandomizer(0, 10),
+                "title": "$(name:middle)",
                 "type": "person",
+                "mood": SampleRandomizer(("h", "s"), probability=0.3),
+                "age": RangeRandomizer(21, 99),
+                "date": DateRangeRandomizer(
+                    date(1970, 1, 1),
+                    date.today(),
+                    probability=0.6,
+                ),
+                "remarks": TextRandomizer(
+                    "$(Verb:s) $(noun:plural) $(adv:#positive).", probability=0.3
+                ),
             },
         ]
     )

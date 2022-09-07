@@ -106,7 +106,7 @@ const tree = new Wunderbaum({
     const node = e.node;
     const value = e.inputValue;
 
-    node.log(e.type, e, value);
+    node.log(e.type, e, value, node.data);
 
     // Simulate a async/delayed behavior:
     return util.setTimeoutPromise(() => {
@@ -119,7 +119,7 @@ const tree = new Wunderbaum({
     }, 500);
   },
   render: (e) => {
-    // e.node.log(e.type, e);
+    e.node.log(e.type, e, e.node.data);
 
     for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {

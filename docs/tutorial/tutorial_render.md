@@ -56,7 +56,4 @@ const tree = new Wunderbaum({
 div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
   /* Highlighted cell in cell-nav mode */
 }
-div.wunderbaum.wb-grid.wb-cell-mode.wb-cell-edit-mode div.wb-row.wb-active span.wb-col.wb-active {
-  /* Highlighted cell in cell-edit mode */
-}
 ```

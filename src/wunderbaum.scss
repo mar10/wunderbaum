@@ -398,12 +398,18 @@ div.wunderbaum {
           max-height: $row-inner-height;
           border: none;
         }
+
+        > input:focus,
+        > select:focus {
+          border: 1px dashed $active-border-color;
+        }
       }
-      input[type="number"]::-webkit-inner-spin-button,
-      input[type="number"]::-webkit-outer-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-      }
+
+      // input[type="number"]::-webkit-inner-spin-button,
+      // input[type="number"]::-webkit-outer-spin-button {
+      //   -webkit-appearance: none;
+      //   margin: 0;
+      // }
     }
 
     &.wb-cell-mode {
@@ -421,10 +427,6 @@ div.wunderbaum {
             background-color: $active-cell-color;
           }
         }
-      }
-
-      &.wb-cell-edit-mode div.wb-row.wb-active span.wb-col.wb-active {
-        background-color: $error-color;
       }
     }
 

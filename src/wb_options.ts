@@ -7,7 +7,7 @@
 import {
   BoolOptionResolver,
   DndOptionsType,
-  NavigationModeOption,
+  NavigationOptions,
   WbNodeEventType,
   WbRenderEventType,
   WbTreeEventType,
@@ -172,9 +172,9 @@ export interface WunderbaumOptions {
    */
   attachBreadcrumb?: HTMLElement;
   /**
-   * Default:  NavigationModeOption.startRow
+   * Default:  NavigationOptions.startRow
    */
-  navigationModeOption?: NavigationModeOption;
+  navigationModeOption?: NavigationOptions;
   /**
    * Show/hide header (pass bool or string)
    */

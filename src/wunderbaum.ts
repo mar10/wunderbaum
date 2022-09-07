@@ -25,8 +25,7 @@ import {
   ColumnDefinitions,
   FilterModeType,
   MatcherType,
-  NavigationMode,
-  NavigationModeOption,
+  NavigationOptions,
   NodeStatusType,
   NodeTypeInfos,
   ScrollToOptions,
@@ -136,8 +135,10 @@ export class Wunderbaum {
   // --- KEYNAV ---
   /** @internal Use `setColumn()`/`getActiveColElem()`*/
   public activeColIdx = 0;
+  // /** @internal */
+  // public navMode = NavigationMode.row;
   /** @internal */
-  public navMode = NavigationMode.row;
+  public _cellNavMode = false;
   /** @internal */
   public lastQuicksearchTime = 0;
   /** @internal */
@@ -168,7 +169,7 @@ export class Wunderbaum {
         skeleton: false,
         attachBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
         // --- KeyNav ---
-        navigationModeOption: null, // NavigationModeOption.startRow,
+        navigationModeOption: null, // NavigationOptions.startRow,
         quicksearch: true,
         // --- Events ---
         change: util.noop,
@@ -332,17 +333,17 @@ export class Wunderbaum {
           // The source may have defined columns, so we may adjust the nav mode
           if (opts.navigationModeOption == null) {
             if (this.isGrid()) {
-              this.setNavigationModeOption(NavigationModeOption.cell);
+              this.setNavigationOption(NavigationOptions.cell);
             } else {
-              this.setNavigationModeOption(NavigationModeOption.row);
+              this.setNavigationOption(NavigationOptions.row);
             }
           } else {
-            this.setNavigationModeOption(opts.navigationModeOption);
+            this.setNavigationOption(opts.navigationModeOption);
           }
           // if (
           //   this.columns.length === 1 ||
-          //   opts.navigationModeOption === NavigationModeOption.row ||
-          //   opts.navigationModeOption === NavigationModeOption.startRow
+          //   opts.navigationModeOption === NavigationOptions.row ||
+          //   opts.navigationModeOption === NavigationOptions.startRow
           // ) {
           //   this.setNavigationMode(NavigationMode.row);
           // } else {
@@ -386,6 +387,16 @@ export class Wunderbaum {
       const node = info.node;
       // this.log("click", info, e);
 
+      // if( (e.target as HTMLElement).matches("input[type=checkbox]")){
+      //   // Click on an embedded checkbox triggers a change event.
+      //   // We return here, before the `setActive()` performs a render
+      //   this.log("click - cb", info, e);
+      //   // e.preventDefault()
+      //   setTimeout(()=>{
+      //     // (e.target as HTMLElement).click()
+      //   }, 50)
+      //   // return
+      // }
       if (
         this._callEvent("click", { event: e, node: node, info: info }) === false
       ) {
@@ -1466,7 +1477,7 @@ export class Wunderbaum {
    * Available in cell-nav and cell-edit mode, not in row-mode.
    */
   setColumn(colIdx: number) {
-    util.assert(this.navMode !== NavigationMode.row);
+    util.assert(this.isCellNav());
     util.assert(0 <= colIdx && colIdx < this.columns.length);
     this.activeColIdx = colIdx;
 
@@ -1590,56 +1601,80 @@ export class Wunderbaum {
     return this.columns && this.columns.length > 1;
   }
 
+  // /** Get the tree's navigation mode. */
+  // getNavigationMode(): NavigationMode {
+  //   return this.navMode;
+  // }
+
+  // /** Set the tree's navigation mode. */
+  // setNavigationMode(mode: NavigationMode) {
+  //   util.assert(mode in NavigationMode, `Invalid mode '${mode}'`);
+  //   const prevMode = this.navMode;
+  //   if (mode === prevMode) {
+  //     return;
+  //   }
+  //   const cellMode = mode !== NavigationMode.row;
+
+  //   this.navMode = mode;
+  //   if (cellMode && prevMode === NavigationMode.row) {
+  //     this.setColumn(0);
+  //   }
+  //   this.element.classList.toggle("wb-cell-mode", cellMode);
+  //   // this.element.classList.toggle(
+  //   //   "wb-cell-edit-mode",
+  //   //   mode === NavigationMode.cellEdit
+  //   // );
+  //   // this.setModified(ChangeType.row, this.activeNode);
+  //   this.activeNode?.setModified(ChangeType.status);
+  // }
+
   /** Get the tree's navigation mode. */
-  getNavigationMode(): NavigationMode {
-    return this.navMode;
+  isCellNav(): boolean {
+    return !!this._cellNavMode;
+  }
+  /** Get the tree's navigation mode. */
+  isRowNav(): boolean {
+    return !this._cellNavMode;
   }
 
   /** Set the tree's navigation mode. */
-  setNavigationMode(mode: NavigationMode) {
-    util.assert(mode in NavigationMode, `Invalid mode '${mode}'`);
-    const prevMode = this.navMode;
-    if (mode === prevMode) {
+  setCellNav(flag: boolean = true) {
+    const prev = this._cellNavMode;
+    if (flag === prev) {
       return;
     }
-    const cellMode = mode !== NavigationMode.row;
-
-    this.navMode = mode;
-    if (cellMode && prevMode === NavigationMode.row) {
+    this._cellNavMode = !!flag;
+    if (flag) {
+      // switch from cell to row mode
       this.setColumn(0);
     }
-    this.element.classList.toggle("wb-cell-mode", cellMode);
-    this.element.classList.toggle(
-      "wb-cell-edit-mode",
-      mode === NavigationMode.cellEdit
-    );
-    // this.setModified(ChangeType.row, this.activeNode);
+    this.element.classList.toggle("wb-cell-mode", flag);
     this.activeNode?.setModified(ChangeType.status);
   }
 
   /** Set the tree's navigation mode option. */
-  setNavigationModeOption(mode: NavigationModeOption, reset = false) {
-    if (!this.isGrid() && mode !== NavigationModeOption.row) {
+  setNavigationOption(mode: NavigationOptions, reset = false) {
+    if (!this.isGrid() && mode !== NavigationOptions.row) {
       this.logWarn("Plain trees only support row navigation mode.");
       return;
     }
     this.options.navigationModeOption = mode;
 
     switch (mode) {
-      case NavigationModeOption.cell:
-        this.setNavigationMode(NavigationMode.cellNav);
+      case NavigationOptions.cell:
+        this.setCellNav(true);
         break;
-      case NavigationModeOption.row:
-        this.setNavigationMode(NavigationMode.row);
+      case NavigationOptions.row:
+        this.setCellNav(false);
         break;
-      case NavigationModeOption.startCell:
+      case NavigationOptions.startCell:
         if (reset) {
-          this.setNavigationMode(NavigationMode.cellNav);
+          this.setCellNav(true);
         }
         break;
-      case NavigationModeOption.startRow:
+      case NavigationOptions.startRow:
         if (reset) {
-          this.setNavigationMode(NavigationMode.row);
+          this.setCellNav(false);
         }
         break;
       default:
@@ -1674,15 +1709,16 @@ export class Wunderbaum {
     opts = Object.assign({ calculateCols: true, updateRows: true }, opts);
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
+    const isGrid = this.isGrid();
 
     let totalWidth = 0;
     let totalWeight = 0;
     let fixedWidth = 0;
     let modified = false;
 
-    this.element.classList.toggle("wb-grid", this.columns.length > 1);
-    if (this.columns.length < 2) {
-      this.setNavigationMode(NavigationMode.row);
+    this.element.classList.toggle("wb-grid", isGrid);
+    if (!isGrid && this.isCellNav()) {
+      this.setCellNav(false);
     }
 
     if (opts.calculateCols) {

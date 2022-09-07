@@ -9,22 +9,21 @@ import * as util from "./util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
-  NavigationMode,
+  AddNodeType,
+  ApplyCommandType,
   ChangeType,
+  ColumnEventInfos,
+  MakeVisibleOptions,
   MatcherType,
   NodeAnyCallback,
   NodeStatusType,
   NodeVisitCallback,
   NodeVisitResponse,
-  ApplyCommandType,
-  AddNodeType,
+  ScrollIntoViewOptions,
   SetActiveOptions,
   SetExpandedOptions,
   SetSelectedOptions,
-  MakeVisibleOptions,
-  ScrollIntoViewOptions,
   SetStatusOptions,
-  ColumnEventInfos,
 } from "./types";
 import {
   iconMap,
@@ -1205,8 +1204,7 @@ export class WunderbaumNode {
     let checkboxSpan: HTMLElement | null = null;
     let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement | null = null;
-    const activeColIdx =
-      tree.navMode === NavigationMode.row ? null : tree.activeColIdx;
+    const activeColIdx = tree.isRowNav() ? null : tree.activeColIdx;
 
     const isNew = !rowDiv;
     util.assert(isNew);
@@ -1674,7 +1672,7 @@ export class WunderbaumNode {
       options &&
       options.colIdx != null &&
       options.colIdx !== tree.activeColIdx &&
-      tree.navMode !== NavigationMode.row
+      tree.isCellNav()
     ) {
       tree.setColumn(options.colIdx);
     }
@@ -1682,14 +1680,12 @@ export class WunderbaumNode {
       this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
     }
     return this.makeVisible();
-    // return this.scrollIntoView();
   }
 
   /**
    * Expand or collapse this node.
    */
   async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
-    // alert("" + this.getLevel() + ", "+ this.getOption("minExpandLevel");
     if (
       !flag &&
       this.isExpanded() &&
@@ -1698,6 +1694,9 @@ export class WunderbaumNode {
     ) {
       this.logDebug("Ignored collapse request below expandLevel.");
       return;
+    }
+    if (!flag === !this.expanded) {
+      return; // Nothing to do
     }
     if (flag && this.lazy && this.children == null) {
       await this.loadLazy();

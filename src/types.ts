@@ -184,25 +184,25 @@ export enum TargetType {
 }
 
 /** Initial navigation mode and possible transition. */
-export enum NavigationModeOption {
+export enum NavigationOptions {
   startRow = "startRow", // Start with row mode, but allow cell-nav mode
   cell = "cell", // Cell-nav mode only
   startCell = "startCell", // Start in cell-nav mode, but allow row mode
   row = "row", // Row mode only
 }
 
-/** Tree's current navigation mode (see `tree.setNavigationMode()`). */
-export enum NavigationMode {
-  row = "row",
-  cellNav = "cellNav",
-  cellEdit = "cellEdit",
-}
+// /** Tree's current navigation mode (see `tree.setNavigationMode()`). */
+// export enum NavigationMode {
+//   row = "row",
+//   cellNav = "cellNav",
+//   // cellEdit = "cellEdit",
+// }
 
 /** Possible values for `node.makeVisible()`. */
 export interface MakeVisibleOptions {
   /** Do not animate expand (currently not implemented). @default false */
   noAnimation?: boolean;
-  /** Ignore restrictions. @default true */
+  /** Scroll node into visible viewport area if required. @default true */
   scrollIntoView?: boolean;
   /** Do not send events. @default false */
   noEvents?: boolean;
@@ -250,20 +250,20 @@ export interface SetExpandedOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for `node.setSelected()`. */
-export interface SetSelectedOptions {
-  /** Ignore restrictions. @default false */
-  force?: boolean;
-  /** Do not send events. @default false */
-  noEvents?: boolean;
-}
-
 /** Possible values for `node.setSetModified()`. */
 export interface SetModifiedOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
   /** Remove HTML markup of all rendered nodes before redraw. @default false */
   removeMarkup?: boolean;
+}
+
+/** Possible values for `node.setSelected()`. */
+export interface SetSelectedOptions {
+  /** Ignore restrictions. @default false */
+  force?: boolean;
+  /** Do not send events. @default false */
+  noEvents?: boolean;
 }
 
 /** Possible values for `node.setSetModified()`. */
