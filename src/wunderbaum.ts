@@ -22,12 +22,12 @@ import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
 import {
   ApplyCommandType,
   ChangeType,
-  ColumnDefinitions,
+  ColumnDefinitionList,
   FilterModeType,
   MatcherType,
   NavigationOptions,
   NodeStatusType,
-  NodeTypeInfos,
+  NodeTypeDefinitions,
   ScrollToOptions,
   SetActiveOptions,
   SetModifiedOptions,
@@ -42,13 +42,8 @@ import {
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
-// import { DebouncedFunction, throttle } from "./debounce";
 import { EditExtension } from "./wb_ext_edit";
 import { WunderbaumOptions } from "./wb_options";
-
-// const class_prefix = "wb-";
-// const node_props: string[] = ["title", "key", "refKey"];
-// const MAX_CHANGED_NODES = 10;
 
 class WbSystemRoot extends WunderbaumNode {
   constructor(tree: Wunderbaum) {
@@ -81,7 +76,7 @@ export class Wunderbaum {
   /** The `div` container element that was passed to the constructor. */
   public readonly element: HTMLDivElement;
   /** The `div.wb-header` element if any. */
-  public readonly headerElement: HTMLDivElement | null;
+  public readonly headerElement: HTMLDivElement;
   /** The `div.wb-scroll-container` element that contains the `nodeListElement`. */
   public readonly scrollContainerElement: HTMLDivElement;
   /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
@@ -96,11 +91,8 @@ export class Wunderbaum {
 
   protected keyMap = new Map<string, WunderbaumNode>();
   protected refKeyMap = new Map<string, Set<WunderbaumNode>>();
-  // protected viewNodes = new Set<WunderbaumNode>();
   protected treeRowCount = 0;
   protected _disableUpdateCount = 0;
-
-  // protected eventHandlers : Array<function> = [];
 
   /** Currently active node if any. */
   public activeNode: WunderbaumNode | null = null;
@@ -108,17 +100,14 @@ export class Wunderbaum {
   public focusNode: WunderbaumNode | null = null;
 
   /** Shared properties, referenced by `node.type`. */
-  public types: NodeTypeInfos = {};
+  public types: NodeTypeDefinitions = {};
   /** List of column definitions. */
-  public columns: ColumnDefinitions = []; // any[] = [];
+  public columns: ColumnDefinitionList = []; // any[] = [];
 
   protected _columnsById: { [key: string]: any } = {};
   protected resizeObserver: ResizeObserver;
 
   // Modification Status
-  // protected changedSince = 0;
-  // protected changes = new Set<ChangeType>();
-  // protected changedNodes = new Set<WunderbaumNode>();
   protected changeRedrawRequestPending = false;
   protected changeScrollRequestPending = false;
 
@@ -135,8 +124,6 @@ export class Wunderbaum {
   // --- KEYNAV ---
   /** @internal Use `setColumn()`/`getActiveColElem()`*/
   public activeColIdx = 0;
-  // /** @internal */
-  // public navMode = NavigationMode.row;
   /** @internal */
   public _cellNavMode = false;
   /** @internal */
@@ -151,7 +138,7 @@ export class Wunderbaum {
     let opts = (this.options = util.extend(
       {
         id: null,
-        source: null, // URL for GET/PUT, ajax options, or callback
+        source: null, // URL for GET/PUT, Ajax options, or callback
         element: null, // <div class="wunderbaum">
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
         header: null, // Show/hide header (pass bool or string)
@@ -167,7 +154,7 @@ export class Wunderbaum {
         minExpandLevel: 0,
         updateThrottleWait: 200,
         skeleton: false,
-        attachBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+        connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
         // --- KeyNav ---
         navigationModeOption: null, // NavigationOptions.startRow,
         quicksearch: true,
@@ -222,23 +209,23 @@ export class Wunderbaum {
     this._registerExtension(new GridExtension(this));
     this._registerExtension(new LoggerExtension(this));
 
+    this._updateViewportThrottled = util.adaptiveThrottle(
+      this._updateViewportImmediately.bind(this),
+      {}
+    );
+
     // --- Evaluate options
     this.columns = opts.columns;
     delete opts.columns;
     if (!this.columns || !this.columns.length) {
-      let defaultName = typeof opts.header === "string" ? opts.header : this.id;
-      this.columns = [{ id: "*", title: defaultName, width: "*" }];
+      const title = typeof opts.header === "string" ? opts.header : this.id;
+      this.columns = [{ id: "*", title: title, width: "*" }];
     }
 
     if (opts.types) {
       this.setTypes(opts.types, true);
     }
     delete opts.types;
-
-    this._updateViewportThrottled = util.adaptiveThrottle(
-      this._updateViewportImmediately.bind(this),
-      {}
-    );
 
     // --- Create Markup
     this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
@@ -280,7 +267,7 @@ export class Wunderbaum {
           width: "*", // TODO: read from header span
         });
       }
-    } else if (wantHeader) {
+    } else {
       // We need a row div, the rest will be computed from `this.columns`
       const coldivs = "<span class='wb-col'></span>".repeat(
         this.columns.length
@@ -291,9 +278,13 @@ export class Wunderbaum {
             ${coldivs}
           </div>
         </div>`;
-      // this.updateColumns({ render: false });
-    } else {
-      this.element.innerHTML = "";
+
+      if (!wantHeader) {
+        const he = this.element.querySelector(
+          "div.wb-header"
+        ) as HTMLDivElement;
+        he.style.display = "none";
+      }
     }
 
     //
@@ -340,15 +331,6 @@ export class Wunderbaum {
           } else {
             this.setNavigationOption(opts.navigationModeOption);
           }
-          // if (
-          //   this.columns.length === 1 ||
-          //   opts.navigationModeOption === NavigationOptions.row ||
-          //   opts.navigationModeOption === NavigationOptions.startRow
-          // ) {
-          //   this.setNavigationMode(NavigationMode.row);
-          // } else {
-          //   this.setNavigationMode(NavigationMode.cellNav);
-          // }
           readyDeferred.resolve();
         })
         .catch((error) => {
@@ -657,12 +639,14 @@ export class Wunderbaum {
   getTopmostVpNode(complete = true) {
     const gracePy = 1; // ignore subpixel scrolling
     const scrollParent = this.element;
+    // const headerHeight = this.hasHeader() ? this.options.headerHeightPx : 0;
+    const scrollTop = scrollParent.scrollTop; // + headerHeight;
     let topIdx: number;
 
     if (complete) {
-      topIdx = Math.ceil((scrollParent.scrollTop - gracePy) / ROW_HEIGHT);
+      topIdx = Math.ceil((scrollTop + -gracePy) / ROW_HEIGHT);
     } else {
-      topIdx = Math.floor(scrollParent.scrollTop / ROW_HEIGHT);
+      topIdx = Math.floor(scrollTop / ROW_HEIGHT);
     }
     return this._getNodeByRowIdx(topIdx)!;
   }
@@ -670,18 +654,15 @@ export class Wunderbaum {
   /** Return the lowest visible node in the viewport. */
   getLowestVpNode(complete = true) {
     const scrollParent = this.element;
+    const headerHeight = this.hasHeader() ? this.options.headerHeightPx : 0;
+    const scrollTop = scrollParent.scrollTop;
+    const clientHeight = scrollParent.clientHeight - headerHeight;
     let bottomIdx: number;
 
     if (complete) {
-      bottomIdx =
-        Math.floor(
-          (scrollParent.scrollTop + scrollParent.clientHeight) / ROW_HEIGHT
-        ) - 1;
+      bottomIdx = Math.floor((scrollTop + clientHeight) / ROW_HEIGHT) - 1;
     } else {
-      bottomIdx =
-        Math.ceil(
-          (scrollParent.scrollTop + scrollParent.clientHeight) / ROW_HEIGHT
-        ) - 1;
+      bottomIdx = Math.ceil((scrollTop + clientHeight) / ROW_HEIGHT) - 1;
     }
     bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
     return this._getNodeByRowIdx(bottomIdx)!;
@@ -962,9 +943,19 @@ export class Wunderbaum {
     }
   }
 
-  /**Return true if the tree (or one of its nodes) has the input focus. */
+  /** Return true if the tree (or one of its nodes) has the input focus. */
   hasFocus() {
     return this.element.contains(document.activeElement);
+  }
+
+  /**
+   * Return true if the tree displays a header. Grids have a header unless the
+   * `header` option is set to `false`. Plain trees have a header if the `header`
+   * option is a string or `true`.
+   */
+  hasHeader() {
+    const header = this.options.header;
+    return this.isGrid() ? header !== false : !!header;
   }
 
   /** Run code, but defer rendering of viewport until done. */
@@ -1381,14 +1372,12 @@ export class Wunderbaum {
 
   /**
    * Make sure that this node is vertically scrolled into the viewport.
-   *
-   * @param {object} [options=null] {topNode: null, effects: ..., parent: ...}
-   *     this node will remain visible in
-   *     any case, even if `this` is outside the scroll pane.
    */
   scrollTo(nodeOrOpts?: ScrollToOptions | WunderbaumNode) {
     const MARGIN = 1;
-    let node;
+
+    let node,
+      opts: any = {};
     if (nodeOrOpts == null) {
       node = this.getActiveNode();
       if (!node) {
@@ -1397,15 +1386,21 @@ export class Wunderbaum {
     } else if (nodeOrOpts instanceof WunderbaumNode) {
       node = nodeOrOpts;
     } else {
-      node = nodeOrOpts.node;
+      opts = nodeOrOpts;
+      node = opts.node;
     }
     // const scrollParent = this.scrollContainerElement;
     const scrollParent = this.element;
-    const curTop = scrollParent.scrollTop;
-    const height = scrollParent.clientHeight;
+    const headerHeight = this.hasHeader() ? this.options.headerHeightPx : 0;
+    const curTop = scrollParent.scrollTop + headerHeight;
+    const height = scrollParent.clientHeight - headerHeight;
     util.assert(node._rowIdx != null);
-    const nodeOfs = node._rowIdx! * ROW_HEIGHT;
+    let nodeOfs = node._rowIdx! * ROW_HEIGHT;
     let newTop;
+
+    // if (opts.ofsY) {
+    //   nodeOfs += opts.ofsY;
+    // }
 
     if (nodeOfs > curTop) {
       if (nodeOfs + ROW_HEIGHT < curTop + height) {
@@ -1596,43 +1591,16 @@ export class Wunderbaum {
     return this.enabled;
   }
 
-  /** Return true if tree has one or more data columns in addition to the plain nodes. */
+  /** Return true if tree has more than one column, i.e. has additional data columns. */
   isGrid(): boolean {
     return this.columns && this.columns.length > 1;
   }
 
-  // /** Get the tree's navigation mode. */
-  // getNavigationMode(): NavigationMode {
-  //   return this.navMode;
-  // }
-
-  // /** Set the tree's navigation mode. */
-  // setNavigationMode(mode: NavigationMode) {
-  //   util.assert(mode in NavigationMode, `Invalid mode '${mode}'`);
-  //   const prevMode = this.navMode;
-  //   if (mode === prevMode) {
-  //     return;
-  //   }
-  //   const cellMode = mode !== NavigationMode.row;
-
-  //   this.navMode = mode;
-  //   if (cellMode && prevMode === NavigationMode.row) {
-  //     this.setColumn(0);
-  //   }
-  //   this.element.classList.toggle("wb-cell-mode", cellMode);
-  //   // this.element.classList.toggle(
-  //   //   "wb-cell-edit-mode",
-  //   //   mode === NavigationMode.cellEdit
-  //   // );
-  //   // this.setModified(ChangeType.row, this.activeNode);
-  //   this.activeNode?.setModified(ChangeType.status);
-  // }
-
-  /** Get the tree's navigation mode. */
+  /** Return true if cell-navigation mode is acive. */
   isCellNav(): boolean {
     return !!this._cellNavMode;
   }
-  /** Get the tree's navigation mode. */
+  /** Return true if row-navigation mode is acive. */
   isRowNav(): boolean {
     return !this._cellNavMode;
   }
@@ -1640,12 +1608,12 @@ export class Wunderbaum {
   /** Set the tree's navigation mode. */
   setCellNav(flag: boolean = true) {
     const prev = this._cellNavMode;
-    if (flag === prev) {
-      return;
-    }
+    // if (flag === prev) {
+    //   return;
+    // }
     this._cellNavMode = !!flag;
-    if (flag) {
-      // switch from cell to row mode
+    if (flag && !prev) {
+      // switch from row to cell mode
       this.setColumn(0);
     }
     this.element.classList.toggle("wb-cell-mode", flag);
@@ -1796,9 +1764,15 @@ export class Wunderbaum {
    * @internal
    */
   protected _renderHeaderMarkup() {
-    if (!this.headerElement) {
+    util.assert(this.headerElement);
+    const wantHeader = this.hasHeader();
+    util.setElemDisplay(this.headerElement, wantHeader);
+    if (!wantHeader) {
       return;
     }
+    // if (!this.headerElement) {
+    //   return;
+    // }
     const headerRow = this.headerElement.querySelector(".wb-row")!;
     util.assert(headerRow);
     headerRow.innerHTML = "<span class='wb-col'></span>".repeat(
@@ -1813,7 +1787,12 @@ export class Wunderbaum {
       colElem.style.width = col._widthPx + "px";
       // colElem.textContent = col.title || col.id;
       const title = util.escapeHtml(col.title || col.id);
-      colElem.innerHTML = `<span class="wb-col-title">${title}</span> <span class="wb-col-resizer"></span>`;
+      let tooltip = "";
+      if (col.tooltip) {
+        tooltip = util.escapeTooltip(col.tooltip);
+        tooltip = ` title="${tooltip}"`;
+      }
+      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span> <span class="wb-col-resizer"></span>`;
       // colElem.innerHTML = `${title} <span class="wb-col-resizer"></span>`;
     }
   }
@@ -1874,10 +1853,10 @@ export class Wunderbaum {
 
     // console.profileEnd(`_updateViewportImmediately()`)
 
-    if (this.options.attachBreadcrumb) {
+    if (this.options.connectTopBreadcrumb) {
       let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
       path = path ? path + " >" : "";
-      this.options.attachBreadcrumb.textContent = path;
+      this.options.connectTopBreadcrumb.textContent = path;
     }
     this._callEvent("update");
   }

@@ -13,10 +13,9 @@ new mar10.Wunderbaum({
   element: document.querySelector("#demo-tree"),
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
-  checkbox: true,
+  // checkbox: true,
   // fixedCol: true,
   navigationModeOption: "cell",
-
   source: "../assets/ajax_1k_3_6.json",
   types: {
     "department": { "icon": "bi bi-diagram-3", "colspan": true },
@@ -24,40 +23,11 @@ new mar10.Wunderbaum({
     "person": { "icon": "bi bi-person" },
   },
   columns: [
-    {
-      "title": "Title",
-      "id": "*",
-      "width": "250px",
-    },
-    {
-      "title": "Age",
-      "id": "age",
-      "width": "50px",
-      // "html": "<input type=number min=0 tabindex='-1'>",
-      "classes": "wb-helper-end",
-    },
-    {
-      "title": "Date",
-      "id": "date",
-      "width": "100px",
-      // "html": '<input type=date tabindex="-1">',
-    },
-    {
-      "title": "Mood",
-      "id": "mood",
-      "width": "70px",
-      // "html": `<select tabindex="-1">
-      //     <option value="h">Happy</option>
-      //     <option value="s">Sad</option>
-      //     </select>`
-    },
-    {
-      "title": "Remarks",
-      "id": "remarks",
-      "width": "*",
-      // "width": "300px",
-      // "html": "<input type=text tabindex='-1'>",
-    },
+    { "title": "Title", "id": "*", "width": "250px" },
+    { "title": "Age", "id": "age", "width": "50px", "classes": "wb-helper-end" },
+    { "title": "Date", "id": "date", "width": "100px" },
+    { "title": "Mood", "id": "mood", "width": "70px" },
+    { "title": "Remarks", "id": "remarks", "width": "*" },
   ],
 
   edit: {
@@ -122,49 +92,6 @@ new mar10.Wunderbaum({
     // Render embedded input controls for all data columns
     for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
-        case "author":
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="text" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.author);
-          break;
-        case "details": // text control
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="text" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.details);
-          break;
-        case "price":
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="number" min="0.00" step="0.01" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.price.toFixed(2));
-          break;
-        case "age":
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="number" min="0" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.age);
-          break;
-        // case "qty":
-        //   if (e.isNew) {
-        //     col.elem.innerHTML = '<input type="number" min="0" tabindex="-1">';
-        //   }
-        //   util.setValueToElem(col.elem, node.data.qty);
-        //   break;
-        case "sale": // checkbox control
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="checkbox" tabindex="-1">';
-          }
-          // Cast value to bool, since we don't want tri-state behavior
-          util.setValueToElem(col.elem, !!node.data.sale);
-          break;
-        case "year": // thousands separator
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="number" max="9999" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.year);
-          break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];

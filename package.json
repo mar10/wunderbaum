@@ -94,8 +94,8 @@
   "scripts": {
     "test": "npm run lint && npm run build:js && grunt ci --verbose",
     "docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
-    "format": "prettier src -w",
-    "lint": "prettier src --check",
+    "format": "prettier src -w && npm run lint",
+    "lint": "prettier src --check && tsc -t esnext --noEmit",
     "build:types": "tsc -t esnext --moduleResolution node -d --emitDeclarationOnly --outFile build/wunderbaum.d.ts src/wunderbaum.ts",
     "build:js": "rollup -c rollup.config.js",
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"url='wunderbaum.umd.min.js.map'\" --output build/wunderbaum.umd.min.js",

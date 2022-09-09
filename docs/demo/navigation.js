@@ -48,6 +48,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           { title: "Plain", type: "show", key: "demo-plain" },
           { title: "Treegrid", type: "show", key: "demo-grid" },
           { title: "Large Grid", type: "show", key: "demo-large", },
+          { title: "Readonly", type: "show", key: "demo-readonly", },
           { title: "Editable", type: "show", key: "demo-editable", },
           { title: "Fixed Column", type: "show", key: "demo-fixedcol", },
         ],
@@ -109,12 +110,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
   })
   toggleButtonCreate("#enable-cellnav", (e, flag) => {
     const tree = mar10.Wunderbaum.getTree("demo");
-    if (tree.getNavigationMode() === "row" && tree.isGrid()) {
-      tree.setNavigationMode("cellNav")
+    if (tree.isRowNav() && tree.isGrid()) {
+      tree.setCellNav()
     } else {
-      tree.setNavigationMode("row")
+      tree.setCellNav(false)
     }
-    return tree.getNavigationMode() !== "row"
+    return tree.isCellNav();
   })
   document.querySelector("#toggle-expand-all").addEventListener("click", (e) => {
     const tree = mar10.Wunderbaum.getTree("demo");
@@ -234,7 +235,7 @@ function reconfigureTree(tag = null) {
       document.getElementById("filter-hide")
         .classList.toggle("checked", demoTree.getOption("filter.mode") === "hide");
       document.getElementById("enable-cellnav")
-        .classList.toggle("checked", demoTree.isGrid() && demoTree.getNavigationMode() === "row");
+        .classList.toggle("checked", demoTree.isGrid() && demoTree.isRowNav());
     })
 
   }).catch((e) => {

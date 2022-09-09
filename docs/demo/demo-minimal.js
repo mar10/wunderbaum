@@ -6,7 +6,7 @@
 
 document.getElementById("demo-info").innerHTML = `
 A simple tree, no frills (filter will not work).
-Node list is inlined, instead of using ajax.
+Source node list is inlined, instead of using Ajax.
 `;
 
 new mar10.Wunderbaum({

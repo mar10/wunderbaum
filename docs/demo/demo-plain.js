@@ -16,7 +16,7 @@ new mar10.Wunderbaum({
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
   // source: "../assets/ajax-tree-products.json",
   debugLevel: 5,
-  attachBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
   // minExpandLevel: 1,
   types: {},
@@ -52,39 +52,48 @@ new mar10.Wunderbaum({
     apply: function (e) {
       console.log(e.type, e);
       // Simulate async storage that also validates:
-      return e.util.setTimeoutPromise(() => {
-        e.inputElem.setCustomValidity("");
-        if (e.newValue.match(/.*\d.*/)) {
-          e.inputElem.setCustomValidity("No numbers please.");
-          return false;
-        }
-      }, 1000);
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          e.inputElem.setCustomValidity("");
+          if (e.newValue.match(/.*\d.*/)) {
+            e.inputElem.setCustomValidity("No numbers please.");
+            reject();
+          }else{
+            resolve()
+          }
+        }, 500);
+      });
+      // return new e.util.setTimeoutPromise(() => {
+      //   e.inputElem.setCustomValidity("");
+      //   if (e.newValue.match(/.*\d.*/)) {
+      //     e.inputElem.setCustomValidity("No numbers please.");
+      //     return false;
+      //   }
+      // }, 500);
     },
   },
   filter: {
-    attachInput: "input#filterQuery",
+    connectInput: "input#filterQuery",
     mode: "hide",
   },
   init: (e) => {
+    // Tree was loaded and rendered. Now set focus:
     const node = e.tree.findFirst("Jumping dopily")
     node.setActive()
     e.tree.setFocus();
   },
-  load: function (e) {
-    // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
-  },
   lazyLoad: function (e) {
+    // User expanded a lazy node for the first time.
     console.log(e.type, e);
+    // A typical handler would return a URL that should be fetched:
     // return { url: "../assets/ajax-lazy-sample.json" };
+    // ... Simulate a long-running request
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-sample.json" });
+        reject("Epic fail")
+        // resolve({ url: "../assets/ajax-lazy-sample.json" });
       }, 1500);
     });
-  },
-  render: function (e) {
-    // console.log(e.type, e.isNew, e);
   },
   update: function (e) {
     // Only used for the demo app (display some stats in the bottom pane):

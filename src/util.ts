@@ -346,6 +346,18 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
   }
 }
 
+/** Show/hide element by setting the `display`style to 'none'. */
+export function setElemDisplay(elem: string | Element, flag: boolean): void {
+  const style = (<HTMLElement>elemFromSelector(elem)).style;
+  if (flag) {
+    if (style.display === "none") {
+      style.display = "";
+    }
+  } else if (style.display === "") {
+    style.display = "none";
+  }
+}
+
 /** Create and return an unconnected `HTMLElement` from a HTML string. */
 export function elemFromHtml(html: string): HTMLElement {
   const t = document.createElement("template");

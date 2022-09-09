@@ -34,7 +34,7 @@ export interface WbNodeEventType extends WbTreeEventType {
    * Contains the node's type information, i.e. `tree.types[node.type]` if
    * defined. Set to `{}` otherwise. @see {@link Wunderbaum.types}
    */
-  typeInfo: NodeTypeInfo;
+  typeInfo: NodeTypeDefinition;
 }
 
 export interface WbRenderEventType extends WbNodeEventType {
@@ -68,13 +68,37 @@ export interface WbRenderEventType extends WbNodeEventType {
  * Contains the node's type information, i.e. `tree.types[node.type]` if
  * defined. @see {@link Wunderbaum.types}
  */
-export type NodeTypeInfo = {
-  icon?: string;
+export interface NodeTypeDefinition {
+  // /** Type ID that matches `node.type`. */
+  // id: string;
+  /** En/disable checkbox for matching nodes.*/
+  checkbox?: boolean | BoolOptionResolver;
+  /** En/disable checkbox for matching nodes.*/
+  colspan?: boolean | BoolOptionResolver;
+  /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
   classes?: string;
+  /**Default icon for matching nodes.*/
+  icon?: boolean | string | BoolOptionResolver;
+  /**
+   * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+   * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
+   */
   // and more
   [key: string]: unknown;
-};
-export type NodeTypeInfos = { [type: string]: NodeTypeInfo };
+  // _any: any;
+}
+
+// /**
+//  * Contains the node's type information, i.e. `tree.types[node.type]` if
+//  * defined. @see {@link Wunderbaum.types}
+//  */
+// export type NodeTypeInfo = {
+//   icon?: string;
+//   classes?: string;
+//   // and more
+//   [key: string]: unknown;
+// };
+export type NodeTypeDefinitions = { [type: string]: NodeTypeDefinition };
 
 /**
  * @see {@link `Wunderbaum.columns`}
@@ -84,22 +108,30 @@ export interface ColumnDefinition {
   id: string;
   // /** */
   // idx: number;
-  /** */
+  /** Column header (defaults to id) */
   title: string;
-  /** e.g. '75px' or '*'. */
-  width: string;
-  /** e.g. '75px' or '*'. */
-  minWidth?: string;
-  /** Optional classes that are added to the column span. */
+  /** Column header tooltip (optional) */
+  tooltip?: string;
+  /** Column width or weight.
+   * Either an absolute pixel value (e.g. `"50px"`) or a relative weight (e.g. `1`)
+   * that is used to calculate the width  inside the remaining available space.
+   * Default: `"*"`, which is interpreted as `1`.
+   */
+  width?: string | number;
+  /** Only used for columns with a relative weight.
+   * Default: `4px`.
+   */
+  minWidth?: string | number;
+  /** Optional class names that are added to all `span.wb-col` elements of that column.*/
   classes?: string;
-  /** Optional HTML code  that is rendered into the cell span. */
+  /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
   // Internal use:
   _weight?: number;
   _widthPx?: number;
   _ofsPx?: number;
 }
-export type ColumnDefinitions = Array<ColumnDefinition>;
+export type ColumnDefinitionList = Array<ColumnDefinition>;
 
 export interface ColumnEventInfo {
   /** Column ID as defined in `tree.columns` definition ("*" for title column). */
@@ -216,6 +248,8 @@ export interface ScrollIntoViewOptions {
   noEvents?: boolean;
   /** Keep this node visible at the top in any case. */
   topNode?: WunderbaumNode;
+  /** Add N pixel offset at top. */
+  ofsY?: number;
 }
 
 /** Possible values for `tree.scrollTo()`. */

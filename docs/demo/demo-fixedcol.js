@@ -12,28 +12,15 @@ new mar10.Wunderbaum({
   element: document.querySelector("#demo-tree"),
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
   // source: "../assets/ajax_1k_3_54.json",
+  // Columns- and types-definition are part of the Ajax response:
   source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
   debugLevel: 5,
-  attachBreadcrumb: document.getElementById("parentPath"),
+  // header: false,
+  connectTopBreadcrumb: document.getElementById("parentPath"),
   // checkbox: true,
   // minExpandLevel: 1,
   fixedCol: true,
   navigationModeOption: "cell",
-  // types: {},
-  // columns: [
-  //   { id: "*", title: "Product", width: "250px" },
-  //   { id: "author", title: "Author", width: "200px" },
-  //   { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-  //   { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
-  //   {
-  //     id: "price",
-  //     title: "Price ($)",
-  //     width: "80px",
-  //     classes: "wb-helper-end",
-  //   },
-  //   // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-  //   { id: "details", title: "Details", width: "*", minWidth: "600px" },
-  // ],
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],
     select: true,
@@ -57,7 +44,7 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
-    attachInput: "input#filterQuery",
+    connectInput: "input#filterQuery",
     // mode: "dim",
   },
   init: (e) => {
@@ -106,15 +93,6 @@ new mar10.Wunderbaum({
         case "qty": // thousands separator
           col.elem.textContent = node.data.qty.toLocaleString();
           break;
-        case "sale": // checkbox control
-          console.log(e.type, e);
-
-          if (e.isNew) {
-            col.elem.innerHTML = "<input type='checkbox'>";
-          }
-          // Cast value to bool, since we don't want tri-state behavior
-          util.setValueToElem(col.elem, !!node.data.sale);
-          break;
         case "details": // text control
           if (e.isNew) {
             col.elem.innerHTML = "<input type='text'>";
@@ -123,7 +101,12 @@ new mar10.Wunderbaum({
           break;
         default:
           // Assumption: we named column.id === node.data.NAME
-          col.elem.textContent = node.data[col.id];
+          val = node.data[col.id];
+          if( typeof val === "boolean") {
+            col.elem.textContent = val ? "X" : "";
+          }else{
+            col.elem.textContent = node.data[col.id];
+          }
           break;
       }
     }

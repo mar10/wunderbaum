@@ -14,7 +14,7 @@ new mar10.Wunderbaum({
   element: document.querySelector("#demo-tree"),
   source: "../assets/ajax-tree-products.json",
   debugLevel: 5,
-  attachBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
   minExpandLevel: 1,
   // fixedCol: true,
@@ -77,7 +77,7 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
-    attachInput: "input#filterQuery",
+    connectInput: "input#filterQuery",
     // mode: "dim",
   },
   init: (e) => {

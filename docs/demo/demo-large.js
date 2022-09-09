@@ -4,26 +4,33 @@
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with about 100,000 nodes.
+ A treegrid with about 100,000 nodes. Row-navigation mode.
  `;
 
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),
-  source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
   debugLevel: 5,
-  attachBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: document.getElementById("parentPath"),
   // checkbox: false,
   // minExpandLevel: 1,
   // fixedCol: true,
   navigationModeOption: "row",
-  types: {},
+  source:
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+  // source: "../assets/ajax_100k_3_1_6.json",
+  types: {
+    "folder": { "colspan": true, checkbox:false },
+    "book": { "icon": "bi bi-book" },
+    "computer": { "icon": "bi bi-laptop" },
+    "music": { "icon": "bi bi-disc" },
+    "phone": { "icon": "bi bi-phone" }
+  },
   columns: [
     { id: "*", title: "Product", width: "250px" },
     { id: "author", title: "Author", width: "200px" },
     { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
+    { id: "qty", title: "Qty", width: "80px", classes: "wb-helper-end" },
     {
       id: "price",
       title: "Price ($)",
@@ -75,7 +82,7 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
-    attachInput: "input#filterQuery",
+    connectInput: "input#filterQuery",
     // mode: "dim",
   },
   init: (e) => {
@@ -121,22 +128,25 @@ new mar10.Wunderbaum({
         case "price":
           col.elem.textContent = "$ " + node.data.price.toFixed(2);
           break;
+        case "year": // date stamp  
+          col.elem.textContent = new Date(node.data.year).getFullYear();
+          break;
         case "qty": // thousands separator
           col.elem.textContent = node.data.qty.toLocaleString();
           break;
-        case "sale": // checkbox control
-          if (e.isNew) {
-            col.elem.innerHTML = "<input type='checkbox'>";
-          }
-          // Cast value to bool, since we don't want tri-state behavior
-          util.setValueToElem(col.elem, !!node.data.sale);
-          break;
-        case "details": // text control
-          if (e.isNew) {
-            col.elem.innerHTML = "<input type='text'>";
-          }
-          util.setValueToElem(col.elem, node.data.details);
-          break;
+        // case "sale": // checkbox control
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = "<input type='checkbox'>";
+        //   }
+        //   // Cast value to bool, since we don't want tri-state behavior
+        //   util.setValueToElem(col.elem, !!node.data.sale);
+        //   break;
+        // case "details": // text control
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = "<input type='text'>";
+        //   }
+        //   util.setValueToElem(col.elem, node.data.details);
+        //   break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];

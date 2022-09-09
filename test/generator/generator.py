@@ -42,6 +42,7 @@ class RangeRandomizer(Randomizer):
         self.is_float = type(min_val) is float
         self.min = min_val
         self.max = max_val
+        assert self.max > self.min
 
     def generate(self) -> Union[float, int, None]:
         if self._skip_value():
@@ -76,9 +77,9 @@ class DateRangeRandomizer(Randomizer):
             return
         res = self.min + timedelta(days=random.randrange(self.delta_days))
         if self.as_js_stamp:
-            ONE_DAY = 24 * 60 * 60
+            ONE_DAY_SEC = 24 * 60 * 60
             dt = datetime(res.year, res.month, res.day)
-            stamp_ms = (dt.timestamp() + ONE_DAY) * 1000.0
+            stamp_ms = (dt.timestamp() + ONE_DAY_SEC) * 1000.0
             # print(self.min, self.max, self.delta_days, res, stamp_ms)
             res = stamp_ms
         return res
@@ -219,12 +220,96 @@ def make_tree(*, spec_list, parent=None, prefix=""):
 # Fixture Definitions
 # ------------------------------------------------------------------------------
 
+# --- Store --------------------------------------------------------------------
+
+
+def create_store(*, add_types: bool, add_columns: bool, add_html: bool) -> dict:
+
+    # --- Node Types ---
+
+    type_dict = {
+        "folder": {"colspan": True},
+        "book": {"icon": "bi bi-book"},
+        "computer": {"icon": "bi bi-laptop"},
+        "music": {"icon": "bi bi-disc"},
+        "phone": {"icon": "bi bi-phone"},
+    }
+
+    # --- Define Columns ---
+
+    column_list = [
+        {"id": "*", "title": "Product", "width": "250px"},
+        {"id": "author", "title": "Author", "width": "200px"},
+        {"id": "year", "title": "Year", "width": "50px", "classes": "wb-helper-end"},
+        {"id": "qty", "title": "Qty", "width": "50px", "classes": "wb-helper-end"},
+        {
+            "id": "price",
+            "title": "Price ($)",
+            "width": "80px",
+            "classes": "wb-helper-end",
+        },
+        # In order to test horizontal scrolling, we need a fixed or at least minimal width:
+        {"id": "details", "title": "Details", "width": "*", "minWidth": "600px"},
+    ]
+
+    # --- Build nested node dictionary ---
+
+    tree = make_tree(
+        spec_list=[
+            {
+                ":count": 10,
+                "title": "$(Noun:plural)",
+                "type": "folder",
+                # "expanded": ValueRandomizer(True, probability=0.05),
+            },
+            {
+                ":count": RangeRandomizer(70, 130),
+                "title": "$(Adj) $(Noun:plural)",
+                "type": "folder",
+                # "expanded": ValueRandomizer(True, probability=0.3),
+            },
+            {
+                ":count": RangeRandomizer(0, 200),
+                # ":callback": _person_callback,
+                "title": "$(Noun)",
+                "author": TextRandomizer("$(name:middle)"),
+                "type": SampleRandomizer(("book", "computer", "music", "phone")),
+                # "year": RangeRandomizer(-1000, 2022),
+                "year": DateRangeRandomizer(date(2, 1, 1), date(2021, 12, 31)),
+                "qty": RangeRandomizer(0, 1000000),
+                "price": RangeRandomizer(0, 10000),
+                "details": TextRandomizer("$(Verb:s) $(noun:plural) $(adv:#positive)."),
+            },
+        ]
+    )
+    tree.print()
+    print(f"Generated tree with {len(tree):,} nodes, depth={tree.calc_height()}")
+
+    child_list = tree.to_dict(mapper=WbNode.serialize_mapper)
+
+    # Wunderbaum formatted dict.
+    # Can be converted to JSON and directly consumed by Wunderbaum:
+    if not add_types and not add_columns:
+        # Plain list of top-nodes
+        return child_list
+
+    wb_data = {}
+    if add_types:
+        wb_data["types"] = type_dict
+    if add_columns:
+        wb_data["columns"] = column_list
+    wb_data["children"] = child_list
+    return wb_data
+
+
+# --- Multi-Checkbox -----------------------------------------------------------
+
 
 def create_fixed_multicheckbox(
     *, add_types: bool, add_columns: bool, add_html: bool
 ) -> dict:
 
-    CB_COUNT = 50
+    CB_COUNT = 1
 
     # --- Node Types ---
 
@@ -278,7 +363,8 @@ def create_fixed_multicheckbox(
         {
             "title": "Remarks",
             "id": "remarks",
-            "width": "300px",
+            "width": "*",
+            # "width": "300px",
             "html": "<input type=text tabindex='-1'>" if add_html else None,
         },
     ]
@@ -346,6 +432,10 @@ def create_fixed_multicheckbox(
 
     # Wunderbaum formatted dict.
     # Can be converted to JSON and directly consumed by Wunderbaum:
+    if not add_types and not add_columns:
+        # Plain list of top-nodes
+        return child_list
+
     wb_data = {}
     if add_types:
         wb_data["types"] = type_dict
@@ -356,6 +446,7 @@ def create_fixed_multicheckbox(
 
 
 if __name__ == "__main__":
-    res = create_fixed_multicheckbox(add_types=True, add_columns=True, add_html=True)
+    # res = create_fixed_multicheckbox(add_types=False, add_columns=False, add_html=True)
+    res = create_store(add_types=False, add_columns=False, add_html=True)
     with open("fixture.json", "wt") as fp:
         json.dump(res, fp)

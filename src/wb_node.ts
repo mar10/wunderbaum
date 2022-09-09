@@ -911,7 +911,8 @@ export class WunderbaumNode {
     Promise.all(deferreds).then(() => {
       // All expands have finished
       // self.debug("expand DONE", scroll);
-      if (scroll) {
+      // Note: this.tree may be none when switching demo trees
+      if (scroll && this.tree) {
         // Make sure markup and _rowIdx is updated before we do the scroll calculations
         this.tree.updatePendingModifications();
         this.scrollIntoView().then(() => {
@@ -1414,6 +1415,7 @@ export class WunderbaumNode {
     this === tree.focusNode ? rowClasses.push("wb-focus") : 0;
     this._errorInfo ? rowClasses.push("wb-error") : 0;
     this._isLoading ? rowClasses.push("wb-loading") : 0;
+    this.isColspan() ? rowClasses.push("wb-colspan") : 0;
     this.statusNodeType
       ? rowClasses.push("wb-status-" + this.statusNodeType)
       : 0;

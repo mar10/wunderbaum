@@ -57,7 +57,7 @@ const tree = new Wunderbaum({
      *
      * Return `false` to keep the input control open (not always possible).
      *
-     * We can also return a `Promise` (e.g. from an ajax request).
+     * We can also return a `Promise` (e.g. from an Ajax request).
      * In this case, the cell is marked 'busy' while updating.
      *
      * Implementing this event is optional. By default, `node.setTitle()` is
@@ -128,7 +128,7 @@ const tree = new Wunderbaum({
    * Called when an input control, that is embedded in a node's row, fires a
    * `change` event.
    *
-   * Return a string value or a Promise (e.g. from an ajax request).
+   * Return a string value or a Promise (e.g. from an Ajax request).
    * In the latter case, the cell is marked 'busy' while updating.
    */
   change: function (e) {

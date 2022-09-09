@@ -285,6 +285,7 @@ div.wunderbaum {
     line-height: $row-inner-height;
     padding: 0 $col-padding-x;
     border-right: 1px solid $grid-color;
+    white-space: nowrap;
 
     &:last-of-type {
       border-right: none;
@@ -413,8 +414,8 @@ div.wunderbaum {
     }
 
     &.wb-cell-mode {
-      div.wb-row {
-        background-color: $background-color;
+      div.wb-row:not(.wb-colspan) {
+        // background-color: $background-color;
 
         span.wb-col.wb-active {
           background-color: $active-column-color;
