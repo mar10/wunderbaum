@@ -191,13 +191,13 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 ":count": 10,
                 "title": "Dept. for $(Noun:plural) and $(Noun:plural)",
                 "type": "department",
-                "expanded": ValueRandomizer(True, probability=0.2),
+                # "expanded": ValueRandomizer(True, probability=0.2),
             },
             {
                 ":count": RangeRandomizer(7, 13),
                 "title": "$(Verb) $(noun:plural)",
                 "type": "role",
-                "expanded": ValueRandomizer(True, probability=0.3),
+                # "expanded": ValueRandomizer(True, probability=0.3),7
             },
             {
                 ":count": RangeRandomizer(0, 20),

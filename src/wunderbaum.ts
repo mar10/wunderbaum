@@ -81,6 +81,8 @@ export class Wunderbaum {
   public readonly scrollContainerElement: HTMLDivElement;
   /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
   public readonly nodeListElement: HTMLDivElement;
+  /** Contains additional data that was sent as response to an Ajax source load request. */
+  public readonly data: { [key: string]: any } = {};
 
   protected readonly _updateViewportThrottled: (...args: any) => void;
   protected extensionList: WunderbaumExtension[] = [];

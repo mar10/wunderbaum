@@ -58,6 +58,17 @@ export const INPUT_KEYS: { [key: string]: Array<string> } = {
   "select-multiple": ["up", "down"],
 };
 
+/** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
+export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
+  "children",
+  "columns",
+  "format", // reserved for future use
+  "keyMap", // reserved for future use
+  "positional", // reserved for future use
+  "types",
+  "version", // reserved for future use
+]);
+
 /** Key codes that trigger grid navigation, even when inside an input element. */
 export const INPUT_BREAKOUT_KEYS: Set<string> = new Set([
   // "ArrowDown",

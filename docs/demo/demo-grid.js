@@ -12,6 +12,7 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),
+  // source: "../assets/ajax-tree-editable.json",
   source: "../assets/ajax-tree-products.json",
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),

@@ -30,6 +30,7 @@ import {
   ICON_WIDTH,
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
+  RESERVED_TREE_SOURCE_KEYS,
   ROW_EXTRA_PAD,
   ROW_HEIGHT,
   TEST_IMG,
@@ -732,14 +733,26 @@ export class WunderbaumNode {
       "If `source` is an object, it must have a `children` property"
     );
     if (source.types) {
+      tree.logInfo("Redefine types", source.columns);
       tree.setTypes(source.types, false);
+      delete source.types;
     }
     if (source.columns) {
+      tree.logInfo("Redefine columns", source.columns);
       tree.columns = source.columns;
+      delete source.columns;
       tree.updateColumns({ calculateCols: false });
     }
-
     this.addChildren(source.children);
+    delete source.columns;
+
+    // Add extra data to `tree.data`
+    for (const [key, value] of Object.entries(source)) {
+      if (!RESERVED_TREE_SOURCE_KEYS.has(key)) {
+        tree.data[key] = value;
+        tree.logDebug(`Add source.${key} to tree.data.${key}`);
+      }
+    }
 
     this._callEvent("load");
   }
@@ -789,13 +802,13 @@ export class WunderbaumNode {
           return;
         }
         this.setStatus(NodeStatusType.ok);
-        if (data.columns) {
-          tree.logInfo("Re-define columns", data.columns);
-          util.assert(!this.parent);
-          tree.columns = data.columns;
-          delete data.columns;
-          tree.updateColumns({ calculateCols: false });
-        }
+        // if (data.columns) {
+        //   tree.logInfo("Re-define columns", data.columns);
+        //   util.assert(!this.parent);
+        //   tree.columns = data.columns;
+        //   delete data.columns;
+        //   tree.updateColumns({ calculateCols: false });
+        // }
         this._loadSourceObject(data);
       }
     } catch (error) {
