@@ -10,5 +10,5 @@ sauce_connect.*
 docs/tutorial/FT_*.md
 __pycache__
 test/generator/fixture.json
-test/generator/fixture.json
+test/generator/fixture*.json
 docs/assets/ajax_1M_3_6.json
