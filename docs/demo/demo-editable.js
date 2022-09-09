@@ -17,7 +17,9 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "cell",
 
-  source: "../assets/ajax_1k_3_6.json",
+  // The JSON only contains a list of nested node dicts:
+  source: "../assets/fixture_department_1k_3_6_p.json",
+  // source: "../assets/ajax_1k_3_6.json",
   types: {
     "department": { "icon": "bi bi-diagram-3", "colspan": true },
     "role": { "icon": "bi bi-microsoft-teams", "colspan": true },
@@ -41,15 +43,21 @@ new mar10.Wunderbaum({
       "id": "date",
       "width": "100px",
       // "html": '<input type=date tabindex="-1">',
-    },
+    }, 
     {
-      "title": "Mood",
-      "id": "mood",
+      "title": "Status",
+      "id": "state",
       "width": "70px",
       // "html": `<select tabindex="-1">
       //     <option value="h">Happy</option>
       //     <option value="s">Sad</option>
       //     </select>`
+    },
+    {
+      "title": "Avail.",
+      "id": "avail",
+      "width": "70px",
+      // "html": '<input type=checkbox tabindex="-1">',
     },
     {
       "title": "Remarks",
@@ -87,8 +95,8 @@ new mar10.Wunderbaum({
   },
   init: (e) => {
   },
-  load: function (e) {
-  },
+  // load: function (e) {
+  // },
   change: function (e) {
     const util = e.util;
     const info = e.info;
@@ -98,20 +106,26 @@ new mar10.Wunderbaum({
     // For demo purposes, simulate a backend delay:
     return e.util.setTimeoutPromise(() => {
       // Assumption: we named column.id === node.data.NAME
-      switch (colId) {
-        case "author":
-        case "details":
-        case "price":
-        case "qty":
-        case "sale": // checkbox control
-        case "year":
-          // We can hand-code and customize it like so:
-          // e.node.data[colId] = e.inputValue;
-          // ... but this helper should work in most cases:
-          e.node.data[colId] = util.getValueFromElem(e.inputElem, true);
-          break;
-      }
-      // e.node.setModified()
+
+      // We can hand-code and customize it like so:
+      // switch (colId) {
+      //   case "author":
+      //   case "details":
+      //   case "price":
+      //   case "qty":
+      //   case "sale": // checkbox control
+      //   case "avail": // checkbox control
+      //   case "state": // dropdown
+      //   case "year":
+      //     // e.node.data[colId] = e.inputValue;
+      //     // ... but this helper should work in most cases:
+      //     e.node.data[colId] = util.getValueFromElem(e.inputElem, true);
+      //     break;
+      // }
+
+      // ... but this helper should work in most cases:
+      e.node.data[colId] = util.getValueFromElem(e.inputElem, true);
+
     }, 500);
   },
   render: function (e) {
@@ -121,50 +135,80 @@ new mar10.Wunderbaum({
 
     // Render embedded input controls for all data columns
     for (const col of Object.values(e.renderColInfosById)) {
+      // Assumption: we named column.id === node.data.NAME
+      const val = node.data[col.id];
+
       switch (col.id) {
         case "author":
           if (e.isNew) {
             col.elem.innerHTML = '<input type="text" tabindex="-1">';
           }
-          util.setValueToElem(col.elem, node.data.author);
+          util.setValueToElem(col.elem, val);
           break;
-        case "details": // text control
+        case "remarks": // text control
           if (e.isNew) {
             col.elem.innerHTML = '<input type="text" tabindex="-1">';
           }
-          util.setValueToElem(col.elem, node.data.details);
+          util.setValueToElem(col.elem, val);
           break;
-        case "price":
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="number" min="0.00" step="0.01" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.price.toFixed(2));
-          break;
+        // case "details": // text control
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = '<input type="text" tabindex="-1">';
+        //   }
+        //   util.setValueToElem(col.elem, node.data.details);
+        //   break;
+        // case "price":
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = '<input type="number" min="0.00" step="0.01" tabindex="-1">';
+        //   }
+        //   util.setValueToElem(col.elem, node.data.price.toFixed(2));
+        //   break;
         case "age":
           if (e.isNew) {
             col.elem.innerHTML = '<input type="number" min="0" tabindex="-1">';
           }
-          util.setValueToElem(col.elem, node.data.age);
+          util.setValueToElem(col.elem, val);
+          break
+        case "state":
+          if (e.isNew) {
+            col.elem.innerHTML = `<select tabindex="-1">
+                <option value="h">Happy</option>
+                <option value="s">Sad</option>
+                </select>`;
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        case "avail":
+          if (e.isNew) {
+            col.elem.innerHTML = '<input type="checkbox" tabindex="-1">';
+          }
+          util.setValueToElem(col.elem, val);
           break;
         // case "qty":
         //   if (e.isNew) {
         //     col.elem.innerHTML = '<input type="number" min="0" tabindex="-1">';
         //   }
-        //   util.setValueToElem(col.elem, node.data.qty);
+        //   util.setValueToElem(col.elem, val);
         //   break;
-        case "sale": // checkbox control
+        // case "sale": // checkbox control
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = '<input type="checkbox" tabindex="-1">';
+        //   }
+        //   // Cast value to bool, since we don't want tri-state behavior
+        //   util.setValueToElem(col.elem, !!val);
+        //   break;
+        case "date":
           if (e.isNew) {
-            col.elem.innerHTML = '<input type="checkbox" tabindex="-1">';
+            col.elem.innerHTML = '<input type="date" tabindex="-1">';
           }
-          // Cast value to bool, since we don't want tri-state behavior
-          util.setValueToElem(col.elem, !!node.data.sale);
+          util.setValueToElem(col.elem, val);
           break;
-        case "year": // thousands separator
-          if (e.isNew) {
-            col.elem.innerHTML = '<input type="number" max="9999" tabindex="-1">';
-          }
-          util.setValueToElem(col.elem, node.data.year);
-          break;
+        // case "year":
+        //   if (e.isNew) {
+        //     col.elem.innerHTML = '<input type="number" max="9999" tabindex="-1">';
+        //   }
+        //   util.setValueToElem(col.elem, node.data.year);
+        //   break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];

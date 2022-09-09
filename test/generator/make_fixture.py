@@ -16,7 +16,7 @@ from generator import (
 )
 
 # ------------------------------------------------------------------------------
-# Product Store
+# Fixture: 'store'
 # ------------------------------------------------------------------------------
 def generate_fixture_store(*, add_html: bool) -> dict:
 
@@ -37,6 +37,7 @@ def generate_fixture_store(*, add_html: bool) -> dict:
         {"id": "author", "title": "Author", "width": "200px"},
         {"id": "year", "title": "Year", "width": "50px", "classes": "wb-helper-end"},
         {"id": "qty", "title": "Qty", "width": "50px", "classes": "wb-helper-end"},
+        {"id": "sale", "title": "Sale", "width": "50px", "classes": "wb-helper-center"},
         {
             "id": "price",
             "title": "Price ($)",
@@ -80,12 +81,6 @@ def generate_fixture_store(*, add_html: bool) -> dict:
         ]
     )
 
-    # # Wunderbaum formatted dict.
-    # # Can be converted to JSON and directly consumed by Wunderbaum:
-    # if not add_types and not add_columns:
-    #     # Plain list of top-nodes
-    #     return child_list
-
     res = tree_data
     res["types"] = type_dict
     res["columns"] = column_list
@@ -94,13 +89,13 @@ def generate_fixture_store(*, add_html: bool) -> dict:
 
 
 # ------------------------------------------------------------------------------
-# Multi-Checkbox
+# Fixture: 'department'
 # ------------------------------------------------------------------------------
 
 
 def generate_fixture_department(*, add_html: bool) -> dict:
 
-    CB_COUNT = 1
+    CB_COUNT = 0
 
     # --- Node Types ---
 
@@ -132,8 +127,8 @@ def generate_fixture_department(*, add_html: bool) -> dict:
             "html": '<input type=date tabindex="-1">' if add_html else None,
         },
         {
-            "title": "Mood",
-            "id": "mood",
+            "title": "Status",
+            "id": "state",
             "width": "70px",
             "html": """<select tabindex="-1">
                 <option value="h">Happy</option>
@@ -142,6 +137,12 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 """
             if add_html
             else None,
+        },
+        {
+            "title": "Avail",
+            "id": "avail",
+            "width": "30px",
+            "html": '<imput type=checkbox tabindex="-1">' if add_html else None,
         },
         # {
         #     "title": "Tags",
@@ -160,7 +161,7 @@ def generate_fixture_department(*, add_html: bool) -> dict:
         },
     ]
 
-    for i in range(1, CB_COUNT + 1):
+    for i in range(1, CB_COUNT):
         column_list.append(
             {
                 "title": f"#{i}",
@@ -203,7 +204,8 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 ":callback": _person_callback,
                 "title": "$(name:middle)",
                 "type": "person",
-                "mood": SampleRandomizer(("h", "s"), probability=0.3),
+                "state": SampleRandomizer(("h", "s"), probability=0.3),
+                "avail": ValueRandomizer(True, probability=0.9),
                 "age": RangeRandomizer(21, 99),
                 "date": DateRangeRandomizer(
                     date(1970, 1, 1),
@@ -222,20 +224,11 @@ def generate_fixture_department(*, add_html: bool) -> dict:
     res["columns"] = column_list
     res["children"] = tree_data["child_list"]
     return res
-    # # Wunderbaum formatted dict.
-    # # Can be converted to JSON and directly consumed by Wunderbaum:
-    # if not add_types and not add_columns:
-    #     # Plain list of top-nodes
-    #     return child_list
 
-    # wb_data = {}
-    # if add_types:
-    #     wb_data["types"] = type_dict
-    # if add_columns:
-    #     wb_data["columns"] = column_list
-    # wb_data["children"] = child_list
-    # return wb_data
 
+# ------------------------------------------------------------------------------
+# Main CLI
+# ------------------------------------------------------------------------------
 
 def _size_disp(path: Path) -> str:
     size = path.stat().st_size
@@ -248,6 +241,8 @@ def _size_disp(path: Path) -> str:
 
 if __name__ == "__main__":
     METHOD_PREFIX = "generate_fixture_"
+    ADD_HTML = False
+
     avail = [name[17:] for name in locals() if name.startswith(METHOD_PREFIX)]
     avail_disp = "'{}'".format("', '".join(avail))
 
