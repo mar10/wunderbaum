@@ -1424,22 +1424,16 @@ export class Wunderbaum {
 
   /**
    * Make sure that this node is horizontally scrolled into the viewport.
-   *
-   * Used for `fixedCol` mode.
-   *
-   * @param {boolean | PlainObject} [effects=false] animation options.
-   * @param {object} [options=null] {topNode: null, effects: ..., parent: ...}
-   *     this node will remain visible in
-   *     any case, even if `this` is outside the scroll pane.
+   * Called by {@link setColumn}.
    */
-  scrollToHorz(opts: any) {
+  protected scrollToHorz() {
+    // const PADDING = 1;
     const fixedWidth = this.columns[0]._widthPx!;
     const vpWidth = this.element.clientWidth;
     const scrollLeft = this.element.scrollLeft;
     // if (scrollLeft <= 0) {
     //   return; // Not scrolled horizontally: Nothing to do
     // }
-    // const MARGIN = 1;
     const colElem = this.getActiveColElem()!;
     const colLeft = Number.parseInt(colElem?.style.left, 10);
     const colRight = colLeft + Number.parseInt(colElem?.style.width, 10);
@@ -1468,7 +1462,7 @@ export class Wunderbaum {
    * Set column #colIdx to 'active'.
    *
    * This higlights the column header and -cells by adding the `wb-active` class.
-   * Available in cell-nav and cell-edit mode, not in row-mode.
+   * Available in cell-nav mode only.
    */
   setColumn(colIdx: number) {
     util.assert(this.isCellNav());
@@ -1476,7 +1470,7 @@ export class Wunderbaum {
     this.activeColIdx = colIdx;
 
     // Update `wb-active` class for all headers
-    if (this.headerElement) {
+    if (this.hasHeader()) {
       for (let rowDiv of this.headerElement.children) {
         let i = 0;
         for (let colDiv of rowDiv.children) {
@@ -1496,7 +1490,7 @@ export class Wunderbaum {
     }
     // Vertical scroll into view
     // if (this.options.fixedCol) {
-    this.scrollToHorz({});
+    this.scrollToHorz();
     // }
   }
 
@@ -1743,7 +1737,7 @@ export class Wunderbaum {
     // if (this.options.fixedCol) {
     // 'position: fixed' requires that the content has the correct size
     const tw = `${totalWidth}px`;
-    this.headerElement ? (this.headerElement.style.width = tw) : 0;
+    this.headerElement.style.width = tw;
     this.scrollContainerElement!.style.width = tw;
     // }
 
@@ -1769,30 +1763,29 @@ export class Wunderbaum {
     if (!wantHeader) {
       return;
     }
-    // if (!this.headerElement) {
-    //   return;
-    // }
+    const colCount = this.columns.length;
     const headerRow = this.headerElement.querySelector(".wb-row")!;
     util.assert(headerRow);
-    headerRow.innerHTML = "<span class='wb-col'></span>".repeat(
-      this.columns.length
-    );
+    headerRow.innerHTML = "<span class='wb-col'></span>".repeat(colCount);
 
-    for (let i = 0; i < this.columns.length; i++) {
+    for (let i = 0; i < colCount; i++) {
       const col = this.columns[i];
       const colElem = <HTMLElement>headerRow.children[i];
 
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
-      // colElem.textContent = col.title || col.id;
+
       const title = util.escapeHtml(col.title || col.id);
       let tooltip = "";
       if (col.tooltip) {
         tooltip = util.escapeTooltip(col.tooltip);
         tooltip = ` title="${tooltip}"`;
       }
-      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span> <span class="wb-col-resizer"></span>`;
-      // colElem.innerHTML = `${title} <span class="wb-col-resizer"></span>`;
+      let resizer = "";
+      if (i < colCount - 1) {
+        resizer = '<span class="wb-col-resizer"></span>';
+      }
+      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
     }
   }
 
