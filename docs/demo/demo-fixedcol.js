@@ -87,26 +87,40 @@ new mar10.Wunderbaum({
     const util = e.util;
 
     for (const col of Object.values(e.renderColInfosById)) {
+      // Assumption: we named column.id === node.data.NAME
+      const val = node.data[col.id];
+
       switch (col.id) {
+        case "date":
+          if (val) {
+            const dt = new Date(val)
+            col.elem.textContent = dt.toISOString().slice(0, 10);
+          } else {
+            col.elem.textContent = "n.a.";
+          }
+          break
+        case "mood":
+          const map = { "h": "Happy", "s": "Sad" }
+          col.elem.textContent = map[val] || "";
+          break
         case "price":
-          col.elem.textContent = "$ " + node.data.price.toFixed(2);
+          col.elem.textContent = "$ " + val.toFixed(2);
           break;
         case "qty": // thousands separator
-          col.elem.textContent = node.data.qty.toLocaleString();
+          col.elem.textContent = val.toLocaleString();
           break;
         case "details": // text control
           if (e.isNew) {
             col.elem.innerHTML = "<input type='text'>";
           }
-          util.setValueToElem(col.elem, node.data.details);
+          util.setValueToElem(col.elem, val);
           break;
         default:
           // Assumption: we named column.id === node.data.NAME
-          val = node.data[col.id];
-          if( typeof val === "boolean") {
+          if (typeof val === "boolean") {
             col.elem.textContent = val ? "X" : "";
-          }else{
-            col.elem.textContent = node.data[col.id];
+          } else {
+            col.elem.textContent = val;
           }
           break;
       }

@@ -106,12 +106,13 @@ new mar10.Wunderbaum({
   // },
   change: function (e) {
     const util = e.util;
+    const node = e.node;
     const info = e.info;
     const colId = info.colId;
 
-    // console.log(e.type, util.getValueFromElem(e.inputElem, true));
+    console.log(e.type, util.getValueFromElem(e.inputElem, true));
     // For demo purposes, simulate a backend delay:
-    return e.util.setTimeoutPromise(() => {
+    return util.setTimeoutPromise(() => {
       // Assumption: we named column.id === node.data.NAME
 
       // We can hand-code and customize it like so:
@@ -131,7 +132,7 @@ new mar10.Wunderbaum({
       // }
 
       // ... but this helper should work in most cases:
-      e.node.data[colId] = util.getValueFromElem(e.inputElem, true);
+      node.data[colId] = util.getValueFromElem(e.inputElem, true);
 
     }, 500);
   },

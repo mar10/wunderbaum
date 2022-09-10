@@ -192,8 +192,9 @@ export class KeynavExtension extends WunderbaumExtension {
       // }
       const ENTER_EDITS = false;
       const curInput = this._getEmbeddedInputElem(null);
-      // const curInputType = curInput ? curInput.type || curInput.tagName : "";
+      const curInputType = curInput ? curInput.type || curInput.tagName : "";
       const inputHasFocus = curInput && this._isCurInputFocused();
+      const inputCanFocus = curInput && curInputType !== "checkbox";
 
       if (inputHasFocus) {
         if (eventName === "Escape") {
@@ -212,7 +213,7 @@ export class KeynavExtension extends WunderbaumExtension {
         // }
       } else if (curInput) {
         // On a cell that has an embedded, unfocused <input>
-        if (eventName.length === 1) {
+        if (eventName.length === 1 && inputCanFocus) {
           curInput.focus();
           curInput.value = "";
           node.logDebug(`Focus imput: ${eventName}`);
@@ -234,7 +235,7 @@ export class KeynavExtension extends WunderbaumExtension {
           if (tree.activeColIdx === 0 && node.getOption("checkbox")) {
             node.setSelected(!node.isSelected());
             handled = true;
-          } else if (curInput && curInput.matches("[type=checkbox]")) {
+          } else if (curInput && curInputType === "checkbox") {
             curInput.click();
             // toggleCheckbox(curInput)
             // new Event("change")
@@ -243,7 +244,7 @@ export class KeynavExtension extends WunderbaumExtension {
           }
           break;
         case "F2":
-          if (curInput && !inputHasFocus) {
+          if (curInput && !inputHasFocus && inputCanFocus) {
             curInput.focus();
             handled = true;
           }
@@ -253,7 +254,7 @@ export class KeynavExtension extends WunderbaumExtension {
           if (tree.activeColIdx === 0 && node.isExpandable()) {
             node.setExpanded(!node.isExpanded());
             handled = true;
-          } else if (curInput && !inputHasFocus) {
+          } else if (curInput && !inputHasFocus && inputCanFocus) {
             curInput.focus();
             handled = true;
           }

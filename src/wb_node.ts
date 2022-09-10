@@ -830,7 +830,7 @@ export class WunderbaumNode {
         tree.logInfo(
           `Load source took ${elap / 1000} seconds (transfer: ${
             elapLoad / 1000
-          }s, processing: ${elapProcess / 1000})s`
+          }s, processing: ${elapProcess / 1000}s)`
         );
       }
     }
