@@ -760,10 +760,13 @@ export class WunderbaumNode {
   /** Download  data from the cloud, then call `.update()`. */
   async load(source: any) {
     const tree = this.tree;
-    // const opts = tree.options;
     const requestId = Date.now();
     const prevParent = this.parent;
     const url = typeof source === "string" ? source : source.url;
+    const start = Date.now();
+    let elap = 0,
+      elapLoad = 0,
+      elapProcess = 0;
 
     // Check for overlapping requests
     if (this._requestId) {
@@ -774,11 +777,12 @@ export class WunderbaumNode {
     }
     this._requestId = requestId;
 
-    const timerLabel = tree.logTime(this + ".load()");
+    // const timerLabel = tree.logTime(this + ".load()");
 
     try {
       if (!url) {
         this._loadSourceObject(source);
+        elapProcess = Date.now() - start;
       } else {
         this.setStatus(NodeStatusType.loading);
         const response = await fetch(url, { method: "GET" });
@@ -786,6 +790,7 @@ export class WunderbaumNode {
           util.error(`GET ${url} returned ${response.status}, ${response}`);
         }
         const data = await response.json();
+        elapLoad = Date.now() - start;
 
         if (this._requestId && this._requestId > requestId) {
           this.logWarn(
@@ -809,7 +814,9 @@ export class WunderbaumNode {
         //   delete data.columns;
         //   tree.updateColumns({ calculateCols: false });
         // }
+        const startProcess = Date.now();
         this._loadSourceObject(data);
+        elapProcess = Date.now() - startProcess;
       }
     } catch (error) {
       this.logError("Error during load()", source, error);
@@ -818,7 +825,14 @@ export class WunderbaumNode {
       throw error;
     } finally {
       this._requestId = 0;
-      tree.logTimeEnd(timerLabel);
+      elap = Date.now() - start;
+      if (tree.options.debugLevel >= 3) {
+        tree.logInfo(
+          `Load source took ${elap / 1000} seconds (transfer: ${
+            elapLoad / 1000
+          }s, processing: ${elapProcess / 1000})s`
+        );
+      }
     }
   }
 
@@ -1649,9 +1663,11 @@ export class WunderbaumNode {
   async setActive(flag: boolean = true, options?: SetActiveOptions) {
     const tree = this.tree;
     const prev = tree.activeNode;
-    const retrigger = options?.retrigger;
-    const noEvents = options?.noEvents;
-    const orgEvent = options?.event;
+    const retrigger = options?.retrigger; // Default: false
+    const focusTree = options?.focusTree; // Default: false
+    const focusNode = options?.focusNode !== false; // Default: true
+    const noEvents = options?.noEvents; // Default: false
+    const orgEvent = options?.event; // Default: false
 
     if (!noEvents) {
       if (flag) {
@@ -1677,7 +1693,11 @@ export class WunderbaumNode {
     }
 
     if (prev !== this) {
-      tree.activeNode = this;
+      if (flag) {
+        tree.activeNode = this;
+        if (focusNode || focusTree) tree.focusNode = this;
+        if (focusTree) tree.setFocus();
+      }
       prev?.setModified(ChangeType.status);
       this.setModified(ChangeType.status);
     }

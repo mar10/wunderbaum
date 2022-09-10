@@ -258,10 +258,15 @@ function showStatus(tree, options) {
   }
   const elemCount = document.querySelector("#demo-tree .wb-node-list")
     .childElementCount;
+  const activeNode = tree.getActiveNode();
+  const focusNode = tree.getFocusNode() ;
+  const focusNodeInfo = focusNode ===  activeNode ? " (has focus)" : ", Focus: " + focusNode;
   const msg =
     `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
       .count(true)
-      .toLocaleString()}, rendered: ${elemCount}` + `.`;
+      .toLocaleString()}, rendered: ${elemCount}.
+      Active: ${activeNode}${focusNodeInfo}
+      `;
 
   info.textContent = msg;
   tree._check();

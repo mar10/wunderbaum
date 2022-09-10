@@ -260,10 +260,14 @@ export interface ScrollToOptions extends ScrollIntoViewOptions {
 
 /** Possible values for `node.setActive()`. */
 export interface SetActiveOptions {
-  /** Generate (de)activate event, even if node already has this status. */
+  /** Generate (de)activate event, even if node already has this status (default: false). */
   retrigger?: boolean;
-  /** Do not generate (de)activate event. */
+  /** Do not generate (de)activate event  (default: false). */
   noEvents?: boolean;
+  /** Set node as focused node (default: true). */
+  focusNode?: boolean;
+  /** Set node as focused node (default: false). */
+  focusTree?: boolean;
   /** Optional original event that will be passed to the (de)activate handler. */
   event?: Event;
   /** Call {@link setColumn}. */
