@@ -5,8 +5,8 @@
  */
 document.getElementById("demo-info").innerHTML = `
  A treegrid with embedded input controls (also renaming nodes, but no filter or d'n'd).
- cell-navigation mode
- `;
+ Navigation mode: 'cell'.
+`;
 
 new mar10.Wunderbaum({
   id: "demo",
@@ -17,14 +17,19 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "cell",
 
-  // The JSON only contains a list of nested node dicts:
-  source: "../assets/fixture_department_1k_3_6_p.json",
-  // source: "../assets/ajax_1k_3_6.json",
+  // The JSON only contains a list of nested node dicts, but no types or 
+  // column definitions:
+  // source: "../assets/fixture_department_1k_3_6_p.json",
+  source:
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
     "department": { "icon": "bi bi-diagram-3", "colspan": true },
     "role": { "icon": "bi bi-microsoft-teams", "colspan": true },
     "person": { "icon": "bi bi-person" },
   },
+  // The `html` properties are shown as comments. 
+  // If enabled, it would be used as markup, so `if (e.isNew) {...}` could be
+  // omitted in the `render` callback:
   columns: [
     {
       "title": "Title",
@@ -35,19 +40,21 @@ new mar10.Wunderbaum({
       "title": "Age",
       "id": "age",
       "width": "50px",
-      // "html": "<input type=number min=0 tabindex='-1'>",
       "classes": "wb-helper-end",
+      // "html": "<input type=number min=0 tabindex='-1'>",
     },
     {
       "title": "Date",
       "id": "date",
       "width": "100px",
+      "classes": "wb-helper-end",
       // "html": '<input type=date tabindex="-1">',
     }, 
     {
       "title": "Status",
       "id": "state",
       "width": "70px",
+      "classes": "wb-helper-center",
       // "html": `<select tabindex="-1">
       //     <option value="h">Happy</option>
       //     <option value="s">Sad</option>
@@ -57,13 +64,13 @@ new mar10.Wunderbaum({
       "title": "Avail.",
       "id": "avail",
       "width": "70px",
+      "classes": "wb-helper-center",
       // "html": '<input type=checkbox tabindex="-1">',
     },
     {
       "title": "Remarks",
       "id": "remarks",
       "width": "*",
-      // "width": "300px",
       // "html": "<input type=text tabindex='-1'>",
     },
   ],

@@ -4,7 +4,8 @@
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
  */
 document.getElementById("demo-info").innerHTML = `
- A treegrid with about 100,000 nodes. Row-navigation mode.
+ A treegrid with about 100,000 nodes.
+ Navigation mode: 'row'.
  `;
 
 new mar10.Wunderbaum({

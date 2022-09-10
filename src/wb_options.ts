@@ -114,11 +114,11 @@ export interface WunderbaumOptions {
    */
   minExpandLevel?: number;
   // escapeTitles: boolean;
-  /**
-   * Height of the header row div.
-   * Default: 22
-   */
-  headerHeightPx: number;
+  // /**
+  //  * Height of the header row div.
+  //  * Default: 22
+  //  */
+  // headerHeightPx: number;
   /**
    * Height of a node row div.
    * Default: 22

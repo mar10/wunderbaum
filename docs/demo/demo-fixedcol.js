@@ -5,12 +5,13 @@
  */
 document.getElementById("demo-info").innerHTML = `
  A treegrid with a fixed left column: Try horizontal scrolling...
- `;
+ Navigation mode: 'cell'.
+`;
 
 new mar10.Wunderbaum({
   id: "demo",
   element: document.querySelector("#demo-tree"),
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/fancytree/ajax_101k.json",
+  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "../assets/ajax_1k_3_54.json",
   // Columns- and types-definition are part of the Ajax response:
   source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",

@@ -5,7 +5,7 @@
  */
 document.getElementById("demo-info").innerHTML = `
  A read-only treegrid (no d'n'd).
- cell-navigation mode
+Navigation mode: 'cell'.
  `;
 
 new mar10.Wunderbaum({
@@ -17,8 +17,9 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "cell",
   // The JSON only contains a list of nested node dicts:
-  source: "../assets/fixture_department_1k_3_6_p.json",
-  // source: "../assets/ajax_1k_3_6.json",
+  // source: "../assets/fixture_department_1k_3_6_p.json",
+  source:
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
     "department": { "icon": "bi bi-diagram-3", "colspan": true },
     "role": { "icon": "bi bi-microsoft-teams", "colspan": true },

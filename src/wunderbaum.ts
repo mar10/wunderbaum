@@ -144,7 +144,7 @@ export class Wunderbaum {
         element: null, // <div class="wunderbaum">
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
         header: null, // Show/hide header (pass bool or string)
-        headerHeightPx: ROW_HEIGHT,
+        // headerHeightPx: ROW_HEIGHT,
         rowHeightPx: ROW_HEIGHT,
         columns: null,
         types: null,
@@ -639,14 +639,14 @@ export class Wunderbaum {
 
   /** Return the topmost visible node in the viewport. */
   getTopmostVpNode(complete = true) {
-    const gracePy = 1; // ignore subpixel scrolling
+    const gracePx = 1; // ignore subpixel scrolling
     const scrollParent = this.element;
-    // const headerHeight = this.hasHeader() ? this.options.headerHeightPx : 0;
+    // const headerHeight = this.headerElement.clientHeight;  // May be 0
     const scrollTop = scrollParent.scrollTop; // + headerHeight;
     let topIdx: number;
 
     if (complete) {
-      topIdx = Math.ceil((scrollTop + -gracePy) / ROW_HEIGHT);
+      topIdx = Math.ceil((scrollTop - gracePx) / ROW_HEIGHT);
     } else {
       topIdx = Math.floor(scrollTop / ROW_HEIGHT);
     }
@@ -656,7 +656,7 @@ export class Wunderbaum {
   /** Return the lowest visible node in the viewport. */
   getLowestVpNode(complete = true) {
     const scrollParent = this.element;
-    const headerHeight = this.hasHeader() ? this.options.headerHeightPx : 0;
+    const headerHeight = this.headerElement.clientHeight; // May be 0
     const scrollTop = scrollParent.scrollTop;
     const clientHeight = scrollParent.clientHeight - headerHeight;
     let bottomIdx: number;
@@ -1375,53 +1375,50 @@ export class Wunderbaum {
   /**
    * Make sure that this node is vertically scrolled into the viewport.
    */
-  scrollTo(nodeOrOpts?: ScrollToOptions | WunderbaumNode) {
-    const MARGIN = 1;
+  scrollTo(nodeOrOpts: ScrollToOptions | WunderbaumNode) {
+    const PADDING = 2; // leave some pixels between viewport bounds
 
-    let node,
-      opts: any = {};
-    if (nodeOrOpts == null) {
-      node = this.getActiveNode();
-      if (!node) {
-        return;
-      }
-    } else if (nodeOrOpts instanceof WunderbaumNode) {
+    let node;
+    WunderbaumNode;
+    let opts: ScrollToOptions | undefined;
+
+    if (nodeOrOpts instanceof WunderbaumNode) {
       node = nodeOrOpts;
     } else {
       opts = nodeOrOpts;
       node = opts.node;
     }
-    // const scrollParent = this.scrollContainerElement;
+    util.assert(node && node._rowIdx != null);
+
     const scrollParent = this.element;
-    const headerHeight = this.hasHeader() ? this.options.headerHeightPx : 0;
-    const curTop = scrollParent.scrollTop + headerHeight;
-    const height = scrollParent.clientHeight - headerHeight;
-    util.assert(node._rowIdx != null);
-    let nodeOfs = node._rowIdx! * ROW_HEIGHT;
-    let newTop;
+    const headerHeight = this.headerElement.clientHeight; // May be 0
+    const scrollTop = scrollParent.scrollTop;
+    const vpHeight = scrollParent.clientHeight;
+    const rowTop = node._rowIdx! * ROW_HEIGHT + headerHeight;
+    const vpTop = headerHeight;
+    const vpRowTop = rowTop - scrollTop;
+    const vpRowBottom = vpRowTop + ROW_HEIGHT;
 
-    // if (opts.ofsY) {
-    //   nodeOfs += opts.ofsY;
-    // }
-
-    if (nodeOfs > curTop) {
-      if (nodeOfs + ROW_HEIGHT < curTop + height) {
+    // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts );
+    let newScrollTop: number | null = null;
+    if (vpRowTop >= vpTop) {
+      if (vpRowBottom <= vpHeight) {
         // Already in view
+        // this.log("Already in view");
       } else {
         // Node is below viewport
-        newTop = nodeOfs - height + ROW_HEIGHT - MARGIN;
+        // this.log("Below viewport");
+        newScrollTop = rowTop + ROW_HEIGHT - vpHeight + PADDING; // leave some pixels between vieeport bounds
       }
-    } else if (nodeOfs < curTop) {
+    } else {
       // Node is above viewport
-      newTop = nodeOfs + MARGIN;
+      // this.log("Above viewport");
+      newScrollTop = rowTop - vpTop - PADDING; // leave some pixels between vieeport bounds
     }
-    if (newTop != null) {
-      this.log(
-        "scrollTo(" + nodeOfs + "): " + curTop + " => " + newTop,
-        height
-      );
-      scrollParent.scrollTop = newTop;
-      this.setModified(ChangeType.vscroll);
+    if (newScrollTop != null) {
+      this.log(`scrollTo(${rowTop}): ${scrollTop} => ${newScrollTop}`);
+      scrollParent.scrollTop = newScrollTop;
+      // this.setModified(ChangeType.vscroll);
     }
   }
 
@@ -1839,7 +1836,8 @@ export class Wunderbaum {
     // We cannot get the height for absolute positioned parent, so look at first col
     // let headerHeight = this.headerElement.clientHeight
     // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
-    const headerHeight = this.options.headerHeightPx;
+    // const headerHeight = this.options.headerHeightPx;
+    const headerHeight = this.headerElement.clientHeight; // May be 0
     const wantHeight = this.element.clientHeight - headerHeight;
 
     if (Math.abs(height - wantHeight) > 1.0) {

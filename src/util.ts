@@ -337,7 +337,6 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
     }
   } else if (tag === "SELECT") {
     const select = <HTMLSelectElement>elem;
-    console.trace(`setValueToElem(${tag}, ${value})`, elem);
     if (value == null) {
       select.selectedIndex = -1;
     } else {

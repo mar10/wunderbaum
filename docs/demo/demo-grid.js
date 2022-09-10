@@ -4,10 +4,11 @@
  * Copyright (c) 2021-2022, Martin Wendt (https://wwWendt.de).
  */
 document.getElementById("demo-info").innerHTML = `
- A readonly treegrid with renaming, row/cell navigation mode, 'checkbox: true', 'minExpandLevel: 1'.
+ A readonly treegrid with renaming, 'checkbox: true', 'minExpandLevel: 1'.
+ Navigation mode: 'row/cell'.
  <br>
  Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
- `;
+`;
 
 new mar10.Wunderbaum({
   id: "demo",

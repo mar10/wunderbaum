@@ -65,6 +65,7 @@ export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
   "format", // reserved for future use
   "keyMap", // reserved for future use
   "positional", // reserved for future use
+  "typeList", // reserved for future use
   "types",
   "version", // reserved for future use
 ]);
