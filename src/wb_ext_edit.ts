@@ -192,8 +192,9 @@ export class EditExtension extends WunderbaumExtension {
       node.logInfo("beforeEdit canceled operation.");
       return;
     }
-    // `beforeEdit(e)` may return an input HTML string. Otherwise use a default:
-    if (!inputHtml) {
+    // `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+    // (we also treat a `true` return value as 'use default'):
+    if (inputHtml === true || !inputHtml) {
       const title = escapeHtml(node.title);
       inputHtml = `<input type=text class="wb-input-edit" value="${title}" required autocorrect=off>`;
     }

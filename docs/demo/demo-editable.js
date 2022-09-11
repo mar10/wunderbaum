@@ -80,7 +80,7 @@ new mar10.Wunderbaum({
     select: true,
     beforeEdit: function (e) {
       console.log(e.type, e);
-      // return false;
+      return e.node.type === "person";
     },
     edit: function (e) {
       console.log(e.type, e);
@@ -110,7 +110,7 @@ new mar10.Wunderbaum({
     const info = e.info;
     const colId = info.colId;
 
-    console.log(e.type, util.getValueFromElem(e.inputElem, true));
+    this.logDebug(`change(${colId})`, util.getValueFromElem(e.inputElem, true));
     // For demo purposes, simulate a backend delay:
     return util.setTimeoutPromise(() => {
       // Assumption: we named column.id === node.data.NAME

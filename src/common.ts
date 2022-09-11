@@ -70,13 +70,13 @@ export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
   "version", // reserved for future use
 ]);
 
-/** Key codes that trigger grid navigation, even when inside an input element. */
-export const INPUT_BREAKOUT_KEYS: Set<string> = new Set([
-  // "ArrowDown",
-  // "ArrowUp",
-  "Enter",
-  "Escape",
-]);
+// /** Key codes that trigger grid navigation, even when inside an input element. */
+// export const INPUT_BREAKOUT_KEYS: Set<string> = new Set([
+//   // "ArrowDown",
+//   // "ArrowUp",
+//   "Enter",
+//   "Escape",
+// ]);
 
 /** Map `KeyEvent.key` to navigation action. */
 export const KEY_TO_ACTION_DICT: { [key: string]: string } = {

@@ -4,15 +4,11 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import {
-  // INPUT_BREAKOUT_KEYS,
-  NavigationOptions,
-} from "./types";
+import { NavigationOptions } from "./types";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
-import { INPUT_BREAKOUT_KEYS } from "./common";
 
 const QUICKSEARCH_DELAY = 500;
 
@@ -200,9 +196,10 @@ export class KeynavExtension extends WunderbaumExtension {
         if (eventName === "Escape") {
           // Discard changes
           node.render();
-        } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
+          // } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
+        } else if (eventName !== "Enter") {
           // Let current `<input>` handle it
-          node.logDebug(`Ignored ${eventName} inside input`);
+          node.logDebug(`Ignored ${eventName} inside focused input`);
           return;
         }
         // const curInputType = curInput.type || curInput.tagName;
