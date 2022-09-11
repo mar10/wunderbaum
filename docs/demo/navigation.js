@@ -271,7 +271,7 @@ function showStatus(tree) {
   const elemCount = nodeListElem.childElementCount;
   const activeNode = tree.getActiveNode();
   const focusNode = tree.getFocusNode();
-  const focusNodeInfo = focusNode === activeNode ? " (has focus)" : ", Focus: " + focusNode;
+  const focusNodeInfo = activeNode && focusNode === activeNode ? " (has focus)" : ", Focus: " + focusNode;
   const msg =
     `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
       .count(true)

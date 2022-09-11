@@ -1447,13 +1447,9 @@ export class Wunderbaum {
       newLeft = colRight - vpWidth;
     }
     // util.assert(node._rowIdx != null);
-    // const curLeft = this.scrollContainer.scrollLeft;
-    this.log(
-      `scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`
-    );
-    // const nodeOfs = node._rowIdx * ROW_HEIGHT;
-    // let newLeft;
-
+    // this.log(
+    //   `scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`
+    // );
     this.element.scrollLeft = newLeft;
     // this.setModified(ChangeType.vscroll);
     // }

@@ -225,6 +225,8 @@ export class WunderbaumNode {
    * @returns first child added
    */
   addChildren(nodeData: any, options?: any): WunderbaumNode {
+    const tree = this.tree;
+    const level = options ? options.level : this.getLevel();
     let insertBefore: WunderbaumNode | string | number = options
         ? options.before
         : null,
@@ -232,19 +234,21 @@ export class WunderbaumNode {
       nodeList = [];
 
     try {
-      this.tree.enableUpdate(false);
+      tree.enableUpdate(false);
 
       if (util.isPlainObject(nodeData)) {
         nodeData = [nodeData];
       }
+      const forceExpand = level < tree.options.minExpandLevel!;
       for (let child of nodeData) {
         let subChildren = child.children;
         delete child.children;
 
-        let n = new WunderbaumNode(this.tree, this, child);
+        let n = new WunderbaumNode(tree, this, child);
+        if (forceExpand) n.expanded = true;
         nodeList.push(n);
         if (subChildren) {
-          n.addChildren(subChildren, { redraw: false });
+          n.addChildren(subChildren, { redraw: false, level: level + 1 });
         }
       }
 
@@ -261,14 +265,14 @@ export class WunderbaumNode {
         this.children.splice(pos, 0, ...nodeList);
       }
       // TODO:
-      // if (this.tree.options.selectMode === 3) {
+      // if (tree.options.selectMode === 3) {
       //   this.fixSelection3FromEndNodes();
       // }
       // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
-      this.tree.setModified(ChangeType.structure);
+      tree.setModified(ChangeType.structure);
       return nodeList[0];
     } finally {
-      this.tree.enableUpdate(true);
+      tree.enableUpdate(true);
     }
   }
 
@@ -718,8 +722,10 @@ export class WunderbaumNode {
     return true;
   }
 
-  protected _loadSourceObject(source: any) {
+  protected _loadSourceObject(source: any, level?: number) {
     const tree = this.tree;
+
+    level ??= this.getLevel();
 
     // Let caller modify the parsed JSON response:
     this._callEvent("receive", { response: source });
@@ -743,8 +749,8 @@ export class WunderbaumNode {
       delete source.columns;
       tree.updateColumns({ calculateCols: false });
     }
+
     this.addChildren(source.children);
-    delete source.columns;
 
     // Add extra data to `tree.data`
     for (const [key, value] of Object.entries(source)) {
