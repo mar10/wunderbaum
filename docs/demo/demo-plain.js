@@ -95,16 +95,4 @@ new mar10.Wunderbaum({
       }, 1500);
     });
   },
-  activate: function (e) {
-    // Only used for the demo app (display some stats in the bottom pane):
-    showStatus(this);
-  },
-  click: function (e) {
-    // Only used for the demo app (display some stats in the bottom pane):
-    showStatus(this);
-  },
-  update: function (e) {
-    // Only used for the demo app (display some stats in the bottom pane):
-    showStatus(this);
-  },
 });

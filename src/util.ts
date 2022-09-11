@@ -547,7 +547,7 @@ export function onEvent(
   });
 }
 
-/** Return a wrapped handler method, that provides `this._super`.
+/** Return a wrapped handler method, that provides `this._super` and `this._superApply`.
  *
  * ```ts
   // Implement `opts.createNode` event to add the 'draggable' attribute

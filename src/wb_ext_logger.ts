@@ -35,7 +35,7 @@ export class LoggerExtension extends WunderbaumExtension {
         if (ignoreEvents.has(name)) {
           return (<any>tree)._superApply(arguments);
         }
-        let start = Date.now();
+        const start = Date.now();
         const res = (<any>tree)._superApply(arguments);
         console.debug(
           `${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`,

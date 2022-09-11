@@ -127,6 +127,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tree.selectAll(!tree.getFirstChild().isSelected());
     tree.logTimeEnd(label)
   });
+  /* Update info pane every second. This is fast and we handle exceptions, so
+     'evil' setInterval() should be Ok here. */
+  const STATUS_UPDATE_INTERVAL = 1_000;
+  setInterval(()=>{
+    try {
+      const demoTree = mar10.Wunderbaum.getTree("demo");
+      showStatus(demoTree);
+    } catch (error) {
+      console.error("showStatus() failed", error)
+    }
+  }, STATUS_UPDATE_INTERVAL)
 });
 
 /**
@@ -249,18 +260,18 @@ function reconfigureTree(tag = null) {
  * @param {*} tree 
  * @param {*} options 
  */
-function showStatus(tree, options) {
+function showStatus(tree) {
   // const tree = mar10.Wunderbaum.getTree("demo");
   const info = document.querySelector("#tree-info");
-  if (!tree) {
+  const nodeListElem = document.querySelector("#demo-tree .wb-node-list");
+  if (!tree || !nodeListElem) {
     info.textContent = "n.a.";
     return;
   }
-  const elemCount = document.querySelector("#demo-tree .wb-node-list")
-    .childElementCount;
+  const elemCount = nodeListElem.childElementCount;
   const activeNode = tree.getActiveNode();
-  const focusNode = tree.getFocusNode() ;
-  const focusNodeInfo = focusNode ===  activeNode ? " (has focus)" : ", Focus: " + focusNode;
+  const focusNode = tree.getFocusNode();
+  const focusNodeInfo = focusNode === activeNode ? " (has focus)" : ", Focus: " + focusNode;
   const msg =
     `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
       .count(true)

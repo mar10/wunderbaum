@@ -224,8 +224,4 @@ new mar10.Wunderbaum({
       }
     }
   },
-  update: function (e) {
-    // Only used for the demo app (display some stats in the bottom pane):
-    showStatus(this);
-  },
 });
