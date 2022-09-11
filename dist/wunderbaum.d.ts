@@ -153,7 +153,7 @@ declare module "util" {
      * @param handler
      */
     export function onEvent(rootTarget: EventTarget | string, eventNames: string, selector: string, handler: EventCallbackType): void;
-    /** Return a wrapped handler method, that provides `this._super`.
+    /** Return a wrapped handler method, that provides `this._super` and `this._superApply`.
      *
      * ```ts
       // Implement `opts.createNode` event to add the 'draggable' attribute
@@ -224,13 +224,32 @@ declare module "common" {
      */
     import { MatcherType } from "types";
     export const DEFAULT_DEBUGLEVEL = 4;
+    /**
+     * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
+     */
     export const ROW_HEIGHT = 22;
+    /**
+     * Fixed width of node icons in pixel. Must match the SCSS variable `$icon-outer-width`.
+     */
     export const ICON_WIDTH = 20;
-    export const ROW_EXTRA_PAD = 7;
-    export const RENDER_MIN_PREFETCH = 5;
+    /**
+     * Adjust the width of the title span, so overflow ellipsis work.
+     * (2 x `$col-padding-x` + 3px rounding errors).
+     */
+    export const TITLE_SPAN_PAD_Y = 7;
+    /** Render row markup for N nodes above and below the visible viewport. */
     export const RENDER_MAX_PREFETCH = 5;
+    /** Skip rendering new rows when we have at least N nodes rendeed above and below the viewport. */
+    export const RENDER_MIN_PREFETCH = 5;
+    /** Regular expression to detect if a string describes an image URL (in contrast
+     * to a class name). Strings are considered image urls if they contain '.' or '/'.
+     */
     export const TEST_IMG: RegExp;
-    export let iconMap: {
+    /**
+     * Default node icons.
+     * Requires bootstrap icons https://icons.getbootstrap.com
+     */
+    export const iconMap: {
         error: string;
         loading: string;
         noData: string;
@@ -245,6 +264,7 @@ declare module "common" {
         radioUnknown: string;
         folder: string;
         folderOpen: string;
+        folderLazy: string;
         doc: string;
     };
     export const KEY_NODATA = "__not_found__";
@@ -255,8 +275,6 @@ declare module "common" {
     };
     /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
     export const RESERVED_TREE_SOURCE_KEYS: Set<string>;
-    /** Key codes that trigger grid navigation, even when inside an input element. */
-    export const INPUT_BREAKOUT_KEYS: Set<string>;
     /** Map `KeyEvent.key` to navigation action. */
     export const KEY_TO_ACTION_DICT: {
         [key: string]: string;
@@ -818,7 +836,7 @@ declare module "wb_node" {
          * whether the node is scrolled into the visible part of the screen or viewport.
          */
         isVisible(): boolean;
-        protected _loadSourceObject(source: any): void;
+        protected _loadSourceObject(source: any, level?: number): void;
         /** Download  data from the cloud, then call `.update()`. */
         load(source: any): Promise<void>;
         /**Load content of a lazy node. */
@@ -1998,6 +2016,9 @@ declare module "wunderbaum" {
         logWarn(...args: any[]): void;
         /**
          * Make sure that this node is vertically scrolled into the viewport.
+         *
+         * Nodes that are above the visible area become the top row, nodes that are
+         * below the viewport become the bottom row.
          */
         scrollTo(nodeOrOpts: ScrollToOptions | WunderbaumNode): void;
         /**
