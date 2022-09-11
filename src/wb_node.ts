@@ -31,7 +31,7 @@ import {
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
   RESERVED_TREE_SOURCE_KEYS,
-  ROW_EXTRA_PAD,
+  TITLE_SPAN_PAD_Y,
   ROW_HEIGHT,
   TEST_IMG,
 } from "./common";
@@ -245,7 +245,7 @@ export class WunderbaumNode {
         delete child.children;
 
         let n = new WunderbaumNode(tree, this, child);
-        if (forceExpand) n.expanded = true;
+        if (forceExpand && !n.lazy) n.expanded = true;
         nodeList.push(n);
         if (subChildren) {
           n.addChildren(subChildren, { redraw: false, level: level + 1 });
@@ -1196,6 +1196,8 @@ export class WunderbaumNode {
       icon = iconMap.folderOpen;
     } else if (this.children) {
       icon = iconMap.folder;
+    } else if (this.lazy) {
+      icon = iconMap.folderLazy;
     } else {
       icon = iconMap.doc;
     }
@@ -1385,12 +1387,12 @@ export class WunderbaumNode {
       if (isColspan) {
         let vpWidth = tree.element.clientWidth;
         titleSpan.style.width =
-          vpWidth - (<any>nodeElem)._ofsTitlePx - ROW_EXTRA_PAD + "px";
+          vpWidth - (<any>nodeElem)._ofsTitlePx - TITLE_SPAN_PAD_Y + "px";
       } else {
         titleSpan.style.width =
           columns[0]._widthPx! -
           (<any>nodeElem)._ofsTitlePx -
-          ROW_EXTRA_PAD +
+          TITLE_SPAN_PAD_Y +
           "px";
       }
     }
@@ -1743,6 +1745,12 @@ export class WunderbaumNode {
     this.expanded = flag;
     const updateOpts = { immediate: !!util.getOption(options, "immediate") };
     this.tree.setModified(ChangeType.structure, updateOpts);
+    if (util.getOption(options, "scrollIntoView") !== false) {
+      const lastChild = this.getLastChild();
+      if (lastChild) {
+        lastChild.scrollIntoView({ topNode: this });
+      }
+    }
   }
 
   /**

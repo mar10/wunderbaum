@@ -9,17 +9,35 @@ import { escapeRegex } from "./util";
 import { WunderbaumNode } from "./wb_node";
 
 export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
+/**
+ * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
+ */
 export const ROW_HEIGHT = 22;
-// export const HEADER_HEIGHT = ROW_HEIGHT;
+/**
+ * Fixed width of node icons in pixel. Must match the SCSS variable `$icon-outer-width`.
+ */
 export const ICON_WIDTH = 20;
-export const ROW_EXTRA_PAD = 7; // 2x $col-padding-x + 3px rounding errors
-export const RENDER_MIN_PREFETCH = 5;
+/**
+ * Adjust the width of the title span, so overflow ellipsis work.
+ * (2 x `$col-padding-x` + 3px rounding errors).
+ */
+export const TITLE_SPAN_PAD_Y = 7;
+/** Render row markup for N nodes above and below the visible viewport. */
 export const RENDER_MAX_PREFETCH = 5;
-export const TEST_IMG = new RegExp(/\.|\//); // strings are considered image urls if they contain '.' or '/'
+/** Skip rendering new rows when we have at least N nodes rendeed above and below the viewport. */
+export const RENDER_MIN_PREFETCH = 5;
+/** Regular expression to detect if a string describes an image URL (in contrast
+ * to a class name). Strings are considered image urls if they contain '.' or '/'.
+ */
+export const TEST_IMG = new RegExp(/\.|\//);
 // export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
 // export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
-export let iconMap = {
+/**
+ * Default node icons.
+ * Requires bootstrap icons https://icons.getbootstrap.com
+ */
+export const iconMap = {
   error: "bi bi-exclamation-triangle",
   // loading: "bi bi-hourglass-split wb-busy",
   loading: "bi bi-chevron-right wb-busy",
@@ -41,6 +59,7 @@ export let iconMap = {
   radioUnknown: "bi bi-circle-dotted",
   folder: "bi bi-folder2",
   folderOpen: "bi bi-folder2-open",
+  folderLazy: "bi bi-folder-symlink",
   doc: "bi bi-file-earmark",
 };
 

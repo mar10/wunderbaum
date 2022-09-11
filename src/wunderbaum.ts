@@ -1374,6 +1374,9 @@ export class Wunderbaum {
 
   /**
    * Make sure that this node is vertically scrolled into the viewport.
+   *
+   * Nodes that are above the visible area become the top row, nodes that are
+   * below the viewport become the bottom row.
    */
   scrollTo(nodeOrOpts: ScrollToOptions | WunderbaumNode) {
     const PADDING = 2; // leave some pixels between viewport bounds
@@ -1398,6 +1401,7 @@ export class Wunderbaum {
     const vpTop = headerHeight;
     const vpRowTop = rowTop - scrollTop;
     const vpRowBottom = vpRowTop + ROW_HEIGHT;
+    const topNode = opts?.topNode;
 
     // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts );
     let newScrollTop: number | null = null;
@@ -1408,16 +1412,20 @@ export class Wunderbaum {
       } else {
         // Node is below viewport
         // this.log("Below viewport");
-        newScrollTop = rowTop + ROW_HEIGHT - vpHeight + PADDING; // leave some pixels between vieeport bounds
+        newScrollTop = rowTop + ROW_HEIGHT - vpHeight + PADDING; // leave some pixels between viewport bounds
       }
     } else {
       // Node is above viewport
       // this.log("Above viewport");
-      newScrollTop = rowTop - vpTop - PADDING; // leave some pixels between vieeport bounds
+      newScrollTop = rowTop - vpTop - PADDING; // leave some pixels between viewport bounds
     }
     if (newScrollTop != null) {
       this.log(`scrollTo(${rowTop}): ${scrollTop} => ${newScrollTop}`);
       scrollParent.scrollTop = newScrollTop;
+      if (topNode) {
+        // Make sure the topNode is always visible
+        this.scrollTo(topNode);
+      }
       // this.setModified(ChangeType.vscroll);
     }
   }
@@ -1900,6 +1908,7 @@ export class Wunderbaum {
     const row_height = ROW_HEIGHT;
     const vp_height = this.element.clientHeight;
     const prefetch = RENDER_MAX_PREFETCH;
+    // const grace_prefetch = RENDER_MAX_PREFETCH - RENDER_MIN_PREFETCH;
     const ofs = this.element.scrollTop;
 
     let startIdx = Math.max(0, ofs / row_height - prefetch);

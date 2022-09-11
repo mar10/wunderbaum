@@ -55,7 +55,7 @@ export class KeynavExtension extends WunderbaumExtension {
       node = data.node as WunderbaumNode,
       handled = true;
 
-    tree.log(`onKeyEvent: ${eventName}, curInput`, curInput);
+    // tree.log(`onKeyEvent: ${eventName}, curInput`, curInput);
     if (!tree.isEnabled()) {
       // tree.logDebug(`onKeyEvent ignored for disabled tree: ${eventName}`);
       return false;
@@ -267,22 +267,24 @@ export class KeynavExtension extends WunderbaumExtension {
           tree.setFocus(); // Blur prev. input if any
           if (isColspan && node.isExpanded()) {
             node.setExpanded(false);
-          } else if (tree.activeColIdx > 0) {
+          } else if (!isColspan && tree.activeColIdx > 0) {
             tree.setColumn(tree.activeColIdx - 1);
-            handled = true;
           } else if (navModeOption !== NavigationOptions.cell) {
             tree.setCellNav(false); // row-nav mode
-            handled = true;
           }
+          handled = true;
           break;
         case "ArrowRight":
           tree.setFocus(); // Blur prev. input if any
           if (isColspan && !node.isExpanded()) {
             node.setExpanded();
-          } else if (tree.activeColIdx < tree.columns.length - 1) {
+          } else if (
+            !isColspan &&
+            tree.activeColIdx < tree.columns.length - 1
+          ) {
             tree.setColumn(tree.activeColIdx + 1);
-            handled = true;
           }
+          handled = true;
           break;
         case "ArrowDown":
         case "ArrowUp":
