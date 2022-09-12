@@ -1675,6 +1675,8 @@ export class Wunderbaum {
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
     const isGrid = this.isGrid();
+    // Shorten last column width to avoid h-scrollbar
+    const FIX_ADJUST_LAST_COL = 2;
 
     let totalWidth = 0;
     let totalWeight = 0;
@@ -1736,7 +1738,8 @@ export class Wunderbaum {
         col._ofsPx = ofsPx;
         ofsPx += col._widthPx!;
       }
-      totalWidth = ofsPx;
+      this.columns[this.columns.length - 1]._widthPx! -= FIX_ADJUST_LAST_COL;
+      totalWidth = ofsPx - FIX_ADJUST_LAST_COL;
     }
     // if (this.options.fixedCol) {
     // 'position: fixed' requires that the content has the correct size
@@ -1819,6 +1822,9 @@ export class Wunderbaum {
    * @internal
    */
   protected _updateViewportImmediately() {
+    // Shorten container height to avoid v-scrollbar
+    const FIX_ADJUST_HEIGHT = 1;
+
     if (this._disableUpdateCount) {
       this.log(
         `IGNORED _updateViewportImmediately() disable level: ${this._disableUpdateCount}`
@@ -1835,7 +1841,8 @@ export class Wunderbaum {
     // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
     // const headerHeight = this.options.headerHeightPx;
     const headerHeight = this.headerElement.clientHeight; // May be 0
-    const wantHeight = this.element.clientHeight - headerHeight;
+    const wantHeight =
+      this.element.clientHeight - headerHeight - FIX_ADJUST_HEIGHT;
 
     if (Math.abs(height - wantHeight) > 1.0) {
       // this.log("resize", height, wantHeight);
