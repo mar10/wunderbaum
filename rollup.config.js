@@ -20,14 +20,14 @@ export default {
   ],
   plugins: [
     typescript(),
-    scss({
-      output: "build/wunderbaum.css",
-      outputStyle: "compressed",
-    }),
     modify({
       "@VERSION": "v" + package_json.version,
       "@DATE": "" + new Date().toUTCString(),
       "const default_debuglevel = 4;": "const default_debuglevel = 3;",
+    }),
+    scss({
+      output: "build/wunderbaum.css",
+      outputStyle: "compressed",
     }),
   ],
 };
