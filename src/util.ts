@@ -312,7 +312,8 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
       case "week":
       case "datetime":
       case "datetime-local":
-        input.valueAsDate = value;
+        input.valueAsDate = new Date(value);
+        // input.valueAsDate = value;  // breaks in Edge?
         break;
       case "number":
       case "range":
