@@ -1745,7 +1745,7 @@ export class WunderbaumNode {
     this.expanded = flag;
     const updateOpts = { immediate: !!util.getOption(options, "immediate") };
     this.tree.setModified(ChangeType.structure, updateOpts);
-    if (util.getOption(options, "scrollIntoView") !== false) {
+    if (flag && util.getOption(options, "scrollIntoView") !== false) {
       const lastChild = this.getLastChild();
       if (lastChild) {
         lastChild.scrollIntoView({ topNode: this });
