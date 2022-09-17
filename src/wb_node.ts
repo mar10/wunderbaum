@@ -9,13 +9,14 @@ import * as util from "./util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
+  AddChildrenOptions,
   AddNodeType,
   ApplyCommandType,
   ChangeType,
   ColumnEventInfos,
   ExpandAllOptions,
   MakeVisibleOptions,
-  MatcherType,
+  MatcherCallback,
   NodeAnyCallback,
   NodeStatusType,
   NodeVisitCallback,
@@ -219,49 +220,55 @@ export class WunderbaumNode {
   /**
    * Append (or insert) a list of child nodes.
    *
-   * Tip: pass `{ before: 0 }` to prepend children
-   * @param {NodeData[]} nodeData array of child node definitions (also single child accepted)
-   * @param  child node (or key or index of such).
-   *     If omitted, the new children are appended.
+   * Tip: pass `{ before: 0 }` to prepend new nodes as first children.
+   *
    * @returns first child added
    */
-  addChildren(nodeData: any, options?: any): WunderbaumNode {
+  addChildren(
+    nodeData: WbNodeData | WbNodeData[],
+    options?: AddChildrenOptions
+  ): WunderbaumNode {
     const tree = this.tree;
-    const level = options ? options.level : this.getLevel();
-    let insertBefore: WunderbaumNode | string | number = options
-        ? options.before
-        : null,
-      // redraw = options ? options.redraw !== false : true,
-      nodeList = [];
+    let { before = null, applyMinExpanLevel = true, _level } = options ?? {};
+    // let { before, loadLazy=true, _level } = options ?? {};
+    // const isTopCall = _level == null;
+    _level ??= this.getLevel();
+    const nodeList = [];
 
     try {
       tree.enableUpdate(false);
 
       if (util.isPlainObject(nodeData)) {
-        nodeData = [nodeData];
+        nodeData = [<WbNodeData>nodeData];
       }
-      const forceExpand = level < tree.options.minExpandLevel!;
-      for (let child of nodeData) {
-        let subChildren = child.children;
+      const forceExpand =
+        applyMinExpanLevel && _level < tree.options.minExpandLevel!;
+      for (let child of <WbNodeData[]>nodeData) {
+        const subChildren = child.children;
         delete child.children;
 
-        let n = new WunderbaumNode(tree, this, child);
-        if (forceExpand && !n.lazy) n.expanded = true;
+        const n = new WunderbaumNode(tree, this, child);
+        if (forceExpand && !n.isUnloaded()) {
+          n.expanded = true;
+        }
         nodeList.push(n);
         if (subChildren) {
-          n.addChildren(subChildren, { redraw: false, level: level + 1 });
+          n.addChildren(subChildren, { _level: _level + 1 });
         }
       }
 
       if (!this.children) {
         this.children = nodeList;
-      } else if (insertBefore == null || this.children.length === 0) {
+      } else if (before == null || this.children.length === 0) {
         this.children = this.children.concat(nodeList);
       } else {
-        // Returns null if insertBefore is not a direct child:
-        insertBefore = this.findDirectChild(insertBefore)!;
-        let pos = this.children.indexOf(insertBefore);
-        util.assert(pos >= 0, "insertBefore must be an existing child");
+        // Returns null if before is not a direct child:
+        before = this.findDirectChild(before)!;
+        let pos = this.children.indexOf(before);
+        util.assert(
+          pos >= 0,
+          `options.before must be a direct child of ${this}`
+        );
         // insert nodeList after children[pos]
         this.children.splice(pos, 0, ...nodeList);
       }
@@ -271,10 +278,13 @@ export class WunderbaumNode {
       // }
       // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
       tree.setModified(ChangeType.structure);
-      return nodeList[0];
     } finally {
       tree.enableUpdate(true);
     }
+    // if(isTopCall && loadLazy){
+    //   this.logWarn("addChildren(): loadLazy is not yet implemented.")
+    // }
+    return nodeList[0];
   }
 
   /**
@@ -419,15 +429,32 @@ export class WunderbaumNode {
   }
 
   /**
-   * Find all nodes that match condition (excluding self).
+   * Find all descendant nodes that match condition (excluding self).
    *
-   * @param {string | function(node)} match title string to search for, or a
-   *     callback function that returns `true` if a node is matched.
+   * If `match` is a string, search for exact node title.
+   * If `match` is a RegExp expression, apply it to node.title, using
+   * [RegExp.test()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test).
+   * If `match` is a callback, match all nodes for that the callback(node) returns true.
+   *
+   * Returns an empty array if no nodes were found.
+   *
+   * Examples:
+   * ```js
+   * // Match all node titles that match exactly 'Joe':
+   * nodeList = node.findAll("Joe")
+   * // Match all node titles that start with 'Joe' case sensitive:
+   * nodeList = node.findAll(/^Joe/)
+   * // Match all node titles that contain 'oe', case insensitive:
+   * nodeList = node.findAll(/oe/i)
+   * // Match all nodes with `data.price` >= 99:
+   * nodeList = node.findAll((n) => {
+   *   return n.data.price >= 99;
+   * })
+   * ```
    */
-  findAll(match: string | MatcherType): WunderbaumNode[] {
-    const matcher = util.isFunction(match)
-      ? <MatcherType>match
-      : makeNodeTitleMatcher(<string>match);
+  findAll(match: string | RegExp | MatcherCallback): WunderbaumNode[] {
+    const matcher =
+      typeof match === "function" ? match : makeNodeTitleMatcher(match);
     const res: WunderbaumNode[] = [];
     this.visit((n) => {
       if (matcher(n)) {
@@ -459,15 +486,14 @@ export class WunderbaumNode {
     return null;
   }
 
-  /**Find first node that matches condition (excluding self).
+  /**
+   * Find first descendant node that matches condition (excluding self) or null.
    *
-   * @param match title string to search for, or a
-   *     callback function that returns `true` if a node is matched.
+   * @see {@link WunderbaumNode.findAll} for examples.
    */
-  findFirst(match: string | MatcherType): WunderbaumNode | null {
-    const matcher = util.isFunction(match)
-      ? <MatcherType>match
-      : makeNodeTitleMatcher(<string>match);
+  findFirst(match: string | RegExp | MatcherCallback): WunderbaumNode | null {
+    const matcher =
+      typeof match === "function" ? match : makeNodeTitleMatcher(match);
     let res = null;
     this.visit((n) => {
       if (matcher(n)) {
@@ -1814,6 +1840,7 @@ export class WunderbaumNode {
     if (flag && scrollIntoView !== false) {
       const lastChild = this.getLastChild();
       if (lastChild) {
+        this.tree.updatePendingModifications();
         lastChild.scrollIntoView({ topNode: this });
       }
     }

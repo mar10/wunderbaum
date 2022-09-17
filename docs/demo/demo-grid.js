@@ -83,18 +83,24 @@ new mar10.Wunderbaum({
     // mode: "dim",
   },
   init: (e) => {
+    console.log(e.type, e);
+    e.tree.findFirst("More...").setExpanded()
+    e.tree.findFirst((n) => {
+      return n.data.qty === 21;
+    }).setActive()
     // e.tree.setFocus();
   },
-  load: function (e) {
+  load: (e) => {
+    console.log(e.type, e);
     // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
   },
   lazyLoad: function (e) {
     console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-sample.json" };
+    // return { url: "../assets/ajax-lazy-products.json" };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-sample.json" });
+        resolve({ url: "../assets/ajax-lazy-products.json" });
       }, 1500);
     });
   },

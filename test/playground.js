@@ -84,7 +84,7 @@ const tree = new Wunderbaum({
   //   },
   // },
   lazyLoad: (e) => {
-    return {url: "../docs/assets/ajax-lazy-sample.json"};
+    return {url: "../docs/assets/ajax-lazy-products.json"};
   },
   activate: (e) => {
     tree.log(
@@ -149,8 +149,8 @@ tree.ready
 
 document.querySelectorAll(".demo-btn").forEach((elem)=>{
   elem.addEventListener("click", (e) => {
-    const btn = e.target // as HTMLButtonElement
-    const action = btn.dataset.action;
+    const action = e.target.dataset.action;
+
     switch (action) {
       case "collapseAll":
         tree.expandAll(false, {

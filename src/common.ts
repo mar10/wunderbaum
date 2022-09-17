@@ -4,8 +4,8 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { MatcherType } from "./types";
-import { escapeRegex } from "./util";
+import { MatcherCallback } from "./types";
+import * as util from "./util";
 import { WunderbaumNode } from "./wb_node";
 
 export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
@@ -123,17 +123,29 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
   Subtract: "collapse",
 };
 
-/** Return a callback that returns true if the node title contains a substring (case-insensitive). */
-export function makeNodeTitleMatcher(s: string): MatcherType {
-  s = escapeRegex(s.toLowerCase());
+/** Return a callback that returns true if the node title matches the string
+ * or regular expression.
+ * @see {@link WunderbaumNode.findAll}
+ */
+export function makeNodeTitleMatcher(match: string | RegExp): MatcherCallback {
+  if (match instanceof RegExp) {
+    return function (node: WunderbaumNode) {
+      return (<RegExp>match).test(node.title);
+    };
+  }
+  util.assert(typeof match === "string");
+
+  // s = escapeRegex(s.toLowerCase());
   return function (node: WunderbaumNode) {
-    return node.title.toLowerCase().indexOf(s) >= 0;
+    return node.title === match;
+    // console.log("match " + node, node.title.toLowerCase().indexOf(match))
+    // return node.title.toLowerCase().indexOf(match) >= 0;
   };
 }
 
 /** Return a callback that returns true if the node title starts with a string (case-insensitive). */
-export function makeNodeTitleStartMatcher(s: string): MatcherType {
-  s = escapeRegex(s);
+export function makeNodeTitleStartMatcher(s: string): MatcherCallback {
+  s = util.escapeRegex(s);
   const reMatch = new RegExp("^" + s, "i");
   return function (node: WunderbaumNode) {
     return reMatch.test(node.title);

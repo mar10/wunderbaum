@@ -7,9 +7,11 @@
 import { WunderbaumNode } from "./wb_node";
 import { Wunderbaum } from "./wunderbaum";
 
-// export type WunderbaumOptions = any;
-export type MatcherType = (node: WunderbaumNode) => boolean;
+/** Passed to find... methods. Should return true if node matches. */
+export type MatcherCallback = (node: WunderbaumNode) => boolean;
+/** When set as option, called when the value is needed (e.g. `colspan` type definition). */
 export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
+/** When set as option, called when the value is needed (e.g. `icon` type definition). */
 export type BoolOrStringOptionResolver = (
   node: WunderbaumNode
 ) => boolean | string;
@@ -216,6 +218,22 @@ export enum TargetType {
   icon = "icon",
   prefix = "prefix",
   title = "title",
+}
+
+/** Possible values for {@link WunderbaumNode.addChildren()}. */
+export interface AddChildrenOptions {
+  /** Insert children before this node (or index)
+   * @default undefined or null:  append as last child
+   */
+  before?: WunderbaumNode | number | null;
+  /**
+   * Set `node.expanded = true` according to tree.options.minExpandLevel.
+   * This does *not* load lazy nodes.
+   * @default true
+   */
+  applyMinExpanLevel?: boolean;
+  /** (@internal Internal use, do not set! ) */
+  _level?: number;
 }
 
 /** Possible values for {@link Wunderbaum.expandAll()} and {@link WunderbaumNode.expandAll()}. */

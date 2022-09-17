@@ -86,12 +86,12 @@ new mar10.Wunderbaum({
     // User expanded a lazy node for the first time.
     console.log(e.type, e);
     // A typical handler would return a URL that should be fetched:
-    // return { url: "../assets/ajax-lazy-sample.json" };
+    // return { url: "../assets/ajax-lazy-products.json" };
     // ... Simulate a long-running request
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject("Epic fail")
-        // resolve({ url: "../assets/ajax-lazy-sample.json" });
+        // resolve({ url: "../assets/ajax-lazy-products.json" });
       }, 1500);
     });
   },

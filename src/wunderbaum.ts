@@ -25,7 +25,7 @@ import {
   ColumnDefinitionList,
   ExpandAllOptions,
   FilterModeType,
-  MatcherType,
+  MatcherCallback,
   NavigationOptions,
   NodeStatusType,
   NodeTypeDefinitions,
@@ -1012,26 +1012,20 @@ export class Wunderbaum {
   }
 
   /**
-   * Find all nodes that matches condition.
-   *
-   * @param match title string to search for, or a
-   *     callback function that returns `true` if a node is matched.
+   * Find all nodes that match condition.
    *
    * @see {@link WunderbaumNode.findAll}
    */
-  findAll(match: string | MatcherType) {
+  findAll(match: string | RegExp | MatcherCallback) {
     return this.root.findAll(match);
   }
 
   /**
    * Find first node that matches condition.
    *
-   * @param match title string to search for, or a
-   *     callback function that returns `true` if a node is matched.
    * @see {@link WunderbaumNode.findFirst}
-   *
    */
-  findFirst(match: string | MatcherType) {
+  findFirst(match: string | RegExp | MatcherCallback) {
     return this.root.findFirst(match);
   }
 
@@ -1043,8 +1037,8 @@ export class Wunderbaum {
    * @see {@link WunderbaumNode.findFirst}
    *
    */
-  findKey(key: string): WunderbaumNode | undefined {
-    return this.keyMap.get(key);
+  findKey(key: string): WunderbaumNode | null {
+    return this.keyMap.get(key) || null;
   }
 
   /**
@@ -1052,7 +1046,7 @@ export class Wunderbaum {
    * and wrap-around at the end.
    */
   findNextNode(
-    match: string | MatcherType,
+    match: string | MatcherCallback,
     startNode?: WunderbaumNode | null
   ): WunderbaumNode | null {
     //, visibleOnly) {
