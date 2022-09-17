@@ -13,6 +13,7 @@ import {
   ApplyCommandType,
   ChangeType,
   ColumnEventInfos,
+  ExpandAllOptions,
   MakeVisibleOptions,
   MatcherType,
   NodeAnyCallback,
@@ -351,14 +352,74 @@ export class WunderbaumNode {
     }
   }
 
-  /** Call `setExpanded()` on al child nodes*/
-  async expandAll(flag: boolean = true) {
-    this.visit((node) => {
-      node.setExpanded(flag);
-    });
+  /** Call `setExpanded()` on all descendant nodes. */
+  async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
+    const tree = this.tree;
+    const minExpandLevel = this.tree.options.minExpandLevel;
+    let { depth = 99, loadLazy, force } = options ?? {};
+
+    const expand_opts = {
+      scrollIntoView: false,
+      force: force,
+      loadLazy: loadLazy,
+    };
+
+    // this.logInfo(`expandAll(${flag})`);
+    // Expand all direct children in parallel:
+    async function _iter(n: WunderbaumNode, level: number | null) {
+      // n.logInfo(`  _iter(${level})`);
+      if (level === 0) {
+        return;
+      }
+      // if (!flag && minExpandLevel && !force && n.getLevel() <= minExpandLevel) {
+      //   return; // Do not collapse until minExpandLevel
+      // }
+      const level_1 = level == null ? null : level - 1;
+      const promises: Promise<unknown>[] = [];
+      n.children?.forEach((cn) => {
+        if (flag) {
+          if (!cn.expanded && (cn.children || (loadLazy && cn.lazy))) {
+            // Node is collapsed and may be expanded (i.e. has children or is lazy)
+            // Expanding may be async, so we store the promise.
+            // Also the recursion is delayed until expansion finished.
+            const p = cn.setExpanded(true, expand_opts);
+            promises.push(p);
+            p.then(async () => {
+              await _iter(cn, level_1);
+            });
+          } else {
+            // We don't expand the node, but still visit descendants.
+            // There we may find lazy nodes, so we
+            promises.push(_iter(cn, level_1));
+          }
+        } else {
+          // Collapsing is always synchronous, so no promises required
+          if (!minExpandLevel || force || cn.getLevel() > minExpandLevel) {
+            // Do not collapse until minExpandLevel
+            cn.setExpanded(false, expand_opts);
+          }
+          _iter(cn, level_1); // recursion, even if cn was already collapsed
+        }
+      });
+      return new Promise((resolve) => {
+        Promise.all(promises).then(() => {
+          resolve(true);
+        });
+      });
+    }
+
+    const tag = tree.logTime(`${this}.expandAll(${flag})`);
+    try {
+      tree.enableUpdate(false);
+      await _iter(this, depth);
+    } finally {
+      tree.enableUpdate(true);
+      tree.logTimeEnd(tag);
+    }
   }
 
-  /**Find all nodes that match condition (excluding self).
+  /**
+   * Find all nodes that match condition (excluding self).
    *
    * @param {string | function(node)} match title string to search for, or a
    *     callback function that returns `true` if a node is matched.
@@ -596,7 +657,8 @@ export class WunderbaumNode {
    * an expand operation is currently possible.
    */
   isExpandable(andCollapsed = false): boolean {
-    return !!this.children && (!this.expanded || !andCollapsed);
+    // return !!this.children && (!this.expanded || !andCollapsed);
+    return !!(this.children || this.lazy) && (!this.expanded || !andCollapsed);
   }
 
   /** Return true if this node is currently in edit-title mode. */
@@ -923,22 +985,23 @@ export class WunderbaumNode {
 
   /** Expand all parents and optionally scroll into visible area as neccessary.
    * Promise is resolved, when lazy loading and animations are done.
-   * @param {object} [opts] passed to `setExpanded()`.
+   * @param {object} [options] passed to `setExpanded()`.
    *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
    */
-  async makeVisible(opts?: MakeVisibleOptions) {
+  async makeVisible(options?: MakeVisibleOptions) {
     let i,
       dfd = new Deferred(),
       deferreds = [],
       parents = this.getParentList(false, false),
       len = parents.length,
-      // effects = !(opts && opts.noAnimation === true),
-      scroll = !(opts && opts.scrollIntoView === false);
+      noAnimation = util.getOption(options, "noAnimation", false),
+      scroll = util.getOption(options, "scrollIntoView", true);
+    // scroll = !(options && options.scrollIntoView === false);
 
     // Expand bottom-up, so only the top node is animated
     for (i = len - 1; i >= 0; i--) {
       // self.debug("pushexpand" + parents[i]);
-      const seOpts = { noAnimation: opts?.noAnimation };
+      const seOpts = { noAnimation: noAnimation };
       deferreds.push(parents[i].setExpanded(true, seOpts));
     }
     Promise.all(deferreds).then(() => {
@@ -1727,11 +1790,12 @@ export class WunderbaumNode {
    * Expand or collapse this node.
    */
   async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
+    const { force, scrollIntoView, immediate } = options ?? {};
     if (
       !flag &&
       this.isExpanded() &&
       this.getLevel() <= this.tree.getOption("minExpandLevel") &&
-      !util.getOption(options, "force")
+      !force
     ) {
       this.logDebug("Ignored collapse request below expandLevel.");
       return;
@@ -1739,13 +1803,15 @@ export class WunderbaumNode {
     if (!flag === !this.expanded) {
       return; // Nothing to do
     }
+    // this.log("setExpanded()");
     if (flag && this.lazy && this.children == null) {
       await this.loadLazy();
     }
     this.expanded = flag;
-    const updateOpts = { immediate: !!util.getOption(options, "immediate") };
+    const updateOpts = { immediate: immediate };
+    // const updateOpts = { immediate: !!util.getOption(options, "immediate") };
     this.tree.setModified(ChangeType.structure, updateOpts);
-    if (flag && util.getOption(options, "scrollIntoView") !== false) {
+    if (flag && scrollIntoView !== false) {
       const lastChild = this.getLastChild();
       if (lastChild) {
         lastChild.scrollIntoView({ topNode: this });

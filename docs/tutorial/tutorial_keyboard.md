@@ -1,5 +1,7 @@
 # Keyboard Navigation
 
+!> This chapter is outdated!
+
 ?> See also the [General Overview](/tutorial/overview.md).
 
 The option `keyboard: true` should be used to control if standard keyboard
@@ -19,8 +21,98 @@ to toggle:
 
 ### Navigation in **Row Mode**
 
-In *row mode*, Wunderbaum behaves like a simple tree. Even if multiple columns are present, always the whole row is highlighted.
+In *row mode*, Wunderbaum behaves like a simple tree. Even if multiple columns 
+are present, always the whole row is highlighted.
 
+<table>
+<thead>
+  <tr>
+    <th>Windows</th>
+    <th>macOS</th>
+    <th>Function</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td colspan=2 align=center><kbd>+</kbd> / <kbd>-</kbd></td>
+    <td>Expand/collapse node</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Space</kbd></td>
+    <td>Toggle <i>selected</i> status if <i>checkbox</i> option is on.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>F2</kbd></td>
+    <td>Edit node title.</td>
+  </tr>
+  <tr>
+    <td>&mdash;</td>
+    <td><kbd>Enter</kbd></td>
+    <td>Edit node title if <i>edit.trigger</i> option list contains "macEnter".</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Escape</kbd></td>
+    <td>Discard edit operation if any.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Backspace</kbd></td>
+    <td>Set focus to parent node.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowLeft</kbd></td>
+    <td>If expanded: collapse. Otherwise set focus to parent node.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowRight</kbd></td>
+    <td>If collapsed: expand. Otherwise set focus to first child.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowUp</kbd></td>
+    <td>Set focus to previous sibling (or parent if already on first sibling).</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowDown</kbd></td>
+    <td>Set focus to next visible node.</td>
+  </tr>
+  <tr>
+    <td><kbd>Ctrl</kbd> + <kbd>Arrow&hellip;</kbd></td>
+    <td><kbd>⌘</kbd> + <kbd>Arrow&hellip;</kbd></td>
+    <td>Same as plain <kbd>Arrow&hellip;</kbd>, but only sets the focus, even if <i>autoActivate</i> option is on.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Home</kbd>, <kbd>End</kbd></td>
+    <td>XXX</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>PageUp</kbd>, <kbd>PageDown</kbd></td>
+    <td>XXX</td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Ctrl</kbd> + <kbd>Home</kbd>,<br> <kbd>Ctrl</kbd> + <kbd>End</kbd>
+    </td>
+    <td>
+      <kbd>⌘</kbd> + <kbd>Home</kbd>,<br> <kbd>⌘</kbd> + <kbd>End</kbd>
+    </td>
+    <td>XXX</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
+    <td>Jump to next matching node (if `quicksearch` is true).</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Enter</kbd></td>
+    <td>Switch to &rarr; <b>Cell-Nav Mode</b>.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd>+<kbd>Tab</kbd></td>
+    <td>Leave the Wunderbaum tree control and focus next/previous control on the page.</td>
+  </tr>
+</tbody>
+</table>
+
+
+<!--
 - <kbd>+</kbd> / <kbd>-</kbd>: Expand/collapse node.
 - <kbd>SPACE</kbd>: Toggle *select* status if `checkbox` option is on.
 - <kbd>Enter</kbd>: Switch to &rarr; **Cell-Nav Mode**.
@@ -40,7 +132,7 @@ In *row mode*, Wunderbaum behaves like a simple tree. Even if multiple columns a
 - <kbd>AlphaNum</kbd> jump to next matching node (if `quicksearch` is true)
 - <kbd>Tab</kbd>, <kbd>Shift</kbd>+<kbd>Tab</kbd>: Leave the Wunderbaum tree
   control and focus next/previous control on the page.
-
+-->
 
 ### Navigation in **Cell-Nav Mode**
 

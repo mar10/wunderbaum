@@ -18,12 +18,14 @@ const tree = new Wunderbaum({
   // enabled: false,
   fixedCol: true,
   debugLevel: 4,
+  minExpandLevel: 1,
 
   header: true, //"Playground", 
   // navigationModeOption: "cell",
-  
+
   // source: "generator/ajax_1k_3_54 t_c.json",
-  source: "generator/fixture.json",
+  source: "../docs/assets/ajax-tree-products.json",
+  // source: "generator/fixture.json",
 
   // columns: [
   //   { title: "test", id: "*", width: "200px" },
@@ -81,6 +83,9 @@ const tree = new Wunderbaum({
   //     e.node.log(`${e.type}`);
   //   },
   // },
+  lazyLoad: (e) => {
+    return {url: "../docs/assets/ajax-lazy-sample.json"};
+  },
   activate: (e) => {
     tree.log(
       e.type,
@@ -120,7 +125,7 @@ const tree = new Wunderbaum({
     }, 500);
   },
   render: (e) => {
-    e.node.log(e.type, e, e.node.data);
+    // e.node.log(e.type, e, e.node.data);
 
     for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
@@ -132,7 +137,6 @@ const tree = new Wunderbaum({
     }
   },
 });
-
 console.log(`Created  ${tree}`);
 
 tree.ready
@@ -142,3 +146,24 @@ tree.ready
   .catch((err) => {
     console.error(`${tree} init failed.`, err);
   });
+
+document.querySelectorAll(".demo-btn").forEach((elem)=>{
+  elem.addEventListener("click", (e) => {
+    const btn = e.target // as HTMLButtonElement
+    const action = btn.dataset.action;
+    switch (action) {
+      case "collapseAll":
+        tree.expandAll(false, {
+          // force: true, 
+          depth: 2,
+        });
+        break;
+      case "expandAll":
+        tree.expandAll(true, {
+          loadLazy: true,
+          depth: 5,
+        });
+        break;
+    }
+  });
+})

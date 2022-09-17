@@ -10,6 +10,9 @@ import { Wunderbaum } from "./wunderbaum";
 // export type WunderbaumOptions = any;
 export type MatcherType = (node: WunderbaumNode) => boolean;
 export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
+export type BoolOrStringOptionResolver = (
+  node: WunderbaumNode
+) => boolean | string;
 
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 
@@ -72,13 +75,13 @@ export interface NodeTypeDefinition {
   // /** Type ID that matches `node.type`. */
   // id: string;
   /** En/disable checkbox for matching nodes.*/
-  checkbox?: boolean | BoolOptionResolver;
+  checkbox?: boolean | BoolOrStringOptionResolver;
   /** En/disable checkbox for matching nodes.*/
   colspan?: boolean | BoolOptionResolver;
   /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
   classes?: string;
   /**Default icon for matching nodes.*/
-  icon?: boolean | string | BoolOptionResolver;
+  icon?: boolean | string | BoolOrStringOptionResolver;
   /**
    * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
    * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
@@ -215,22 +218,17 @@ export enum TargetType {
   title = "title",
 }
 
-/** Initial navigation mode and possible transition. */
-export enum NavigationOptions {
-  startRow = "startRow", // Start with row mode, but allow cell-nav mode
-  cell = "cell", // Cell-nav mode only
-  startCell = "startCell", // Start in cell-nav mode, but allow row mode
-  row = "row", // Row mode only
+/** Possible values for {@link Wunderbaum.expandAll()} and {@link WunderbaumNode.expandAll()}. */
+export interface ExpandAllOptions {
+  /** Restrict expand level @default 99 */
+  depth?: number;
+  /** Expand and load lazy nodes @default false  */
+  loadLazy?: boolean;
+  /** Ignore `minExpandLevel` option @default false */
+  force?: boolean;
 }
 
-// /** Tree's current navigation mode (see `tree.setNavigationMode()`). */
-// export enum NavigationMode {
-//   row = "row",
-//   cellNav = "cellNav",
-//   // cellEdit = "cellEdit",
-// }
-
-/** Possible values for `node.makeVisible()`. */
+/** Possible values for {@link WunderbaumNode.makeVisible()}. */
 export interface MakeVisibleOptions {
   /** Do not animate expand (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -240,7 +238,15 @@ export interface MakeVisibleOptions {
   noEvents?: boolean;
 }
 
-/** Possible values for `node.scrollIntoView()`. */
+/** Initial navigation mode and possible transition. */
+export enum NavigationOptions {
+  startRow = "startRow", // Start with row mode, but allow cell-nav mode
+  cell = "cell", // Cell-nav mode only
+  startCell = "startCell", // Start in cell-nav mode, but allow row mode
+  row = "row", // Row mode only
+}
+
+/** Possible values for {@link scrollIntoView()}. */
 export interface ScrollIntoViewOptions {
   /** Do not animate (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -252,7 +258,7 @@ export interface ScrollIntoViewOptions {
   ofsY?: number;
 }
 
-/** Possible values for `tree.scrollTo()`. */
+/** Possible values for {@link Wunderbaum.scrollTo()}. */
 export interface ScrollToOptions extends ScrollIntoViewOptions {
   /** Which node to scroll into the viewport.*/
   node: WunderbaumNode;

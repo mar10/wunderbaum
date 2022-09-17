@@ -670,7 +670,7 @@ export function toggleCheckbox(
 export function getOption(
   opts: any,
   name: string,
-  defaultValue = undefined
+  defaultValue: any = undefined
 ): any {
   let ext;
 

@@ -23,6 +23,7 @@ import {
   ApplyCommandType,
   ChangeType,
   ColumnDefinitionList,
+  ExpandAllOptions,
   FilterModeType,
   MatcherType,
   NavigationOptions,
@@ -710,13 +711,13 @@ export class Wunderbaum {
   /**
    * Apply a modification (or navigation) operation on the **tree or active node**.
    */
-  applyCommand(cmd: ApplyCommandType, opts?: any): any;
+  applyCommand(cmd: ApplyCommandType, options?: any): any;
 
   /**
    * Apply a modification (or navigation) operation on a **node**.
    * @see {@link WunderbaumNode.applyCommand}
    */
-  applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, opts?: any): any;
+  applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, options?: any): any;
 
   /**
    * Apply a modification or navigation operation.
@@ -737,23 +738,23 @@ export class Wunderbaum {
   applyCommand(
     cmd: ApplyCommandType,
     nodeOrOpts?: WunderbaumNode | any,
-    opts?: any
+    options?: any
   ): any {
     let // clipboard,
       node,
       refNode;
-    // opts = $.extend(
+    // options = $.extend(
     // 	{ setActive: true, clipboard: CLIPBOARD },
-    // 	opts_
+    // 	options_
     // );
     if (nodeOrOpts instanceof WunderbaumNode) {
       node = nodeOrOpts;
     } else {
       node = this.getActiveNode()!;
-      util.assert(opts === undefined);
-      opts = nodeOrOpts;
+      util.assert(options === undefined);
+      options = nodeOrOpts;
     }
-    // clipboard = opts.clipboard;
+    // clipboard = options.clipboard;
 
     switch (cmd) {
       // Sorting and indentation:
@@ -973,15 +974,8 @@ export class Wunderbaum {
   }
 
   /** Recursively expand all expandable nodes (triggers lazy load id needed). */
-  async expandAll(flag: boolean = true) {
-    const tag = this.logTime("expandAll(" + flag + ")");
-    try {
-      this.enableUpdate(false);
-      await this.root.expandAll(flag);
-    } finally {
-      this.enableUpdate(true);
-      this.logTimeEnd(tag);
-    }
+  async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
+    await this.root.expandAll(flag, options);
   }
 
   /** Recursively select all nodes. */
@@ -1383,13 +1377,13 @@ export class Wunderbaum {
 
     let node;
     WunderbaumNode;
-    let opts: ScrollToOptions | undefined;
+    let options: ScrollToOptions | undefined;
 
     if (nodeOrOpts instanceof WunderbaumNode) {
       node = nodeOrOpts;
     } else {
-      opts = nodeOrOpts;
-      node = opts.node;
+      options = nodeOrOpts;
+      node = options.node;
     }
     util.assert(node && node._rowIdx != null);
 
@@ -1401,7 +1395,7 @@ export class Wunderbaum {
     const vpTop = headerHeight;
     const vpRowTop = rowTop - scrollTop;
     const vpRowBottom = vpRowTop + ROW_HEIGHT;
-    const topNode = opts?.topNode;
+    const topNode = options?.topNode;
 
     // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts );
     let newScrollTop: number | null = null;
@@ -1670,8 +1664,8 @@ export class Wunderbaum {
     }
   }
   /** Update column headers and width. */
-  updateColumns(opts?: any) {
-    opts = Object.assign({ calculateCols: true, updateRows: true }, opts);
+  updateColumns(options?: any) {
+    options = Object.assign({ calculateCols: true, updateRows: true }, options);
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
     const isGrid = this.isGrid();
@@ -1688,7 +1682,7 @@ export class Wunderbaum {
       this.setCellNav(false);
     }
 
-    if (opts.calculateCols) {
+    if (options.calculateCols) {
       // Gather width definitions
       this._columnsById = {};
       for (let col of this.columns) {
@@ -1754,7 +1748,7 @@ export class Wunderbaum {
     // util.error("BREAK");
     if (modified) {
       this._renderHeaderMarkup();
-      if (opts.updateRows) {
+      if (options.updateRows) {
         this._updateRows();
       }
     }
@@ -1906,11 +1900,11 @@ export class Wunderbaum {
    *   (including upper and lower prefetch)
    * -
    */
-  protected _updateRows(opts?: any): boolean {
+  protected _updateRows(options?: any): boolean {
     // const label = this.logTime("_updateRows");
     // this.log("_updateRows", opts)
-    opts = Object.assign({ newNodesOnly: false }, opts);
-    const newNodesOnly = !!opts.newNodesOnly;
+    options = Object.assign({ newNodesOnly: false }, options);
+    const newNodesOnly = !!options.newNodesOnly;
 
     const row_height = ROW_HEIGHT;
     const vp_height = this.element.clientHeight;
@@ -2020,15 +2014,15 @@ export class Wunderbaum {
    *     {start: First tree node, reverse: false, includeSelf: true, includeHidden: false, wrap: false}
    * @returns {boolean} false if iteration was canceled
    */
-  visitRows(callback: (node: WunderbaumNode) => any, opts?: any): boolean {
+  visitRows(callback: (node: WunderbaumNode) => any, options?: any): boolean {
     if (!this.root.hasChildren()) {
       return false;
     }
-    if (opts && opts.reverse) {
-      delete opts.reverse;
-      return this._visitRowsUp(callback, opts);
+    if (options && options.reverse) {
+      delete options.reverse;
+      return this._visitRowsUp(callback, options);
     }
-    opts = opts || {};
+    options = options || {};
     let i,
       nextIdx,
       parent,
@@ -2036,10 +2030,10 @@ export class Wunderbaum {
       siblings,
       stopNode: WunderbaumNode,
       siblingOfs = 0,
-      skipFirstNode = opts.includeSelf === false,
-      includeHidden = !!opts.includeHidden,
+      skipFirstNode = options.includeSelf === false,
+      includeHidden = !!options.includeHidden,
       checkFilter = !includeHidden && this.filterMode === "hide",
-      node: WunderbaumNode = opts.start || this.root.children![0];
+      node: WunderbaumNode = options.start || this.root.children![0];
 
     parent = node.parent;
     while (parent) {
@@ -2098,11 +2092,11 @@ export class Wunderbaum {
       parent = parent.parent;
       siblingOfs = 1; //
 
-      if (!parent && opts.wrap) {
+      if (!parent && options.wrap) {
         this.logDebug("visitRows(): wrap around");
-        util.assert(opts.start, "`wrap` option requires `start`");
-        stopNode = opts.start;
-        opts.wrap = false;
+        util.assert(options.start, "`wrap` option requires `start`");
+        stopNode = options.start;
+        options.wrap = false;
         parent = this.root;
         siblingOfs = 0;
       }
