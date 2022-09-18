@@ -1,3 +1,4 @@
+from copy import deepcopy
 from datetime import date
 import json
 import os
@@ -7,12 +8,15 @@ import sys
 sys.path.append(os.path.dirname(__file__))
 
 from generator import (
+    compress_child_list,
+    Automatic,
     DateRangeRandomizer,
+    FileFormat,
+    generate_tree,
     RangeRandomizer,
     SampleRandomizer,
     TextRandomizer,
     ValueRandomizer,
-    generate_tree,
 )
 
 # ------------------------------------------------------------------------------
@@ -48,6 +52,19 @@ def generate_fixture_store(*, add_html: bool) -> dict:
         {"id": "details", "title": "Details", "width": "*", "minWidth": "600px"},
     ]
 
+    # --- Compression Hints ---
+
+    key_map = Automatic
+    positional = [
+        "title",
+        "type",
+        "author",
+        "year",
+        "qty",
+        "price",
+        "details",
+    ]
+
     # --- Build nested node dictionary ---
 
     tree_data = generate_tree(
@@ -81,11 +98,16 @@ def generate_fixture_store(*, add_html: bool) -> dict:
         ]
     )
 
-    res = tree_data
-    res["types"] = type_dict
-    res["columns"] = column_list
-    res["children"] = tree_data["child_list"]
-    return res
+    tree_data.update(
+        {
+            "types": type_dict,
+            "columns": column_list,
+            "key_map": key_map,
+            "positional": positional,
+            "children": tree_data["child_list"],
+        }
+    )
+    return tree_data
 
 
 # ------------------------------------------------------------------------------
@@ -172,6 +194,21 @@ def generate_fixture_department(*, add_html: bool) -> dict:
             }
         )
 
+    # --- Compression Hints ---
+
+    key_map = Automatic
+    positional = [
+        "title",
+        "type",
+        "state",
+        "avail",
+        "age",
+        "date",
+        "remarks",
+    ]
+
+    # --- Build nested node dictionary ---
+
     # --- Build nested node dictionary ---
     def _person_callback(data):
         # Initialize checkbox values
@@ -219,16 +256,22 @@ def generate_fixture_department(*, add_html: bool) -> dict:
         ]
     )
 
-    res = tree_data
-    res["types"] = type_dict
-    res["columns"] = column_list
-    res["children"] = tree_data["child_list"]
-    return res
+    tree_data.update(
+        {
+            "types": type_dict,
+            "columns": column_list,
+            "key_map": key_map,
+            "positional": positional,
+            "children": tree_data["child_list"],
+        }
+    )
+    return tree_data
 
 
 # ------------------------------------------------------------------------------
 # Main CLI
 # ------------------------------------------------------------------------------
+
 
 def _size_disp(path: Path) -> str:
     size = path.stat().st_size
@@ -239,9 +282,20 @@ def _size_disp(path: Path) -> str:
     return f"{size:,}"
 
 
+def write_json(path: Path, data: dict, *, debug: bool):
+    with open(path, "wt") as fp:
+        if debug:
+            json.dump(data, fp, indent=4, separators=(", ", ": "))
+        else:
+            json.dump(data, fp, indent=None, separators=(",", ":"))
+    print(f"Created {file_name}, {_size_disp(path)}")
+
+
 if __name__ == "__main__":
     METHOD_PREFIX = "generate_fixture_"
     ADD_HTML = False
+    DEBUG = False
+    # DEBUG = True
 
     avail = [name[17:] for name in locals() if name.startswith(METHOD_PREFIX)]
     avail_disp = "'{}'".format("', '".join(avail))
@@ -277,42 +331,59 @@ if __name__ == "__main__":
     # Write as plain list
     file_name = f"{base_name}_p.json"
     path = base_dir / file_name
-    with open(path, "wt") as fp:
-        json.dump(res["child_list"], fp)
-    print(f"Created {file_name}, {_size_disp(path)}")
+    out = res["child_list"]
+    write_json(path, out, debug=DEBUG)
 
     # Extended Standard
     file_name = f"{base_name}.json"
     path = base_dir / file_name
-    with open(path, "wt") as fp:
-        out = {"children": res["children"]}
-        json.dump(out, fp)
-    print(f"Created {file_name}, {_size_disp(path)}")
+    out = {"children": res["children"]}
+    write_json(path, out, debug=DEBUG)
 
     if col_count:
         file_name = f"{base_name}_c.json"
         path = base_dir / file_name
-        with open(path, "wt") as fp:
-            out = {"columns": res["columns"], "children": res["children"]}
-            json.dump(out, fp)
-        print(f"Created {file_name}, {_size_disp(path)}")
+        out = {"columns": res["columns"], "children": res["children"]}
+        write_json(path, out, debug=DEBUG)
 
     if res["types"]:
         file_name = f"{base_name}_t.json"
         path = base_dir / file_name
-        with open(path, "wt") as fp:
-            out = {"types": res["types"], "children": res["children"]}
-            json.dump(out, fp)
-        print(f"Created {file_name}, {_size_disp(path)}")
+        out = {"types": res["types"], "children": res["children"]}
+        write_json(path, out, debug=DEBUG)
 
         if col_count:
             file_name = f"{base_name}_t_c.json"
             path = base_dir / file_name
-            with open(path, "wt") as fp:
-                out = {
-                    "types": res["types"],
-                    "columns": res["columns"],
-                    "children": res["children"],
-                }
-                json.dump(out, fp)
-            print(f"Created {file_name}, {_size_disp(path)}")
+            out = {
+                "types": res["types"],
+                "columns": res["columns"],
+                "children": res["children"],
+            }
+            write_json(path, out, debug=DEBUG)
+
+    file_name = f"{base_name}_flat_comp.json"
+    path = base_dir / file_name
+    out = compress_child_list(
+        deepcopy(res["child_list"]),  # DEEP-COPY, because nodes ar4 modifiec
+        format=FileFormat.flat,
+        types=res["types"],
+        columns=res["columns"],
+        key_map=res["key_map"],
+        positional=res["positional"],
+        auto_compress=True,
+    )
+    write_json(path, out, debug=DEBUG)
+
+    file_name = f"{base_name}_comp.json"
+    path = base_dir / file_name
+    out = compress_child_list(
+        res["child_list"],
+        format=FileFormat.nested,
+        types=res["types"],
+        columns=res["columns"],
+        key_map=res["key_map"],
+        positional=res["positional"],
+        auto_compress=True,
+    )
+    write_json(path, out, debug=DEBUG)
