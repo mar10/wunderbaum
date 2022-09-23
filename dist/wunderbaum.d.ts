@@ -222,7 +222,7 @@ declare module "common" {
      * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { MatcherType } from "types";
+    import { MatcherCallback } from "types";
     export const DEFAULT_DEBUGLEVEL = 4;
     /**
      * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
@@ -269,7 +269,8 @@ declare module "common" {
     };
     export const KEY_NODATA = "__not_found__";
     /** Define which keys are handled by embedded <input> control, and should
-     * *not* be passed to tree navigation handler in cell-edit mode. */
+     * *not* be passed to tree navigation handler in cell-edit mode.
+     */
     export const INPUT_KEYS: {
         [key: string]: Array<string>;
     };
@@ -279,10 +280,14 @@ declare module "common" {
     export const KEY_TO_ACTION_DICT: {
         [key: string]: string;
     };
-    /** Return a callback that returns true if the node title contains a substring (case-insensitive). */
-    export function makeNodeTitleMatcher(s: string): MatcherType;
+    /** Return a callback that returns true if the node title matches the string
+     * or regular expression.
+     * @see {@link WunderbaumNode.findAll}
+     */
+    export function makeNodeTitleMatcher(match: string | RegExp): MatcherCallback;
     /** Return a callback that returns true if the node title starts with a string (case-insensitive). */
-    export function makeNodeTitleStartMatcher(s: string): MatcherType;
+    export function makeNodeTitleStartMatcher(s: string): MatcherCallback;
+    export function inflateSourceData(source: any): void;
 }
 declare module "deferred" {
     /*!
@@ -610,7 +615,7 @@ declare module "wb_node" {
      */
     import "./wunderbaum.scss";
     import { Wunderbaum } from "wunderbaum";
-    import { AddNodeType, ApplyCommandType, ChangeType, MakeVisibleOptions, MatcherType, NodeAnyCallback, NodeStatusType, NodeVisitCallback, NodeVisitResponse, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions } from "types";
+    import { AddChildrenOptions, AddNodeType, ApplyCommandType, ChangeType, ExpandAllOptions, MakeVisibleOptions, MatcherCallback, NodeAnyCallback, NodeStatusType, NodeVisitCallback, NodeVisitResponse, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions } from "types";
     import { WbNodeData } from "wb_options";
     /**
      * A single tree node.
@@ -685,13 +690,11 @@ declare module "wb_node" {
         /**
          * Append (or insert) a list of child nodes.
          *
-         * Tip: pass `{ before: 0 }` to prepend children
-         * @param {NodeData[]} nodeData array of child node definitions (also single child accepted)
-         * @param  child node (or key or index of such).
-         *     If omitted, the new children are appended.
+         * Tip: pass `{ before: 0 }` to prepend new nodes as first children.
+         *
          * @returns first child added
          */
-        addChildren(nodeData: any, options?: any): WunderbaumNode;
+        addChildren(nodeData: WbNodeData | WbNodeData[], options?: AddChildrenOptions): WunderbaumNode;
         /**
          * Append or prepend a node, or append a child node.
          *
@@ -717,22 +720,41 @@ declare module "wb_node" {
          *     as space-separated string, array of strings, or set of strings.
          */
         setClass(className: string | string[] | Set<string>, flag?: boolean): void;
-        /** Call `setExpanded()` on al child nodes*/
-        expandAll(flag?: boolean): Promise<void>;
-        /**Find all nodes that match condition (excluding self).
+        /** Call `setExpanded()` on all descendant nodes. */
+        expandAll(flag?: boolean, options?: ExpandAllOptions): Promise<void>;
+        /**
+         * Find all descendant nodes that match condition (excluding self).
          *
-         * @param {string | function(node)} match title string to search for, or a
-         *     callback function that returns `true` if a node is matched.
+         * If `match` is a string, search for exact node title.
+         * If `match` is a RegExp expression, apply it to node.title, using
+         * [RegExp.test()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/RegExp/test).
+         * If `match` is a callback, match all nodes for that the callback(node) returns true.
+         *
+         * Returns an empty array if no nodes were found.
+         *
+         * Examples:
+         * ```js
+         * // Match all node titles that match exactly 'Joe':
+         * nodeList = node.findAll("Joe")
+         * // Match all node titles that start with 'Joe' case sensitive:
+         * nodeList = node.findAll(/^Joe/)
+         * // Match all node titles that contain 'oe', case insensitive:
+         * nodeList = node.findAll(/oe/i)
+         * // Match all nodes with `data.price` >= 99:
+         * nodeList = node.findAll((n) => {
+         *   return n.data.price >= 99;
+         * })
+         * ```
          */
-        findAll(match: string | MatcherType): WunderbaumNode[];
+        findAll(match: string | RegExp | MatcherCallback): WunderbaumNode[];
         /** Return the direct child with a given key, index or null. */
         findDirectChild(ptr: number | string | WunderbaumNode): WunderbaumNode | null;
-        /**Find first node that matches condition (excluding self).
+        /**
+         * Find first descendant node that matches condition (excluding self) or null.
          *
-         * @param match title string to search for, or a
-         *     callback function that returns `true` if a node is matched.
+         * @see {@link WunderbaumNode.findAll} for examples.
          */
-        findFirst(match: string | MatcherType): WunderbaumNode | null;
+        findFirst(match: string | RegExp | MatcherCallback): WunderbaumNode | null;
         /** Find a node relative to self.
          *
          * @see {@link Wunderbaum.findRelatedNode|tree.findRelatedNode()}
@@ -849,10 +871,10 @@ declare module "wb_node" {
         logWarn(...args: any[]): void;
         /** Expand all parents and optionally scroll into visible area as neccessary.
          * Promise is resolved, when lazy loading and animations are done.
-         * @param {object} [opts] passed to `setExpanded()`.
+         * @param {object} [options] passed to `setExpanded()`.
          *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
          */
-        makeVisible(opts?: MakeVisibleOptions): Promise<any>;
+        makeVisible(options?: MakeVisibleOptions): Promise<any>;
         /** Move this node to targetNode. */
         moveTo(targetNode: WunderbaumNode, mode?: AddNodeType, map?: NodeAnyCallback): void;
         /** Set focus relative to this node and optionally activate.
@@ -1025,8 +1047,12 @@ declare module "types" {
      */
     import { WunderbaumNode } from "wb_node";
     import { Wunderbaum } from "wunderbaum";
-    export type MatcherType = (node: WunderbaumNode) => boolean;
+    /** Passed to find... methods. Should return true if node matches. */
+    export type MatcherCallback = (node: WunderbaumNode) => boolean;
+    /** When set as option, called when the value is needed (e.g. `colspan` type definition). */
     export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
+    /** When set as option, called when the value is needed (e.g. `icon` type definition). */
+    export type BoolOrStringOptionResolver = (node: WunderbaumNode) => boolean | string;
     export type NodeAnyCallback = (node: WunderbaumNode) => any;
     export type NodeVisitResponse = "skip" | boolean | void;
     export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
@@ -1077,13 +1103,13 @@ declare module "types" {
      */
     export interface NodeTypeDefinition {
         /** En/disable checkbox for matching nodes.*/
-        checkbox?: boolean | BoolOptionResolver;
+        checkbox?: boolean | BoolOrStringOptionResolver;
         /** En/disable checkbox for matching nodes.*/
         colspan?: boolean | BoolOptionResolver;
         /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
         classes?: string;
         /**Default icon for matching nodes.*/
-        icon?: boolean | string | BoolOptionResolver;
+        icon?: boolean | string | BoolOrStringOptionResolver;
         /**
          * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
          * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
@@ -1178,14 +1204,31 @@ declare module "types" {
         prefix = "prefix",
         title = "title"
     }
-    /** Initial navigation mode and possible transition. */
-    export enum NavigationOptions {
-        startRow = "startRow",
-        cell = "cell",
-        startCell = "startCell",
-        row = "row"
+    /** Possible values for {@link WunderbaumNode.addChildren()}. */
+    export interface AddChildrenOptions {
+        /** Insert children before this node (or index)
+         * @default undefined or null:  append as last child
+         */
+        before?: WunderbaumNode | number | null;
+        /**
+         * Set `node.expanded = true` according to tree.options.minExpandLevel.
+         * This does *not* load lazy nodes.
+         * @default true
+         */
+        applyMinExpanLevel?: boolean;
+        /** (@internal Internal use, do not set! ) */
+        _level?: number;
     }
-    /** Possible values for `node.makeVisible()`. */
+    /** Possible values for {@link Wunderbaum.expandAll()} and {@link WunderbaumNode.expandAll()}. */
+    export interface ExpandAllOptions {
+        /** Restrict expand level @default 99 */
+        depth?: number;
+        /** Expand and load lazy nodes @default false  */
+        loadLazy?: boolean;
+        /** Ignore `minExpandLevel` option @default false */
+        force?: boolean;
+    }
+    /** Possible values for {@link WunderbaumNode.makeVisible()}. */
     export interface MakeVisibleOptions {
         /** Do not animate expand (currently not implemented). @default false */
         noAnimation?: boolean;
@@ -1194,7 +1237,14 @@ declare module "types" {
         /** Do not send events. @default false */
         noEvents?: boolean;
     }
-    /** Possible values for `node.scrollIntoView()`. */
+    /** Initial navigation mode and possible transition. */
+    export enum NavigationOptions {
+        startRow = "startRow",
+        cell = "cell",
+        startCell = "startCell",
+        row = "row"
+    }
+    /** Possible values for {@link scrollIntoView()}. */
     export interface ScrollIntoViewOptions {
         /** Do not animate (currently not implemented). @default false */
         noAnimation?: boolean;
@@ -1205,7 +1255,7 @@ declare module "types" {
         /** Add N pixel offset at top. */
         ofsY?: number;
     }
-    /** Possible values for `tree.scrollTo()`. */
+    /** Possible values for {@link Wunderbaum.scrollTo()}. */
     export interface ScrollToOptions extends ScrollIntoViewOptions {
         /** Which node to scroll into the viewport.*/
         node: WunderbaumNode;
@@ -1733,7 +1783,7 @@ declare module "wunderbaum" {
     import "./wunderbaum.scss";
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { ApplyCommandType, ChangeType, ColumnDefinitionList, FilterModeType, MatcherType, NavigationOptions, NodeStatusType, NodeTypeDefinitions, ScrollToOptions, SetActiveOptions, SetStatusOptions, TargetType as NodeRegion } from "types";
+    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavigationOptions, NodeStatusType, NodeTypeDefinitions, ScrollToOptions, SetActiveOptions, SetStatusOptions, TargetType as NodeRegion } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     /**
@@ -1865,12 +1915,12 @@ declare module "wunderbaum" {
         /**
          * Apply a modification (or navigation) operation on the **tree or active node**.
          */
-        applyCommand(cmd: ApplyCommandType, opts?: any): any;
+        applyCommand(cmd: ApplyCommandType, options?: any): any;
         /**
          * Apply a modification (or navigation) operation on a **node**.
          * @see {@link WunderbaumNode.applyCommand}
          */
-        applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, opts?: any): any;
+        applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, options?: any): any;
         /** Delete all nodes. */
         clear(): void;
         /**
@@ -1907,7 +1957,7 @@ declare module "wunderbaum" {
         /** Run code, but defer rendering of viewport until done. */
         runWithoutUpdate(func: () => any, hint?: any): void;
         /** Recursively expand all expandable nodes (triggers lazy load id needed). */
-        expandAll(flag?: boolean): Promise<void>;
+        expandAll(flag?: boolean, options?: ExpandAllOptions): Promise<void>;
         /** Recursively select all nodes. */
         selectAll(flag?: boolean): void;
         /** Return the number of nodes in the data model.*/
@@ -1915,14 +1965,17 @@ declare module "wunderbaum" {
         /** @internal sanity check. */
         _check(): void;
         /**
-         * Find all nodes that matches condition.
-         *
-         * @param match title string to search for, or a
-         *     callback function that returns `true` if a node is matched.
+         * Find all nodes that match condition.
          *
          * @see {@link WunderbaumNode.findAll}
          */
-        findAll(match: string | MatcherType): WunderbaumNode[];
+        findAll(match: string | RegExp | MatcherCallback): WunderbaumNode[];
+        /**
+         * Find first node that matches condition.
+         *
+         * @see {@link WunderbaumNode.findFirst}
+         */
+        findFirst(match: string | RegExp | MatcherCallback): WunderbaumNode;
         /**
          * Find first node that matches condition.
          *
@@ -1931,21 +1984,12 @@ declare module "wunderbaum" {
          * @see {@link WunderbaumNode.findFirst}
          *
          */
-        findFirst(match: string | MatcherType): WunderbaumNode;
-        /**
-         * Find first node that matches condition.
-         *
-         * @param match title string to search for, or a
-         *     callback function that returns `true` if a node is matched.
-         * @see {@link WunderbaumNode.findFirst}
-         *
-         */
-        findKey(key: string): WunderbaumNode | undefined;
+        findKey(key: string): WunderbaumNode | null;
         /**
          * Find the next visible node that starts with `match`, starting at `startNode`
          * and wrap-around at the end.
          */
-        findNextNode(match: string | MatcherType, startNode?: WunderbaumNode | null): WunderbaumNode | null;
+        findNextNode(match: string | MatcherCallback, startNode?: WunderbaumNode | null): WunderbaumNode | null;
         /**
          * Find a node relative to another node.
          *
@@ -2060,7 +2104,7 @@ declare module "wunderbaum" {
         /** Add or redefine node type definitions. */
         setTypes(types: any, replace?: boolean): void;
         /** Update column headers and width. */
-        updateColumns(opts?: any): void;
+        updateColumns(options?: any): void;
         /** Create/update header markup from `this.columns` definition.
          * @internal
          */
@@ -2086,7 +2130,7 @@ declare module "wunderbaum" {
          * @internal
          */
         protected _updateViewportImmediately(): void;
-        protected _updateRows(opts?: any): boolean;
+        protected _updateRows(options?: any): boolean;
         /**
          * Call callback(node) for all nodes in hierarchical order (depth-first).
          *
@@ -2112,7 +2156,7 @@ declare module "wunderbaum" {
          *     {start: First tree node, reverse: false, includeSelf: true, includeHidden: false, wrap: false}
          * @returns {boolean} false if iteration was canceled
          */
-        visitRows(callback: (node: WunderbaumNode) => any, opts?: any): boolean;
+        visitRows(callback: (node: WunderbaumNode) => any, options?: any): boolean;
         /**
          * Call fn(node) for all nodes in vertical order, bottom up.
          * @internal
