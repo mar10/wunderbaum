@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import sys
+from textwrap import dedent
 
 sys.path.append(os.path.dirname(__file__))
 
@@ -76,15 +77,15 @@ def generate_fixture_store(*, add_html: bool) -> dict:
                 # "expanded": ValueRandomizer(True, probability=0.05),
             },
             {
-                ":count": 10,
-                # ":count": RangeRandomizer(70, 130),
+                # ":count": 10,
+                ":count": RangeRandomizer(70, 130),
                 "title": "$(Adj) $(Noun:plural)",
                 "type": "folder",
                 # "expanded": ValueRandomizer(True, probability=0.3),
             },
             {
-                ":count": 10,
-                # ":count": RangeRandomizer(0, 200),
+                # ":count": 10,
+                ":count": RangeRandomizer(0, 200),
                 # ":callback": _person_callback,
                 "title": "$(Noun)",
                 "author": TextRandomizer("$(name:middle)"),
@@ -146,17 +147,20 @@ def generate_fixture_department(*, add_html: bool) -> dict:
             "title": "Date",
             "id": "date",
             "width": "100px",
-            "html": '<input type=date tabindex="-1">' if add_html else None,
+            "html": "<input type=date tabindex='-1'>" if add_html else None,
         },
         {
             "title": "Status",
             "id": "state",
             "width": "70px",
-            "html": """<select tabindex="-1">
-                <option value="h">Happy</option>
-                <option value="s">Sad</option>
+            "html": dedent(
+                """\
+                <select tabindex='-1'>
+                  <option value=h>Happy</option>
+                  <option value=s>Sad</option>
                 </select>
                 """
+            )
             if add_html
             else None,
         },
@@ -164,7 +168,7 @@ def generate_fixture_department(*, add_html: bool) -> dict:
             "title": "Avail",
             "id": "avail",
             "width": "30px",
-            "html": '<imput type=checkbox tabindex="-1">' if add_html else None,
+            "html": "<input type=checkbox tabindex='-1'>" if add_html else None,
         },
         # {
         #     "title": "Tags",
@@ -231,13 +235,13 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 # "expanded": ValueRandomizer(True, probability=0.2),
             },
             {
-                ":count": RangeRandomizer(7, 13),
+                ":count": RangeRandomizer(8, 13),
                 "title": "$(Verb) $(noun:plural)",
                 "type": "role",
                 # "expanded": ValueRandomizer(True, probability=0.3),7
             },
             {
-                ":count": RangeRandomizer(0, 20),
+                ":count": RangeRandomizer(0, 22),
                 ":callback": _person_callback,
                 "title": "$(name:middle)",
                 "type": "person",
@@ -277,7 +281,7 @@ def _size_disp(path: Path) -> str:
     size = path.stat().st_size
     if size > 500000:
         return f"{round(0.000001*size, 2):,} MiB"
-    elif size > 5000:
+    elif size > 3000:
         return f"{round(0.001*size, 2):,} kiB"
     return f"{size:,}"
 

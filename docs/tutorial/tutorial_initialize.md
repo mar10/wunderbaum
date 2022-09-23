@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 ## Passing Options
 
 There are many more options and callbacks available. Here are some of the
-frequenlty used ones:
+frequently used ones:
 
 ```js
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -170,21 +170,40 @@ and more.
 
 ?> Event Handlers are describe in detail in the "Events" chapter.
 
+
 ## Source Format and API
 
-A simple node structure defines a list of child node definitions.
+Typically we load the tree nodes in a separate Ajax request like so:
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  source: "path/to/request",
+  ...
+});
+```
+
+The endpoint must return a node structure in JSON format.
 
 Note that
 
 - The structure may be nested, e.g. a child node may in turn contain a `children` list.
-- Some attributes are part of the data model:<br>
+- Some reserved attributes names are part of the node data model:<br>
   `classes`, `colspan`, `expanded`, `icon`, `key`, `lazy`, `refKey`, `selected`, 
   `title`, `tooltip`, `type`.<br>
   They can be accesed as `node.title`, for example,
 - All other properties are stored under the _data_ namespace and are accessed
   like `node.data.author`, for example.
 - Only `title` is mandatory
-- TODO: HTML escaping
+- Node titles are escaped in order to prevent [XSS](https://owasp.org/www-community/attacks/xss/). 
+  For example if JSON source contains `"title": "<script>..."`, it will be 
+  converted to `&lt;script&gt;...`, which is rendered by the browser as 
+  `<script>...`, but not interpreted as HTML element.
+
+
+### Nested List Format
+
+All node are transferred as a list of top-level nodes, with optional nested 
+lists of child nodes.
 
 ```json
 [
@@ -214,6 +233,33 @@ Note that
 ]
 ```
 
+### Object Format
+
+This is the most commonly used format. Here we pass  an object that contains 
+one `children` element, but also additional information.
+
+```json
+{
+  "types": {...},
+  "columns": [...],
+  "_keyMap": {...},
+  "children": [
+    {
+      "title": "Books",
+      "expanded": true,
+      "children": [
+        {
+          "title": "Art of War",
+          "author": "Sun Tzu"
+        },
+      ]
+    },
+    ...
+  ]
+}
+```
+
+
 ### Type Information
 
 A tree often contains multiple nodes that share attributes.
@@ -238,11 +284,7 @@ data model more concise:
           "type": "book",
           "author": "Sun Tzu"
         },
-        {
-          "title": "The Hobbit",
-          "type": "book",
-          "author": "J.R.R. Tolkien"
-        }
+        ...
       ]
     },
     {
@@ -260,8 +302,7 @@ data model more concise:
 }
 ```
 
-Type definitions can also be passed to the tree constructor directly:
-
+?> Type definitions can also be passed to the tree constructor directly:
 ```js
 const tree = new mar10.Wunderbaum({
   id: "demo",
@@ -274,6 +315,85 @@ const tree = new mar10.Wunderbaum({
   },
   ...
 ```
+
+### Comnpact Formats
+
+Load time of data is an important aspect of the user experience. We can
+reduce the size of the JSON data by eliminating redundancy.
+
+This example can be optimized:
+```json
+{
+  "_format": "nested",
+  "types": {"person": {...}, ...},
+  "children": [
+    {"title": "Node 1", "key": "id123", "type": "folder", "expanded": true, "children": [
+      {"title": "Node 1.1", "key": "id234", "type": "person"},
+      {"title": "Node 1.2", "key": "id345", "type": "person", "age": 32}
+    ]}
+  ]
+}
+```
+
+
+- Remove whitespace from the JSON.
+- Use `node.type` declarations, to extract shared properties (see above).
+- Use `_keyMap` and shorten the key names, e.g. send  `{"t": "foo"}` instead of `{"title": "foo"}`
+  (see below).
+- Use a `_typeList` and pass indexes into this list instead of sending type
+  name strings.
+- Use the *Flat* format described below, which is a even few percent smaller.
+
+```json
+{
+  "_format": "nested",  // Optional
+  "types": {"person": {...}, ...},
+  "columns": [...],   
+  // Map from short key to final key (if a key is not found here it will
+  // be used literally):
+  "_keyMap": {"t": "title", "k": "key", "y": "type", "c": "children", "e": "expanded"},
+  // Optional: if type is numeric, use it as index into this list, otherwise
+  // use the string literally:
+  "_typeList": ["folder", "person"],
+  "children": [
+    {"t": "Node 1", "k": "id123", "y": 0, "e": true, "c": [
+      {"t": "Node 1.1", "k": "id234", "y": 1},
+      {"t": "Node 1.2", "k": "id345", "y": 1, "age": 32}
+    ]}
+  ]
+}
+```
+
+
+### Flat, Parent-Referencing List
+
+Here all nodes are passed as a flat list, without nesting. 
+Chid nodes reference the parent by 
+NOTE: This also works when `node.key`'s are not provided.
+
+```json
+{
+  "_format": "flat",
+  "types": {...},       // Optional, but likely if `_typeList` is used
+  "columns": [...],     // Optional
+  // Map from short key to final key (if a key is not found here it will
+  // be used literally):
+  "_keyMap": {"e": "expanded"},
+  // Values for these keys are appended as list items.
+  // Other items - if any - are collected into one dict that is also appended:
+  "_positional": ["title", "key", "type"],
+  // Optional: if type is numeric, use it as index into this list:
+  "_typeList": ["folder", "person"],
+  // List index is 0-based, parent index null means 'top-node'.
+  // If parent index is a string, parent is searched by `node.key` (slower)
+  "children": [
+    [0, "Node 1", "id123", 0, {"e": true}],   // index=0
+    [1, "Node 1.1", "id234", 1],              // index=1
+    [1, "Node 1.2", "id345", 1, {"age": 32}]  // index=2
+  ]
+}
+```
+
 
 ### Handling External Data Formats
 

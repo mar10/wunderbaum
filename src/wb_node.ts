@@ -36,6 +36,7 @@ import {
   TITLE_SPAN_PAD_Y,
   ROW_HEIGHT,
   TEST_IMG,
+  inflateSourceData,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -822,6 +823,13 @@ export class WunderbaumNode {
       source = { children: source };
     }
     util.assert(util.isPlainObject(source));
+
+    const format: string = source.format ?? "nested";
+    util.assert(format === "nested" || format === "flat");
+
+    // Pre-rocess for 'nested' or 'flat' format
+    inflateSourceData(source);
+
     util.assert(
       source.children,
       "If `source` is an object, it must have a `children` property"

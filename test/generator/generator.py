@@ -229,7 +229,7 @@ def _make_tree(*, spec_list, parent=None, prefix=""):
 
 
 def _rounded_number(n: int) -> str:
-    if n < 900:
+    if n < 800:
         return str(n)
     if n < 900000:
         return f"{round(n / 1000)}k"
@@ -366,7 +366,8 @@ def compress_child_list(
             type_map[node_type] = type_idx
 
     #: Short names of attrs that are passed as posiotional arg
-    positional_short_names = {inverse_key_map.get(p, p) for p in positional}
+    positional_short_names = [inverse_key_map.get(p, p) for p in positional]
+    positional_short_names_set = set(positional_short_names)
 
     # ----------
     # Pass 2: collect used attribute and type names
@@ -389,7 +390,7 @@ def compress_child_list(
         if format == FileFormat.flat:
             pos_args = [node.get(p) for p in positional_short_names]
             key_args = {
-                k: v for k, v in node.items() if k not in positional_short_names
+                k: v for k, v in node.items() if k not in positional_short_names_set
             }
             key_args.pop(inverse_key_map.get("children", "children"), None)
             if key_args:
@@ -417,7 +418,7 @@ def compress_child_list(
     # Declare complete dict here, so we can control the order
     res = {
         "_format": format.value,
-        "_version": 1,
+        # "_version": 1,
         "types": types,
         "columns": columns,
         "_typeList": type_list,

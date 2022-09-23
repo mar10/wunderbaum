@@ -66,7 +66,8 @@ export const iconMap = {
 export const KEY_NODATA = "__not_found__";
 
 /** Define which keys are handled by embedded <input> control, and should
- * *not* be passed to tree navigation handler in cell-edit mode. */
+ * *not* be passed to tree navigation handler in cell-edit mode.
+ */
 export const INPUT_KEYS: { [key: string]: Array<string> } = {
   text: ["left", "right", "home", "end", "backspace"],
   number: ["up", "down", "left", "right", "home", "end", "backspace"],
@@ -79,14 +80,14 @@ export const INPUT_KEYS: { [key: string]: Array<string> } = {
 
 /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
 export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
+  "_format", // reserved for future use
+  "_keyMap", // reserved for future use
+  "_positional", // reserved for future use
+  "_typeList", // reserved for future use
+  "_version", // reserved for future use
   "children",
   "columns",
-  "format", // reserved for future use
-  "keyMap", // reserved for future use
-  "positional", // reserved for future use
-  "typeList", // reserved for future use
   "types",
-  "version", // reserved for future use
 ]);
 
 // /** Key codes that trigger grid navigation, even when inside an input element. */
@@ -150,4 +151,133 @@ export function makeNodeTitleStartMatcher(s: string): MatcherCallback {
   return function (node: WunderbaumNode) {
     return reMatch.test(node.title);
   };
+}
+
+function unflattenSource(source: any): void {
+  const { _format, _keyMap, _positional, children } = source;
+
+  if (_format !== "flat") {
+    throw new Error(`Expected source._format: "flat", but got ${_format}`);
+  }
+  if (_positional && _positional.includes("children")) {
+    throw new Error(
+      `source._positional must not include "children": ${_positional}`
+    );
+  }
+  // Inverse keyMap:
+  let longToShort: any = {};
+  if (_keyMap) {
+    for (const [key, value] of Object.entries(_keyMap)) {
+      longToShort[<string>value] = key;
+    }
+  }
+  const positionalShort = _positional.map((e: string) => longToShort[e]);
+  const newChildren: any[] = [];
+  const keyToNodeMap: { [key: string]: number } = {};
+  const indexToNodeMap: { [key: number]: any } = {};
+  const keyAttrName = longToShort["key"] ?? "key";
+  const childrenAttrName = longToShort["children"] ?? "children";
+
+  for (const [index, node] of children.entries()) {
+    // Node entry format:
+    //   [PARENT_ID, [POSITIONAL_ARGS]]
+    // or
+    //   [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
+    const [parentId, args, kwargs = {}] = node;
+
+    // Free up some memory as we go
+    node[1] = null;
+    if (node[2] != null) {
+      node[2] = null;
+    }
+    // console.log("flatten", parentId, args, kwargs)
+
+    // We keep `kwargs` as our new node definition. Then we add all positional
+    // values to this object:
+    args.forEach((val: string, positionalIdx: number) => {
+      kwargs[positionalShort[positionalIdx]] = val;
+    });
+
+    // Find the parent node. `null` means 'toplevel'. PARENT_ID may be the numeric
+    // index of the source.children list. If PARENT_ID is a string, we search
+    // a parent with node.key of this value.
+    indexToNodeMap[index] = kwargs;
+    const key = kwargs[keyAttrName];
+    if (key != null) {
+      keyToNodeMap[key] = kwargs;
+    }
+    let parentNode = null;
+    if (parentId === null) {
+      // top-level node
+    } else if (typeof parentId === "number") {
+      parentNode = indexToNodeMap[parentId];
+      if (parentNode === undefined) {
+        throw new Error(
+          `unflattenSource: Could not find parent node by index: ${parentId}.`
+        );
+      }
+    } else {
+      parentNode = keyToNodeMap[parentId];
+      if (parentNode === undefined) {
+        throw new Error(
+          `unflattenSource: Could not find parent node by key: ${parentId}`
+        );
+      }
+    }
+    if (parentNode) {
+      parentNode[childrenAttrName] ??= [];
+      parentNode[childrenAttrName].push(kwargs);
+    } else {
+      newChildren.push(kwargs);
+    }
+  }
+
+  delete source.children;
+  source.children = newChildren;
+}
+
+export function inflateSourceData(source: any): void {
+  const { _format, _keyMap, _typeList } = source;
+
+  if (_format === "flat") {
+    unflattenSource(source);
+  }
+  delete source._format;
+  delete source._version;
+  delete source._keyMap;
+  delete source._typeList;
+  delete source._positional;
+
+  function _iter(childList: any[]) {
+    for (let node of childList) {
+      // Expand short alias names
+      if (_keyMap) {
+        // Iterate over a list of names, because we modify inside the loop:
+        Object.getOwnPropertyNames(node).forEach((propName) => {
+          const long = _keyMap[propName] ?? propName;
+          if (long !== propName) {
+            node[long] = node[propName];
+            delete node[propName];
+          }
+        });
+      }
+      // `node` now has long attribute names
+
+      // Resolve node type indexes
+      const type = node.type;
+      if (_typeList && type != null && typeof type === "number") {
+        const newType = _typeList[type];
+        if (newType == null) {
+          throw new Error(`Expected typeList[${type}] entry in [${_typeList}]`);
+        }
+        node.type = newType;
+      }
+
+      // Recursion
+      if (node.children) {
+        _iter(node.children);
+      }
+    }
+  }
+  _iter(source.children);
 }

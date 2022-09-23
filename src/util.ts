@@ -317,7 +317,11 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
         break;
       case "number":
       case "range":
-        input.valueAsNumber = value;
+        if (value == null) {
+          input.value = value;
+        } else {
+          input.valueAsNumber = value;
+        }
         break;
       case "radio":
         error("Not implemented");
@@ -334,7 +338,7 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
         break;
       case "text":
       default:
-        input.value = value || "";
+        input.value = value ?? "";
     }
   } else if (tag === "SELECT") {
     const select = <HTMLSelectElement>elem;

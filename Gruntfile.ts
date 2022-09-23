@@ -14,6 +14,10 @@ module.exports = (grunt: any) => {
         stdin: true, // Allow interactive console
         cmd: "rm dist/*.* ; cp build/*.* dist",
       },
+      make_docs: {
+        stdin: true, // Allow interactive console
+        cmd: "yarn docs",
+      },
       make_dist: {
         stdin: true, // Allow interactive console
         cmd: "yarn make_dist",
@@ -55,6 +59,7 @@ module.exports = (grunt: any) => {
         bump: {}, // 'bump' also uses the increment mode `yabs:release:MODE`
         run_build: { tasks: ["exec:build"], always: true }, // TODO 'always' NYI
         run_copy_dist: { tasks: ["exec:copy_dist"] },
+        run_make_docs: { tasks: ["exec:make_docs"] },
         run_test_dist: { tasks: ["test_dist"] },
         commit: { add: "." },
         tag: {},

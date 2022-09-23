@@ -6,10 +6,10 @@
 import { Wunderbaum } from "../build/wunderbaum.esm.js";
 
 const util = Wunderbaum.util;
-const ModeElemTemplate = `<select tabindex='-1'>
-  <option value='1'>O1</option>
-  <option value='2'>O2</option>
-</select>`;
+// const ModeElemTemplate = `<select tabindex='-1'>
+//   <option value='1'>O1</option>
+//   <option value='2'>O2</option>
+// </select>`;
 
 const tree = new Wunderbaum({
   element: "#tree",
@@ -24,7 +24,9 @@ const tree = new Wunderbaum({
   // navigationModeOption: "cell",
 
   // source: "generator/ajax_1k_3_54 t_c.json",
-  source: "../docs/assets/ajax-tree-products.json",
+  source: "generator/fixture_department_1k_3_6_flat_comp.json",
+  // source: "generator/fixture_department_1k_3_6_comp.json",
+  // source: "../docs/assets/ajax-tree-products.json",
   // source: "generator/fixture.json",
 
   // columns: [
