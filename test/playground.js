@@ -24,11 +24,16 @@ const tree = new Wunderbaum({
   // navigationModeOption: "cell",
 
   // source: "generator/ajax_1k_3_54 t_c.json",
-  source: "generator/fixture_department_1k_3_6_flat_comp.json",
+  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
   // source: "generator/fixture_department_1k_3_6_comp.json",
-  // source: "../docs/assets/ajax-tree-products.json",
+  source: "../docs/assets/ajax-tree-products.json",
   // source: "generator/fixture.json",
-
+  // source: (e)=>{
+  //   console.info("SOURCE", e.type, e)
+  //   return util.setTimeoutPromise(() => {
+  //     return {url: "../docs/assets/ajax-tree-products.json"};
+  //   }, 5000);
+  // },
   // columns: [
   //   { title: "test", id: "*", width: "200px" },
   //   // {
@@ -86,7 +91,10 @@ const tree = new Wunderbaum({
   //   },
   // },
   lazyLoad: (e) => {
-    return {url: "../docs/assets/ajax-lazy-products.json"};
+    // return {url: "../docs/assets/ajax-lazy-products.json"};
+    return util.setTimeoutPromise(() => {
+      return {url: "../docs/assets/ajax-lazy-products.json"};
+    }, 5000);
   },
   activate: (e) => {
     tree.log(

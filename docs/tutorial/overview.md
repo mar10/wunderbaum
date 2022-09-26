@@ -1,6 +1,6 @@
 # Overview
 
-!> Wunderbaum has currently pre-alpha status:<br>
+!> Wunderbaum has still beta status:<br>
 API, Markup, Stylesheet, etc. are subject to change.<br>
 **Do not use it in production!**
 

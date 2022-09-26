@@ -1272,13 +1272,16 @@ export class WunderbaumNode {
 
   protected _createIcon(
     parentElem: HTMLElement,
-    replaceChild?: HTMLElement
+    replaceChild: HTMLElement | null,
+    showLoading: boolean
   ): HTMLElement | null {
     let iconSpan;
     let icon = this.getOption("icon");
     if (this._errorInfo) {
       icon = iconMap.error;
-    } else if (this._isLoading) {
+    } else if (this._isLoading && showLoading) {
+      // Status nodes, or nodes without expander (< minExpandLevel) should
+      // display the 'loading' status with the i.wb-icon span
       icon = iconMap.loading;
     }
     if (icon === false) {
@@ -1384,7 +1387,9 @@ export class WunderbaumNode {
       ofsTitlePx += ICON_WIDTH;
     }
 
-    iconSpan = this._createIcon(nodeElem);
+    // Render the icon (show a 'loading' icon if we do not have an expander that
+    // we would prefer).
+    iconSpan = this._createIcon(nodeElem, null, !expanderSpan);
     if (iconSpan) {
       ofsTitlePx += ICON_WIDTH;
     }
@@ -1568,14 +1573,14 @@ export class WunderbaumNode {
     }
 
     if (expanderSpan) {
-      if (this.isExpandable(false)) {
+      if (this._isLoading) {
+        expanderSpan.className = "wb-expander " + iconMap.loading;
+      } else if (this.isExpandable(false)) {
         if (this.expanded) {
           expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
         } else {
           expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
         }
-      } else if (this._isLoading) {
-        expanderSpan.className = "wb-expander " + iconMap.loading;
       } else if (this.lazy && this.children == null) {
         expanderSpan.className = "wb-expander " + iconMap.expanderLazy;
       } else {
@@ -1598,7 +1603,7 @@ export class WunderbaumNode {
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
       const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
       if (iconSpan) {
-        this._createIcon(nodeElem, iconSpan);
+        this._createIcon(nodeElem, iconSpan, !expanderSpan);
       }
     }
   }
@@ -1944,8 +1949,12 @@ export class WunderbaumNode {
         this._errorInfo = null;
         break;
       case "loading":
-        // If this is the invisible root, add a visible top-level node
-        if (!this.parent) {
+        this._isLoading = true;
+        this._errorInfo = null;
+        if (this.parent) {
+          this.setModified(ChangeType.status);
+        } else {
+          // If this is the invisible root, add a visible top-level node
           _setStatusNode({
             statusNodeType: status,
             title:
@@ -1956,8 +1965,6 @@ export class WunderbaumNode {
             tooltip: details,
           });
         }
-        this._isLoading = true;
-        this._errorInfo = null;
         // this.render();
         break;
       case "error":
