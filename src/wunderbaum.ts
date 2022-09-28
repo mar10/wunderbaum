@@ -531,8 +531,11 @@ export class Wunderbaum {
 
   /** Add node to tree's bookkeeping data structures. */
   _registerNode(node: WunderbaumNode): void {
-    let key = node.key;
-    util.assert(key != null && !this.keyMap.has(key));
+    const key = node.key;
+    util.assert(
+      key != null && !this.keyMap.has(key),
+      `Missing or duplicate key: '${key}'.`
+    );
     this.keyMap.set(key, node);
     let rk = node.refKey;
     if (rk) {
