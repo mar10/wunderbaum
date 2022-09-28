@@ -817,7 +817,10 @@ export class WunderbaumNode {
     level ??= this.getLevel();
 
     // Let caller modify the parsed JSON response:
-    this._callEvent("receive", { response: source });
+    const res = this._callEvent("receive", { response: source });
+    if (res != null) {
+      source = res;
+    }
 
     if (util.isArray(source)) {
       source = { children: source };

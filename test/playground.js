@@ -94,7 +94,7 @@ const tree = new Wunderbaum({
     // return {url: "../docs/assets/ajax-lazy-products.json"};
     return util.setTimeoutPromise(() => {
       return {url: "../docs/assets/ajax-lazy-products.json"};
-    }, 5000);
+    }, 1000);
   },
   activate: (e) => {
     tree.log(
