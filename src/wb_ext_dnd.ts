@@ -180,6 +180,11 @@ export class DndExtension extends WunderbaumExtension {
     if (e.type === "dragstart") {
       // Set a default definition of allowed effects
       e.dataTransfer!.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
+      if (srcNode.isEditing()) {
+        srcNode.logDebug("Prevented dragging node in edit mode.");
+        e.preventDefault();
+        return false;
+      }
       // Let user cancel the drag operation, override effectAllowed, etc.:
       const res = srcNode._callEvent("dnd.dragStart", { event: e });
       if (!res) {
