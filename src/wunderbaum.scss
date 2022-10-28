@@ -608,6 +608,16 @@ div.wunderbaum {
   cursor: pointer;
 }
 
+.wb-no-select {
+  user-select: none;
+  -webkit-user-select: none;
+
+  span.wb-title {
+    user-select: contain;
+    -webkit-user-select: contain;
+  }
+}
+
 // .wb-helper-edit-text {
 //   // content-editable: true;
 // }

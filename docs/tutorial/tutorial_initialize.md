@@ -397,7 +397,26 @@ NOTE: This also works when `node.key`'s are not provided.
 
 ### Handling External Data Formats
 
-?> TODO: `receive(e)`
+See also [Example with source](http://127.0.0.1:8080/docs/demo/#demo-custom).
+
+```js
+const tree = new Wunderbaum({
+  ...
+  source: { url: "https://fakestoreapi.com/products/categories" },
+  lazyLoad: (e) => {
+    return { url: `https://fakestoreapi.com/products/category/${e.node.refKey}` }
+  },
+  receive: (e) => {
+    return e.response.map((elem) => {
+      return {
+        title: elem.name,
+        refKey: elem.id,
+      }
+    });
+  },
+});
+```
+
 
 ### Column Definitions
 

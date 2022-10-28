@@ -56,6 +56,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
       },
     ],
     init: (e) => {
+      // We do not get a 'hashchange' event on page load, so we call directly:
       reconfigureTree(window.location.hash || "demo-welcome");
     },
     keydown: (e) => {
@@ -71,6 +72,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           window.open(e.node.data.href);
           break;
         case "show":
+          // Trigger a 'hashchange' event:
           window.location.hash = e.node.key;
           break;
       }
