@@ -2078,6 +2078,26 @@ export class WunderbaumNode {
     return res;
   }
 
+  /**
+   * Iterate all descendant nodes depth-first
+   * Example:
+   * ```js
+   * for(const n of node) {
+   *   ...
+   * }
+   * ```
+   */
+
+  *[Symbol.iterator](): IterableIterator<WunderbaumNode> {
+    // let node: WunderbaumNode | null = this;
+    if (this.children) {
+      for (let node of this.children) {
+        yield node;
+        yield* node;
+      }
+    }
+  }
+
   /** Call fn(node) for all parent nodes, bottom-up, including invisible system root.<br>
    * Stop iteration, if callback() returns false.<br>
    * Return false if iteration was stopped.

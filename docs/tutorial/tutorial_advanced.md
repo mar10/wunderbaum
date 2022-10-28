@@ -2,6 +2,14 @@
 
 ?> See also the [General Overview](/tutorial/overview.md).
 
+## Iteration
+
+```js
+for(const node of tree) {
+  ...
+}
+```
+
 ## User Input
 
 ## Markup and Classes

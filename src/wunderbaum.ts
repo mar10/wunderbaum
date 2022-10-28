@@ -515,6 +515,21 @@ export class Wunderbaum {
     return null;
   }
 
+  /**
+   * Iterate all nodes depth-first.
+   *
+   * Example:
+   * ```js
+   * for(const node of tree) {
+   *   ...
+   * }
+   * ```
+   */
+
+  *[Symbol.iterator]() {
+    yield* this.root;
+  }
+
   /** @internal */
   protected _registerExtension(extension: WunderbaumExtension): void {
     this.extensionList.push(extension);
