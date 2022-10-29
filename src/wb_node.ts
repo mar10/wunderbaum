@@ -183,6 +183,37 @@ export class WunderbaumNode {
     return `WunderbaumNode@${this.key}<'${this.title}'>`;
   }
 
+  /**
+   * Iterate all descendant nodes depth-first, pre-order using `for ... of ...` syntax.
+   * More concise, but slightly slower than {@link WunderbaumNode.visit}.
+   *
+   * Example:
+   * ```js
+   * for(const n of node) {
+   *   ...
+   * }
+   * ```
+   */
+
+  *[Symbol.iterator](): IterableIterator<WunderbaumNode> {
+    // let node: WunderbaumNode | null = this;
+    const cl = this.children;
+    if (cl) {
+      for (let i = 0, l = cl.length; i < l; i++) {
+        const n = cl[i];
+        yield n;
+        if (n.children) {
+          yield* n;
+        }
+      }
+      // Slower:
+      // for (let node of this.children) {
+      //   yield node;
+      //   yield* node : 0;
+      // }
+    }
+  }
+
   // /** Return an option value. */
   // protected _getOpt(
   //   name: string,
@@ -2042,7 +2073,7 @@ export class WunderbaumNode {
   }
 
   /**
-   * Call fn(node) for all child nodes in hierarchical order (depth-first).
+   * Call `callback(node)` for all child nodes in hierarchical order (depth-first, pre-order).
    *
    * Stop iteration, if fn() returns false. Skip current branch, if fn()
    * returns "skip".<br>
@@ -2051,6 +2082,7 @@ export class WunderbaumNode {
    * @param {function} callback the callback function.
    *     Return false to stop iteration, return "skip" to skip this node and
    *     its children only.
+   * @see {@link WunderbaumNode.*[Symbol.iterator]}, {@link Wunderbaum.visit}.
    */
   visit(
     callback: NodeVisitCallback,
@@ -2076,26 +2108,6 @@ export class WunderbaumNode {
       }
     }
     return res;
-  }
-
-  /**
-   * Iterate all descendant nodes depth-first
-   * Example:
-   * ```js
-   * for(const n of node) {
-   *   ...
-   * }
-   * ```
-   */
-
-  *[Symbol.iterator](): IterableIterator<WunderbaumNode> {
-    // let node: WunderbaumNode | null = this;
-    if (this.children) {
-      for (let node of this.children) {
-        yield node;
-        yield* node;
-      }
-    }
   }
 
   /** Call fn(node) for all parent nodes, bottom-up, including invisible system root.<br>

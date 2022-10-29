@@ -516,7 +516,8 @@ export class Wunderbaum {
   }
 
   /**
-   * Iterate all nodes depth-first.
+   * Iterate all descendant nodes depth-first, pre-order using `for ... of ...` syntax.
+   * More concise, but slightly slower than {@link Wunderbaum.visit}.
    *
    * Example:
    * ```js
@@ -526,7 +527,7 @@ export class Wunderbaum {
    * ```
    */
 
-  *[Symbol.iterator]() {
+  *[Symbol.iterator](): IterableIterator<WunderbaumNode> {
     yield* this.root;
   }
 
@@ -1999,7 +2000,8 @@ export class Wunderbaum {
   }
 
   /**
-   * Call callback(node) for all nodes in hierarchical order (depth-first).
+   * Call `callback(node)` for all nodes in hierarchical order (depth-first, pre-order).
+   * @see {@link Wunderbaum.*[Symbol.iterator]}, {@link WunderbaumNode.visit}.
    *
    * @param {function} callback the callback function.
    *     Return false to stop iteration, return "skip" to skip this node and
