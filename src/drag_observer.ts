@@ -3,7 +3,6 @@
  * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
-import * as util from "./util";
 
 export type DragCallbackArgType = {
   /** "dragstart", "drag", or "dragstop". */
@@ -54,8 +53,10 @@ export class DragObserver {
   protected opts: DragObserverOptionsType;
 
   constructor(opts: DragObserverOptionsType) {
-    util.assert(opts.root);
-    this.opts = util.extend({ thresh: 5 }, opts);
+    if (!opts.root) {
+      throw new Error("Missing `root` option.");
+    }
+    this.opts = Object.assign({ thresh: 5 }, opts);
     this.root = opts.root;
     this._handler = this.handleEvent.bind(this) as EventListener;
     this.events.forEach((type) => {
