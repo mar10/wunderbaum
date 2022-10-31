@@ -615,7 +615,7 @@ declare module "wb_node" {
      */
     import "./wunderbaum.scss";
     import { Wunderbaum } from "wunderbaum";
-    import { AddChildrenOptions, AddNodeType, ApplyCommandType, ChangeType, ExpandAllOptions, MakeVisibleOptions, MatcherCallback, NodeAnyCallback, NodeStatusType, NodeVisitCallback, NodeVisitResponse, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions } from "types";
+    import { AddChildrenOptions, AddNodeType, ApplyCommandType, ChangeType, ExpandAllOptions, MakeVisibleOptions, MatcherCallback, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeVisitCallback, NodeVisitResponse, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions } from "types";
     import { WbNodeData } from "wb_options";
     /**
      * A single tree node.
@@ -680,6 +680,18 @@ declare module "wb_node" {
          * @internal
          */
         toString(): string;
+        /**
+         * Iterate all descendant nodes depth-first, pre-order using `for ... of ...` syntax.
+         * More concise, but slightly slower than {@link WunderbaumNode.visit}.
+         *
+         * Example:
+         * ```js
+         * for(const n of node) {
+         *   ...
+         * }
+         * ```
+         */
+        [Symbol.iterator](): IterableIterator<WunderbaumNode>;
         /** Call event handler if defined in tree.options.
          * Example:
          * ```js
@@ -760,6 +772,28 @@ declare module "wb_node" {
          * @see {@link Wunderbaum.findRelatedNode|tree.findRelatedNode()}
          */
         findRelatedNode(where: string, includeHidden?: boolean): any;
+        /**
+         * Iterator version of {@link WunderbaumNode.format}.
+         */
+        format_iter(name_cb?: NodeStringCallback, connectors?: string[]): IterableIterator<string>;
+        /**
+         * Return multiline string representation of a node/subnode hierarchy.
+         * Mostly useful for debugging.
+         *
+         * Example:
+         * ```js
+         * console.info(tree.getActiveNode().format((n)=>n.title));
+         * ```
+         * logs
+         * ```
+         * Books
+         *  ├─ Art of War
+         *  ╰─ Don Quixote
+         * ...
+         * ```
+         * @see {@link WunderbaumNode.format_iter}
+         */
+        format(name_cb?: NodeStringCallback, connectors?: string[]): string;
         /** Return the `<span class='wb-col'>` element with a given index or id.
          * @returns {WunderbaumNode | null}
          */
@@ -897,7 +931,7 @@ declare module "wb_node" {
         /** Remove all HTML markup from the DOM. */
         removeMarkup(): void;
         protected _getRenderInfo(): any;
-        protected _createIcon(parentElem: HTMLElement, replaceChild?: HTMLElement): HTMLElement | null;
+        protected _createIcon(parentElem: HTMLElement, replaceChild: HTMLElement | null, showLoading: boolean): HTMLElement | null;
         /**
          * Create a whole new `<div class="wb-row">` element.
          * @see {@link WunderbaumNode.render}
@@ -919,11 +953,14 @@ declare module "wb_node" {
          *
          * `options.change` defaults to ChangeType.data, which updates the title,
          * icon, and status. It also triggers the `render` event, that lets the user
-         * create or update the content of embeded cell elements.<br>
+         * create or update the content of embeded cell elements.
          *
          * If only the status or other class-only modifications have changed,
          * `options.change` should be set to ChangeType.status instead for best
          * efficiency.
+         *
+         * Calling `setModified` instead may be a better alternative.
+         * @see {@link WunderbaumNode.setModified}
          */
         render(options?: any): void;
         /**
@@ -1006,7 +1043,7 @@ declare module "wb_node" {
          */
         triggerModify(operation: string, extra?: any): void;
         /**
-         * Call fn(node) for all child nodes in hierarchical order (depth-first).
+         * Call `callback(node)` for all child nodes in hierarchical order (depth-first, pre-order).
          *
          * Stop iteration, if fn() returns false. Skip current branch, if fn()
          * returns "skip".<br>
@@ -1015,6 +1052,7 @@ declare module "wb_node" {
          * @param {function} callback the callback function.
          *     Return false to stop iteration, return "skip" to skip this node and
          *     its children only.
+         * @see {@link WunderbaumNode.*[Symbol.iterator]}, {@link Wunderbaum.visit}.
          */
         visit(callback: NodeVisitCallback, includeSelf?: boolean): NodeVisitResponse;
         /** Call fn(node) for all parent nodes, bottom-up, including invisible system root.<br>
@@ -1054,6 +1092,7 @@ declare module "types" {
     /** When set as option, called when the value is needed (e.g. `icon` type definition). */
     export type BoolOrStringOptionResolver = (node: WunderbaumNode) => boolean | string;
     export type NodeAnyCallback = (node: WunderbaumNode) => any;
+    export type NodeStringCallback = (node: WunderbaumNode) => string;
     export type NodeVisitResponse = "skip" | boolean | void;
     export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
     export interface WbTreeEventType {
@@ -1660,6 +1699,11 @@ declare module "wb_ext_dnd" {
     }
 }
 declare module "drag_observer" {
+    /*!
+     * Wunderbaum - drag_observer
+     * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
+     * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
+     */
     export type DragCallbackArgType = {
         /** "dragstart", "drag", or "dragstop". */
         type: string;
@@ -1783,7 +1827,7 @@ declare module "wunderbaum" {
     import "./wunderbaum.scss";
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavigationOptions, NodeStatusType, NodeTypeDefinitions, ScrollToOptions, SetActiveOptions, SetStatusOptions, TargetType as NodeRegion } from "types";
+    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavigationOptions, NodeStatusType, NodeStringCallback, NodeTypeDefinitions, ScrollToOptions, SetActiveOptions, SetStatusOptions, TargetType as NodeRegion } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     /**
@@ -1868,6 +1912,18 @@ declare module "wunderbaum" {
          * Return a WunderbaumNode instance from element or event.
          */
         static getNode(el: Element | Event): WunderbaumNode | null;
+        /**
+         * Iterate all descendant nodes depth-first, pre-order using `for ... of ...` syntax.
+         * More concise, but slightly slower than {@link Wunderbaum.visit}.
+         *
+         * Example:
+         * ```js
+         * for(const node of tree) {
+         *   ...
+         * }
+         * ```
+         */
+        [Symbol.iterator](): IterableIterator<WunderbaumNode>;
         /** @internal */
         protected _registerExtension(extension: WunderbaumExtension): void;
         /** Called on tree (re)init after markup is created, before loading. */
@@ -2001,6 +2057,31 @@ declare module "wunderbaum" {
          */
         findRelatedNode(node: WunderbaumNode, where: string, includeHidden?: boolean): any;
         /**
+         * Iterator version of {@link Wunderbaum.format}.
+         */
+        format_iter(name_cb?: NodeStringCallback, connectors?: string[]): IterableIterator<string>;
+        /**
+         * Return multiline string representation of the node hierarchy.
+         * Mostly useful for debugging.
+         *
+         * Example:
+         * ```js
+         * console.info(tree.format((n)=>n.title));
+         * ```
+         * logs
+         * ```
+         * Playground
+         * ├─ Books
+         * |   ├─ Art of War
+         * |   ╰─ Don Quixote
+         * ├─ Music
+         * ...
+         * ```
+         *
+         * @see {@link Wunderbaum.format_iter} and {@link WunderbaumNode.format}.
+         */
+        format(name_cb?: NodeStringCallback, connectors?: string[]): string;
+        /**
          * Return the active cell (`span.wb-col`) of the currently active node or null.
          */
         getActiveColElem(): HTMLSpanElement;
@@ -2083,7 +2164,9 @@ declare module "wunderbaum" {
         setFocus(flag?: boolean): void;
         /** Schedule an update request to reflect a tree change. */
         setModified(change: ChangeType, options?: any): void;
-        /** Schedule an update request to reflect a single node modification. */
+        /** Schedule an update request to reflect a single node modification.
+         * @see {@link WunderbaumNode.setModified}
+         */
         setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
         /** Disable mouse and keyboard interaction (return prev. state). */
         setEnabled(flag?: boolean): boolean;
@@ -2132,7 +2215,8 @@ declare module "wunderbaum" {
         protected _updateViewportImmediately(): void;
         protected _updateRows(options?: any): boolean;
         /**
-         * Call callback(node) for all nodes in hierarchical order (depth-first).
+         * Call `callback(node)` for all nodes in hierarchical order (depth-first, pre-order).
+         * @see {@link Wunderbaum.*[Symbol.iterator]}, {@link WunderbaumNode.visit}.
          *
          * @param {function} callback the callback function.
          *     Return false to stop iteration, return "skip" to skip this node and
