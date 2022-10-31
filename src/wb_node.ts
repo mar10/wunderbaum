@@ -19,6 +19,7 @@ import {
   MatcherCallback,
   NodeAnyCallback,
   NodeStatusType,
+  NodeStringCallback,
   NodeVisitCallback,
   NodeVisitResponse,
   ScrollIntoViewOptions,
@@ -542,6 +543,65 @@ export class WunderbaumNode {
    */
   findRelatedNode(where: string, includeHidden = false) {
     return this.tree.findRelatedNode(this, where, includeHidden);
+  }
+
+  /**
+   * Iterator version of {@link WunderbaumNode.format}.
+   */
+  *format_iter(
+    name_cb?: NodeStringCallback,
+    connectors?: string[]
+  ): IterableIterator<string> {
+    connectors ??= ["    ", " |  ", " ╰─ ", " ├─ "];
+    name_cb ??= (node: WunderbaumNode) => "" + node;
+
+    function _is_last(node: WunderbaumNode): boolean {
+      const ca = node.parent.children!;
+      return node === ca[ca.length - 1];
+    }
+
+    const _format_line = (node: WunderbaumNode) => {
+      // https://www.measurethat.net/Benchmarks/Show/12196/0/arr-unshift-vs-push-reverse-small-array
+      const parts = [name_cb!(node)];
+      parts.unshift(connectors![_is_last(node) ? 2 : 3]);
+      let p = node.parent;
+      while (p && p !== this) {
+        // `this` is the top node
+        parts.unshift(connectors![_is_last(p) ? 0 : 1]);
+        p = p.parent;
+      }
+      return parts.join("");
+    };
+
+    yield name_cb(this);
+    for (let node of this) {
+      yield _format_line(node);
+    }
+  }
+
+  /**
+   * Return multiline string representation of a node/subnode hierarchy.
+   * Mostly useful for debugging.
+   *
+   * Example:
+   * ```js
+   * console.info(tree.getActiveNode().format((n)=>n.title));
+   * ```
+   * logs
+   * ```
+   * Books
+   *  ├─ Art of War
+   *  ╰─ Don Quixote
+   * ...
+   * ```
+   * @see {@link WunderbaumNode.format_iter}
+   */
+  format(name_cb?: NodeStringCallback, connectors?: string[]): string {
+    const a = [];
+    for (let line of this.format_iter(name_cb, connectors)) {
+      a.push(line);
+    }
+    return a.join("\n");
   }
 
   /** Return the `<span class='wb-col'>` element with a given index or id.
@@ -1647,11 +1707,14 @@ export class WunderbaumNode {
    *
    * `options.change` defaults to ChangeType.data, which updates the title,
    * icon, and status. It also triggers the `render` event, that lets the user
-   * create or update the content of embeded cell elements.<br>
+   * create or update the content of embeded cell elements.
    *
    * If only the status or other class-only modifications have changed,
    * `options.change` should be set to ChangeType.status instead for best
    * efficiency.
+   *
+   * Calling `setModified` instead may be a better alternative.
+   * @see {@link WunderbaumNode.setModified}
    */
   render(options?: any) {
     // this.log("render", options);

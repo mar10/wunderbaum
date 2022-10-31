@@ -93,6 +93,8 @@ input.wb-input-edit {}
 span.wb-col.wb-busy {}
 span.wb-col.wb-error {}
 span.wb-col input:invalid {}
+wb-tristate
+
 ```
 
 ### Code Hacks

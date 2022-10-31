@@ -281,6 +281,7 @@ div.wunderbaum {
     position: absolute;
     display: inline-block;
     // text-overflow: ellipsis;
+    overflow: hidden;
     height: $row-inner-height;
     line-height: $row-inner-height;
     padding: 0 $col-padding-x;
@@ -506,6 +507,16 @@ div.wunderbaum {
       }
     }
   }
+
+  // div.wb-row.wb-drop-target.wb-drop-after .wb-node {
+  //   border-bottom: 1px dotted #b5373b;
+  //   translate: 0 3px;
+  // }
+  // div.wb-row.wb-drop-target.wb-drop-before .wb-node,
+  // div.wb-row.wb-drop-target.wb-drop-after + div.wb-row .wb-node {
+  //   border-top: 1px dotted #b5373b;
+  //   translate: 0 -3px;
+  // }
 
   div.wb-row.wb-drop-target.wb-drop-before .wb-node .wb-icon::after {
     content: url(../docs/assets/drop_marker_insert_16x64.png);

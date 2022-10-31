@@ -228,6 +228,8 @@ function reconfigureTree(tag = null) {
 
   demoTree?.destroy();
 
+  demoTree?.element.classList.add("wb-initializing");
+
   const url = `./${tag}.js`;
   navTree.setActiveNode(tag)
 

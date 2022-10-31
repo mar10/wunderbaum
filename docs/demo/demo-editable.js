@@ -76,11 +76,11 @@ new mar10.Wunderbaum({
   ],
 
   edit: {
-    trigger: ["clickActive", "F2", "macEnter"],
+    trigger: ["clickActive", "F2"],// "macEnter"],
     select: true,
     beforeEdit: function (e) {
       // console.log(e.type, e);
-      return e.node.type === "person";
+      // return e.node.type === "person";
     },
     edit: function (e) {
       console.log(e.type, e);

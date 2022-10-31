@@ -26,8 +26,8 @@ const tree = new Wunderbaum({
   // source: "generator/ajax_1k_3_54 t_c.json",
   // source: "generator/fixture_department_1k_3_6_flat_comp.json",
   // source: "generator/fixture_department_1k_3_6_comp.json",
-  // source: "../docs/assets/ajax-tree-products.json",
-  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+  source: "../docs/assets/ajax-tree-products.json",
+  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "generator/fixture.json",
   // source: (e)=>{
@@ -186,6 +186,10 @@ document.querySelectorAll(".demo-btn").forEach((elem)=>{
           loadLazy: true,
           depth: 5,
         });
+        break;
+      case "test1":
+        // console.info(tree.getActiveNode()._format_line(tree.root));
+        console.info((tree.getActiveNode() || tree.root).format((n)=>n.title));
         break;
     }
   });

@@ -28,6 +28,7 @@ import {
   MatcherCallback,
   NavigationOptions,
   NodeStatusType,
+  NodeStringCallback,
   NodeTypeDefinitions,
   ScrollToOptions,
   SetActiveOptions,
@@ -1199,6 +1200,40 @@ export class Wunderbaum {
   }
 
   /**
+   * Iterator version of {@link Wunderbaum.format}.
+   */
+  *format_iter(
+    name_cb?: NodeStringCallback,
+    connectors?: string[]
+  ): IterableIterator<string> {
+    return this.root.format_iter(name_cb, connectors);
+  }
+
+  /**
+   * Return multiline string representation of the node hierarchy.
+   * Mostly useful for debugging.
+   *
+   * Example:
+   * ```js
+   * console.info(tree.format((n)=>n.title));
+   * ```
+   * logs
+   * ```
+   * Playground
+   * ├─ Books
+   * |   ├─ Art of War
+   * |   ╰─ Don Quixote
+   * ├─ Music
+   * ...
+   * ```
+   *
+   * @see {@link Wunderbaum.format_iter} and {@link WunderbaumNode.format}.
+   */
+  format(name_cb?: NodeStringCallback, connectors?: string[]): string {
+    return this.root.format(name_cb, connectors);
+  }
+
+  /**
    * Return the active cell (`span.wb-col`) of the currently active node or null.
    */
   getActiveColElem() {
@@ -1522,7 +1557,9 @@ export class Wunderbaum {
   /** Schedule an update request to reflect a tree change. */
   setModified(change: ChangeType, options?: any): void;
 
-  /** Schedule an update request to reflect a single node modification. */
+  /** Schedule an update request to reflect a single node modification.
+   * @see {@link WunderbaumNode.setModified}
+   */
   setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
 
   setModified(

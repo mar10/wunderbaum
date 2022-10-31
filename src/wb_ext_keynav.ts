@@ -130,7 +130,10 @@ export class KeynavExtension extends WunderbaumExtension {
         case "ArrowRight":
           if (!node.expanded && (node.children || node.lazy)) {
             eventName = "Add"; // expand
-          } else if (navModeOption === NavigationOptions.startRow) {
+          } else if (
+            navModeOption === NavigationOptions.startCell ||
+            navModeOption === NavigationOptions.startRow
+          ) {
             tree.setCellNav();
             return;
           }

@@ -54,7 +54,7 @@ Also children of collapsed parent nodes don't have HTML elements.<br>
 This concept allows to hold a _huge_ data model (100k+ nodes) in the frontend,
 while only having a few HTML elements materialized in the DOM.
 Developers should not manipulate the html directly, but change the data model
-and then call `node.render()` if needed.<br>
+and then call `setModified()` if needed.<br>
 Due to lazy rendering, it is not possible to bind events to all node HTML
 elements directly. However this is rarely necessary, since Wunderbaum offers
 event handlers like `click`, `dblclick`, and `keypress`.

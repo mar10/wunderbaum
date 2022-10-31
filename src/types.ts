@@ -17,6 +17,7 @@ export type BoolOrStringOptionResolver = (
 ) => boolean | string;
 
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
+export type NodeStringCallback = (node: WunderbaumNode) => string;
 
 export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
