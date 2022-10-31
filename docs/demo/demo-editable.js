@@ -15,7 +15,8 @@ new mar10.Wunderbaum({
   connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
   // fixedCol: true,
-  navigationModeOption: "cell",
+  navigationModeOption: "startRow",
+  // navigationModeOption: "cell",
 
   // The JSON only contains a list of nested node dicts, but no types or 
   // column definitions:

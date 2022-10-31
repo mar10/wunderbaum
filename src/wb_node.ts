@@ -580,7 +580,7 @@ export class WunderbaumNode {
   }
 
   /**
-   * Return multiline string representation of a node/subnode hierarchy.
+   * Return a multiline string representation of a node/subnode hierarchy.
    * Mostly useful for debugging.
    *
    * Example:
@@ -592,7 +592,6 @@ export class WunderbaumNode {
    * Books
    *  ├─ Art of War
    *  ╰─ Don Quixote
-   * ...
    * ```
    * @see {@link WunderbaumNode.format_iter}
    */
