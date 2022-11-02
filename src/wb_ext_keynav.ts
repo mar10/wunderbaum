@@ -134,8 +134,9 @@ export class KeynavExtension extends WunderbaumExtension {
             navModeOption === NavigationOptions.startCell ||
             navModeOption === NavigationOptions.startRow
           ) {
+            event.preventDefault();
             tree.setCellNav();
-            return;
+            return false;
           }
           break;
       }
