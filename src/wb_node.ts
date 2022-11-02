@@ -736,11 +736,18 @@ export class WunderbaumNode {
     return this.tree.activeNode === this;
   }
 
-  /** Return true if this node is a *direct* child of `other`.
+  /** Return true if this node is a direct or indirect parent of `other`.
+   * (See also [[isParentOf]].)
+   */
+  isAncestorOf(other: WunderbaumNode) {
+    return other && other.isDescendantOf(this);
+  }
+
+  /** Return true if this node is a **direct** subnode of `other`.
    * (See also [[isDescendantOf]].)
    */
   isChildOf(other: WunderbaumNode) {
-    return this.parent && this.parent === other;
+    return other && this.parent === other;
   }
 
   /** Return true if this node's title spans all columns, i.e. the node has no
@@ -750,7 +757,7 @@ export class WunderbaumNode {
     return !!this.getOption("colspan");
   }
 
-  /** Return true if this node is a direct or indirect sub node of `other`.
+  /** Return true if this node is a direct or indirect subnode of `other`.
    * (See also [[isChildOf]].)
    */
   isDescendantOf(other: WunderbaumNode) {
@@ -763,7 +770,7 @@ export class WunderbaumNode {
         return true;
       }
       if (p === p.parent) {
-        util.error("Recursive parent link: " + p);
+        util.error(`Recursive parent link: ${p}`);
       }
       p = p.parent;
     }
@@ -819,6 +826,13 @@ export class WunderbaumNode {
   /** Return true if this node is a temporarily generated status node of type 'paging'. */
   isPagingNode(): boolean {
     return this.statusNodeType === "paging";
+  }
+
+  /** Return true if this node is a **direct** parent of `other`.
+   * (See also [[isAncestorOf]].)
+   */
+  isParentOf(other: WunderbaumNode) {
+    return other && other.parent === this;
   }
 
   /** (experimental) Return true if this node is partially loaded. */
