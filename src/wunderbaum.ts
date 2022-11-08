@@ -357,10 +357,6 @@ export class Wunderbaum {
       // this.log("scroll", e);
       this.setModified(ChangeType.vscroll);
     });
-    // this.scrollContainerElement.addEventListener("scroll", (e: Event) => {
-    //   this.log("scroll", e)
-    //   this.setModified(ChangeType.vscroll);
-    // });
 
     this.resizeObserver = new ResizeObserver((entries) => {
       this.setModified(ChangeType.vscroll);
@@ -373,16 +369,6 @@ export class Wunderbaum {
       const node = info.node;
       // this.log("click", info, e);
 
-      // if( (e.target as HTMLElement).matches("input[type=checkbox]")){
-      //   // Click on an embedded checkbox triggers a change event.
-      //   // We return here, before the `setActive()` performs a render
-      //   this.log("click - cb", info, e);
-      //   // e.preventDefault()
-      //   setTimeout(()=>{
-      //     // (e.target as HTMLElement).click()
-      //   }, 50)
-      //   // return
-      // }
       if (
         this._callEvent("click", { event: e, node: node, info: info }) === false
       ) {
@@ -415,6 +401,22 @@ export class Wunderbaum {
         }
       }
       this.lastClickTime = Date.now();
+    });
+
+    util.onEvent(this.nodeListElement, "dblclick", "div.wb-row", (e) => {
+      const info = Wunderbaum.getEventInfo(e);
+      const node = info.node;
+      // this.log("dblclick", info, e);
+
+      if (
+        this._callEvent("dblclick", { event: e, node: node, info: info }) ===
+        false
+      ) {
+        return false;
+      }
+      if (node && info.colIdx === 0 && node.isExpandable()) {
+        node.setExpanded(!node.isExpanded());
+      }
     });
 
     util.onEvent(this.element, "keydown", (e) => {
