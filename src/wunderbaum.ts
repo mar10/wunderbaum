@@ -1481,9 +1481,6 @@ export class Wunderbaum {
     const fixedWidth = this.columns[0]._widthPx!;
     const vpWidth = this.element.clientWidth;
     const scrollLeft = this.element.scrollLeft;
-    // if (scrollLeft <= 0) {
-    //   return; // Not scrolled horizontally: Nothing to do
-    // }
     const colElem = this.getActiveColElem()!;
     const colLeft = Number.parseInt(colElem?.style.left, 10);
     const colRight = colLeft + Number.parseInt(colElem?.style.width, 10);
@@ -1496,13 +1493,13 @@ export class Wunderbaum {
       // The current column is scrolled outside the right side
       newLeft = colRight - vpWidth;
     }
+    newLeft = Math.max(0, newLeft);
     // util.assert(node._rowIdx != null);
-    // this.log(
-    //   `scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`
-    // );
+    this.log(
+      `scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`
+    );
     this.element.scrollLeft = newLeft;
     // this.setModified(ChangeType.vscroll);
-    // }
   }
   /**
    * Set column #colIdx to 'active'.
