@@ -77,13 +77,13 @@ export interface WbRenderEventType extends WbNodeEventType {
 export interface NodeTypeDefinition {
   // /** Type ID that matches `node.type`. */
   // id: string;
-  /** En/disable checkbox for matching nodes.*/
+  /** En/disable checkbox for matching nodes. */
   checkbox?: boolean | BoolOrStringOptionResolver;
-  /** En/disable checkbox for matching nodes.*/
-  colspan?: boolean | BoolOptionResolver;
-  /** Optional class names that are added to all `div.wb-row` elements of matching nodes.*/
+  /** Optional class names that are added to all `div.wb-row` elements of matching nodes. */
   classes?: string;
-  /**Default icon for matching nodes.*/
+  /** Only show title and hide other columns if any. */
+  colspan?: boolean | BoolOptionResolver;
+  /** Default icon for matching nodes. */
   icon?: boolean | string | BoolOrStringOptionResolver;
   /**
    * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}

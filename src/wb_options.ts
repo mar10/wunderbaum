@@ -22,6 +22,7 @@ export interface WbNodeData {
   expanded?: boolean;
   selected?: boolean;
   checkbox?: boolean | string;
+  colspan?: boolean;
   children?: Array<WbNodeData>;
   // ...any?: Any;
 }

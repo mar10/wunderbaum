@@ -1834,6 +1834,9 @@ export class Wunderbaum {
         resizer = '<span class="wb-col-resizer"></span>';
       }
       colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
+      if (this.isCellNav()) {
+        colElem.classList.toggle("wb-active", i === this.activeColIdx);
+      }
     }
   }
 

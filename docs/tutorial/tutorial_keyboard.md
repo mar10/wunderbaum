@@ -1,7 +1,5 @@
 # Keyboard Navigation
 
-!> This chapter is outdated!
-
 ?> See also the [General Overview](/tutorial/overview.md).
 
 The option `keyboard: true` should be used to control if standard keyboard
@@ -14,10 +12,15 @@ We distinguish node states 'focused', 'active', and 'selected'.<br>
 is enabled (which is on by default), the node also gets activated.<br>
 A node becomes 'selected', when the checkbox is checked.
 
-A tree can have one of three navigation modes. Use <kbd>Enter</kbd>/<kbd>Esc</kbd>
+A tree can have one of two navigation modes. Use <kbd>Enter</kbd>/<kbd>Esc</kbd>
 to toggle:
 
-*Row Mode* &harr; *Cell-Nav Mode* &harr; *Cell-Edit Mode*
+*Row Mode* &harr; *Cell-Nav Mode*
+
+The initial mode, and if both modes are available, is controlled by the 
+`navigationModeOption` option.<br>
+If the tree only has one column, row-mode is obligatory.
+
 
 ### Navigation in **Row Mode**
 
@@ -145,8 +148,6 @@ are present, always the whole row is highlighted.
 In this mode we navigate the grid cells in read-only mode mostly.
 Only in some special cases a cell content is edited directly. For example
 <kbd>Space</kbd> toggles an embedded checkbox.
-
-
 
 <table>
 <thead>
