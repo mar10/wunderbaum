@@ -9,8 +9,17 @@ import {
   ColumnDefinitionList,
   DndOptionsType,
   NavigationOptions,
-  NodeTypeDefinitions,
+  NodeTypeDefinitionMap,
+  WbActivateEventType,
+  WbChangeEventType,
+  WbClickEventType,
+  WbDeactivateEventType,
+  WbEnhanceTitleEventType,
+  WbErrorEventType,
+  WbInitEventType,
+  WbKeydownEventType,
   WbNodeEventType,
+  WbReceiveEventType,
   WbRenderEventType,
   WbTreeEventType,
 } from "./types";
@@ -83,7 +92,7 @@ export interface WunderbaumOptions {
    *
    * Default: `{}`.
    */
-  types?: NodeTypeDefinitions; // { [key: string]: NodeTypeDefinition };
+  types?: NodeTypeDefinitionMap; // { [key: string]: NodeTypeDefinition };
   /**
    * A list of maps that define column headers. If this option is set,
    * Wunderbaum becomes a treegrid control instead of a plain tree.
@@ -188,32 +197,36 @@ export interface WunderbaumOptions {
    *
    * @category Callback
    */
-  activate?: (e: WbNodeEventType) => void;
-  /**
-   *
-   * @category Callback
-   */
-  change?: (e: WbNodeEventType) => void;
+  activate?: (e: WbActivateEventType) => void;
   /**
    *
    * Return `false` to prevent default handling, e.g. activating the node.
    * @category Callback
    */
-  click?: (e: WbTreeEventType) => void;
+  beforeActivate?: (e: WbActivateEventType) => void;
+  /**
+   *
+   * @category Callback
+   */
+  change?: (e: WbChangeEventType) => void;
   /**
    *
    * Return `false` to prevent default handling, e.g. activating the node.
    * @category Callback
    */
-  beforeActivate?: (e: WbNodeEventType) => void;
+  click?: (e: WbClickEventType) => void;
   /**
+   *
+   * @category Callback
+   */
+  dblclick?: (e: WbClickEventType) => void;
   /**
    *
    * Return `false` to prevent default handling, e.g. deactivating the node
    * and activating the next.
    * @category Callback
    */
-  deactivate?: (e: WbNodeEventType) => void;
+  deactivate?: (e: WbDeactivateEventType) => void;
   /**
    *
    * @category Callback
@@ -223,12 +236,12 @@ export interface WunderbaumOptions {
    *
    * @category Callback
    */
-  enhanceTitle?: (e: WbNodeEventType) => void;
+  enhanceTitle?: (e: WbEnhanceTitleEventType) => void;
   /**
    *
    * @category Callback
    */
-  error?: (e: WbTreeEventType) => void;
+  error?: (e: WbErrorEventType) => void;
   /**
    *
    * Check `e.flag` for status.
@@ -242,12 +255,12 @@ export interface WunderbaumOptions {
    * Check `e.error` for status.
    * @category Callback
    */
-  init?: (e: WbTreeEventType) => void;
+  init?: (e: WbInitEventType) => void;
   /**
    *
    * @category Callback
    */
-  keydown?: (e: WbNodeEventType) => void;
+  keydown?: (e: WbKeydownEventType) => void;
   /**
    * Fires when a node that was marked 'lazy', is expanded for the first time.
    * Typically we return an endpoint URL or the Promise of a fetch request that
@@ -272,7 +285,7 @@ export interface WunderbaumOptions {
    * external response to native Wunderbaum syntax.
    * @category Callback
    */
-  receive?: (e: WbNodeEventType) => void;
+  receive?: (e: WbReceiveEventType) => void;
   /**
    * Fires when a node is about to be displayed.
    * The default HTML markup is already created, but not yet added to the DOM.
@@ -286,7 +299,7 @@ export interface WunderbaumOptions {
    *
    * @category Callback
    */
-  renderStatusNode?: (e: WbNodeEventType) => void;
+  renderStatusNode?: (e: WbRenderEventType) => void;
   /**
    *
    * Check `e.flag` for status.

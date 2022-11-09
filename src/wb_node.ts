@@ -13,7 +13,7 @@ import {
   AddNodeType,
   ApplyCommandType,
   ChangeType,
-  ColumnEventInfos,
+  ColumnEventInfoMap,
   ExpandAllOptions,
   MakeVisibleOptions,
   MatcherCallback,
@@ -1347,8 +1347,8 @@ export class WunderbaumNode {
   }
 
   protected _getRenderInfo(): any {
-    const allColInfosById: ColumnEventInfos = {};
-    const renderColInfosById: ColumnEventInfos = {};
+    const allColInfosById: ColumnEventInfoMap = {};
+    const renderColInfosById: ColumnEventInfoMap = {};
     const isColspan = this.isColspan();
 
     const colElems = this._rowElem
@@ -1622,6 +1622,7 @@ export class WunderbaumNode {
       this._callEvent("renderStatusNode", {
         isNew: isNew,
         nodeElem: nodeElem,
+        isColspan: isColspan,
       });
     } else if (this.parent) {
       // Skip root node
@@ -1629,9 +1630,8 @@ export class WunderbaumNode {
 
       this._callEvent("render", {
         isNew: isNew,
-        isColspan: isColspan,
-        // isDataChange: true,
         nodeElem: nodeElem,
+        isColspan: isColspan,
         allColInfosById: renderInfo.allColInfosById,
         renderColInfosById: renderInfo.renderColInfosById,
       });
@@ -1902,11 +1902,11 @@ export class WunderbaumNode {
           if (
             prev?._callEvent("deactivate", {
               nextNode: this,
-              orgEvent: orgEvent,
+              event: orgEvent,
             }) === false ||
             this._callEvent("beforeActivate", {
               prevNode: prev,
-              orgEvent: orgEvent,
+              event: orgEvent,
             }) === false
           ) {
             return;
@@ -1915,7 +1915,7 @@ export class WunderbaumNode {
           prev?.setModified(ChangeType.status);
         }
       } else if (prev === this || retrigger) {
-        this._callEvent("deactivate", { nextNode: null, orgEvent: orgEvent });
+        this._callEvent("deactivate", { nextNode: null, event: orgEvent });
       }
     }
 
@@ -1937,7 +1937,7 @@ export class WunderbaumNode {
       tree.setColumn(options.colIdx);
     }
     if (flag && !noEvents) {
-      this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
+      this._callEvent("activate", { prevNode: prev, event: orgEvent });
     }
     return this.makeVisible();
   }

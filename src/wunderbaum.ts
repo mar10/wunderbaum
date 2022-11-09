@@ -29,12 +29,13 @@ import {
   NavigationOptions,
   NodeStatusType,
   NodeStringCallback,
-  NodeTypeDefinitions,
+  NodeTypeDefinitionMap,
   ScrollToOptions,
   SetActiveOptions,
   SetModifiedOptions,
   SetStatusOptions,
-  TargetType as NodeRegion,
+  NodeRegion,
+  WbEventInfo,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -104,7 +105,7 @@ export class Wunderbaum {
   public focusNode: WunderbaumNode | null = null;
 
   /** Shared properties, referenced by `node.type`. */
-  public types: NodeTypeDefinitions = {};
+  public types: NodeTypeDefinitionMap = {};
   /** List of column definitions. */
   public columns: ColumnDefinitionList = []; // any[] = [];
 
@@ -1272,14 +1273,14 @@ export class Wunderbaum {
    * @returns {object} Return a {node: WunderbaumNode, region: TYPE} object
    *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
    */
-  static getEventInfo(event: Event) {
+  static getEventInfo(event: Event): WbEventInfo {
     let target = <Element>event.target,
       cl = target.classList,
       parentCol = target.closest("span.wb-col") as HTMLSpanElement,
       node = Wunderbaum.getNode(target),
       tree = node ? node.tree : Wunderbaum.getTree(event),
-      res = {
-        tree: tree,
+      res: WbEventInfo = {
+        tree: tree!,
         node: node,
         region: NodeRegion.unknown,
         colDef: undefined,
@@ -1325,15 +1326,6 @@ export class Wunderbaum {
     // this.log("Event", event, res);
     return res;
   }
-
-  // /** Return a string describing the affected node region for a mouse event.
-  //  *
-  //  * @param {Event} event Mouse event, e.g. click, mousemove, ...
-  //  * @returns {string} 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
-  //  */
-  // getEventNodeRegion(event: Event) {
-  //   return this.getEventInfo(event).region;
-  // }
 
   /**
    * Return readable string representation for this instance.

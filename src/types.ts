@@ -26,8 +26,10 @@ export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 export interface WbTreeEventType {
   /** Name of the event. */
   type: string;
-  /** The affected tree. */
+  /** The affected tree instance. */
   tree: Wunderbaum;
+  /** Exposed utility module methods. */
+  util: any;
   /** Originating HTML event, e.g. `click` if any. */
   event?: Event;
   // [key: string]: unknown;
@@ -43,6 +45,63 @@ export interface WbNodeEventType extends WbTreeEventType {
   typeInfo: NodeTypeDefinition;
 }
 
+export interface WbActivateEventType extends WbNodeEventType {
+  prevNode: WunderbaumNode;
+  /** The original event. */
+  event: Event;
+}
+
+export interface WbChangeEventType extends WbNodeEventType {
+  info: WbEventInfo;
+  inputElem: HTMLInputElement;
+  inputValue: any;
+}
+
+export interface WbClickEventType extends WbTreeEventType {
+  /** The original event. */
+  event: MouseEvent;
+  node: WunderbaumNode;
+  info: WbEventInfo;
+}
+
+export interface WbErrorEventType extends WbNodeEventType {
+  error: any;
+}
+
+export interface WbDeactivateEventType extends WbNodeEventType {
+  nextNode: WunderbaumNode;
+  /** The original event. */
+  event: Event;
+}
+
+export interface WbEnhanceTitleEventType extends WbNodeEventType {
+  titleSpan: HTMLSpanElement;
+}
+
+export interface WbFocusEventType extends WbTreeEventType {
+  /** The original event. */
+  event: FocusEvent;
+  /** True if `focusin`, false if `focusout`. */
+  flag: boolean;
+}
+
+export interface WbKeydownEventType extends WbTreeEventType {
+  /** The original event. */
+  event: KeyboardEvent;
+  node: WunderbaumNode;
+  info: WbEventInfo;
+  /** Canical name of the key including modifiers. @see {@link eventToString} */
+  eventName: string;
+}
+
+export interface WbInitEventType extends WbTreeEventType {
+  error?: any;
+}
+
+export interface WbReceiveEventType extends WbNodeEventType {
+  response: any;
+}
+
 export interface WbRenderEventType extends WbNodeEventType {
   /**
    * True if the node's markup was not yet created. In this case the render
@@ -50,24 +109,22 @@ export interface WbRenderEventType extends WbNodeEventType {
    * values according to to current node data).
    */
   isNew: boolean;
-  /** True if the node only displays the title and is stretched over all remaining columns. */
-  isColspan: boolean;
-  // /** */
-  // isDataChange: boolean;
   /** The node's `<span class='wb-node'>` element. */
   nodeElem: HTMLSpanElement;
+  /** True if the node only displays the title and is stretched over all remaining columns. */
+  isColspan: boolean;
   /**
    * Array of node's `<span class='wb-col'>` elements.
    * The first element is `<span class='wb-node wb-col'>`, which contains the
    * node title and icon (`idx: 0`, id: '*'`).
    */
-  allColInfosById: ColumnEventInfos;
+  allColInfosById: ColumnEventInfoMap;
   /**
    * Array of node's `<span class='wb-node'>` elements, *that should be rendered*.
    * In contrast to `allColInfosById`, the node title is not part of this array.
    * If node.isColspan() is true, this array is empty (`[]`).
    */
-  renderColInfosById: ColumnEventInfos;
+  renderColInfosById: ColumnEventInfoMap;
 }
 
 /**
@@ -94,26 +151,15 @@ export interface NodeTypeDefinition {
   // _any: any;
 }
 
-// /**
-//  * Contains the node's type information, i.e. `tree.types[node.type]` if
-//  * defined. @see {@link Wunderbaum.types}
-//  */
-// export type NodeTypeInfo = {
-//   icon?: string;
-//   classes?: string;
-//   // and more
-//   [key: string]: unknown;
-// };
-export type NodeTypeDefinitions = { [type: string]: NodeTypeDefinition };
+export type NodeTypeDefinitionMap = { [type: string]: NodeTypeDefinition };
 
 /**
+ * Column type definitions.
  * @see {@link `Wunderbaum.columns`}
  */
 export interface ColumnDefinition {
   /** Column ID as defined in `tree.columns` definition ("*" for title column). */
   id: string;
-  // /** */
-  // idx: number;
   /** Column header (defaults to id) */
   title: string;
   /** Column header tooltip (optional) */
@@ -137,8 +183,12 @@ export interface ColumnDefinition {
   _widthPx?: number;
   _ofsPx?: number;
 }
+
 export type ColumnDefinitionList = Array<ColumnDefinition>;
 
+/**
+ * Column information (passed to the `render` event).
+ */
 export interface ColumnEventInfo {
   /** Column ID as defined in `tree.columns` definition ("*" for title column). */
   id: string;
@@ -149,11 +199,33 @@ export interface ColumnEventInfo {
   /** The value of `tree.columns[]` for the current index. */
   info: ColumnDefinition;
 }
-export type ColumnEventInfos = { [colId: string]: ColumnEventInfo };
 
-export type WbTreeCallbackType = (e: WbTreeEventType) => any;
-export type WbNodeCallbackType = (e: WbNodeEventType) => any;
-export type WbRenderCallbackType = (e: WbRenderEventType) => void;
+export type ColumnEventInfoMap = { [colId: string]: ColumnEventInfo };
+
+/**
+ * Additional inforation derived from mouse or keyboard events
+ * @see {@link Wunderbaum.getEventInfo}
+ */
+export interface WbEventInfo {
+  /** The tree instance. */
+  tree: Wunderbaum;
+  /** The affected node instance instance if any. */
+  node: WunderbaumNode | null;
+  /** The affected part of the node span (e.g. title, expander, ...). */
+  region: NodeRegion;
+  /** The definition of the affected column if any. */
+  colDef?: ColumnDefinition;
+  /** The index of affected column or -1. */
+  colIdx: number;
+  /** The column definition ID of affected column if any. */
+  colId?: string;
+  /** The affected column's span tag if any. */
+  colElem?: HTMLSpanElement;
+}
+
+// export type WbTreeCallbackType = (e: WbTreeEventType) => any;
+// export type WbNodeCallbackType = (e: WbNodeEventType) => any;
+// export type WbRenderCallbackType = (e: WbRenderEventType) => void;
 
 export type FilterModeType = null | "dim" | "hide";
 export type ApplyCommandType =
@@ -211,7 +283,7 @@ export enum NodeStatusType {
 }
 
 /** Define the subregion of a node, where an event occurred. */
-export enum TargetType {
+export enum NodeRegion {
   unknown = "",
   checkbox = "checkbox",
   column = "column",
