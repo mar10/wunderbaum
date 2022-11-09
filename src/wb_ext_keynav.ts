@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavigationOptions } from "./types";
+import { NavModeEnum } from "./types";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
@@ -47,7 +47,7 @@ export class KeynavExtension extends WunderbaumExtension {
       opts = data.options,
       activate = !event.ctrlKey || opts.autoActivate,
       curInput = this._getEmbeddedInputElem(event.target),
-      navModeOption = opts.navigationModeOption as NavigationOptions;
+      navModeOption = opts.navigationModeOption as NavModeEnum;
     // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
 
     let focusNode,
@@ -140,8 +140,8 @@ export class KeynavExtension extends WunderbaumExtension {
           if (!node.expanded && node.isExpandable(true)) {
             eventName = "Add"; // expand
           } else if (
-            navModeOption === NavigationOptions.startCell ||
-            navModeOption === NavigationOptions.startRow
+            navModeOption === NavModeEnum.startCell ||
+            navModeOption === NavModeEnum.startRow
           ) {
             event.preventDefault();
             tree.setCellNav();
@@ -271,7 +271,7 @@ export class KeynavExtension extends WunderbaumExtension {
           break;
         case "Escape":
           tree.setFocus(); // Blur prev. input if any
-          if (tree.isCellNav() && navModeOption !== NavigationOptions.cell) {
+          if (tree.isCellNav() && navModeOption !== NavModeEnum.cell) {
             tree.setCellNav(false); // row-nav mode
             handled = true;
           }
@@ -282,7 +282,7 @@ export class KeynavExtension extends WunderbaumExtension {
             node.setExpanded(false);
           } else if (!isColspan && tree.activeColIdx > 0) {
             tree.setColumn(tree.activeColIdx - 1);
-          } else if (navModeOption !== NavigationOptions.cell) {
+          } else if (navModeOption !== NavModeEnum.cell) {
             tree.setCellNav(false); // row-nav mode
           }
           handled = true;

@@ -8,7 +8,7 @@ import {
   BoolOptionResolver,
   ColumnDefinitionList,
   DndOptionsType,
-  NavigationOptions,
+  NavModeEnum,
   NodeTypeDefinitionMap,
   WbActivateEventType,
   WbChangeEventType,
@@ -145,9 +145,9 @@ export interface WunderbaumOptions {
    */
   connectTopBreadcrumb?: HTMLElement;
   /**
-   * Default:  NavigationOptions.startRow
+   * Default:  NavModeEnum.startRow
    */
-  navigationModeOption?: NavigationOptions;
+  navigationModeOption?: NavModeEnum;
   /**
    * Show/hide header (default: null)
    * null: assume false for plain tree and true for grids.

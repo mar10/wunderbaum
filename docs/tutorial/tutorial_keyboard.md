@@ -240,7 +240,7 @@ const tree = new Wunderbaum({
 
 ### Related Methods
 
-- `tree.setNavigationOption(mode: NavigationOptions)`
+- `tree.setNavigationOption(mode: NavModeEnum)`
 - `tree.setColumn(colIdx: number)`
 - `tree.setEnabled(flag: boolean)`
 

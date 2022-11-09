@@ -11,7 +11,11 @@ import {
   extend,
   onEvent,
 } from "./util";
-import { NodeFilterCallback, NodeStatusType } from "./types";
+import {
+  FilterNodesOptions,
+  NodeFilterCallback,
+  NodeStatusType,
+} from "./types";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
@@ -243,19 +247,25 @@ export class FilterExtension extends WunderbaumExtension {
   /**
    * [ext-filter] Dim or hide nodes.
    *
-   * @param {boolean} [opts={autoExpand: false, leavesOnly: false}]
+   * @param {boolean} [options={autoExpand: false, leavesOnly: false}]
    */
-  filterNodes(filter: string | NodeFilterCallback, opts: any) {
-    return this._applyFilterNoUpdate(filter, false, opts);
+  filterNodes(
+    filter: string | NodeFilterCallback,
+    options: FilterNodesOptions
+  ) {
+    return this._applyFilterNoUpdate(filter, false, options);
   }
 
   /**
    * [ext-filter] Dim or hide whole branches.
    *
-   * @param {boolean} [opts={autoExpand: false}]
+   * @param {boolean} [options={autoExpand: false}]
    */
-  filterBranches(filter: string | NodeFilterCallback, opts: any) {
-    return this._applyFilterNoUpdate(filter, true, opts);
+  filterBranches(
+    filter: string | NodeFilterCallback,
+    options: FilterNodesOptions
+  ) {
+    return this._applyFilterNoUpdate(filter, true, options);
   }
 
   /**

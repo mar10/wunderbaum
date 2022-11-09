@@ -236,11 +236,11 @@ export class EditExtension extends WunderbaumExtension {
    * @param apply
    * @param opts.canKeepOpen
    */
-  _stopEditTitle(apply: boolean, opts: any) {
+  _stopEditTitle(apply: boolean, options: any) {
     const focusElem = document.activeElement as HTMLInputElement;
     let newValue = focusElem ? getValueFromElem(focusElem) : null;
     const node = this.curEditNode;
-    const forceClose = !!opts.forceClose;
+    const forceClose = !!options.forceClose;
     const validity = this.getPluginOption("validity");
 
     if (newValue && this.getPluginOption("trim")) {
@@ -250,7 +250,7 @@ export class EditExtension extends WunderbaumExtension {
       this.tree.logDebug("stopEditTitle: not in edit mode.");
       return;
     }
-    node.logDebug(`stopEditTitle(${apply})`, opts, focusElem, newValue);
+    node.logDebug(`stopEditTitle(${apply})`, options, focusElem, newValue);
 
     if (apply && newValue !== null && newValue !== node.title) {
       const errMsg = focusElem.validationMessage;

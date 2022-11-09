@@ -26,7 +26,7 @@ import {
   ExpandAllOptions,
   FilterModeType,
   MatcherCallback,
-  NavigationOptions,
+  NavModeEnum,
   NodeStatusType,
   NodeStringCallback,
   NodeTypeDefinitionMap,
@@ -36,6 +36,10 @@ import {
   SetStatusOptions,
   NodeRegion,
   WbEventInfo,
+  ApplyCommandOptions,
+  AddChildrenOptions,
+  UpdateColumnsOptions,
+  VisitRowsOptions,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -161,7 +165,7 @@ export class Wunderbaum {
         skeleton: false,
         connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
         // --- KeyNav ---
-        navigationModeOption: null, // NavigationOptions.startRow,
+        navigationModeOption: null, // NavModeEnum.startRow,
         quicksearch: true,
         // --- Events ---
         change: util.noop,
@@ -329,9 +333,9 @@ export class Wunderbaum {
           // The source may have defined columns, so we may adjust the nav mode
           if (opts.navigationModeOption == null) {
             if (this.isGrid()) {
-              this.setNavigationOption(NavigationOptions.cell);
+              this.setNavigationOption(NavModeEnum.cell);
             } else {
-              this.setNavigationOption(NavigationOptions.row);
+              this.setNavigationOption(NavModeEnum.row);
             }
           } else {
             this.setNavigationOption(opts.navigationModeOption);
@@ -727,20 +731,24 @@ export class Wunderbaum {
    *
    * @see {@link WunderbaumNode.addChildren}
    */
-  addChildren(nodeData: any, options?: any): WunderbaumNode {
+  addChildren(nodeData: any, options?: AddChildrenOptions): WunderbaumNode {
     return this.root.addChildren(nodeData, options);
   }
 
   /**
    * Apply a modification (or navigation) operation on the **tree or active node**.
    */
-  applyCommand(cmd: ApplyCommandType, options?: any): any;
+  applyCommand(cmd: ApplyCommandType, options?: ApplyCommandOptions): any;
 
   /**
    * Apply a modification (or navigation) operation on a **node**.
    * @see {@link WunderbaumNode.applyCommand}
    */
-  applyCommand(cmd: ApplyCommandType, node: WunderbaumNode, options?: any): any;
+  applyCommand(
+    cmd: ApplyCommandType,
+    node: WunderbaumNode,
+    options?: ApplyCommandOptions
+  ): any;
 
   /**
    * Apply a modification or navigation operation.
@@ -761,7 +769,7 @@ export class Wunderbaum {
   applyCommand(
     cmd: ApplyCommandType,
     nodeOrOpts?: WunderbaumNode | any,
-    options?: any
+    options?: ApplyCommandOptions
   ): any {
     let // clipboard,
       node,
@@ -1547,12 +1555,16 @@ export class Wunderbaum {
   }
 
   /** Schedule an update request to reflect a tree change. */
-  setModified(change: ChangeType, options?: any): void;
+  setModified(change: ChangeType, options?: SetModifiedOptions): void;
 
   /** Schedule an update request to reflect a single node modification.
    * @see {@link WunderbaumNode.setModified}
    */
-  setModified(change: ChangeType, node: WunderbaumNode, options?: any): void;
+  setModified(
+    change: ChangeType,
+    node: WunderbaumNode,
+    options?: SetModifiedOptions
+  ): void;
 
   setModified(
     change: ChangeType,
@@ -1654,26 +1666,26 @@ export class Wunderbaum {
   }
 
   /** Set the tree's navigation mode option. */
-  setNavigationOption(mode: NavigationOptions, reset = false) {
-    if (!this.isGrid() && mode !== NavigationOptions.row) {
+  setNavigationOption(mode: NavModeEnum, reset = false) {
+    if (!this.isGrid() && mode !== NavModeEnum.row) {
       this.logWarn("Plain trees only support row navigation mode.");
       return;
     }
     this.options.navigationModeOption = mode;
 
     switch (mode) {
-      case NavigationOptions.cell:
+      case NavModeEnum.cell:
         this.setCellNav(true);
         break;
-      case NavigationOptions.row:
+      case NavModeEnum.row:
         this.setCellNav(false);
         break;
-      case NavigationOptions.startCell:
+      case NavModeEnum.startCell:
         if (reset) {
           this.setCellNav(true);
         }
         break;
-      case NavigationOptions.startRow:
+      case NavModeEnum.startRow:
         if (reset) {
           this.setCellNav(false);
         }
@@ -1706,7 +1718,7 @@ export class Wunderbaum {
     }
   }
   /** Update column headers and width. */
-  updateColumns(options?: any) {
+  updateColumns(options?: UpdateColumnsOptions) {
     options = Object.assign({ calculateCols: true, updateRows: true }, options);
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
@@ -2060,7 +2072,10 @@ export class Wunderbaum {
    *     {start: First tree node, reverse: false, includeSelf: true, includeHidden: false, wrap: false}
    * @returns {boolean} false if iteration was canceled
    */
-  visitRows(callback: (node: WunderbaumNode) => any, options?: any): boolean {
+  visitRows(
+    callback: (node: WunderbaumNode) => any,
+    options?: VisitRowsOptions
+  ): boolean {
     if (!this.root.hasChildren()) {
       return false;
     }
@@ -2141,7 +2156,7 @@ export class Wunderbaum {
       if (!parent && options.wrap) {
         this.logDebug("visitRows(): wrap around");
         util.assert(options.start, "`wrap` option requires `start`");
-        stopNode = options.start;
+        stopNode = options.start!;
         options.wrap = false;
         parent = this.root;
         siblingOfs = 0;
@@ -2156,22 +2171,22 @@ export class Wunderbaum {
    */
   protected _visitRowsUp(
     callback: (node: WunderbaumNode) => any,
-    opts: any
+    options: VisitRowsOptions
   ): boolean {
     let children,
       idx,
       parent,
-      includeHidden = !!opts.includeHidden,
-      node = opts.start || this.root.children![0];
+      includeHidden = !!options.includeHidden,
+      node = options.start || this.root.children![0];
 
-    if (opts.includeSelf !== false) {
+    if (options.includeSelf !== false) {
       if (callback(node) === false) {
         return false;
       }
     }
     while (true) {
       parent = node.parent;
-      children = parent.children;
+      children = parent.children!;
 
       if (children[0] === node) {
         // If this is already the first sibling, goto parent

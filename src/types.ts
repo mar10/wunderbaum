@@ -23,6 +23,11 @@ export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
+
+/* -----------------------------------------------------------------------------
+ * EVENT CALLBACK TYPES
+ * ---------------------------------------------------------------------------*/
+
 export interface WbTreeEventType {
   /** Name of the event. */
   type: string;
@@ -151,6 +156,10 @@ export interface NodeTypeDefinition {
   // _any: any;
 }
 
+/* -----------------------------------------------------------------------------
+ * DATA TYPES
+ * ---------------------------------------------------------------------------*/
+
 export type NodeTypeDefinitionMap = { [type: string]: NodeTypeDefinition };
 
 /**
@@ -203,7 +212,7 @@ export interface ColumnEventInfo {
 export type ColumnEventInfoMap = { [colId: string]: ColumnEventInfo };
 
 /**
- * Additional inforation derived from mouse or keyboard events
+ * Additional inforation derived from mouse or keyboard events.
  * @see {@link Wunderbaum.getEventInfo}
  */
 export interface WbEventInfo {
@@ -293,6 +302,18 @@ export enum NodeRegion {
   title = "title",
 }
 
+/** Initial navigation mode and possible transition. */
+export enum NavModeEnum {
+  startRow = "startRow", // Start with row mode, but allow cell-nav mode
+  cell = "cell", // Cell-nav mode only
+  startCell = "startCell", // Start in cell-nav mode, but allow row mode
+  row = "row", // Row mode only
+}
+
+/* -----------------------------------------------------------------------------
+ * METHOD OPTIONS TYPES
+ * ---------------------------------------------------------------------------*/
+
 /** Possible values for {@link WunderbaumNode.addChildren()}. */
 export interface AddChildrenOptions {
   /** Insert children before this node (or index)
@@ -309,6 +330,11 @@ export interface AddChildrenOptions {
   _level?: number;
 }
 
+/** Possible values for {@link Wunderbaum.applyCommand()} and {@link WunderbaumNode.applyCommand()}. */
+export interface ApplyCommandOptions {
+  [key: string]: unknown;
+}
+
 /** Possible values for {@link Wunderbaum.expandAll()} and {@link WunderbaumNode.expandAll()}. */
 export interface ExpandAllOptions {
   /** Restrict expand level @default 99 */
@@ -317,6 +343,17 @@ export interface ExpandAllOptions {
   loadLazy?: boolean;
   /** Ignore `minExpandLevel` option @default false */
   force?: boolean;
+}
+
+/** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
+export interface FilterNodesOptions {
+  mode?: string;
+  leavesOnly?: boolean;
+  fuzzy?: boolean;
+  highlight?: boolean;
+  hideExpanders?: boolean;
+  autoExpand?: boolean;
+  noData?: boolean;
 }
 
 /** Possible values for {@link WunderbaumNode.makeVisible()}. */
@@ -329,12 +366,20 @@ export interface MakeVisibleOptions {
   noEvents?: boolean;
 }
 
-/** Initial navigation mode and possible transition. */
-export enum NavigationOptions {
-  startRow = "startRow", // Start with row mode, but allow cell-nav mode
-  cell = "cell", // Cell-nav mode only
-  startCell = "startCell", // Start in cell-nav mode, but allow row mode
-  row = "row", // Row mode only
+/** Possible values for {@link Wunderbaum.navigate()}. */
+export interface NavigateOptions {
+  activate?: boolean;
+  event?: Event;
+}
+
+/** Possible values for {@link WunderbaumNode.render()}. */
+export interface RenderOptions {
+  change?: ChangeType;
+  after?: any;
+  isNew?: boolean;
+  preventScroll?: boolean;
+  isDataChange?: boolean;
+  top?: number;
 }
 
 /** Possible values for {@link scrollIntoView()}. */
@@ -409,9 +454,25 @@ export interface SetStatusOptions {
   details?: string;
 }
 
+/** Possible values for {@link Wunderbaum.updateColumns()}. */
+export interface UpdateColumnsOptions {
+  calculateCols?: boolean;
+  updateRows?: boolean;
+}
+
+/** Possible values for {@link Wunderbaum.visitRows()} and {@link Wunderbaum.visitRowsUp()}. */
+export interface VisitRowsOptions {
+  reverse?: boolean;
+  includeSelf?: boolean;
+  includeHidden?: boolean;
+  wrap?: boolean;
+  start?: WunderbaumNode | null;
+}
+
 /* -----------------------------------------------------------------------------
  * wb_ext_dnd
- */
+ * ---------------------------------------------------------------------------*/
+
 export type DropRegionType = "over" | "before" | "after";
 export type DropRegionTypeSet = Set<DropRegionType>;
 // type AllowedDropRegionType =

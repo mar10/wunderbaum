@@ -11,17 +11,20 @@ import { Wunderbaum } from "./wunderbaum";
 import {
   AddChildrenOptions,
   AddNodeType,
+  ApplyCommandOptions,
   ApplyCommandType,
   ChangeType,
   ColumnEventInfoMap,
   ExpandAllOptions,
   MakeVisibleOptions,
   MatcherCallback,
+  NavigateOptions,
   NodeAnyCallback,
   NodeStatusType,
   NodeStringCallback,
   NodeVisitCallback,
   NodeVisitResponse,
+  RenderOptions,
   ScrollIntoViewOptions,
   SetActiveOptions,
   SetExpandedOptions,
@@ -356,8 +359,8 @@ export class WunderbaumNode {
    *
    * @see {@link Wunderbaum.applyCommand}
    */
-  applyCommand(cmd: ApplyCommandType, opts: any): any {
-    return this.tree.applyCommand(cmd, this, opts);
+  applyCommand(cmd: ApplyCommandType, options: ApplyCommandOptions): any {
+    return this.tree.applyCommand(cmd, this, options);
   }
 
   /**
@@ -1270,7 +1273,7 @@ export class WunderbaumNode {
    *   e.g. `ArrowLeft` = 'left'.
    * @param options
    */
-  async navigate(where: string, options?: any) {
+  async navigate(where: string, options?: NavigateOptions) {
     // Allow to pass 'ArrowLeft' instead of 'left'
     where = KEY_TO_ACTION_DICT[where] || where;
 
@@ -1434,7 +1437,7 @@ export class WunderbaumNode {
    * Create a whole new `<div class="wb-row">` element.
    * @see {@link WunderbaumNode.render}
    */
-  protected _render_markup(opts: any) {
+  protected _render_markup(opts: RenderOptions) {
     const tree = this.tree;
     const treeOptions = tree.options;
     const checkbox = this.getOption("checkbox") !== false;
@@ -1569,7 +1572,7 @@ export class WunderbaumNode {
    *
    * @see {@link WunderbaumNode.render}
    */
-  protected _render_data(opts: any) {
+  protected _render_data(opts: RenderOptions) {
     util.assert(this._rowElem);
 
     const tree = this.tree;
@@ -1642,7 +1645,7 @@ export class WunderbaumNode {
    * Update row classes to reflect active, focuses, etc.
    * @see {@link WunderbaumNode.render}
    */
-  protected _render_status(opts: any) {
+  protected _render_status(opts: RenderOptions) {
     // this.log("_render_status", opts);
     const tree = this.tree;
     const treeOptions = tree.options;
@@ -1736,11 +1739,11 @@ export class WunderbaumNode {
    * Calling `setModified` instead may be a better alternative.
    * @see {@link WunderbaumNode.setModified}
    */
-  render(options?: any) {
+  render(options?: RenderOptions) {
     // this.log("render", options);
     const opts = Object.assign({ change: ChangeType.data }, options);
     if (!this._rowElem) {
-      opts.change = "row";
+      opts.change = ChangeType.row;
     }
     switch (opts.change) {
       case "status":
