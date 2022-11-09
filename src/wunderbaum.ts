@@ -79,8 +79,8 @@ export class Wunderbaum {
   public readonly element: HTMLDivElement;
   /** The `div.wb-header` element if any. */
   public readonly headerElement: HTMLDivElement;
-  /** The `div.wb-scroll-container` element that contains the `nodeListElement`. */
-  public readonly scrollContainerElement: HTMLDivElement;
+  /** The `div.wb-list-container` element that contains the `nodeListElement`. */
+  public readonly listContainerElement: HTMLDivElement;
   /** The `div.wb-node-list` element that contains all visible div.wb-row child elements. */
   public readonly nodeListElement: HTMLDivElement;
   /** Contains additional data that was sent as response to an Ajax source load request. */
@@ -293,13 +293,13 @@ export class Wunderbaum {
 
     //
     this.element.innerHTML += `
-      <div class="wb-scroll-container">
+      <div class="wb-list-container">
         <div class="wb-node-list"></div>
       </div>`;
-    this.scrollContainerElement = this.element.querySelector(
-      "div.wb-scroll-container"
+    this.listContainerElement = this.element.querySelector(
+      "div.wb-list-container"
     ) as HTMLDivElement;
-    this.nodeListElement = this.scrollContainerElement.querySelector(
+    this.nodeListElement = this.listContainerElement.querySelector(
       "div.wb-node-list"
     ) as HTMLDivElement;
     this.headerElement = this.element.querySelector(
@@ -1114,7 +1114,7 @@ export class Wunderbaum {
   findRelatedNode(node: WunderbaumNode, where: string, includeHidden = false) {
     let res = null;
     const pageSize = Math.floor(
-      this.scrollContainerElement.clientHeight / ROW_HEIGHT
+      this.listContainerElement.clientHeight / ROW_HEIGHT
     );
 
     switch (where) {
@@ -1789,7 +1789,7 @@ export class Wunderbaum {
     // 'position: fixed' requires that the content has the correct size
     const tw = `${totalWidth}px`;
     this.headerElement.style.width = tw;
-    this.scrollContainerElement!.style.width = tw;
+    this.listContainerElement!.style.width = tw;
     // }
 
     // Every column has now a calculated `_ofsPx` and `_widthPx`
@@ -1882,7 +1882,7 @@ export class Wunderbaum {
     this.changeRedrawRequestPending = false;
     this.changeScrollRequestPending = false;
 
-    let height = this.scrollContainerElement.clientHeight;
+    let height = this.listContainerElement.clientHeight;
     // We cannot get the height for absolute positioned parent, so look at first col
     // let headerHeight = this.headerElement.clientHeight
     // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
@@ -1893,7 +1893,7 @@ export class Wunderbaum {
 
     if (Math.abs(height - wantHeight) > 1.0) {
       // this.log("resize", height, wantHeight);
-      this.scrollContainerElement.style.height = wantHeight + "px";
+      this.listContainerElement.style.height = wantHeight + "px";
       height = wantHeight;
     }
     // console.profile(`_updateViewportImmediately()`)

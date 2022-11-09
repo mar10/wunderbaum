@@ -80,7 +80,7 @@ These classes are automatically set for rows, allowing custom CSS rules:
 ```
 
 ```css
-div.wb-scroll-container {
+div.wunderbaum {
     scroll-behavior: smooth;
 }
 ```
