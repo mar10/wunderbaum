@@ -1576,6 +1576,7 @@ export class WunderbaumNode {
     const treeOptions = tree.options;
     const rowDiv = this._rowElem!;
     const isNew = !!opts.isNew; // Called by _render_markup()?
+    const preventScroll = !!opts.preventScroll;
     const columns = tree.columns;
     const isColspan = this.isColspan();
 
@@ -1585,10 +1586,16 @@ export class WunderbaumNode {
       "span.wb-title"
     ) as HTMLSpanElement;
 
+    const scrollTop = tree.element.scrollTop;
     if (this.titleWithHighlight) {
       titleSpan.innerHTML = this.titleWithHighlight;
     } else {
-      titleSpan.textContent = this.title;
+      titleSpan.textContent = this.title; // TODO: this triggers scroll events
+    }
+    // NOTE: At least on Safari, this render call triggers a scroll event
+    // probably when a focused input is replaced.
+    if (preventScroll) {
+      tree.element.scrollTop = scrollTop;
     }
 
     // Set the width of the title span, so overflow ellipsis work

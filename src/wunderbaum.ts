@@ -354,7 +354,7 @@ export class Wunderbaum {
 
     // --- Bind listeners
     this.element.addEventListener("scroll", (e: Event) => {
-      // this.log("scroll", e);
+      // this.log(`scroll, scrollTop:${e.target.scrollTop}`, e);
       this.setModified(ChangeType.vscroll);
     });
 
@@ -1447,7 +1447,8 @@ export class Wunderbaum {
     const vpRowBottom = vpRowTop + ROW_HEIGHT;
     const topNode = options?.topNode;
 
-    // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts );
+    // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts , options);
+
     let newScrollTop: number | null = null;
     if (vpRowTop >= vpTop) {
       if (vpRowBottom <= vpHeight) {
@@ -2030,7 +2031,7 @@ export class Wunderbaum {
     // Resize tree container
     this.nodeListElement.style.height = `${top}px`;
     // this.log(
-    //   `render(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
+    //   `_updateRows(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
     //   this.nodeListElement.style.height
     // );
     // this.logTimeEnd(label);

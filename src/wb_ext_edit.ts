@@ -196,7 +196,7 @@ export class EditExtension extends WunderbaumExtension {
     // (we also treat a `true` return value as 'use default'):
     if (inputHtml === true || !inputHtml) {
       const title = escapeHtml(node.title);
-      inputHtml = `<input type=text class="wb-input-edit" value="${title}" required autocorrect=off>`;
+      inputHtml = `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" required autocorrect=off>`;
     }
     const titleSpan = node
       .getColElem(0)!
@@ -283,21 +283,23 @@ export class EditExtension extends WunderbaumExtension {
             return;
           }
           node?.setTitle(newValue);
-          this.curEditNode!.render();
+          // NOTE: At least on Safari, this render call triggers a scroll event
+          // probably because the focused input is replaced.
+          this.curEditNode!.render({ preventScroll: true });
           this.curEditNode = null;
           this.relatedNode = null;
           this.tree.setFocus(); // restore focus that was in the input element
         })
         .catch((err) => {
-          // this.curEditNode!.render();
-          // this.curEditNode = null;
-          // this.relatedNode = null;
+          node.logError(err);
         });
       // Trigger 'change' event for embedded `<input>`
       // focusElem.blur();
     } else {
       // Discard the embedded `<input>`
-      this.curEditNode!.render();
+      // NOTE: At least on Safari, this render call triggers a scroll event
+      // probably because the focused input is replaced.
+      this.curEditNode!.render({ preventScroll: true });
       this.curEditNode = null;
       this.relatedNode = null;
       // We discarded the <input>, so we have to acquire keyboard focus again
