@@ -241,6 +241,15 @@ export class KeynavExtension extends WunderbaumExtension {
       }
 
       switch (eventName) {
+        case "+":
+        case "Add":
+          // case "=": // 187: '+' @ Chrome, Safari
+          node.setExpanded(true);
+          break;
+        case "-":
+        case "Subtract":
+          node.setExpanded(false);
+          break;
         case " ": // Space
           if (tree.activeColIdx === 0 && node.getOption("checkbox")) {
             node.setSelected(!node.isSelected());
