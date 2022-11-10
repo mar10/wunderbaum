@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -713,7 +713,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Possible values for `setModified()`. */
   var ChangeType;
@@ -743,29 +743,29 @@
       // paging = "paging",
   })(NodeStatusType || (NodeStatusType = {}));
   /** Define the subregion of a node, where an event occurred. */
-  var TargetType;
-  (function (TargetType) {
-      TargetType["unknown"] = "";
-      TargetType["checkbox"] = "checkbox";
-      TargetType["column"] = "column";
-      TargetType["expander"] = "expander";
-      TargetType["icon"] = "icon";
-      TargetType["prefix"] = "prefix";
-      TargetType["title"] = "title";
-  })(TargetType || (TargetType = {}));
+  var NodeRegion;
+  (function (NodeRegion) {
+      NodeRegion["unknown"] = "";
+      NodeRegion["checkbox"] = "checkbox";
+      NodeRegion["column"] = "column";
+      NodeRegion["expander"] = "expander";
+      NodeRegion["icon"] = "icon";
+      NodeRegion["prefix"] = "prefix";
+      NodeRegion["title"] = "title";
+  })(NodeRegion || (NodeRegion = {}));
   /** Initial navigation mode and possible transition. */
-  var NavigationOptions;
-  (function (NavigationOptions) {
-      NavigationOptions["startRow"] = "startRow";
-      NavigationOptions["cell"] = "cell";
-      NavigationOptions["startCell"] = "startCell";
-      NavigationOptions["row"] = "row";
-  })(NavigationOptions || (NavigationOptions = {}));
+  var NavModeEnum;
+  (function (NavModeEnum) {
+      NavModeEnum["startRow"] = "startRow";
+      NavModeEnum["cell"] = "cell";
+      NavModeEnum["startCell"] = "startCell";
+      NavModeEnum["row"] = "row";
+  })(NavModeEnum || (NavModeEnum = {}));
 
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1056,7 +1056,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1241,18 +1241,18 @@
       /**
        * [ext-filter] Dim or hide nodes.
        *
-       * @param {boolean} [opts={autoExpand: false, leavesOnly: false}]
+       * @param {boolean} [options={autoExpand: false, leavesOnly: false}]
        */
-      filterNodes(filter, opts) {
-          return this._applyFilterNoUpdate(filter, false, opts);
+      filterNodes(filter, options) {
+          return this._applyFilterNoUpdate(filter, false, options);
       }
       /**
        * [ext-filter] Dim or hide whole branches.
        *
-       * @param {boolean} [opts={autoExpand: false}]
+       * @param {boolean} [options={autoExpand: false}]
        */
-      filterBranches(filter, opts) {
-          return this._applyFilterNoUpdate(filter, true, opts);
+      filterBranches(filter, options) {
+          return this._applyFilterNoUpdate(filter, true, options);
       }
       /**
        * [ext-filter] Re-apply current filter.
@@ -1361,7 +1361,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1450,19 +1450,30 @@
               }
               // Pre-Evaluate expand/collapse action for LEFT/RIGHT
               switch (eventName) {
+                  case "Enter":
+                      if (node.isActive()) {
+                          if (node.isExpanded()) {
+                              eventName = "Subtract"; // callapse
+                          }
+                          else if (node.isExpandable(true)) {
+                              eventName = "Add"; // expand
+                          }
+                      }
+                      break;
                   case "ArrowLeft":
                       if (node.expanded) {
                           eventName = "Subtract"; // collapse
                       }
                       break;
                   case "ArrowRight":
-                      if (!node.expanded && (node.children || node.lazy)) {
+                      if (!node.expanded && node.isExpandable(true)) {
                           eventName = "Add"; // expand
                       }
-                      else if (navModeOption === NavigationOptions.startCell ||
-                          navModeOption === NavigationOptions.startRow) {
+                      else if (navModeOption === NavModeEnum.startCell ||
+                          navModeOption === NavModeEnum.startRow) {
+                          event.preventDefault();
                           tree.setCellNav();
-                          return;
+                          return false;
                       }
                       break;
               }
@@ -1477,7 +1488,7 @@
                   case "Subtract":
                       node.setExpanded(false);
                       break;
-                  case " ":
+                  case " ": // Space
                       // if (node.isPagingNode()) {
                       //   tree._triggerNodeEvent("clickPaging", ctx, event);
                       // } else
@@ -1552,7 +1563,16 @@
               }
               else ;
               switch (eventName) {
-                  case " ":
+                  case "+":
+                  case "Add":
+                      // case "=": // 187: '+' @ Chrome, Safari
+                      node.setExpanded(true);
+                      break;
+                  case "-":
+                  case "Subtract":
+                      node.setExpanded(false);
+                      break;
+                  case " ": // Space
                       if (tree.activeColIdx === 0 && node.getOption("checkbox")) {
                           node.setSelected(!node.isSelected());
                           handled = true;
@@ -1573,7 +1593,7 @@
                       break;
                   case "Enter":
                       tree.setFocus(); // Blur prev. input if any
-                      if (tree.activeColIdx === 0 && node.isExpandable()) {
+                      if ((tree.activeColIdx === 0 || isColspan) && node.isExpandable()) {
                           node.setExpanded(!node.isExpanded());
                           handled = true;
                       }
@@ -1584,7 +1604,7 @@
                       break;
                   case "Escape":
                       tree.setFocus(); // Blur prev. input if any
-                      if (tree.isCellNav() && navModeOption !== NavigationOptions.cell) {
+                      if (tree.isCellNav() && navModeOption !== NavModeEnum.cell) {
                           tree.setCellNav(false); // row-nav mode
                           handled = true;
                       }
@@ -1597,7 +1617,7 @@
                       else if (!isColspan && tree.activeColIdx > 0) {
                           tree.setColumn(tree.activeColIdx - 1);
                       }
-                      else if (navModeOption !== NavigationOptions.cell) {
+                      else if (navModeOption !== NavModeEnum.cell) {
                           tree.setCellNav(false); // row-nav mode
                       }
                       handled = true;
@@ -1613,16 +1633,16 @@
                       }
                       handled = true;
                       break;
-                  case "Home": // Generated by FN + ArrowLeft on Mac
-                  case "Meta+ArrowLeft":
+                  case "Home": // Generated by [Fn] + ArrowLeft on Mac
+                      // case "Meta+ArrowLeft":
                       tree.setFocus(); // Blur prev. input if any
                       if (!isColspan && tree.activeColIdx > 0) {
                           tree.setColumn(0);
                       }
                       handled = true;
                       break;
-                  case "End": // Generated by FN + ArrowRight on Mac
-                  case "Meta+ArrowRight":
+                  case "End": // Generated by [Fn] + ArrowRight on Mac
+                      // case "Meta+ArrowRight":
                       tree.setFocus(); // Blur prev. input if any
                       if (!isColspan && tree.activeColIdx < tree.columns.length - 1) {
                           tree.setColumn(tree.columns.length - 1);
@@ -1632,12 +1652,12 @@
                   case "ArrowDown":
                   case "ArrowUp":
                   case "Backspace":
-                  case "Control+End": // Generated by FN + Control + ArrowRight on Mac
-                  case "Control+Home": // Generated by FN + Control + Arrowleft on Mac
-                  case "Meta+ArrowDown":
-                  case "Meta+ArrowUp":
-                  case "PageDown": // Generated by FN + ArrowDown on Mac
-                  case "PageUp": // Generated by FN + ArrowUp on Mac
+                  case "Control+End": // Generated by Control + [Fn] + ArrowRight on Mac
+                  case "Control+Home": // Generated by Control + [Fn] + Arrowleft on Mac
+                  case "Meta+ArrowDown": // [⌘] + ArrowDown on Mac
+                  case "Meta+ArrowUp": // [⌘] + ArrowUp on Mac
+                  case "PageDown": // Generated by [Fn] + ArrowDown on Mac
+                  case "PageUp": // Generated by [Fn] + ArrowUp on Mac
                       node.navigate(eventName, { activate: activate, event: event });
                       // if (isCellEditMode) {
                       //   this._getEmbeddedInputElem(null, true); // set focus to input
@@ -1658,7 +1678,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1698,7 +1718,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
   /**
@@ -1938,7 +1958,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2052,7 +2072,7 @@
       }
       /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
       autoScroll(event) {
-          let tree = this.tree, dndOpts = tree.options.dnd, sp = tree.scrollContainerElement, sensitivity = dndOpts.scrollSensitivity, speed = dndOpts.scrollSpeed, scrolled = 0;
+          let tree = this.tree, dndOpts = tree.options.dnd, sp = tree.listContainerElement, sensitivity = dndOpts.scrollSensitivity, speed = dndOpts.scrollSpeed, scrolled = 0;
           const scrollTop = sp.offsetTop;
           if (scrollTop + sp.offsetHeight - event.pageY < sensitivity) {
               const delta = sp.scrollHeight - sp.clientHeight - scrollTop;
@@ -2211,7 +2231,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2347,7 +2367,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2384,7 +2404,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2437,7 +2457,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Top-level properties that can be passed with `data`. */
   const NODE_PROPS = new Set([
@@ -2700,8 +2720,8 @@
        *
        * @see {@link Wunderbaum.applyCommand}
        */
-      applyCommand(cmd, opts) {
-          return this.tree.applyCommand(cmd, this, opts);
+      applyCommand(cmd, options) {
+          return this.tree.applyCommand(cmd, this, options);
       }
       /**
        * Add/remove one or more classes to `<div class='wb-row'>`.
@@ -2909,7 +2929,7 @@
           }
       }
       /**
-       * Return multiline string representation of a node/subnode hierarchy.
+       * Return a multiline string representation of a node/subnode hierarchy.
        * Mostly useful for debugging.
        *
        * Example:
@@ -2921,7 +2941,6 @@
        * Books
        *  ├─ Art of War
        *  ╰─ Don Quixote
-       * ...
        * ```
        * @see {@link WunderbaumNode.format_iter}
        */
@@ -3043,11 +3062,17 @@
       isActive() {
           return this.tree.activeNode === this;
       }
-      /** Return true if this node is a *direct* child of `other`.
+      /** Return true if this node is a direct or indirect parent of `other`.
+       * (See also [[isParentOf]].)
+       */
+      isAncestorOf(other) {
+          return other && other.isDescendantOf(this);
+      }
+      /** Return true if this node is a **direct** subnode of `other`.
        * (See also [[isDescendantOf]].)
        */
       isChildOf(other) {
-          return this.parent && this.parent === other;
+          return other && this.parent === other;
       }
       /** Return true if this node's title spans all columns, i.e. the node has no
        * grid cells.
@@ -3055,7 +3080,7 @@
       isColspan() {
           return !!this.getOption("colspan");
       }
-      /** Return true if this node is a direct or indirect sub node of `other`.
+      /** Return true if this node is a direct or indirect subnode of `other`.
        * (See also [[isChildOf]].)
        */
       isDescendantOf(other) {
@@ -3068,7 +3093,7 @@
                   return true;
               }
               if (p === p.parent) {
-                  error("Recursive parent link: " + p);
+                  error(`Recursive parent link: ${p}`);
               }
               p = p.parent;
           }
@@ -3115,6 +3140,12 @@
       /** Return true if this node is a temporarily generated status node of type 'paging'. */
       isPagingNode() {
           return this.statusNodeType === "paging";
+      }
+      /** Return true if this node is a **direct** parent of `other`.
+       * (See also [[isAncestorOf]].)
+       */
+      isParentOf(other) {
+          return other && other.parent === this;
       }
       /** (experimental) Return true if this node is partially loaded. */
       isPartload() {
@@ -3762,16 +3793,23 @@
           const treeOptions = tree.options;
           const rowDiv = this._rowElem;
           const isNew = !!opts.isNew; // Called by _render_markup()?
+          const preventScroll = !!opts.preventScroll;
           const columns = tree.columns;
           const isColspan = this.isColspan();
           // Row markup already exists
           const nodeElem = rowDiv.querySelector("span.wb-node");
           const titleSpan = nodeElem.querySelector("span.wb-title");
+          const scrollTop = tree.element.scrollTop;
           if (this.titleWithHighlight) {
               titleSpan.innerHTML = this.titleWithHighlight;
           }
           else {
-              titleSpan.textContent = this.title;
+              titleSpan.textContent = this.title; // TODO: this triggers scroll events
+          }
+          // NOTE: At least on Safari, this render call triggers a scroll event
+          // probably when a focused input is replaced.
+          if (preventScroll) {
+              tree.element.scrollTop = scrollTop;
           }
           // Set the width of the title span, so overflow ellipsis work
           if (!treeOptions.skeleton) {
@@ -3796,6 +3834,7 @@
               this._callEvent("renderStatusNode", {
                   isNew: isNew,
                   nodeElem: nodeElem,
+                  isColspan: isColspan,
               });
           }
           else if (this.parent) {
@@ -3803,9 +3842,8 @@
               const renderInfo = this._getRenderInfo();
               this._callEvent("render", {
                   isNew: isNew,
-                  isColspan: isColspan,
-                  // isDataChange: true,
                   nodeElem: nodeElem,
+                  isColspan: isColspan,
                   allColInfosById: renderInfo.allColInfosById,
                   renderColInfosById: renderInfo.renderColInfosById,
               });
@@ -3906,7 +3944,7 @@
           // this.log("render", options);
           const opts = Object.assign({ change: ChangeType.data }, options);
           if (!this._rowElem) {
-              opts.change = "row";
+              opts.change = ChangeType.row;
           }
           switch (opts.change) {
               case "status":
@@ -4058,11 +4096,11 @@
                   if (prev !== this || retrigger) {
                       if ((prev === null || prev === void 0 ? void 0 : prev._callEvent("deactivate", {
                           nextNode: this,
-                          orgEvent: orgEvent,
+                          event: orgEvent,
                       })) === false ||
                           this._callEvent("beforeActivate", {
                               prevNode: prev,
-                              orgEvent: orgEvent,
+                              event: orgEvent,
                           }) === false) {
                           return;
                       }
@@ -4071,7 +4109,7 @@
                   }
               }
               else if (prev === this || retrigger) {
-                  this._callEvent("deactivate", { nextNode: null, orgEvent: orgEvent });
+                  this._callEvent("deactivate", { nextNode: null, event: orgEvent });
               }
           }
           if (prev !== this) {
@@ -4092,7 +4130,7 @@
               tree.setColumn(options.colIdx);
           }
           if (flag && !noEvents) {
-              this._callEvent("activate", { prevNode: prev, orgEvent: orgEvent });
+              this._callEvent("activate", { prevNode: prev, event: orgEvent });
           }
           return this.makeVisible();
       }
@@ -4358,7 +4396,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.0.9, Mon, 31 Oct 2022 17:06:10 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -4508,7 +4546,7 @@
           // (we also treat a `true` return value as 'use default'):
           if (inputHtml === true || !inputHtml) {
               const title = escapeHtml(node.title);
-              inputHtml = `<input type=text class="wb-input-edit" value="${title}" required autocorrect=off>`;
+              inputHtml = `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" required autocorrect=off>`;
           }
           const titleSpan = node
               .getColElem(0)
@@ -4544,11 +4582,11 @@
        * @param apply
        * @param opts.canKeepOpen
        */
-      _stopEditTitle(apply, opts) {
+      _stopEditTitle(apply, options) {
           const focusElem = document.activeElement;
           let newValue = focusElem ? getValueFromElem(focusElem) : null;
           const node = this.curEditNode;
-          const forceClose = !!opts.forceClose;
+          const forceClose = !!options.forceClose;
           const validity = this.getPluginOption("validity");
           if (newValue && this.getPluginOption("trim")) {
               newValue = newValue.trim();
@@ -4557,7 +4595,7 @@
               this.tree.logDebug("stopEditTitle: not in edit mode.");
               return;
           }
-          node.logDebug(`stopEditTitle(${apply})`, opts, focusElem, newValue);
+          node.logDebug(`stopEditTitle(${apply})`, options, focusElem, newValue);
           if (apply && newValue !== null && newValue !== node.title) {
               const errMsg = focusElem.validationMessage;
               if (errMsg) {
@@ -4583,22 +4621,24 @@
                       return;
                   }
                   node === null || node === void 0 ? void 0 : node.setTitle(newValue);
-                  this.curEditNode.render();
+                  // NOTE: At least on Safari, this render call triggers a scroll event
+                  // probably because the focused input is replaced.
+                  this.curEditNode.render({ preventScroll: true });
                   this.curEditNode = null;
                   this.relatedNode = null;
                   this.tree.setFocus(); // restore focus that was in the input element
               })
                   .catch((err) => {
-                  // this.curEditNode!.render();
-                  // this.curEditNode = null;
-                  // this.relatedNode = null;
+                  node.logError(err);
               });
               // Trigger 'change' event for embedded `<input>`
               // focusElem.blur();
           }
           else {
               // Discard the embedded `<input>`
-              this.curEditNode.render();
+              // NOTE: At least on Safari, this render call triggers a scroll event
+              // probably because the focused input is replaced.
+              this.curEditNode.render({ preventScroll: true });
               this.curEditNode = null;
               this.relatedNode = null;
               // We discarded the <input>, so we have to acquire keyboard focus again
@@ -4651,8 +4691,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.0.9
-   * @date Mon, 31 Oct 2022 17:06:10 GMT
+   * @version v0.1.0
+   * @date Thu, 10 Nov 2022 13:27:25 GMT
    */
   class WbSystemRoot extends WunderbaumNode {
       constructor(tree) {
@@ -4836,11 +4876,11 @@
           }
           //
           this.element.innerHTML += `
-      <div class="wb-scroll-container">
+      <div class="wb-list-container">
         <div class="wb-node-list"></div>
       </div>`;
-          this.scrollContainerElement = this.element.querySelector("div.wb-scroll-container");
-          this.nodeListElement = this.scrollContainerElement.querySelector("div.wb-node-list");
+          this.listContainerElement = this.element.querySelector("div.wb-list-container");
+          this.nodeListElement = this.listContainerElement.querySelector("div.wb-node-list");
           this.headerElement = this.element.querySelector("div.wb-header");
           this.element.classList.toggle("wb-grid", this.columns.length > 1);
           this._initExtensions();
@@ -4861,10 +4901,10 @@
                   // The source may have defined columns, so we may adjust the nav mode
                   if (opts.navigationModeOption == null) {
                       if (this.isGrid()) {
-                          this.setNavigationOption(NavigationOptions.cell);
+                          this.setNavigationOption(NavModeEnum.cell);
                       }
                       else {
-                          this.setNavigationOption(NavigationOptions.row);
+                          this.setNavigationOption(NavModeEnum.row);
                       }
                   }
                   else {
@@ -4889,13 +4929,9 @@
           this.setModified(ChangeType.any);
           // --- Bind listeners
           this.element.addEventListener("scroll", (e) => {
-              // this.log("scroll", e);
+              // this.log(`scroll, scrollTop:${e.target.scrollTop}`, e);
               this.setModified(ChangeType.vscroll);
           });
-          // this.scrollContainerElement.addEventListener("scroll", (e: Event) => {
-          //   this.log("scroll", e)
-          //   this.setModified(ChangeType.vscroll);
-          // });
           this.resizeObserver = new ResizeObserver((entries) => {
               this.setModified(ChangeType.vscroll);
               // this.log("ResizeObserver: Size changed", entries);
@@ -4905,16 +4941,6 @@
               const info = Wunderbaum.getEventInfo(e);
               const node = info.node;
               // this.log("click", info, e);
-              // if( (e.target as HTMLElement).matches("input[type=checkbox]")){
-              //   // Click on an embedded checkbox triggers a change event.
-              //   // We return here, before the `setActive()` performs a render
-              //   this.log("click - cb", info, e);
-              //   // e.preventDefault()
-              //   setTimeout(()=>{
-              //     // (e.target as HTMLElement).click()
-              //   }, 50)
-              //   // return
-              // }
               if (this._callEvent("click", { event: e, node: node, info: info }) === false) {
                   this.lastClickTime = Date.now();
                   return false;
@@ -4935,14 +4961,26 @@
                   else {
                       node.setActive(true, { event: e });
                   }
-                  if (info.region === TargetType.expander) {
+                  if (info.region === NodeRegion.expander) {
                       node.setExpanded(!node.isExpanded());
                   }
-                  else if (info.region === TargetType.checkbox) {
+                  else if (info.region === NodeRegion.checkbox) {
                       node.setSelected(!node.isSelected());
                   }
               }
               this.lastClickTime = Date.now();
+          });
+          onEvent(this.nodeListElement, "dblclick", "div.wb-row", (e) => {
+              const info = Wunderbaum.getEventInfo(e);
+              const node = info.node;
+              // this.log("dblclick", info, e);
+              if (this._callEvent("dblclick", { event: e, node: node, info: info }) ===
+                  false) {
+                  return false;
+              }
+              if (node && info.colIdx === 0 && node.isExpandable()) {
+                  node.setExpanded(!node.isExpanded());
+              }
           });
           onEvent(this.element, "keydown", (e) => {
               const info = Wunderbaum.getEventInfo(e);
@@ -5561,7 +5599,7 @@
        */
       findRelatedNode(node, where, includeHidden = false) {
           let res = null;
-          const pageSize = Math.floor(this.scrollContainerElement.clientHeight / ROW_HEIGHT);
+          const pageSize = Math.floor(this.listContainerElement.clientHeight / ROW_HEIGHT);
           switch (where) {
               case "parent":
                   if (node.parent && node.parent.parent) {
@@ -5712,37 +5750,37 @@
           let target = event.target, cl = target.classList, parentCol = target.closest("span.wb-col"), node = Wunderbaum.getNode(target), tree = node ? node.tree : Wunderbaum.getTree(event), res = {
               tree: tree,
               node: node,
-              region: TargetType.unknown,
+              region: NodeRegion.unknown,
               colDef: undefined,
               colIdx: -1,
               colId: undefined,
               colElem: parentCol,
           };
           if (cl.contains("wb-title")) {
-              res.region = TargetType.title;
+              res.region = NodeRegion.title;
           }
           else if (cl.contains("wb-expander")) {
               res.region =
-                  node.hasChildren() === false ? TargetType.prefix : TargetType.expander;
+                  node.hasChildren() === false ? NodeRegion.prefix : NodeRegion.expander;
           }
           else if (cl.contains("wb-checkbox")) {
-              res.region = TargetType.checkbox;
+              res.region = NodeRegion.checkbox;
           }
           else if (cl.contains("wb-icon")) {
               //|| cl.contains("wb-custom-icon")) {
-              res.region = TargetType.icon;
+              res.region = NodeRegion.icon;
           }
           else if (cl.contains("wb-node")) {
-              res.region = TargetType.title;
+              res.region = NodeRegion.title;
           }
           else if (parentCol) {
-              res.region = TargetType.column;
+              res.region = NodeRegion.column;
               const idx = Array.prototype.indexOf.call(parentCol.parentNode.children, parentCol);
               res.colIdx = idx;
           }
           else if (cl.contains("wb-row")) {
               // Plain tree
-              res.region = TargetType.title;
+              res.region = NodeRegion.title;
           }
           else {
               // Somewhere near the title
@@ -5759,14 +5797,6 @@
           // this.log("Event", event, res);
           return res;
       }
-      // /** Return a string describing the affected node region for a mouse event.
-      //  *
-      //  * @param {Event} event Mouse event, e.g. click, mousemove, ...
-      //  * @returns {string} 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
-      //  */
-      // getEventNodeRegion(event: Event) {
-      //   return this.getEventInfo(event).region;
-      // }
       /**
        * Return readable string representation for this instance.
        * @internal
@@ -5860,7 +5890,7 @@
           const vpRowTop = rowTop - scrollTop;
           const vpRowBottom = vpRowTop + ROW_HEIGHT;
           const topNode = options === null || options === void 0 ? void 0 : options.topNode;
-          // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts );
+          // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts , options);
           let newScrollTop = null;
           if (vpRowTop >= vpTop) {
               if (vpRowBottom <= vpHeight) ;
@@ -5894,9 +5924,6 @@
           const fixedWidth = this.columns[0]._widthPx;
           const vpWidth = this.element.clientWidth;
           const scrollLeft = this.element.scrollLeft;
-          // if (scrollLeft <= 0) {
-          //   return; // Not scrolled horizontally: Nothing to do
-          // }
           const colElem = this.getActiveColElem();
           const colLeft = Number.parseInt(colElem === null || colElem === void 0 ? void 0 : colElem.style.left, 10);
           const colRight = colLeft + Number.parseInt(colElem === null || colElem === void 0 ? void 0 : colElem.style.width, 10);
@@ -5909,13 +5936,11 @@
               // The current column is scrolled outside the right side
               newLeft = colRight - vpWidth;
           }
+          newLeft = Math.max(0, newLeft);
           // util.assert(node._rowIdx != null);
-          // this.log(
-          //   `scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`
-          // );
+          this.log(`scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`);
           this.element.scrollLeft = newLeft;
           // this.setModified(ChangeType.vscroll);
-          // }
       }
       /**
        * Set column #colIdx to 'active'.
@@ -6056,24 +6081,24 @@
       }
       /** Set the tree's navigation mode option. */
       setNavigationOption(mode, reset = false) {
-          if (!this.isGrid() && mode !== NavigationOptions.row) {
+          if (!this.isGrid() && mode !== NavModeEnum.row) {
               this.logWarn("Plain trees only support row navigation mode.");
               return;
           }
           this.options.navigationModeOption = mode;
           switch (mode) {
-              case NavigationOptions.cell:
+              case NavModeEnum.cell:
                   this.setCellNav(true);
                   break;
-              case NavigationOptions.row:
+              case NavModeEnum.row:
                   this.setCellNav(false);
                   break;
-              case NavigationOptions.startCell:
+              case NavModeEnum.startCell:
                   if (reset) {
                       this.setCellNav(true);
                   }
                   break;
-              case NavigationOptions.startRow:
+              case NavModeEnum.startRow:
                   if (reset) {
                       this.setCellNav(false);
                   }
@@ -6177,7 +6202,7 @@
           // 'position: fixed' requires that the content has the correct size
           const tw = `${totalWidth}px`;
           this.headerElement.style.width = tw;
-          this.scrollContainerElement.style.width = tw;
+          this.listContainerElement.style.width = tw;
           // }
           // Every column has now a calculated `_ofsPx` and `_widthPx`
           // this.logInfo("UC", this.columns, vpWidth, this.element.clientWidth, this.element);
@@ -6220,6 +6245,9 @@
                   resizer = '<span class="wb-col-resizer"></span>';
               }
               colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
+              if (this.isCellNav()) {
+                  colElem.classList.toggle("wb-active", i === this.activeColIdx);
+              }
           }
       }
       /**
@@ -6257,7 +6285,7 @@
           const newNodesOnly = !this.changeRedrawRequestPending;
           this.changeRedrawRequestPending = false;
           this.changeScrollRequestPending = false;
-          let height = this.scrollContainerElement.clientHeight;
+          let height = this.listContainerElement.clientHeight;
           // We cannot get the height for absolute positioned parent, so look at first col
           // let headerHeight = this.headerElement.clientHeight
           // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
@@ -6266,7 +6294,7 @@
           const wantHeight = this.element.clientHeight - headerHeight - FIX_ADJUST_HEIGHT;
           if (Math.abs(height - wantHeight) > 1.0) {
               // this.log("resize", height, wantHeight);
-              this.scrollContainerElement.style.height = wantHeight + "px";
+              this.listContainerElement.style.height = wantHeight + "px";
               height = wantHeight;
           }
           // console.profile(`_updateViewportImmediately()`)
@@ -6393,7 +6421,7 @@
           // Resize tree container
           this.nodeListElement.style.height = `${top}px`;
           // this.log(
-          //   `render(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
+          //   `_updateRows(scrollOfs:${ofs}, ${startIdx}..${endIdx})`,
           //   this.nodeListElement.style.height
           // );
           // this.logTimeEnd(label);
@@ -6501,9 +6529,9 @@
        * Call fn(node) for all nodes in vertical order, bottom up.
        * @internal
        */
-      _visitRowsUp(callback, opts) {
-          let children, idx, parent, includeHidden = !!opts.includeHidden, node = opts.start || this.root.children[0];
-          if (opts.includeSelf !== false) {
+      _visitRowsUp(callback, options) {
+          let children, idx, parent, includeHidden = !!options.includeHidden, node = options.start || this.root.children[0];
+          if (options.includeSelf !== false) {
               if (callback(node) === false) {
                   return false;
               }
@@ -6625,7 +6653,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.0.9"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.1.0"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 
