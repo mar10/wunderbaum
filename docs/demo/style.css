@@ -119,6 +119,16 @@ output.error {
   color: red;
 }
 
+output.hint {
+  display: block;
+  width: 100%;
+  padding: 1px 4px;
+  margin: -2px -1px 0 -4px; 
+  color: darkslategray;
+  background-color:lightyellow;
+  font-style: italic;
+}
+
 output.tree-version {
   font-size: 40%;
   font-family: 'Courier New', Courier, monospace;
