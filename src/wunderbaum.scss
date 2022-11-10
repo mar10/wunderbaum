@@ -27,7 +27,7 @@ $hover-color: adjust-color($bg-highlight-color, $lightness: 48%); // #f7f7f7;
 $hover-border-color: $hover-color;
 $grid-color: #dedede;
 $active-color: #e5f3fb;
-$active-cell-color: $bg-highlight-color;
+$active-cell-color: adjust-color($bg-highlight-color, $lightness: 20%);
 $active-border-color: #70c0e7;
 $active-hover-color: #dceff8;
 $active-hover-border-color: $bg-highlight-color;
@@ -112,23 +112,6 @@ div.wunderbaum {
   }
 
   // }
-
-  /* Fixed column must be opaque, i.e. have the bg color set.*/
-  &.wb-fixed-col {
-    div.wb-header {
-      span.wb-col:first-of-type {
-        background-color: $header-color;
-      }
-    }
-
-    span.wb-col:first-of-type {
-      position: sticky;
-      left: 0;
-      z-index: 1;
-      background-color: $background-color;
-    }
-  }
-
   // --- Header and node list ---
   div.wb-row {
     position: absolute;
@@ -136,6 +119,50 @@ div.wunderbaum {
     height: $row-outer-height;
     line-height: $row-outer-height;
     border: 1px solid transparent;
+  }
+
+  /* Fixed column must be opaque, i.e. have the bg color set. */
+  &.wb-fixed-col {
+    /* Sticky firdt column (header and nodes) */
+    span.wb-col:first-of-type {
+      position: sticky;
+      left: 0;
+      z-index: 1;
+      background-color: $background-color;
+    }
+
+    div.wb-header {
+      span.wb-col:first-of-type {
+        background-color: $header-color;
+      }
+    }
+    div.wb-node-list div.wb-row {
+      &.wb-active span.wb-col:first-of-type,
+      &.wb-selected span.wb-col:first-of-type {
+        background-color: $active-color;
+      }
+      &.wb-active:hover span.wb-col:first-of-type,
+      &.wb-selected:hover span.wb-col:first-of-type {
+        background-color: $active-hover-color;
+      }
+      &:hover span.wb-col:first-of-type {
+        background-color: $hover-color;
+      }
+    }
+
+    &:not(:focus-within),
+    &:not(:focus) {
+      div.wb-node-list div.wb-row {
+        &.wb-active span.wb-col:first-of-type,
+        &.wb-selected span.wb-col:first-of-type {
+          background-color: grayscale($active-color);
+          border-color: grayscale($active-border-color);
+          &:hover span.wb-col:first-of-type {
+            background-color: grayscale($active-hover-color);
+          }
+        }
+      }
+    }
   }
 
   // --- Node List Only ---
@@ -349,6 +376,7 @@ div.wunderbaum {
   }
 
   /* --- GRID --- */
+
   &.wb-grid {
     div.wb-header {
       div.wb-row {
@@ -417,6 +445,16 @@ div.wunderbaum {
 
     &.wb-cell-mode {
       div.wb-row:not(.wb-colspan) {
+        &.wb-active {
+          span.wb-col.wb-active {
+            background-color: grayscale($active-cell-color);
+          }
+        }
+      }
+    }
+    &.wb-cell-mode:focus-within,
+    &.wb-cell-mode:focus {
+      div.wb-row:not(.wb-colspan):not(.wb-selected) {
         // background-color: $background-color;
 
         span.wb-col.wb-active {
@@ -453,6 +491,7 @@ div.wunderbaum {
   }
 
   /* --- FILTER --- */
+
   &.wb-ext-filter-dim,
   &.wb-ext-filter-hide {
     div.wb-node-list div.wb-row {
@@ -476,6 +515,7 @@ div.wunderbaum {
   // }
 
   /* --- DND --- */
+
   div.wb-row.wb-drag-source {
     opacity: 0.5;
 
@@ -531,6 +571,9 @@ div.wunderbaum {
     top: ($row-outer-height - 16) / 2 + $row-outer-height / 2;
   }
 
+  /* --- SPECIAL EFFECTS --- */
+
+  /* Colorize indentation levels. */
   &.wb-rainbow {
     @for $i from 1 through length($level-rainbow) {
       i.wb-expander:nth-child(#{length($level-rainbow)}n + #{$i}),
@@ -591,8 +634,6 @@ div.wunderbaum {
     }
   }
 }
-
-// div.wunderbaum
 
 /* --- TOOL CLASSES --- */
 
