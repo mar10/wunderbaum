@@ -1723,6 +1723,19 @@ export class WunderbaumNode {
         this._createIcon(nodeElem, iconSpan, !expanderSpan);
       }
     }
+    // Adjust column width
+    if (opts.resizeCols !== false && !this.isColspan()) {
+      const colElems = rowDiv.querySelectorAll("span.wb-col");
+      let idx = 0;
+      let ofs = 0;
+      for (let colDef of this.tree.columns) {
+        const colElem = colElems[idx] as HTMLSpanElement;
+        colElem.style.left = `${ofs}px`;
+        colElem.style.width = `${colDef._widthPx}px`;
+        idx++;
+        ofs += colDef._widthPx!;
+      }
+    }
   }
 
   /**

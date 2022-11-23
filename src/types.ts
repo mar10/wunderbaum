@@ -380,6 +380,7 @@ export interface RenderOptions {
   preventScroll?: boolean;
   isDataChange?: boolean;
   top?: number;
+  resizeCols?: boolean;
 }
 
 /** Possible values for {@link scrollIntoView()}. */

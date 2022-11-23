@@ -25,7 +25,7 @@ new mar10.Wunderbaum({
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: "200px" },
+    { id: "author", title: "Author", width: 1, minWidth: "100px" },
     { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
     { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
     {
@@ -35,7 +35,7 @@ new mar10.Wunderbaum({
       classes: "wb-helper-end",
     },
     // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-    { id: "details", title: "Details", width: "*", minWidth: "600px" },
+    { id: "details", title: "Details", width: 3, minWidth: "200px" },
   ],
   dnd: {
     dragStart: (e) => {

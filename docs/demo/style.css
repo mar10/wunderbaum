@@ -38,7 +38,7 @@ div.grid-wrapper {
   width: 100vw;
   height: 100vh;
   grid-template-columns: 1fr 4fr;
-  grid-template-rows: 3em 5em auto 5em 1em;
+  grid-template-rows: 3em 6em auto 5em 1em;
   background-color: rgb(240, 229, 207);
   padding: 5px;
   grid-gap: 2px;

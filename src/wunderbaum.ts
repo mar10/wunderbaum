@@ -1717,8 +1717,10 @@ export class Wunderbaum {
       }
     }
   }
-  /** Update column headers and width. */
-  updateColumns(options?: UpdateColumnsOptions) {
+  /** Update column headers and width.
+   * Return true if at least one column width changed.
+   */
+  updateColumns(options?: UpdateColumnsOptions): boolean {
     options = Object.assign({ calculateCols: true, updateRows: true }, options);
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
@@ -1758,7 +1760,9 @@ export class Wunderbaum {
           }
           fixedWidth += px;
         } else {
-          util.error(`Invalid column width: ${cw}`);
+          util.error(
+            `Invalid column width: ${cw} (expected string ending with 'px' or number, e.g. "<num>px" or <int>)`
+          );
         }
       }
       // Share remaining space between non-fixed columns
@@ -1806,6 +1810,7 @@ export class Wunderbaum {
         this._updateRows();
       }
     }
+    return modified;
   }
 
   /** Create/update header markup from `this.columns` definition.
@@ -1902,9 +1907,9 @@ export class Wunderbaum {
     }
     // console.profile(`_updateViewportImmediately()`)
 
-    this.updateColumns({ updateRows: false });
+    const modified = this.updateColumns({ updateRows: false });
 
-    this._updateRows({ newNodesOnly: newNodesOnly });
+    this._updateRows({ newNodesOnly: newNodesOnly && !modified });
 
     // console.profileEnd(`_updateViewportImmediately()`)
 
