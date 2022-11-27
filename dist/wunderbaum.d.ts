@@ -1392,6 +1392,7 @@ declare module "types" {
         preventScroll?: boolean;
         isDataChange?: boolean;
         top?: number;
+        resizeCols?: boolean;
     }
     /** Possible values for {@link scrollIntoView()}. */
     export interface ScrollIntoViewOptions {
@@ -2301,8 +2302,10 @@ declare module "wunderbaum" {
         setStatus(status: NodeStatusType, options?: SetStatusOptions): WunderbaumNode | null;
         /** Add or redefine node type definitions. */
         setTypes(types: any, replace?: boolean): void;
-        /** Update column headers and width. */
-        updateColumns(options?: UpdateColumnsOptions): void;
+        /** Update column headers and width.
+         * Return true if at least one column width changed.
+         */
+        updateColumns(options?: UpdateColumnsOptions): boolean;
         /** Create/update header markup from `this.columns` definition.
          * @internal
          */

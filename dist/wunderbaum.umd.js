@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -713,7 +713,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Possible values for `setModified()`. */
   var ChangeType;
@@ -765,7 +765,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1056,7 +1056,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1361,7 +1361,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1678,7 +1678,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1718,7 +1718,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
   /**
@@ -1958,7 +1958,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2231,7 +2231,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2367,7 +2367,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2404,7 +2404,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2457,7 +2457,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Top-level properties that can be passed with `data`. */
   const NODE_PROPS = new Set([
@@ -3925,6 +3925,19 @@
                   this._createIcon(nodeElem, iconSpan, !expanderSpan);
               }
           }
+          // Adjust column width
+          if (opts.resizeCols !== false && !this.isColspan()) {
+              const colElems = rowDiv.querySelectorAll("span.wb-col");
+              let idx = 0;
+              let ofs = 0;
+              for (let colDef of this.tree.columns) {
+                  const colElem = colElems[idx];
+                  colElem.style.left = `${ofs}px`;
+                  colElem.style.width = `${colDef._widthPx}px`;
+                  idx++;
+                  ofs += colDef._widthPx;
+              }
+          }
       }
       /**
        * Create or update node's markup.
@@ -4396,7 +4409,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.0, Thu, 10 Nov 2022 13:27:25 GMT (https://github.com/mar10/wunderbaum)
+   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -4691,8 +4704,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.1.0
-   * @date Thu, 10 Nov 2022 13:27:25 GMT
+   * @version v0.1.1
+   * @date Sun, 27 Nov 2022 07:35:11 GMT
    */
   class WbSystemRoot extends WunderbaumNode {
       constructor(tree) {
@@ -6127,7 +6140,9 @@
               }
           }
       }
-      /** Update column headers and width. */
+      /** Update column headers and width.
+       * Return true if at least one column width changed.
+       */
       updateColumns(options) {
           options = Object.assign({ calculateCols: true, updateRows: true }, options);
           const defaultMinWidth = 4;
@@ -6167,7 +6182,7 @@
                       fixedWidth += px;
                   }
                   else {
-                      error(`Invalid column width: ${cw}`);
+                      error(`Invalid column width: ${cw} (expected string ending with 'px' or number, e.g. "<num>px" or <int>)`);
                   }
               }
               // Share remaining space between non-fixed columns
@@ -6214,6 +6229,7 @@
                   this._updateRows();
               }
           }
+          return modified;
       }
       /** Create/update header markup from `this.columns` definition.
        * @internal
@@ -6298,8 +6314,8 @@
               height = wantHeight;
           }
           // console.profile(`_updateViewportImmediately()`)
-          this.updateColumns({ updateRows: false });
-          this._updateRows({ newNodesOnly: newNodesOnly });
+          const modified = this.updateColumns({ updateRows: false });
+          this._updateRows({ newNodesOnly: newNodesOnly && !modified });
           // console.profileEnd(`_updateViewportImmediately()`)
           if (this.options.connectTopBreadcrumb) {
               let path = (_a = this.getTopmostVpNode(true)) === null || _a === void 0 ? void 0 : _a.getPath(false, "title", " > ");
@@ -6653,7 +6669,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.1.0"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.1.1"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 
