@@ -1729,6 +1729,8 @@ export class Wunderbaum {
     const isGrid = this.isGrid();
     // Shorten last column width to avoid h-scrollbar
     const FIX_ADJUST_LAST_COL = 2;
+    const columns = this.columns;
+    const col0 = columns[0];
 
     let totalWidth = 0;
     let totalWeight = 0;
@@ -1741,11 +1743,19 @@ export class Wunderbaum {
     }
 
     if (options.calculateCols) {
+      if (col0.id !== "*") {
+        throw new Error(`First column must have  id '*': got '${col0.id}'`);
+      }
       // Gather width definitions
       this._columnsById = {};
-      for (let col of this.columns) {
+      for (let col of columns) {
         this._columnsById[<string>col.id] = col;
         let cw = col.width;
+        if (col.id === "*" && col !== col0) {
+          throw new Error(
+            `Column id '*' must be defined only once: '${col.title}'`
+          );
+        }
 
         if (!cw || cw === "*") {
           col._weight = 1.0;
@@ -1771,7 +1781,7 @@ export class Wunderbaum {
       const restPx = Math.max(0, vpWidth - fixedWidth);
       let ofsPx = 0;
 
-      for (let col of this.columns) {
+      for (let col of columns) {
         let minWidth: number;
 
         if (col._weight) {
@@ -1792,7 +1802,7 @@ export class Wunderbaum {
         col._ofsPx = ofsPx;
         ofsPx += col._widthPx!;
       }
-      this.columns[this.columns.length - 1]._widthPx! -= FIX_ADJUST_LAST_COL;
+      columns[columns.length - 1]._widthPx! -= FIX_ADJUST_LAST_COL;
       totalWidth = ofsPx - FIX_ADJUST_LAST_COL;
     }
     // if (this.options.fixedCol) {
