@@ -40,6 +40,8 @@ import {
   AddChildrenOptions,
   UpdateColumnsOptions,
   VisitRowsOptions,
+  NodeFilterCallback,
+  FilterNodesOptions,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -2286,6 +2288,32 @@ export class Wunderbaum {
   /* ---------------------------------------------------------------------------
    * FILTER
    * -------------------------------------------------------------------------*/
+  /**
+   * [ext-filter] Dim or hide nodes.
+   */
+  filterNodes(
+    filter: string | NodeFilterCallback,
+    options: FilterNodesOptions
+  ) {
+    return (this.extensions.filter as FilterExtension).filterNodes(
+      filter,
+      options
+    );
+  }
+
+  /**
+   * [ext-filter] Dim or hide whole branches.
+   */
+  filterBranches(
+    filter: string | NodeFilterCallback,
+    options: FilterNodesOptions
+  ) {
+    return (this.extensions.filter as FilterExtension).filterBranches(
+      filter,
+      options
+    );
+  }
+
   /**
    * [ext-filter] Reset the filter.
    *

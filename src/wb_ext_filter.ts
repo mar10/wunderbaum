@@ -246,8 +246,6 @@ export class FilterExtension extends WunderbaumExtension {
 
   /**
    * [ext-filter] Dim or hide nodes.
-   *
-   * @param {boolean} [options={autoExpand: false, leavesOnly: false}]
    */
   filterNodes(
     filter: string | NodeFilterCallback,
@@ -258,8 +256,6 @@ export class FilterExtension extends WunderbaumExtension {
 
   /**
    * [ext-filter] Dim or hide whole branches.
-   *
-   * @param {boolean} [options={autoExpand: false}]
    */
   filterBranches(
     filter: string | NodeFilterCallback,
