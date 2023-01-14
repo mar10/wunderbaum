@@ -209,6 +209,11 @@ export class KeynavExtension extends WunderbaumExtension {
         if (eventName === "Escape") {
           // Discard changes
           node.render();
+          // Keep cell-nav mode
+          node.logDebug(`Reset focused input`);
+          this.tree.setFocus();
+          tree.setColumn(tree.activeColIdx);
+          return;
           // } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
         } else if (eventName !== "Enter") {
           // Let current `<input>` handle it
