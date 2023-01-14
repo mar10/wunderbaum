@@ -443,6 +443,14 @@ export class Wunderbaum {
       const flag = e.type === "focusin";
 
       this._callEvent("focus", { flag: flag, event: e });
+
+      if (
+        flag &&
+        this.isRowNav() &&
+        (opts.navigationModeOption as NavModeEnum) !== NavModeEnum.row
+      ) {
+        this.setCellNav();
+      }
       if (!flag) {
         this._callMethod("edit._stopEditTitle", true, {
           event: e,
