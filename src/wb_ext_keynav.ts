@@ -37,7 +37,6 @@ export class KeynavExtension extends WunderbaumExtension {
     const ace = this.tree
       .getActiveColElem()
       ?.querySelector("input:focus,select:focus");
-    console.log(`_isCurInputFocused`, ace);
     return !!ace;
   }
 
@@ -47,6 +46,7 @@ export class KeynavExtension extends WunderbaumExtension {
       opts = data.options,
       activate = !event.ctrlKey || opts.autoActivate,
       curInput = this._getEmbeddedInputElem(event.target),
+      inputHasFocus = curInput && this._isCurInputFocused(),
       navModeOption = opts.navigationModeOption as NavModeEnum;
     // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
 
@@ -95,6 +95,22 @@ export class KeynavExtension extends WunderbaumExtension {
       // -----------------------------------------------------------------------
       // --- Row Mode ---
       // -----------------------------------------------------------------------
+      if (inputHasFocus) {
+        // If editing an embedded input control, let the control handle all
+        // keys. Only Enter and Escape should apply / discard, but keep the
+        // keyboard focus.
+        switch (eventName) {
+          case "Enter":
+            curInput.blur();
+            tree.setFocus();
+            break;
+          case "Escape":
+            node.render();
+            tree.setFocus();
+            break;
+        }
+        return;
+      }
       // --- Quick-Search
       if (
         opts.quicksearch &&
@@ -211,7 +227,7 @@ export class KeynavExtension extends WunderbaumExtension {
           node.render();
           // Keep cell-nav mode
           node.logDebug(`Reset focused input`);
-          this.tree.setFocus();
+          tree.setFocus();
           tree.setColumn(tree.activeColIdx);
           return;
           // } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
@@ -285,8 +301,11 @@ export class KeynavExtension extends WunderbaumExtension {
           break;
         case "Escape":
           tree.setFocus(); // Blur prev. input if any
+          node.log(`keynav: focus tree...`);
           if (tree.isCellNav() && navModeOption !== NavModeEnum.cell) {
+            node.log(`keynav: setCellNav(false)`);
             tree.setCellNav(false); // row-nav mode
+            tree.setFocus(); //
             handled = true;
           }
           break;

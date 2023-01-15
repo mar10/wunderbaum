@@ -15,6 +15,7 @@ new mar10.Wunderbaum({
   connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
   // fixedCol: true,
+  // navigationModeOption: "row",
   navigationModeOption: "startRow",
   // navigationModeOption: "cell",
 
