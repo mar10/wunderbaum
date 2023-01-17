@@ -19,7 +19,9 @@ to toggle:
 
 The initial mode, and if both modes are available, is controlled by the 
 `navigationModeOption` option.<br>
-If the tree only has one column, row-mode is obligatory.
+If the tree has only one column, or if *navigationModeOption* is `"row"`, Row-Mode is obligatory.
+If the value is `"cell"`, Cell-Mode is obligatory.<br>
+A value of `"startCell"` or `"startRow"` allows switching.
 
 
 ### Navigation in **Row Mode**
@@ -38,10 +40,10 @@ are present, always the whole row is highlighted.
 <tbody>
   <tr>
     <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
-    <td>Jump to next matching node (if `quicksearch` is true).</td>
+    <td>Jump to next matching node, i.e. title starts with this character (if `quicksearch` is true).</td>
   </tr>
   <tr>
-    <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd>+<kbd>Tab</kbd></td>
+    <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd> + <kbd>Tab</kbd></td>
     <td>Leave the Wunderbaum tree control and focus next/previous control on the page.</td>
   </tr>
   <tr>
@@ -62,7 +64,7 @@ are present, always the whole row is highlighted.
       If node is active and expandable: toggle expansion.<br>
       <b>Note:</b> 
       Behaves as alias for `F2` on macOS if <i>edit.trigger</i> option list 
-      contains "macEnter".
+      contains "macEnter".<br>
     </td>
   </tr>
   <tr>
@@ -75,11 +77,16 @@ are present, always the whole row is highlighted.
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>ArrowLeft</kbd></td>
-    <td>If expanded: collapse. Otherwise set focus to parent node.</td>
+    <td>
+      If expanded: collapse. Otherwise set focus to parent node.
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>ArrowRight</kbd></td>
-    <td>If collapsed: expand. Otherwise set focus to first child.</td>
+    <td>
+      If collapsed: expand. <br>
+      Otherwise we switch to &rarr;<b>Cell-Nav Mode</b>.
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>ArrowUp</kbd></td>
@@ -167,12 +174,16 @@ Only in some special cases a cell content is edited directly. For example
       <kbd>ArrowUp</kbd>, <kbd>ArrowDown</kbd>, <kbd>ArrowLeft</kbd>, <kbd>ArrowRight</kbd>
     </td>
     <td>
-      Navigate to adjacent cell.
+      Navigate to adjacent cell.<br>
+      <kbd>ArrowLeft</kbd> on the leftmost column switches to &rarr;<b>Row Mode</b>.
     </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>Escape</kbd></td>
-    <td>Discard edit title operation if any. Otherwise switch to &rarr; **Row Mode**.</td>
+    <td>
+      If the focus is inside an embedded <code>&lt;input&gt;</code> element: discard and set focus to the outer cell.<br>
+      Otherwise switch to &rarr;<b>Row Mode</b>.
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>F2</kbd></td>
@@ -185,9 +196,10 @@ Only in some special cases a cell content is edited directly. For example
     <td colspan=2 align=center><kbd>Enter</kbd></td>
     <td>
       If on first column and node expandable: toggle expansion.<br>
-      If cell contains an input element: set focus to input control.<br>
+      If the cell contains an embedded <code>&lt;input&gt;</code> element: set focus to that input control.<br>
+      If the input control already had the focus, accept the entered data.<br>
       <b>Note:</b> 
-      Behaves as alias for `F2` on macOS if <i>edit.trigger</i> option list 
+      <kbd>Enter</kbd> behaves as alias for <kbd>F2</kbd> on macOS if the <i>edit.trigger</i> option list 
       contains "macEnter".
     </td>
   </tr>
@@ -201,11 +213,10 @@ Only in some special cases a cell content is edited directly. For example
   <tr>
     <td colspan=2 align=center>
       <kbd>Tab</kbd>, 
-      <kbd>Shift</kbd>+<kbd>Tab</kbd>
+      <kbd>Shift</kbd> + <kbd>Tab</kbd>
     </td>
     <td>
-      Toggle value if current cell contains a checkbox.
-      Toggle node selection if current cell is in the title column.
+      Move to adjacent cell.
     </td>
   </tr>
 

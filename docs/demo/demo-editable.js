@@ -5,7 +5,7 @@
  */
 document.getElementById("demo-info").innerHTML = `
  A treegrid with embedded input controls (also renaming nodes, but no filter or d'n'd).
- Navigation mode: 'cell'.
+ Navigation mode: 'startRow'.
 `;
 
 new mar10.Wunderbaum({
