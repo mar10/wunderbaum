@@ -1756,14 +1756,10 @@ declare module "wb_ext_filter" {
         _applyFilterImpl(filter: string | NodeFilterCallback, branchMode: boolean, _opts: any): number;
         /**
          * [ext-filter] Dim or hide nodes.
-         *
-         * @param {boolean} [options={autoExpand: false, leavesOnly: false}]
          */
         filterNodes(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
         /**
          * [ext-filter] Dim or hide whole branches.
-         *
-         * @param {boolean} [options={autoExpand: false}]
          */
         filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
         /**
@@ -1951,7 +1947,7 @@ declare module "wunderbaum" {
     import "./wunderbaum.scss";
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, SetModifiedOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, UpdateColumnsOptions, VisitRowsOptions } from "types";
+    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, SetModifiedOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, UpdateColumnsOptions, VisitRowsOptions, NodeFilterCallback, FilterNodesOptions } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     /**
@@ -2387,6 +2383,14 @@ declare module "wunderbaum" {
          * ```
          */
         enableUpdate(flag: boolean): void;
+        /**
+         * [ext-filter] Dim or hide nodes.
+         */
+        filterNodes(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
+        /**
+         * [ext-filter] Dim or hide whole branches.
+         */
+        filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
         /**
          * [ext-filter] Reset the filter.
          *

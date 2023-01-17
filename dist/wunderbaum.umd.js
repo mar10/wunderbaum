@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -713,7 +713,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Possible values for `setModified()`. */
   var ChangeType;
@@ -765,7 +765,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1056,7 +1056,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1240,16 +1240,12 @@
       }
       /**
        * [ext-filter] Dim or hide nodes.
-       *
-       * @param {boolean} [options={autoExpand: false, leavesOnly: false}]
        */
       filterNodes(filter, options) {
           return this._applyFilterNoUpdate(filter, false, options);
       }
       /**
        * [ext-filter] Dim or hide whole branches.
-       *
-       * @param {boolean} [options={autoExpand: false}]
        */
       filterBranches(filter, options) {
           return this._applyFilterNoUpdate(filter, true, options);
@@ -1361,7 +1357,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1388,11 +1384,10 @@
           var _a;
           const ace = (_a = this.tree
               .getActiveColElem()) === null || _a === void 0 ? void 0 : _a.querySelector("input:focus,select:focus");
-          console.log(`_isCurInputFocused`, ace);
           return !!ace;
       }
       onKeyEvent(data) {
-          const event = data.event, tree = this.tree, opts = data.options, activate = !event.ctrlKey || opts.autoActivate, curInput = this._getEmbeddedInputElem(event.target), navModeOption = opts.navigationModeOption;
+          const event = data.event, tree = this.tree, opts = data.options, activate = !event.ctrlKey || opts.autoActivate, curInput = this._getEmbeddedInputElem(event.target), inputHasFocus = curInput && this._isCurInputFocused(), navModeOption = opts.navigationModeOption;
           // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
           let focusNode, eventName = eventToString(event), node = data.node, handled = true;
           // tree.log(`onKeyEvent: ${eventName}, curInput`, curInput);
@@ -1429,6 +1424,22 @@
               // -----------------------------------------------------------------------
               // --- Row Mode ---
               // -----------------------------------------------------------------------
+              if (inputHasFocus) {
+                  // If editing an embedded input control, let the control handle all
+                  // keys. Only Enter and Escape should apply / discard, but keep the
+                  // keyboard focus.
+                  switch (eventName) {
+                      case "Enter":
+                          curInput.blur();
+                          tree.setFocus();
+                          break;
+                      case "Escape":
+                          node.render();
+                          tree.setFocus();
+                          break;
+                  }
+                  return;
+              }
               // --- Quick-Search
               if (opts.quicksearch &&
                   eventName.length === 1 &&
@@ -1530,6 +1541,11 @@
                   if (eventName === "Escape") {
                       // Discard changes
                       node.render();
+                      // Keep cell-nav mode
+                      node.logDebug(`Reset focused input`);
+                      tree.setFocus();
+                      tree.setColumn(tree.activeColIdx);
+                      return;
                       // } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
                   }
                   else if (eventName !== "Enter") {
@@ -1604,8 +1620,11 @@
                       break;
                   case "Escape":
                       tree.setFocus(); // Blur prev. input if any
+                      node.log(`keynav: focus tree...`);
                       if (tree.isCellNav() && navModeOption !== NavModeEnum.cell) {
+                          node.log(`keynav: setCellNav(false)`);
                           tree.setCellNav(false); // row-nav mode
+                          tree.setFocus(); //
                           handled = true;
                       }
                       break;
@@ -1678,7 +1697,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1718,7 +1737,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
   /**
@@ -1958,7 +1977,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2231,7 +2250,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2367,7 +2386,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2404,7 +2423,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2457,7 +2476,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   /** Top-level properties that can be passed with `data`. */
   const NODE_PROPS = new Set([
@@ -4409,7 +4428,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2022, Martin Wendt. Released under the MIT license.
-   * v0.1.1, Sun, 27 Nov 2022 07:35:11 GMT (https://github.com/mar10/wunderbaum)
+   * v0.2.0, Tue, 17 Jan 2023 19:26:18 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -4500,7 +4519,7 @@
           const trigger = this.getPluginOption("trigger");
           // const inputElem =
           //   event.target && event.target.closest("input,[contenteditable]");
-          // tree.logDebug(`_preprocessKeyEvent: ${eventName}`);
+          // tree.logDebug(`_preprocessKeyEvent: ${eventName}, editing:${this.isEditingTitle()}`);
           // --- Title editing: apply/discard ---
           // if (inputElem) {
           if (this.isEditingTitle()) {
@@ -4704,8 +4723,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.1.1
-   * @date Sun, 27 Nov 2022 07:35:11 GMT
+   * @version v0.2.0
+   * @date Tue, 17 Jan 2023 19:26:18 GMT
    */
   class WbSystemRoot extends WunderbaumNode {
       constructor(tree) {
@@ -4992,6 +5011,7 @@
                   return false;
               }
               if (node && info.colIdx === 0 && node.isExpandable()) {
+                  this._callMethod("edit._stopEditTitle");
                   node.setExpanded(!node.isExpanded());
               }
           });
@@ -5008,7 +5028,16 @@
           });
           onEvent(this.element, "focusin focusout", (e) => {
               const flag = e.type === "focusin";
+              const targetNode = Wunderbaum.getNode(e);
               this._callEvent("focus", { flag: flag, event: e });
+              if (flag && this.isRowNav() && !this.isEditing()) {
+                  if (opts.navigationModeOption === NavModeEnum.row) {
+                      targetNode === null || targetNode === void 0 ? void 0 : targetNode.setActive();
+                  }
+                  else {
+                      this.setCellNav();
+                  }
+              }
               if (!flag) {
                   this._callMethod("edit._stopEditTitle", true, {
                       event: e,
@@ -6150,6 +6179,8 @@
           const isGrid = this.isGrid();
           // Shorten last column width to avoid h-scrollbar
           const FIX_ADJUST_LAST_COL = 2;
+          const columns = this.columns;
+          const col0 = columns[0];
           let totalWidth = 0;
           let totalWeight = 0;
           let fixedWidth = 0;
@@ -6159,11 +6190,17 @@
               this.setCellNav(false);
           }
           if (options.calculateCols) {
+              if (col0.id !== "*") {
+                  throw new Error(`First column must have  id '*': got '${col0.id}'`);
+              }
               // Gather width definitions
               this._columnsById = {};
-              for (let col of this.columns) {
+              for (let col of columns) {
                   this._columnsById[col.id] = col;
                   let cw = col.width;
+                  if (col.id === "*" && col !== col0) {
+                      throw new Error(`Column id '*' must be defined only once: '${col.title}'`);
+                  }
                   if (!cw || cw === "*") {
                       col._weight = 1.0;
                       totalWeight += 1.0;
@@ -6188,7 +6225,7 @@
               // Share remaining space between non-fixed columns
               const restPx = Math.max(0, vpWidth - fixedWidth);
               let ofsPx = 0;
-              for (let col of this.columns) {
+              for (let col of columns) {
                   let minWidth;
                   if (col._weight) {
                       const cmw = col.minWidth;
@@ -6210,7 +6247,7 @@
                   col._ofsPx = ofsPx;
                   ofsPx += col._widthPx;
               }
-              this.columns[this.columns.length - 1]._widthPx -= FIX_ADJUST_LAST_COL;
+              columns[columns.length - 1]._widthPx -= FIX_ADJUST_LAST_COL;
               totalWidth = ofsPx - FIX_ADJUST_LAST_COL;
           }
           // if (this.options.fixedCol) {
@@ -6643,6 +6680,18 @@
        * FILTER
        * -------------------------------------------------------------------------*/
       /**
+       * [ext-filter] Dim or hide nodes.
+       */
+      filterNodes(filter, options) {
+          return this.extensions.filter.filterNodes(filter, options);
+      }
+      /**
+       * [ext-filter] Dim or hide whole branches.
+       */
+      filterBranches(filter, options) {
+          return this.extensions.filter.filterBranches(filter, options);
+      }
+      /**
        * [ext-filter] Reset the filter.
        *
        * @requires [[FilterExtension]]
@@ -6669,7 +6718,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.1.1"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.2.0"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 
