@@ -10,7 +10,7 @@ document.getElementById("demo-info").innerHTML = `
 
 new mar10.Wunderbaum({
   id: "demo",
-  element: document.querySelector("#demo-tree"),
+  element: document.getElementById("demo-tree"),
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "../assets/ajax_1k_3_54.json",
   // Columns- and types-definition are part of the Ajax response:

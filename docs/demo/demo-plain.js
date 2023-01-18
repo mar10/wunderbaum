@@ -11,7 +11,7 @@ A simple tree with filter, rename, drag'n'drop, lazy-loading. Auto-focus on init
 
 new mar10.Wunderbaum({
   id: "demo",
-  element: document.querySelector("#demo-tree"),
+  element: document.getElementById("demo-tree"),
   // header: "Plain Tree",
   source:
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_99k_3_1.json",

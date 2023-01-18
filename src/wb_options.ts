@@ -44,7 +44,7 @@ export interface WbNodeData {
  * ```js
  * const tree = new mar10.Wunderbaum({
  *   id: "demo",
- *   element: document.querySelector("#demo-tree"),
+ *   element: document.getElementById("demo-tree"),
  *   source: "url/of/data/request",
  *   ...
  * });

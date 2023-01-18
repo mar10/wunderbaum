@@ -38,7 +38,7 @@ Once the page is loaded, initialize the tree control:
 ```js
 document.addEventListener("DOMContentLoaded", (event) => {
   const tree = new mar10.Wunderbaum({
-    element: document.querySelector("#demo-tree"),
+    element: document.getElementById("demo-tree"),
     source: "get/root/nodes",
     init: (e) => {
       e.tree.setFocus();
@@ -56,7 +56,7 @@ frequently used ones:
 document.addEventListener("DOMContentLoaded", (event) => {
   const tree = new mar10.Wunderbaum({
     id: "demo",
-    element: document.querySelector("#demo-tree"),
+    element: document.getElementById("demo-tree"),
     source: "get/root/nodes",
     types: {},
     columns: [{ id: "*", title: "Product", width: "250px" }],
@@ -306,7 +306,7 @@ data model more concise:
 ```js
 const tree = new mar10.Wunderbaum({
   id: "demo",
-  element: document.querySelector("#demo-tree"),
+  element: document.getElementById("demo-tree"),
   source: "get/root/nodes",
   types: {
     folder: { icon: "bi bi-folder", classes: "bold-style" },
