@@ -12,14 +12,16 @@ We distinguish node states 'focused', 'active', and 'selected'.<br>
 is enabled (which is on by default), the node also gets activated.<br>
 A node becomes 'selected', when the checkbox is checked.
 
-A tree can have one of two navigation modes. Use <kbd>Enter</kbd>/<kbd>Esc</kbd>
-to toggle:
+A tree can have one of two navigation modes. We can toggle using the keyboard:
 
 *Row Mode* &harr; *Cell-Nav Mode*
 
-The initial mode, and if both modes are available, is controlled by the 
-`navigationModeOption` option.<br>
-If the tree only has one column, row-mode is obligatory.
+The initial mode, and if modes can be switched, is controlled by the 
+`navigationModeOption` option:<br>
+If the tree has only one column, or if *navigationModeOption* is `"row"`, 
+Row Mode is obligatory.
+If the value is `"cell"`, Cell-Nav Mode is obligatory.<br>
+A value of `"startCell"` or `"startRow"` allows switching.
 
 
 ### Navigation in **Row Mode**
@@ -38,10 +40,10 @@ are present, always the whole row is highlighted.
 <tbody>
   <tr>
     <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
-    <td>Jump to next matching node (if `quicksearch` is true).</td>
+    <td>Jump to next matching node, i.e. title starts with this character (if `quicksearch` is true).</td>
   </tr>
   <tr>
-    <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd>+<kbd>Tab</kbd></td>
+    <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd> + <kbd>Tab</kbd></td>
     <td>Leave the Wunderbaum tree control and focus next/previous control on the page.</td>
   </tr>
   <tr>
@@ -61,8 +63,8 @@ are present, always the whole row is highlighted.
     <td>
       If node is active and expandable: toggle expansion.<br>
       <b>Note:</b> 
-      Behaves as alias for `F2` on macOS if <i>edit.trigger</i> option list 
-      contains "macEnter".
+      Behaves as alias for <kbd>F2</kbd> on macOS if <i>edit.trigger</i> option list 
+      contains "macEnter".<br>
     </td>
   </tr>
   <tr>
@@ -75,11 +77,16 @@ are present, always the whole row is highlighted.
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>ArrowLeft</kbd></td>
-    <td>If expanded: collapse. Otherwise set focus to parent node.</td>
+    <td>
+      If expanded: collapse. Otherwise set focus to parent node.
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>ArrowRight</kbd></td>
-    <td>If collapsed: expand. Otherwise set focus to first child.</td>
+    <td>
+      If collapsed: expand. <br>
+      Otherwise switch to &rarr;<b>Cell-Nav Mode</b>.
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>ArrowUp</kbd></td>
@@ -138,16 +145,17 @@ are present, always the whole row is highlighted.
     </td>
     <td>Select first / last row.</td>
   </tr>
+
 </tbody>
 </table>
 
 
 ### Navigation in **Cell-Nav Mode**
 
-*Cell-nav mode* is only available, when multiple columns are defined.
-In this mode we navigate the grid cells in read-only mode mostly.
-Only in some special cases a cell content is edited directly. For example
-<kbd>Space</kbd> toggles an embedded checkbox.
+*Cell-Nav mode* is only available, when multiple columns are defined.
+In this mode we navigate the single grid cells in read-only mode mostly. <br>
+However, if the cell contains an embedded <code>&lt;input&gt;</code> element, 
+we can focus that control and edit its content.
 
 <table>
 <thead>
@@ -167,12 +175,26 @@ Only in some special cases a cell content is edited directly. For example
       <kbd>ArrowUp</kbd>, <kbd>ArrowDown</kbd>, <kbd>ArrowLeft</kbd>, <kbd>ArrowRight</kbd>
     </td>
     <td>
-      Navigate to adjacent cell.
+      Navigate to adjacent cell.<br>
+      <kbd>ArrowLeft</kbd> on the leftmost column switches to &rarr;<b>Row Mode</b>.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center>
+      <kbd>Tab</kbd>, 
+      <kbd>Shift</kbd> + <kbd>Tab</kbd>
+    </td>
+    <td>
+      Move to adjacent cell.
     </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>Escape</kbd></td>
-    <td>Discard edit title operation if any. Otherwise switch to &rarr; **Row Mode**.</td>
+    <td>
+      If the focus is inside an embedded <code>&lt;input&gt;</code> element: 
+      discard changes and set focus to the outer cell.<br>
+      Otherwise switch to &rarr;<b>Row Mode</b>.
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>F2</kbd></td>
@@ -184,11 +206,20 @@ Only in some special cases a cell content is edited directly. For example
   <tr>
     <td colspan=2 align=center><kbd>Enter</kbd></td>
     <td>
-      If on first column and node expandable: toggle expansion.<br>
-      If cell contains an input element: set focus to input control.<br>
+      If on the first column and node is expandable: toggle expansion.<br>
+      If the cell contains an embedded <code>&lt;input&gt;</code> element: 
+      set focus into that input control.<br>
+      If the input control already had the focus, accept the entered data.<br>
       <b>Note:</b> 
-      Behaves as alias for `F2` on macOS if <i>edit.trigger</i> option list 
-      contains "macEnter".
+      <kbd>Enter</kbd> behaves as alias for <kbd>F2</kbd> on macOS if the 
+      <i>edit.trigger</i> option list contains "macEnter".
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
+    <td>
+      If the cell contains an embedded <code>&lt;input&gt;</code> element: 
+      start editing its value.
     </td>
   </tr>
   <tr>
@@ -199,14 +230,41 @@ Only in some special cases a cell content is edited directly. For example
     </td>
   </tr>
   <tr>
-    <td colspan=2 align=center>
-      <kbd>Tab</kbd>, 
-      <kbd>Shift</kbd>+<kbd>Tab</kbd>
+    <td><kbd>Home</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowLeft</kbd></td>
+    <td> Select leftmost cell. </td>
+  </tr>
+  <tr>
+    <td><kbd>End</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowRight</kbd></td>
+    <td> Select rightmost cell. </td>
+  </tr>
+  <tr>
+    <td><kbd>PageUp</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowUp</kbd></td>
+    <td>
+      Select top cell in viewport or scroll one page upwards if we are already 
+      at the top.
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>PageDown</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowDown</kbd></td>
+    <td>
+      Select bottom cell in viewport or scroll one page down if we are already 
+      at the bottom.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Ctrl</kbd> + <kbd>Home</kbd>,<br>
+      <kbd>Ctrl</kbd> + <kbd>End</kbd>
     </td>
     <td>
-      Toggle value if current cell contains a checkbox.
-      Toggle node selection if current cell is in the title column.
+      <kbd>⌘</kbd> + <kbd>ArrowUp</kbd>,<br>
+      <kbd>⌘</kbd> + <kbd>ArrowDown</kbd>
     </td>
+    <td>Select top / bottom tree cell.</td>
   </tr>
 
 </tbody>

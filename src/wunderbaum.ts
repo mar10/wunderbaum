@@ -422,6 +422,7 @@ export class Wunderbaum {
         return false;
       }
       if (node && info.colIdx === 0 && node.isExpandable()) {
+        this._callMethod("edit._stopEditTitle");
         node.setExpanded(!node.isExpanded());
       }
     });
@@ -441,8 +442,17 @@ export class Wunderbaum {
 
     util.onEvent(this.element, "focusin focusout", (e) => {
       const flag = e.type === "focusin";
+      const targetNode = Wunderbaum.getNode(e)!;
 
       this._callEvent("focus", { flag: flag, event: e });
+
+      if (flag && this.isRowNav() && !this.isEditing()) {
+        if ((opts.navigationModeOption as NavModeEnum) === NavModeEnum.row) {
+          targetNode?.setActive();
+        } else {
+          this.setCellNav();
+        }
+      }
       if (!flag) {
         this._callMethod("edit._stopEditTitle", true, {
           event: e,

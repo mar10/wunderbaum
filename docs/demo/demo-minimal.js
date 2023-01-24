@@ -11,7 +11,7 @@ Source node list is inlined, instead of using Ajax.
 
 new mar10.Wunderbaum({
   id: "demo",
-  element: document.querySelector("#demo-tree"),
+  element: document.getElementById("demo-tree"),
   source: [
     {
       title: "Node 1", expanded: true, children: [

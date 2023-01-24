@@ -10,7 +10,7 @@ Navigation mode: 'cell'.
 
 new mar10.Wunderbaum({
   id: "demo",
-  element: document.querySelector("#demo-tree"),
+  element: document.getElementById("demo-tree"),
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
   // checkbox: true,

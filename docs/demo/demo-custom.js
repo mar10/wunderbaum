@@ -10,7 +10,7 @@ Convert and consume data from a custom endpoint (<a href="https://fakestoreapi.c
 
 new mar10.Wunderbaum({
   id: "demo",
-  element: document.querySelector("#demo-tree"),
+  element: document.getElementById("demo-tree"),
   source: { url: "https://fakestoreapi.com/products/categories" },
   columns: [
     { id: "*", title: "Product", width: "250px" },

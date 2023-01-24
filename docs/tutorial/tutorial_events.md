@@ -6,7 +6,7 @@ The intarctive behavior of Wunderbaum is
 document.addEventListener("DOMContentLoaded", (event) => {
   const tree = new mar10.Wunderbaum({
     id: "demo",
-    element: document.querySelector("#demo-tree"),
+    element: document.getElementById("demo-tree"),
     source: "get/root/nodes",
     ...
     init: (e) => {

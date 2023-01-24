@@ -133,7 +133,7 @@ export class EditExtension extends WunderbaumExtension {
     // const inputElem =
     //   event.target && event.target.closest("input,[contenteditable]");
 
-    // tree.logDebug(`_preprocessKeyEvent: ${eventName}`);
+    // tree.logDebug(`_preprocessKeyEvent: ${eventName}, editing:${this.isEditingTitle()}`);
 
     // --- Title editing: apply/discard ---
     // if (inputElem) {

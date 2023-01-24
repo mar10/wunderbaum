@@ -96,7 +96,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
    * Handle checkboxes that set global modifier classes, e.g. `wb-rainbow`, ...
    */
   util.onEvent(document, "change", "input.auto-class-setter", (e) => {
-    document.querySelector("#demo-tree").classList.toggle(e.target.dataset.classname, e.target.checked);
+    document.getElementById("demo-tree").classList.toggle(e.target.dataset.classname, e.target.checked);
   })
 
   toggleButtonCreate("#filter-hide", (e, flag) => {
