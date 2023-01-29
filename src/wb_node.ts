@@ -953,7 +953,7 @@ export class WunderbaumNode {
       tree.logInfo("Redefine columns", source.columns);
       tree.columns = source.columns;
       delete source.columns;
-      tree.updateColumns({ calculateCols: false });
+      tree.setModified(ChangeType.colStructure);
     }
 
     this.addChildren(source.children);
@@ -1765,9 +1765,12 @@ export class WunderbaumNode {
       case "data":
         this._render_data(opts);
         break;
-      default:
+      case "row":
+        // _rowElem is not yet created (asserted in _render_markup)
         this._render_markup(opts);
         break;
+      default:
+        util.error(`Invalid change type '${opts.change}'.`);
     }
   }
 

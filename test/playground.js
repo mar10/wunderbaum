@@ -10,7 +10,7 @@ const util = Wunderbaum.util;
 //   <option value='1'>O1</option>
 //   <option value='2'>O2</option>
 // </select>`;
-
+let sequence = 1
 const tree = new Wunderbaum({
   element: "#tree",
   checkbox: true,
@@ -36,32 +36,32 @@ const tree = new Wunderbaum({
   //     return {url: "../docs/assets/ajax-tree-products.json"};
   //   }, 5000);
   // },
-  // columns: [
-  //   { title: "test", id: "*", width: "200px" },
-  //   // {
-  //   //   title: "Fav",
-  //   //   id: "favorite",
-  //   //   width: "30px",
-  //   //   classes: "wb-helper-center",
-  //   //   html: "<input type=checkbox tabindex='-1'>",
-  //   // },
-  //   {
-  //     title: "Details",
-  //     id: "details",
-  //     width: "*",
-  //     html: "<input type=text tabindex='-1'>",
-  //   },
-  //   // { title: "Mode", id: "mode", width: "100px" },
-  //   {
-  //     title: "Date",
-  //     id: "date",
-  //     width: "100px",
-  //     html: "<input type=date tabindex='-1'>",
-  //   },
-  // ],
-  // types: {
-  //   book: { icon: "bi bi-book", classes: "extra-book-class" },
-  // },
+  columns: [
+    { title: "test", id: "*", width: "200px" },
+    // {
+    //   title: "Fav",
+    //   id: "favorite",
+    //   width: "30px",
+    //   classes: "wb-helper-center",
+    //   html: "<input type=checkbox tabindex='-1'>",
+    // },
+    {
+      title: "Details",
+      id: "details",
+      width: "100px",
+      html: "<input type=text tabindex='-1'>",
+    },
+    // { title: "Mode", id: "mode", width: "100px" },
+    {
+      title: "Date",
+      id: "date",
+      width: "100px",
+      html: "<input type=date tabindex='-1'>",
+    },
+  ],
+  types: {
+    book: { icon: "bi bi-book", classes: "extra-book-class" },
+  },
   // showSpinner: true,
   // source: {
   //   children: [
@@ -95,7 +95,7 @@ const tree = new Wunderbaum({
   lazyLoad: (e) => {
     // return {url: "../docs/assets/ajax-lazy-products.json"};
     return util.setTimeoutPromise(() => {
-      return {url: "../docs/assets/ajax-lazy-products.json"};
+      return { url: "../docs/assets/ajax-lazy-products.json" };
     }, 1000);
   },
   activate: (e) => {
@@ -159,7 +159,7 @@ tree.ready
     console.error(`${tree} init failed.`, err);
   });
 
-document.querySelectorAll(".demo-btn").forEach((elem)=>{
+document.querySelectorAll(".demo-btn").forEach((elem) => {
   elem.addEventListener("click", (e) => {
     const action = e.target.dataset.action;
 
@@ -173,7 +173,7 @@ document.querySelectorAll(".demo-btn").forEach((elem)=>{
         tree.visit((node) => {
           count++;
         });
-  
+
         tree.logTimeEnd("iter")
         tree.log(`count: ${count}`)
         tree.expandAll(false, {
@@ -189,7 +189,11 @@ document.querySelectorAll(".demo-btn").forEach((elem)=>{
         break;
       case "test1":
         // console.info(tree.getActiveNode()._format_line(tree.root));
-        console.info((tree.getActiveNode() || tree.root).format((n)=>n.title));
+        // console.info((tree.getActiveNode() || tree.root).format((n)=>n.title));
+        tree.columns.push(
+          { title: "Mode", id: "mode_" + sequence++, width: "100px" }
+        )
+        tree.setModified("colStructure")
         break;
     }
   });

@@ -706,6 +706,23 @@ export function toSet(val: any): Set<string> {
   throw new Error("Cannot convert to Set<string>: " + val);
 }
 
+// /** Check if a string is contained in an Array or Set. */
+// export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
+//   return Array.prototype.includes.call(items, s)
+// }
+
+// /** Check if an Array or Set has at least one matching entry. */
+// export function hasAnyOf(container: Array<string>|Set<string>, items: Array<string>): boolean {
+//   if (Array.isArray(container)) {
+//     return container.some(v => )
+//   }
+//   return container.some(v => {})
+//   // const container = toSet(items);
+//   // const itemSet = toSet(items);
+//   // Array.prototype.includes
+//   // throw new Error("Cannot convert to Set<string>: " + val);
+// }
+
 /** Return a canonical string representation for an object's type (e.g. 'array', 'number', ...). */
 export function type(obj: any): string {
   return Object.prototype.toString

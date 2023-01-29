@@ -238,24 +238,24 @@ export interface WbEventInfo {
 
 export type FilterModeType = null | "dim" | "hide";
 export type ApplyCommandType =
-  | "moveUp"
-  | "moveDown"
-  | "indent"
-  | "outdent"
-  | "remove"
-  | "rename"
   | "addChild"
   | "addSibling"
-  | "cut"
   | "copy"
-  | "paste"
+  | "cut"
   | "down"
   | "first"
+  | "indent"
   | "last"
   | "left"
+  | "moveDown"
+  | "moveUp"
+  | "outdent"
   | "pageDown"
   | "pageUp"
   | "parent"
+  | "paste"
+  | "remove"
+  | "rename"
   | "right"
   | "up";
 
@@ -264,25 +264,37 @@ export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
 export type DndModeType = "before" | "after" | "over";
 
-/** Possible values for `setModified()`. */
+/**
+ * Possible values for {@link WunderbaumNode.setModified()} and {@link Wunderbaum.setModified()}.
+ */
 export enum ChangeType {
   /** Re-render the whole viewport, headers, and all rows. */
   any = "any",
-  /** Update current row title, icon, columns, and status. */
+  /** A node's title, icon, columns, or status have changed. Update the existing row markup. */
   data = "data",
-  /** Redraw the header and update the width of all row columns. */
-  header = "header",
-  /** Re-render the whole current row. */
+  /** The `tree.columns` definition has changed beyond simple width adjustments. */
+  colStructure = "colStructure",
+  /** The viewport/window was resized. Adjust layout attributes for all elements. */
+  resize = "resize",
+  /** A node's definition has changed beyond status and data. Re-render the whole row's markup. */
   row = "row",
-  /** Alias for 'any'. */
+  /** Nodes have been added, removed, etc. Update markup. */
   structure = "structure",
-  /** Update current row's classes, to reflect active, selected, ... */
+  /** A node's status has changed. Update current row's classes, to reflect active, selected, ... */
   status = "status",
-  /** Update the 'top' property of all rows. */
-  vscroll = "vscroll",
+  /** Vertical scroll event. Update the 'top' property of all rows. */
+  scroll = "scroll",
 }
 
-/** Possible values for `setStatus()`. */
+/* Internal use. */
+export enum RenderFlag {
+  clearMarkup = "clearMarkup",
+  header = "header",
+  redraw = "redraw",
+  scroll = "scroll",
+}
+
+/** Possible values for {@link WunderbaumNode.setStatus()}. */
 export enum NodeStatusType {
   ok = "ok",
   loading = "loading",
@@ -383,7 +395,7 @@ export interface RenderOptions {
   resizeCols?: boolean;
 }
 
-/** Possible values for {@link scrollIntoView()}. */
+/** Possible values for {@link scrollIntoView()} `options` argument. */
 export interface ScrollIntoViewOptions {
   /** Do not animate (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -395,13 +407,13 @@ export interface ScrollIntoViewOptions {
   ofsY?: number;
 }
 
-/** Possible values for {@link Wunderbaum.scrollTo()}. */
+/** Possible values for {@link Wunderbaum.scrollTo()} `options` argument. */
 export interface ScrollToOptions extends ScrollIntoViewOptions {
   /** Which node to scroll into the viewport.*/
   node: WunderbaumNode;
 }
 
-/** Possible values for `node.setActive()`. */
+/** Possible values for {@link WunderbaumNode.setActive()} `options` argument. */
 export interface SetActiveOptions {
   /** Generate (de)activate event, even if node already has this status (default: false). */
   retrigger?: boolean;
@@ -417,7 +429,7 @@ export interface SetActiveOptions {
   colIdx?: number;
 }
 
-/** Possible values for `node.setExpanded()`. */
+/** Possible values for {@link WunderbaumNode.setExpanded()} `options` argument. */
 export interface SetExpandedOptions {
   /** Ignore {@link minExpandLevel}. @default false */
   force?: boolean;
@@ -431,15 +443,15 @@ export interface SetExpandedOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for `node.setSetModified()`. */
+/** Possible values for {@link WunderbaumNode.setSetModified()} `options` argument. */
 export interface SetModifiedOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
-  /** Remove HTML markup of all rendered nodes before redraw. @default false */
-  removeMarkup?: boolean;
+  // /** Remove HTML markup of all rendered nodes before redraw. @default false */
+  // removeMarkup?: boolean;
 }
 
-/** Possible values for `node.setSelected()`. */
+/** Possible values for {@link WunderbaumNode.setSelected()} `options` argument. */
 export interface SetSelectedOptions {
   /** Ignore restrictions. @default false */
   force?: boolean;
@@ -447,18 +459,12 @@ export interface SetSelectedOptions {
   noEvents?: boolean;
 }
 
-/** Possible values for `node.setSetModified()`. */
+/** Possible values for {@link WunderbaumNode.setStatus()} `options` argument. */
 export interface SetStatusOptions {
   /** Displayed as status node title. */
   message?: string;
   /** Used as tooltip. */
   details?: string;
-}
-
-/** Possible values for {@link Wunderbaum.updateColumns()}. */
-export interface UpdateColumnsOptions {
-  calculateCols?: boolean;
-  updateRows?: boolean;
 }
 
 /** Possible values for {@link Wunderbaum.visitRows()} and {@link Wunderbaum.visitRowsUp()}. */
