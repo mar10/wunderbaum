@@ -6,17 +6,11 @@
 [![Released with: grunt-yabs](https://img.shields.io/badge/released%20with-grunt--yabs-yellowgreen)](https://github.com/mar10/grunt-yabs)
 [![StackOverflow: wunderbaum](https://img.shields.io/badge/StackOverflow-wunderbaum-blue.svg)](https://stackoverflow.com/questions/tagged/wunderbaum)
 
-<!--
-[![GitHub version](https://img.shields.io/npm/v/wunderbaum)](https://github.com/mar10/wunderbaum/releases/latest)
-[![GitHub version](https://badge.fury.io/gh/mar10%2Fwunderbaum.svg)](https://github.com/mar10/wunderbaum/releases/latest)
--->
 
 > Potential successor of [Fancytree](https://github.com/mar10/fancytree).<br>
 > **NOTE: Status _beta_. Do not use in production!**
 
 [![Demo](docs/assets/teaser_2.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
-
-<!-- https://de.wikipedia.org/wiki/Wunderbaum -->
 
 Wunderbaum is a rewrite of the [Fancytree](https://github.com/mar10/fancytree)
 library. Major features include
@@ -29,7 +23,7 @@ library. Major features include
   may want to use).<br>
   Drop legacy support (IE, jQuery, ...).
 - Built-in support for
-  [aria](https://www.w3.org/TR/wai-aria-1.1/),
+  <!-- [aria](https://www.w3.org/TR/wai-aria-1.1/), -->
   [drag and drop](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_dnd),
   [editing](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_edit),
   [filtering](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_filter),

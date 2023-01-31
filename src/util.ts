@@ -313,7 +313,6 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
       case "datetime":
       case "datetime-local":
         input.valueAsDate = new Date(value);
-        // input.valueAsDate = value;  // breaks in Edge?
         break;
       case "number":
       case "range":
@@ -324,7 +323,7 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
         }
         break;
       case "radio":
-        error("Not implemented");
+        error(`Not yet implemented: ${type}`);
         // const name = input.name;
         // const checked = input.parentElement!.querySelector(
         //   `input[name="${name}"]:checked`

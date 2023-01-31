@@ -42,6 +42,7 @@ import {
   NodeFilterCallback,
   FilterNodesOptions,
   RenderFlag,
+  NodeVisitCallback,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -1566,14 +1567,19 @@ export class Wunderbaum {
     }
   }
 
-  /** Schedule an update request to reflect a tree change.
-   *  The render operations are debounced unless the `immediate` option is set.
+  /**
+   * Schedule an update request to reflect a tree change.
+   * The render operation is async and debounced unless the `immediate` option
+   * is set.
+   * Use {@link WunderbaumNode.setModified()} if only a single node has changed,
+   * or {@link WunderbaumNode.render()}) to pass special options.
    */
   setModified(change: ChangeType, options?: SetModifiedOptions): void;
 
-  /** Schedule an update request to reflect a single node modification.
-   *  The render operations are debounced unless the `immediate` option is set.
-   * @see {@link WunderbaumNode.setModified()}
+  /**
+   * Update a row to reflect a single node's modification.
+   *
+   * @see {@link WunderbaumNode.setModified()}, {@link WunderbaumNode.render()}
    */
   setModified(
     change: ChangeType,
@@ -2129,17 +2135,9 @@ export class Wunderbaum {
    * Stop iteration, if fn() returns false.<br>
    * Return false if iteration was stopped.
    *
-   * @param callback the callback function.
-   *     Return false to stop iteration, return "skip" to skip this node and children only.
-   * @param [options]
-   *     Defaults:
-   *     {start: First tree node, reverse: false, includeSelf: true, includeHidden: false, wrap: false}
    * @returns {boolean} false if iteration was canceled
    */
-  visitRows(
-    callback: (node: WunderbaumNode) => any,
-    options?: VisitRowsOptions
-  ): boolean {
+  visitRows(callback: NodeVisitCallback, options?: VisitRowsOptions): boolean {
     if (!this.root.hasChildren()) {
       return false;
     }
@@ -2234,7 +2232,7 @@ export class Wunderbaum {
    * @internal
    */
   protected _visitRowsUp(
-    callback: (node: WunderbaumNode) => any,
+    callback: NodeVisitCallback,
     options: VisitRowsOptions
   ): boolean {
     let children,

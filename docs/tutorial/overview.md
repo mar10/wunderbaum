@@ -18,7 +18,7 @@ Read [migrate](/tutorial/migrate.md) for details and migration hints.
   Drop legacy support (IE, jQuery, ...).
 - Robust, consistent handling of parallel, asynchronous behavior.
 - Built-in support for
-  [aria](https://www.w3.org/TR/wai-aria-1.1/),
+  <!-- [aria](https://www.w3.org/TR/wai-aria-1.1/), -->
   [drag and drop](/tutorial/tutorial_dnd.md),
   [editing](/tutorial/tutorial_edit.md),
   [filtering](/tutorial/tutorial_filter.md),

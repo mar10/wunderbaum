@@ -2019,11 +2019,15 @@ export class WunderbaumNode {
   }
 
   /**
-   * Schedule a render, typically called to update after a status or data change.
+   * Trigger a repaint, typically after a status or data change.
    *
    * `change` defaults to 'data', which handles modifcations of title, icon,
    * and column content. It can be reduced to 'ChangeType.status' if only
    * active/focus/selected state has changed.
+   *
+   * This method will eventually call  {@link WunderbaumNode.render()} with
+   * default options, but may be more consistent with the tree's
+   * {@link Wunderbaum.setModified()} API.
    */
   setModified(change: ChangeType = ChangeType.data) {
     util.assert(change === ChangeType.status || change === ChangeType.data);

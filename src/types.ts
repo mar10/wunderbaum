@@ -380,18 +380,27 @@ export interface MakeVisibleOptions {
 
 /** Possible values for {@link Wunderbaum.navigate()}. */
 export interface NavigateOptions {
+  /** Activate the new node (otherwise focus only). @default true */
   activate?: boolean;
+  /** Originating event (e.g. KeyboardEvent) if any. */
   event?: Event;
 }
 
 /** Possible values for {@link WunderbaumNode.render()}. */
 export interface RenderOptions {
+  /** Which parts need update? @default ChangeType.data */
   change?: ChangeType;
+  /** Where to append a new node. @default 'last' */
   after?: any;
+  /** @internal. @default false */
   isNew?: boolean;
+  /** @internal. @default false */
   preventScroll?: boolean;
+  /** @internal. @default false */
   isDataChange?: boolean;
+  /** @internal. @default false */
   top?: number;
+  /** @internal. @default true */
   resizeCols?: boolean;
 }
 
@@ -469,11 +478,16 @@ export interface SetStatusOptions {
 
 /** Possible values for {@link Wunderbaum.visitRows()} and {@link Wunderbaum.visitRowsUp()}. */
 export interface VisitRowsOptions {
-  reverse?: boolean;
-  includeSelf?: boolean;
+  /** @default false */
   includeHidden?: boolean;
-  wrap?: boolean;
+  /** @default true*/
+  includeSelf?: boolean;
+  /** @default false*/
+  reverse?: boolean;
+  /** @default first tree node*/
   start?: WunderbaumNode | null;
+  /** @default false*/
+  wrap?: boolean;
 }
 
 /* -----------------------------------------------------------------------------

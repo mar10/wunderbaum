@@ -14,7 +14,7 @@
   to unique `key`s).
 - Built-in html5 drag'n'drop
 <!-- - Built-in ARIA -->
-- Titles are always XSS-safe now (`escapeTitles: true`)
+- Titles are always XSS-safe now (former `escapeTitles: true`)
 - 'folder' is no longer a built-in type
 - Written in TypeScript, transpiled to JavaScript ES6 with type hints (.esm & .umd).
 
