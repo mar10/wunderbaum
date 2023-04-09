@@ -316,7 +316,7 @@ const tree = new mar10.Wunderbaum({
   ...
 ```
 
-### Comnpact Formats
+### Compact Formats
 
 Load time of data is an important aspect of the user experience. We can
 reduce the size of the JSON data by eliminating redundancy.
