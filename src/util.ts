@@ -287,7 +287,7 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
  * ```ts
  *   render: (e) => {
  *     // e.node.log(e.type, e, e.node.data);
- *   
+ *
  *     for (const col of Object.values(e.renderColInfosById)) {
  *       switch (col.id) {
  *         default:
@@ -298,7 +298,7 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
  *     }
  *   },
  * ```
- * 
+ *
  * @param elem `<input>` or `<select>` element Also a parent `span.wb-col` is accepted.
  * @param value a value that matches the target element.
  */

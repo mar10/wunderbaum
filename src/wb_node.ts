@@ -2010,9 +2010,9 @@ export class WunderbaumNode {
   }
 
   /** Set a new icon path or class. */
-  setIcon() {
-    throw new Error("Not yet implemented");
-    // this.setModified();
+  setIcon(icon: string) {
+    this.icon = icon;
+    this.setModified();
   }
 
   /** Change node's {@link key} and/or {@link refKey}.  */
