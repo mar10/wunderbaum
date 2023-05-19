@@ -153,6 +153,14 @@ export function makeNodeTitleStartMatcher(s: string): MatcherCallback {
   };
 }
 
+/** Compare two nodes by title (case-insensitive). */
+export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
+  const x = a.title.toLowerCase();
+  const y = b.title.toLowerCase();
+
+  return x === y ? 0 : x > y ? 1 : -1;
+}
+
 function unflattenSource(source: any): void {
   const { _format, _keyMap, _positional, children } = source;
 

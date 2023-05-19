@@ -30,6 +30,7 @@ import {
   SetExpandedOptions,
   SetSelectedOptions,
   SetStatusOptions,
+  SortCallback,
 } from "./types";
 import {
   iconMap,
@@ -41,6 +42,7 @@ import {
   ROW_HEIGHT,
   TEST_IMG,
   inflateSourceData,
+  nodeTitleSorter,
 } from "./common";
 import { Deferred } from "./deferred";
 import { WbNodeData } from "./wb_options";
@@ -2144,6 +2146,37 @@ export class WunderbaumNode {
     this.title = title;
     this.setModified();
     // this.triggerModify("rename"); // TODO
+  }
+
+  _sortChildren(cmp: SortCallback, deep: boolean): void {
+    const cl = this.children;
+
+    if (!cl) {
+      return;
+    }
+    cl.sort(cmp);
+    if (deep) {
+      for (let i = 0, l = cl.length; i < l; i++) {
+        if (cl[i].children) {
+          cl[i]._sortChildren(cmp, deep);
+        }
+      }
+    }
+  }
+
+  /**
+   * Sort child list by title or custom criteria.
+   * @param {function} cmp custom compare function(a, b) that returns -1, 0, or 1
+   *    (defaults to sorting by title).
+   * @param {boolean} deep pass true to sort all descendant nodes recursively
+   */
+  sortChildren(
+    cmp: SortCallback | null = nodeTitleSorter,
+    deep: boolean = false
+  ): void {
+    this._sortChildren(cmp || nodeTitleSorter, deep);
+    this.tree.setModified(ChangeType.structure);
+    // this.triggerModify("sort"); // TODO
   }
 
   /**

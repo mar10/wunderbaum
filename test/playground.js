@@ -190,10 +190,11 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
       case "test1":
         // console.info(tree.getActiveNode()._format_line(tree.root));
         // console.info((tree.getActiveNode() || tree.root).format((n)=>n.title));
-        tree.columns.push(
-          { title: "Mode", id: "mode_" + sequence++, width: "100px" }
-        )
-        tree.setModified("colStructure")
+        tree.sortChildren(null, true)
+        // tree.columns.push(
+        //   { title: "Mode", id: "mode_" + sequence++, width: "100px" }
+        // )
+        // tree.setModified("colStructure")
         break;
     }
   });

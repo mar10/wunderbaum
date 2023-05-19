@@ -43,10 +43,12 @@ import {
   FilterNodesOptions,
   RenderFlag,
   NodeVisitCallback,
+  SortCallback,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
   makeNodeTitleStartMatcher,
+  nodeTitleSorter,
   RENDER_MAX_PREFETCH,
   ROW_HEIGHT,
 } from "./common";
@@ -1738,6 +1740,7 @@ export class Wunderbaum {
   ): WunderbaumNode | null {
     return this.root.setStatus(status, options);
   }
+
   /** Add or redefine node type definitions. */
   setTypes(types: any, replace = true) {
     util.assert(util.isPlainObject(types));
@@ -1753,6 +1756,20 @@ export class Wunderbaum {
       }
     }
   }
+
+  /**
+   * Sort nodes list by title or custom criteria.
+   * @param {function} cmp custom compare function(a, b) that returns -1, 0, or 1
+   *    (defaults to sorting by title).
+   * @param {boolean} deep pass true to sort all descendant nodes recursively
+   */
+  sortChildren(
+    cmp: SortCallback | null = nodeTitleSorter,
+    deep: boolean = false
+  ): void {
+    this.root.sortChildren(cmp, deep);
+  }
+
   /**
    * Update column headers and column width.
    * Return true if at least one column width changed.
