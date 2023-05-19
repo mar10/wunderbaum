@@ -2127,12 +2127,12 @@ export class Wunderbaum {
   }
 
   /**
-   * Call fn(node) for all nodes in vertical order, top down (or bottom up).
+   * Call callback(node) for all nodes in vertical order, top down (or bottom up).
    *
-   * Note that this considers expansion state, i.e. children of collapsed nodes
-   * are skipped.
+   * Note that this considers expansion state, i.e. filtered nodes and children
+   * of collapsed nodes are skipped, unless `includeHidden` is set.
    *
-   * Stop iteration, if fn() returns false.<br>
+   * Stop iteration if callback() returns false.<br>
    * Return false if iteration was stopped.
    *
    * @returns {boolean} false if iteration was canceled
@@ -2165,7 +2165,7 @@ export class Wunderbaum {
       nextIdx = siblings.indexOf(node) + siblingOfs;
       util.assert(
         nextIdx >= 0,
-        "Could not find " + node + " in parent's children: " + parent
+        `Could not find ${node} in parent's children: ${parent}`
       );
 
       for (i = nextIdx; i < siblings.length; i++) {

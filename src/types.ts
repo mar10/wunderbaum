@@ -7,7 +7,7 @@
 import { WunderbaumNode } from "./wb_node";
 import { Wunderbaum } from "./wunderbaum";
 
-/** Passed to find... methods. Should return true if node matches. */
+/** Passed to `find...()` methods. Should return true if node matches. */
 export type MatcherCallback = (node: WunderbaumNode) => boolean;
 /** When set as option, called when the value is needed (e.g. `colspan` type definition). */
 export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
@@ -33,9 +33,11 @@ export interface WbTreeEventType {
   type: string;
   /** The affected tree instance. */
   tree: Wunderbaum;
-  /** Exposed utility module methods. */
+  /** Exposed utility module methods
+   * (see [API docs](https://mar10.github.io/wunderbaum/api/modules/util.html)).
+   */
   util: any;
-  /** Originating HTML event, e.g. `click` if any. */
+  /** Originating HTML event if any (e.g. `click`). */
   event?: Event;
   // [key: string]: unknown;
 }
@@ -476,17 +478,18 @@ export interface SetStatusOptions {
   details?: string;
 }
 
-/** Possible values for {@link Wunderbaum.visitRows()} and {@link Wunderbaum.visitRowsUp()}. */
+/** Options passed to {@link Wunderbaum.visitRows()}. */
 export interface VisitRowsOptions {
-  /** @default false */
+  /** Skip filtered nodes and children of collapsed nodes. @default false */
   includeHidden?: boolean;
-  /** @default true*/
+  /** Return the start node as first result. @default true */
   includeSelf?: boolean;
-  /** @default false*/
+  /** Traverse in opposite direction, i.e. bottom up. @default false */
   reverse?: boolean;
-  /** @default first tree node*/
+  /** Start traversal at this node @default first (topmost) tree node */
   start?: WunderbaumNode | null;
-  /** @default false*/
+  /** Wrap around at last node and continue at the top,
+   * until the start node is reached again @default false */
   wrap?: boolean;
 }
 
@@ -510,140 +513,140 @@ export type DropRegionTypeSet = Set<DropRegionType>;
 export type DndOptionsType = {
   /**
    * Expand nodes after n milliseconds of hovering
-   * Default: 1500
+   * @default 1500
    */
   autoExpandMS: 1500;
   // /**
   //  * Additional offset for drop-marker with hitMode = "before"/"after"
-  //  * Default:
+  //  * @default
   //  */
   // dropMarkerInsertOffsetX: -16;
   // /**
   //  * Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
-  //  * Default:
+  //  * @default
   //  */
   // dropMarkerOffsetX: -24;
   // /**
   //  * Root Container used for drop marker (could be a shadow root)
   //  * (#1021 `document.body` is not available yet)
-  //  * Default:
+  //  * @default
   //  */
   // dropMarkerParent: "body";
   /**
    * true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
-   * Default: false
+   * @default false
    */
   multiSource: false;
   /**
    * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
-   * Default: "all"
+   * @default "all"
    */
   effectAllowed: "all";
   // /**
   //  * 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
-  //  * Default:
+  //  * @default
   //  */
   // dropEffect: "auto";
   /**
    * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
-   * Default: "move"
+   * @default "move"
    */
   dropEffectDefault: string;
   /**
    * Prevent dropping nodes from different Wunderbaum trees
-   * Default: false
+   * @default false
    */
   preventForeignNodes: boolean;
   /**
    * Prevent dropping items on unloaded lazy Wunderbaum tree nodes
-   * Default: true
+   * @default true
    */
   preventLazyParents: boolean;
   /**
    * Prevent dropping items other than Wunderbaum tree nodes
-   * Default: false
+   * @default false
    */
   preventNonNodes: boolean;
   /**
    * Prevent dropping nodes on own descendants
-   * Default: true
+   * @default true
    */
   preventRecursion: boolean;
   /**
    * Prevent dropping nodes under same direct parent
-   * Default: false
+   * @default false
    */
   preventSameParent: false;
   /**
    * Prevent dropping nodes 'before self', etc. (move only)
-   * Default: true
+   * @default true
    */
   preventVoidMoves: boolean;
   /**
    * Enable auto-scrolling while dragging
-   * Default: true
+   * @default true
    */
   scroll: boolean;
   /**
    * Active top/bottom margin in pixel
-   * Default: 20
+   * @default 20
    */
   scrollSensitivity: 20;
   /**
    * Pixel per event
-   * Default: 5
+   * @default 5
    */
   scrollSpeed: 5;
   // /**
   //  * Allow dragging of nodes to different IE windows
-  //  * Default: false
+  //  * @default false
   //  */
   // setTextTypeJson: boolean;
   /**
    * Optional callback passed to `toDict` on dragStart @since 2.38
-   * Default: null
+   * @default null
    */
   sourceCopyHook: null;
   // Events (drag support)
   /**
    * Callback(sourceNode, data), return true, to enable dnd drag
-   * Default: null
+   * @default null
    */
   dragStart?: WbNodeEventType;
   /**
    * Callback(sourceNode, data)
-   * Default: null
+   * @default null
    */
   dragDrag: null;
   /**
    * Callback(sourceNode, data)
-   * Default: null
+   * @default null
    */
   dragEnd: null;
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
-   * Default: null
+   * @default null
    */
   dragEnter: null;
   /**
    * Callback(targetNode, data)
-   * Default: null
+   * @default null
    */
   dragOver: null;
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
-   * Default: null
+   * @default null
    */
   dragExpand: null;
   /**
    * Callback(targetNode, data)
-   * Default: null
+   * @default null
    */
   dragDrop: null;
   /**
    * Callback(targetNode, data)
-   * Default: null
+   * @default null
    */
   dragLeave: null;
 };

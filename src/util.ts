@@ -202,17 +202,19 @@ export function extractHtmlText(s: string) {
  * the element is checked, unchecked, or indeterminate.
  * For datetime input control a numerical value is assumed, etc.
  *
- * Common use case: store the new user input in the `change` event:
+ * Common use case: store the new user input in a `change` event handler:
  *
  * ```ts
  *   change: (e) => {
+ *     const tree = e.tree;
+ *     const node = e.node;
  *     // Read the value from the input control that triggered the change event:
- *     let value = e.tree.getValueFromElem(e.element);
- *     //
- *     e.node.data[]
+ *     let value = tree.getValueFromElem(e.element);
+ *     // and store it to the node model (assuming the column id matches the property name)
+ *     node.data[e.info.colId] = value;
  *   },
  * ```
- * @param elem `<input>` or `<select>` element Also a parent `span.wb-col` is accepted.
+ * @param elem `<input>` or `<select>` element. Also a parent `span.wb-col` is accepted.
  * @param coerce pass true to convert date/time inputs to `Date`.
  * @returns the value
  */
@@ -280,6 +282,23 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
  * value is truethy, falsy, or `null`.
  * For datetime input control a numerical value is assumed, etc.
  *
+ * Common use case: update embedded input controls in a `render` event handler:
+ *
+ * ```ts
+ *   render: (e) => {
+ *     // e.node.log(e.type, e, e.node.data);
+ *   
+ *     for (const col of Object.values(e.renderColInfosById)) {
+ *       switch (col.id) {
+ *         default:
+ *           // Assumption: we named column.id === node.data.NAME
+ *           util.setValueToElem(col.elem, e.node.data[col.id]);
+ *           break;
+ *       }
+ *     }
+ *   },
+ * ```
+ * 
  * @param elem `<input>` or `<select>` element Also a parent `span.wb-col` is accepted.
  * @param value a value that matches the target element.
  */
@@ -349,7 +368,7 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
   }
 }
 
-/** Show/hide element by setting the `display`style to 'none'. */
+/** Show/hide element by setting the `display` style to 'none'. */
 export function setElemDisplay(elem: string | Element, flag: boolean): void {
   const style = (<HTMLElement>elemFromSelector(elem)).style;
   if (flag) {
@@ -400,7 +419,23 @@ export function eventTargetFromSelector(
  * The result also contains a prefix for modifiers if any, for example
  * `"x"`, `"F2"`, `"Control+Home"`, or `"Shift+clickright"`.
  * This is especially useful in `switch` statements, to make sure that modifier
- * keys are considered and handled correctly.
+ * keys are considered and handled correctly:
+ * ```ts
+ *   const eventName = util.eventToString(e);
+ *   switch (eventName) {
+ *     case "+":
+ *     case "Add":
+ *       ...
+ *       break;
+ *     case "Enter":
+ *     case "End":
+ *     case "Control+End":
+ *     case "Meta+ArrowDown":
+ *     case "PageDown":
+ *       ...
+ *       break;
+ *   }
+ * ```
  */
 export function eventToString(event: Event): string {
   let key = (<KeyboardEvent>event).key,
