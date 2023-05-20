@@ -1960,7 +1960,7 @@ export class Wunderbaum {
     const scrollOnly = pending.has(RF.scroll) && pending.size === 1;
     if (scrollOnly) {
       this._updateRows({ newNodesOnly: true });
-      this.log("_updateViewportImmediately(): scroll only.");
+      // this.log("_updateViewportImmediately(): scroll only.");
     } else {
       this.log("_updateViewportImmediately():", pending);
       let height = this.listContainerElement.clientHeight;

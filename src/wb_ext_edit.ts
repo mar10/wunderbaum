@@ -17,7 +17,7 @@ import {
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { AddNodeType } from "./types";
+import { InsertNodeType } from "./types";
 import { WbNodeData } from "./wb_options";
 
 // const START_MARKER = "\uFFF7";
@@ -310,7 +310,7 @@ export class EditExtension extends WunderbaumExtension {
    * Create a new child or sibling node and start edit mode.
    */
   createNode(
-    mode: AddNodeType = "after",
+    mode: InsertNodeType = "after",
     node?: WunderbaumNode | null,
     init?: string | WbNodeData
   ) {

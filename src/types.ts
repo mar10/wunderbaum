@@ -265,8 +265,6 @@ export type ApplyCommandType =
 
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
-export type AddNodeType = "before" | "after" | "prependChild" | "appendChild";
-export type DndModeType = "before" | "after" | "over";
 
 /**
  * Possible values for {@link WunderbaumNode.setModified()} and {@link Wunderbaum.setModified()}.
@@ -456,7 +454,7 @@ export interface SetExpandedOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setSetModified()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setModified()} `options` argument. */
 export interface SetModifiedOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
@@ -499,6 +497,12 @@ export interface VisitRowsOptions {
  * wb_ext_dnd
  * ---------------------------------------------------------------------------*/
 
+export type InsertNodeType =
+  | "before"
+  | "after"
+  | "prependChild"
+  | "appendChild";
+// export type DndModeType = "before" | "after" | "over";
 export type DropRegionType = "over" | "before" | "after";
 export type DropRegionTypeSet = Set<DropRegionType>;
 // type AllowedDropRegionType =

@@ -10,7 +10,7 @@ import * as util from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import {
   AddChildrenOptions,
-  AddNodeType,
+  InsertNodeType,
   ApplyCommandOptions,
   ApplyCommandType,
   ChangeType,
@@ -334,9 +334,12 @@ export class WunderbaumNode {
    * @param [mode=child] 'before', 'after', 'firstChild', or 'child' ('over' is a synonym for 'child')
    * @returns new node
    */
-  addNode(nodeData: WbNodeData, mode = "child"): WunderbaumNode {
-    if (mode === "over") {
-      mode = "child"; // compatible with drop region
+  addNode(
+    nodeData: WbNodeData,
+    mode: InsertNodeType = "appendChild"
+  ): WunderbaumNode {
+    if (<string>mode === "over") {
+      mode = "appendChild"; // compatible with drop region
     }
     switch (mode) {
       case "after":
@@ -345,11 +348,11 @@ export class WunderbaumNode {
         });
       case "before":
         return this.parent.addChildren(nodeData, { before: this });
-      case "firstChild":
+      case "prependChild":
         // Insert before the first child if any
         // let insertBefore = this.children ? this.children[0] : undefined;
         return this.addChildren(nodeData, { before: 0 });
-      case "child":
+      case "appendChild":
         return this.addChildren(nodeData);
     }
     util.assert(false, "Invalid mode: " + mode);
@@ -1171,9 +1174,12 @@ export class WunderbaumNode {
   /** Move this node to targetNode. */
   moveTo(
     targetNode: WunderbaumNode,
-    mode: AddNodeType = "appendChild",
+    mode: InsertNodeType = "appendChild",
     map?: NodeAnyCallback
   ) {
+    if (<string>mode === "over") {
+      mode = "appendChild"; // compatible with drop region
+    }
     if (mode === "prependChild") {
       if (targetNode.children && targetNode.children.length) {
         mode = "before";
@@ -1231,7 +1237,7 @@ export class WunderbaumNode {
           targetParent.children!.splice(pos + 1, 0, this);
           break;
         default:
-          util.error("Invalid mode " + mode);
+          util.error(`Invalid mode '${mode}'.`);
       }
     } else {
       targetParent.children = [this];
@@ -1257,8 +1263,12 @@ export class WunderbaumNode {
         n.tree = targetNode.tree;
       }, true);
     }
-
-    tree.setModified(ChangeType.structure);
+    // Make sure we update async, because discarding the markup would prevent
+    // DragAndDrop to generate a dragend event on the source node
+    setTimeout(() => {
+      // Even indentation may have changed:
+      tree.setModified(ChangeType.any);
+    }, 0);
     // TODO: fix selection state
     // TODO: fix active state
   }
@@ -2076,7 +2086,7 @@ export class WunderbaumNode {
       util.assert(data.statusNodeType);
       util.assert(!firstChild || !firstChild.isStatusNode());
 
-      statusNode = this.addNode(data, "firstChild");
+      statusNode = this.addNode(data, "prependChild");
       statusNode.match = true;
       tree.setModified(ChangeType.structure);
 
@@ -2188,8 +2198,8 @@ export class WunderbaumNode {
     child: WunderbaumNode | null,
     extra?: any
   ) {
+    this.logDebug(`modifyChild(${operation})`, extra, child);
     if (!this.tree.options.modifyChild) return;
-
     if (child && child.parent !== this) {
       util.error("child " + child + " is not a child of " + this);
     }

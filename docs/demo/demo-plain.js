@@ -36,7 +36,8 @@ new mar10.Wunderbaum({
       return ["before", "after"];
     },
     drop: (e) => {
-      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
+      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
+      e.sourceNode.moveTo(e.node, e.defaultDropMode)
     },
   },
   edit: {

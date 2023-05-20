@@ -137,7 +137,7 @@ export class DndExtension extends WunderbaumExtension {
       // Only 'before' and 'after':
       return dy > ROW_HEIGHT / 2 ? "after" : "before";
     }
-    return "over";
+    // return "over";
   }
 
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
@@ -225,6 +225,8 @@ export class DndExtension extends WunderbaumExtension {
 
   protected onDropEvent(e: DragEvent) {
     // const isLink = event.dataTransfer.types.includes("text/uri-list");
+    const srcNode = this.srcNode;
+    const srcTree = srcNode ? srcNode.tree : null;
     const targetNode = Wunderbaum.getNode(e)!;
     const dndOpts = this.treeOpts.dnd;
     const dt = e.dataTransfer!;
@@ -233,7 +235,7 @@ export class DndExtension extends WunderbaumExtension {
       this._leaveNode();
       return;
     }
-    if (e.type !== "dragover") {
+    if (!["dragenter", "dragover", "dragleave"].includes(e.type)) {
       this.tree.logDebug(
         "onDropEvent." +
           e.type +
@@ -261,13 +263,29 @@ export class DndExtension extends WunderbaumExtension {
       this.lastEnterStamp = Date.now();
 
       if (
-        // Don't allow void operation ('drop on self')
-        (dndOpts.preventVoidMoves && targetNode === this.srcNode) ||
-        targetNode.isStatusNode()
+        // Don't drop on status node:
+        targetNode.isStatusNode() ||
+        // Prevent dropping nodes from different Wunderbaum trees:
+        (dndOpts.preventForeignNodes && targetNode.tree !== srcTree) ||
+        // Prevent dropping items on unloaded lazy Wunderbaum tree nodes:
+        (dndOpts.preventLazyParents && !targetNode.isLoaded()) ||
+        // Prevent dropping items other than Wunderbaum tree nodes:
+        (dndOpts.preventNonNodes && !srcNode) ||
+        // Prevent dropping nodes on own descendants:
+        (dndOpts.preventRecursion &&
+          srcNode &&
+          srcNode.isAncestorOf(targetNode)) ||
+        // Prevent dropping nodes under same direct parent:
+        (dndOpts.preventSameParent &&
+          srcNode &&
+          targetNode.parent === srcNode.parent) ||
+        // Don't allow void operation ('drop on self'): TODO: should be checke onn  move only
+        (dndOpts.preventVoidMoves && targetNode === srcNode)
       ) {
         dt.dropEffect = "none";
         return true; // Prevent drop operation
       }
+
       // User may return a set of regions (or `false` to prevent drop)
       let regionSet = targetNode._callEvent("dnd.dragEnter", { event: e });
       //
@@ -321,9 +339,11 @@ export class DndExtension extends WunderbaumExtension {
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
       this._leaveNode();
+      const region = this.lastDropRegion;
       targetNode._callEvent("dnd.drop", {
         event: e,
-        region: this.lastDropRegion,
+        region: region,
+        defaultDropMode: region === "over" ? "appendChild" : region,
         sourceNode: this.srcNode,
       });
     }
