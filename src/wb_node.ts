@@ -974,12 +974,49 @@ export class WunderbaumNode {
     this._callEvent("load");
   }
 
+  async _fetchWithOptions(source: any) {
+    // Either a URL string or an object with a `.url` property.
+    let url: string, params, body, options, rest;
+    let fetchOpts: any = {  };
+    if (typeof source === "string") {
+      // source is a plain URL string: assume GET request
+      url = source;
+      fetchOpts.method= "GET"
+    } else if (util.isPlainObject(source)) {
+      // source is a plain object with `.url` property.
+      ({ url, params, body, options, ...rest } = source);
+      util.assert(typeof url === "string", `expected source.url as string`);
+      if (util.isPlainObject(options)) {
+        fetchOpts = options;
+      }
+      if (util.isPlainObject(body)) {
+        // we also accept 'body' as object...
+        util.assert(
+          !fetchOpts.body,
+          "options.body should be passed as source.body"
+        );
+        fetchOpts.body = JSON.stringify(fetchOpts.body);
+        fetchOpts.method ??= "POST"; // set default
+      }
+      if (util.isPlainObject(params)) {
+        url += "?" + new URLSearchParams(params)
+        fetchOpts.method ??= "GET"; // set default
+      }
+    } else {
+      util.error(`Unsupported source format: ${source}`);
+    }
+    this.setStatus(NodeStatusType.loading);
+    const response = await fetch(url, fetchOpts);
+    if (!response.ok) {
+      util.error(`GET ${url} returned ${response.status}, ${response}`);
+    }
+    return await response.json();
+  }
   /** Download  data from the cloud, then call `.update()`. */
   async load(source: any) {
     const tree = this.tree;
     const requestId = Date.now();
     const prevParent = this.parent;
-    const url = typeof source === "string" ? source : source.url;
     const start = Date.now();
     let elap = 0,
       elapLoad = 0,
@@ -997,16 +1034,16 @@ export class WunderbaumNode {
     // const timerLabel = tree.logTime(this + ".load()");
 
     try {
+      let url: string = typeof source === "string" ? source : source.url;
       if (!url) {
+        // An array or a plain object (that does NOT contain a `.url` property)
+        // will be treated as native Wunderbaum data
         this._loadSourceObject(source);
         elapProcess = Date.now() - start;
       } else {
-        this.setStatus(NodeStatusType.loading);
-        const response = await fetch(url, { method: "GET" });
-        if (!response.ok) {
-          util.error(`GET ${url} returned ${response.status}, ${response}`);
-        }
-        const data = await response.json();
+        // Either a URL string or an object with a `.url` property.
+        const data = await this._fetchWithOptions(source);
+
         elapLoad = Date.now() - start;
 
         if (this._requestId && this._requestId > requestId) {

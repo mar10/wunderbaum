@@ -101,7 +101,7 @@ new mar10.Wunderbaum({
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-products.json" });
+        resolve({ url: "../assets/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
       }, 1500);
     });
   },

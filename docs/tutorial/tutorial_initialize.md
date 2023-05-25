@@ -182,6 +182,21 @@ const tree = new mar10.Wunderbaum({
 });
 ```
 
+The example above issues a simple GET request.
+For more controle, we can use the extended syntax:
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  source: {
+    url: "path/to/request",
+    params: {},  // key/value pairs converted to URL parameters
+    body: {},    // key/value pairs converted to JSON body (defaults to method POST)
+    options: {}, // passed to `fetch(url, OPTIONS)`
+  }
+  ...
+});
+```
+
 The endpoint must return a node structure in JSON format.
 
 Note that
