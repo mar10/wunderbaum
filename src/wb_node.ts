@@ -977,11 +977,11 @@ export class WunderbaumNode {
   async _fetchWithOptions(source: any) {
     // Either a URL string or an object with a `.url` property.
     let url: string, params, body, options, rest;
-    let fetchOpts: any = {  };
+    let fetchOpts: any = {};
     if (typeof source === "string") {
       // source is a plain URL string: assume GET request
       url = source;
-      fetchOpts.method= "GET"
+      fetchOpts.method = "GET";
     } else if (util.isPlainObject(source)) {
       // source is a plain object with `.url` property.
       ({ url, params, body, options, ...rest } = source);
@@ -999,10 +999,11 @@ export class WunderbaumNode {
         fetchOpts.method ??= "POST"; // set default
       }
       if (util.isPlainObject(params)) {
-        url += "?" + new URLSearchParams(params)
+        url += "?" + new URLSearchParams(params);
         fetchOpts.method ??= "GET"; // set default
       }
     } else {
+      url = ""; // keep linter happy
       util.error(`Unsupported source format: ${source}`);
     }
     this.setStatus(NodeStatusType.loading);
@@ -1444,7 +1445,7 @@ export class WunderbaumNode {
       icon = iconMap.loading;
     }
     if (icon === false) {
-      return null;
+      return null; // explicitly disabled: don't try default icons
     }
     if (typeof icon === "string") {
       // Callback returned an icon definition
@@ -1462,7 +1463,10 @@ export class WunderbaumNode {
     }
 
     // this.log("_createIcon: " + icon);
-    if (icon.indexOf("<") >= 0) {
+    if (!icon) {
+      iconSpan = document.createElement("i");
+      iconSpan.className = "wb-icon";
+    } else if (icon.indexOf("<") >= 0) {
       // HTML
       iconSpan = util.elemFromHtml(icon);
     } else if (TEST_IMG.test(icon)) {
