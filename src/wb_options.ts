@@ -107,7 +107,7 @@ export interface WunderbaumOptions {
    * real data.
    * Default: false.
    */
-  skeleton?: false;
+  skeleton?: boolean;
   /**
    * Translation map for some system messages.
    */
@@ -123,6 +123,12 @@ export interface WunderbaumOptions {
    * Default: 0
    */
   minExpandLevel?: number;
+  /**
+   * If true, allow to expand parent nodes, even if `node.children` conatains
+   * an empty array (`[]`). This is the the behavior of macOS Finder, for example.
+   * Default: false
+   */
+  emptyChildListExpandable?: boolean;
   // escapeTitles: boolean;
   // /**
   //  * Height of the header row div.

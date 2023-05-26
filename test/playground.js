@@ -18,7 +18,8 @@ const tree = new Wunderbaum({
   // enabled: false,
   fixedCol: true,
   debugLevel: 4,
-  minExpandLevel: 1,
+  // minExpandLevel: 1,
+  emptyChildListExpandable: true,
 
   header: true, //"Playground", 
   // navigationModeOption: "cell",
@@ -26,7 +27,7 @@ const tree = new Wunderbaum({
   // source: "generator/ajax_1k_3_54 t_c.json",
   // source: "generator/fixture_department_1k_3_6_flat_comp.json",
   // source: "generator/fixture_department_1k_3_6_comp.json",
-  source: "../docs/assets/ajax-tree-products.json",
+  // source: "../docs/assets/ajax-tree-products.json",
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "generator/fixture.json",
@@ -36,6 +37,17 @@ const tree = new Wunderbaum({
   //     return {url: "../docs/assets/ajax-tree-products.json"};
   //   }, 5000);
   // },
+  source: {
+    children: [
+      {title: "a", children:[]},
+      {title: "b", children:[{
+        title: "ba"},
+      ]},
+      {title: "c", children:null},
+      {title: "d", children:false},
+      {title: "e"},
+    ]
+  },
   columns: [
     { title: "test", id: "*", width: "200px" },
     // {

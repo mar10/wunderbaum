@@ -789,8 +789,17 @@ export class WunderbaumNode {
    * an expand operation is currently possible.
    */
   isExpandable(andCollapsed = false): boolean {
-    // return !!this.children && (!this.expanded || !andCollapsed);
-    return !!(this.children || this.lazy) && (!this.expanded || !andCollapsed);
+    // `false` is never expandable (unoffical)
+    if ((andCollapsed && this.expanded) || <any>this.children === false) {
+      return false;
+    }
+    if (this.children == null) {
+      return this.lazy; // null or undefined can trigger lazy load
+    }
+    if (this.children.length === 0) {
+      return !!this.tree.options.emptyChildListExpandable;
+    }
+    return true;
   }
 
   /** Return true if this node is currently in edit-title mode. */

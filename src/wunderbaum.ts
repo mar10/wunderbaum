@@ -166,6 +166,7 @@ export class Wunderbaum {
         showSpinner: false,
         checkbox: false,
         minExpandLevel: 0,
+        emptyChildListExpandable: false,
         updateThrottleWait: 200,
         skeleton: false,
         connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
@@ -1315,8 +1316,9 @@ export class Wunderbaum {
     if (cl.contains("wb-title")) {
       res.region = NodeRegion.title;
     } else if (cl.contains("wb-expander")) {
-      res.region =
-        node!.hasChildren() === false ? NodeRegion.prefix : NodeRegion.expander;
+      res.region = node!.isExpandable()
+        ? NodeRegion.expander
+        : NodeRegion.prefix;
     } else if (cl.contains("wb-checkbox")) {
       res.region = NodeRegion.checkbox;
     } else if (cl.contains("wb-icon")) {
