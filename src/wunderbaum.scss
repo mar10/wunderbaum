@@ -52,11 +52,14 @@ $icon-padding-x: ($icon-outer-width - $icon-width) / 2;
 $header-height: $row-outer-height;
 
 // PyCharm:
-$level-rainbow: rgba(255, 255, 232, 1), rgba(240, 255, 240, 1),
-  rgba(255, 240, 255, 1), rgba(234, 253, 253, 1);
+// $level-rainbow: rgba(255, 255, 232, 1), rgba(240, 255, 240, 1),
+//   rgba(255, 240, 255, 1), rgba(234, 253, 253, 1);
 // VS-Code_
 // $level-rainbow: rgba(255, 255, 64, 0.07), rgba(127, 255, 127, 0.07),
 //   rgba(255, 127, 255, 0.07), rgba(79, 236, 236, 0.07);
+// Slightly stronger*
+$level-rainbow: rgb(255, 255, 201), rgb(218, 255, 218),
+rgb(255, 217, 254), rgb(204, 250, 250);
 
 div.wunderbaum {
   box-sizing: border-box;
