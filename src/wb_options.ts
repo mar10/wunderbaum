@@ -116,7 +116,7 @@ export interface WunderbaumOptions {
    * 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
    * Default: 3 (4 in local debug environment)
    */
-  debugLevel: number;
+  debugLevel?: number;
   /**
    * Number of levels that are forced to be expanded, and have no expander icon.
    * E.g. 1 would keep all toplevel nodes expanded.
@@ -193,9 +193,9 @@ export interface WunderbaumOptions {
 
   // --- Extensions ------------------------------------------------------------
   dnd?: DndOptionsType; // = {};
-  edit: any; // = {};
-  filter: any; // = {};
-  grid: any; // = {};
+  edit?: any; // = {};
+  filter?: any; // = {};
+  grid?: any; // = {};
 
   // --- Events ----------------------------------------------------------------
 

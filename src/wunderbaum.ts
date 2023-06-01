@@ -1388,7 +1388,7 @@ export class Wunderbaum {
 
   /** Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
-    if (this.options.debugLevel >= 4) {
+    if (this.options.debugLevel! >= 4) {
       Array.prototype.unshift.call(args, this.toString());
       console.log.apply(console, args);
     }
@@ -1396,7 +1396,7 @@ export class Wunderbaum {
 
   /** Log error to console. */
   logError(...args: any[]) {
-    if (this.options.debugLevel >= 1) {
+    if (this.options.debugLevel! >= 1) {
       Array.prototype.unshift.call(args, this.toString());
       console.error.apply(console, args);
     }
@@ -1404,7 +1404,7 @@ export class Wunderbaum {
 
   /** Log to console if opts.debugLevel >= 3 */
   logInfo(...args: any[]) {
-    if (this.options.debugLevel >= 3) {
+    if (this.options.debugLevel! >= 3) {
       Array.prototype.unshift.call(args, this.toString());
       console.info.apply(console, args);
     }
@@ -1412,7 +1412,7 @@ export class Wunderbaum {
 
   /** @internal */
   logTime(label: string): string {
-    if (this.options.debugLevel >= 4) {
+    if (this.options.debugLevel! >= 4) {
       console.time(this + ": " + label);
     }
     return label;
@@ -1420,14 +1420,14 @@ export class Wunderbaum {
 
   /** @internal */
   logTimeEnd(label: string): void {
-    if (this.options.debugLevel >= 4) {
+    if (this.options.debugLevel! >= 4) {
       console.timeEnd(this + ": " + label);
     }
   }
 
   /** Log to console if opts.debugLevel >= 2 */
   logWarn(...args: any[]) {
-    if (this.options.debugLevel >= 2) {
+    if (this.options.debugLevel! >= 2) {
       Array.prototype.unshift.call(args, this.toString());
       console.warn.apply(console, args);
     }

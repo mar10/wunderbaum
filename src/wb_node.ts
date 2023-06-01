@@ -1090,7 +1090,7 @@ export class WunderbaumNode {
     } finally {
       this._requestId = 0;
       elap = Date.now() - start;
-      if (tree.options.debugLevel >= 3) {
+      if (tree.options.debugLevel! >= 3) {
         tree.logInfo(
           `Load source took ${elap / 1000} seconds (transfer: ${
             elapLoad / 1000
@@ -1149,7 +1149,7 @@ export class WunderbaumNode {
 
   /* Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
-    if (this.tree.options.debugLevel >= 4) {
+    if (this.tree.options.debugLevel! >= 4) {
       Array.prototype.unshift.call(args, this.toString());
       console.log.apply(console, args);
     }
@@ -1157,7 +1157,7 @@ export class WunderbaumNode {
 
   /* Log error to console. */
   logError(...args: any[]) {
-    if (this.tree.options.debugLevel >= 1) {
+    if (this.tree.options.debugLevel! >= 1) {
       Array.prototype.unshift.call(args, this.toString());
       console.error.apply(console, args);
     }
@@ -1165,7 +1165,7 @@ export class WunderbaumNode {
 
   /* Log to console if opts.debugLevel >= 3 */
   logInfo(...args: any[]) {
-    if (this.tree.options.debugLevel >= 3) {
+    if (this.tree.options.debugLevel! >= 3) {
       Array.prototype.unshift.call(args, this.toString());
       console.info.apply(console, args);
     }
@@ -1173,7 +1173,7 @@ export class WunderbaumNode {
 
   /* Log warning to console if opts.debugLevel >= 2 */
   logWarn(...args: any[]) {
-    if (this.tree.options.debugLevel >= 2) {
+    if (this.tree.options.debugLevel! >= 2) {
       Array.prototype.unshift.call(args, this.toString());
       console.warn.apply(console, args);
     }
