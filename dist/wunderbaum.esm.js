@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -30,7 +30,7 @@ const ENTITY_MAP = {
 /**
  * A ES6 Promise, that exposes the resolve()/reject() methods.
  */
-class Deferred$1 {
+let Deferred$1 = class Deferred {
     constructor() {
         this.thens = [];
         this.catches = [];
@@ -76,7 +76,7 @@ class Deferred$1 {
             catch: this.catch,
         };
     }
-}
+};
 /**Throw an `Error` if `cond` is falsey. */
 function assert(cond, msg) {
     if (!cond) {
@@ -716,47 +716,47 @@ function adaptiveThrottle(callback, options) {
 
 var util = /*#__PURE__*/Object.freeze({
   __proto__: null,
-  MOUSE_BUTTONS: MOUSE_BUTTONS,
-  MAX_INT: MAX_INT,
-  isMac: isMac,
   Deferred: Deferred$1,
+  MAX_INT: MAX_INT,
+  MOUSE_BUTTONS: MOUSE_BUTTONS,
+  adaptiveThrottle: adaptiveThrottle,
   assert: assert,
   documentReady: documentReady,
   documentReadyPromise: documentReadyPromise,
   each: each,
+  elemFromHtml: elemFromHtml,
+  elemFromSelector: elemFromSelector,
   error: error,
   escapeHtml: escapeHtml,
   escapeRegex: escapeRegex,
   escapeTooltip: escapeTooltip,
-  extractHtmlText: extractHtmlText,
-  getValueFromElem: getValueFromElem,
-  setValueToElem: setValueToElem,
-  setElemDisplay: setElemDisplay,
-  elemFromHtml: elemFromHtml,
-  elemFromSelector: elemFromSelector,
   eventTargetFromSelector: eventTargetFromSelector,
   eventToString: eventToString,
   extend: extend,
+  extractHtmlText: extractHtmlText,
+  getOption: getOption,
+  getValueFromElem: getValueFromElem,
   isArray: isArray,
   isEmptyObject: isEmptyObject,
   isFunction: isFunction,
+  isMac: isMac,
   isPlainObject: isPlainObject,
   noop: noop,
   onEvent: onEvent,
   overrideMethod: overrideMethod,
+  setElemDisplay: setElemDisplay,
   setTimeoutPromise: setTimeoutPromise,
+  setValueToElem: setValueToElem,
   sleep: sleep,
-  toggleCheckbox: toggleCheckbox,
-  getOption: getOption,
   toSet: toSet,
-  type: type,
-  adaptiveThrottle: adaptiveThrottle
+  toggleCheckbox: toggleCheckbox,
+  type: type
 });
 
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.setModified()} and {@link Wunderbaum.setModified()}.
@@ -820,7 +820,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1111,7 +1111,7 @@ function debounce(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1412,7 +1412,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1752,7 +1752,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1792,7 +1792,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
 /**
@@ -2038,7 +2038,7 @@ function inflateSourceData(source) {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2331,7 +2331,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2467,7 +2467,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2504,7 +2504,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2557,7 +2557,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 /** Top-level properties that can be passed with `data`. */
 const NODE_PROPS = new Set([
@@ -4600,7 +4600,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.0, Sat, 27 May 2023 04:56:52 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.1, Sat, 03 Jun 2023 16:50:32 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -4895,8 +4895,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.3.0
- * @date Sat, 27 May 2023 04:56:52 GMT
+ * @version v0.3.1
+ * @date Sat, 03 Jun 2023 16:50:32 GMT
  */
 class WbSystemRoot extends WunderbaumNode {
     constructor(tree) {
@@ -6928,7 +6928,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.3.0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.3.1"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 
