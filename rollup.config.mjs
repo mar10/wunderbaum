@@ -1,10 +1,10 @@
 import fs from "fs";
-import modify from "rollup-plugin-modify";
 import postcss from "postcss";
 import postcss_url from "postcss-url";
-import scss from "rollup-plugin-scss";
-import terser from "@rollup/plugin-terser";
-import typescript from "@rollup/plugin-typescript";
+import rup_modify from "rollup-plugin-modify";
+import rup_scss from "rollup-plugin-scss";
+import rup_terser from "@rollup/plugin-terser";
+import rup_typescript from "@rollup/plugin-typescript";
 
 let package_json = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
@@ -20,33 +20,39 @@ export default {
       format: "umd",
       name: "mar10",
     },
-    {
-      file: "build/wunderbaum.esm.min.js",
-      format: "es",
-      plugins: [terser()], // minify
-      sourcemap: true,
-    },
-    {
-      file: "build/wunderbaum.umd.min.js",
-      format: "umd",
-      name: "mar10",
-      plugins: [terser()], // minify
-      sourcemap: true,
-    },
+    // Minify with terser did produce invalid files ( only first extension)???
+    // running `terser` as npm script from package.json instead
+    // {
+    //   file: "build/wunderbaum.esm.min.js",
+    //   format: "es",
+    //   plugins: [rup_terser()], // minify
+    //   sourcemap: true,
+    // },
+    // {
+    //   file: "build/wunderbaum.umd.min.js",
+    //   format: "umd",
+    //   name: "mar10",
+    //   plugins: [rup_terser()], // minify
+    //   sourcemap: true,
+    // },
   ],
   plugins: [
-    typescript(),
-    modify({
+    rup_typescript(),
+    rup_modify({
       "@VERSION": "v" + package_json.version,
       "@DATE": "" + new Date().toUTCString(),
       "const default_debuglevel = 4;": "const default_debuglevel = 3;",
     }),
-    scss({
+    // rup_terser(),
+    rup_scss({
       fileName: "wunderbaum.css",
       outputStyle: "compressed",
       sourceMap: true,
       // convert
-      processor: () => postcss().use(postcss_url({ url: "inline" })),
+      processor: () =>
+        postcss().use(
+          postcss_url({ url: "inline", maxSize: 10, fallback: "copy" })
+        ),
     }),
   ],
 };

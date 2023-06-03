@@ -7,8 +7,13 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.3.1: #20: Fix sourcemaps
+- v0.3.1: #19: Fix missing icons in deploymet by inlining
+- v0.3.1: #19: Make options optional: debugLevel, edit, filter, grid
+- v0.3.1: Update typescript to 5.x
+
 - v0.3.0: new option `tree.options.emptyChildListExpandable` controls if
-  parent nodes with `node.children === []` are still expandable 
+  parent nodes with `node.children === []` are still expandable
   (like macOS Finder). Defaults to false.
 - v0.3.0: `load()`, `source` and `lazyLoad` now support an extended sytax :
   ```js
@@ -19,6 +24,6 @@ First release.
     options: {}, // passed to `fetch(url, OPTIONS)`
   }
   ```
-- v0.3.0: Add  `node.setIcon()`.
-- v0.3.0: Add  `tree.` and `node.sortChildren()`.
+- v0.3.0: Add `node.setIcon()`.
+- v0.3.0: Add `tree.` and `node.sortChildren()`.
 - v0.3.0: Removed `tree.updateColumns()`. Use `tree.setModified(ChangeType.colStructure)` instead.

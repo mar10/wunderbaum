@@ -9,7 +9,7 @@
   "homepage": "https://github.com/mar10/wunderbaum",
   "author": {
     "name": "Martin Wendt",
-    "url": "http://careers.stackoverflow.com/martin-wendt"
+    "url": "https://github.com/mar10"
   },
   "repository": {
     "type": "git",
@@ -99,8 +99,11 @@
     "docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
     "format": "prettier src -w && npm run lint",
     "lint": "prettier src --check && tsc -t esnext --noEmit",
+    "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"base='build',url='wunderbaum.umd.min.js.map',filename='wunderbaum.umd.js'\" --output build/wunderbaum.umd.min.js",
+    "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"base='build',url='wunderbaum.esm.min.js.map',filename='wunderbaum.esm.js'\" --output build/wunderbaum.esm.min.js",
+    "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
+    "build:js": "rollup -c rollup.config.mjs && npm run build:minjs",
     "build:types": "tsc -t esnext --moduleResolution node -d --emitDeclarationOnly --outFile build/wunderbaum.d.ts src/wunderbaum.ts",
-    "build:js": "rollup -c rollup.config.mjs",
     "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s && npm run build:types -s && npm run docs",
     "make_dist": "npm run build && rm dist/*.* ; cp build/*.* dist",
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
