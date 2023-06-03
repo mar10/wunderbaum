@@ -45,35 +45,38 @@
     "control"
   ],
   "devDependencies": {
+    "@rollup/plugin-terser": "^0.4.3",
     "@rollup/plugin-typescript": "^11.1.1",
     "@types/jest": "^29.5.2",
     "concurrently": "^8.1.0",
-    "eslint": "^8.41.0",
     "eslint-config-jquery": "^3.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
-    "grunt": "^1.6.1",
+    "eslint": "^8.41.0",
     "grunt-contrib-connect": "^3.0.0",
     "grunt-contrib-qunit": "^7.0.0",
     "grunt-contrib-watch": "^1.1.0",
     "grunt-exec": "^3.0.0",
     "grunt-yabs": "^1.3.0",
+    "grunt": "^1.6.1",
     "http-server": "^14.1.1",
     "node-sass": "^9.0.0",
     "nodemon": "^2.0.22",
+    "postcss-url": "^10.1.3",
+    "postcss": "^8.2.24",
     "prettier": "^2.8.8",
     "pretty-quick": "^3.1.3",
     "puppeteer": "^20.5.0",
     "qunit": "^2.19.4",
-    "rollup": "^3.23.0",
     "rollup-plugin-modify": "^3.0.0",
     "rollup-plugin-scss": "^4.0.0",
+    "rollup": "^3.23.0",
     "terser": "^5.17.7",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.2",
     "typedoc": "^0.24.7",
-    "typescript": "^5.1.3"
+    "typescript": "^5.0.0"
   },
   "nodemonConfig": {
     "watch": [
@@ -97,11 +100,8 @@
     "format": "prettier src -w && npm run lint",
     "lint": "prettier src --check && tsc -t esnext --noEmit",
     "build:types": "tsc -t esnext --moduleResolution node -d --emitDeclarationOnly --outFile build/wunderbaum.d.ts src/wunderbaum.ts",
-    "build:js": "rollup -c rollup.config.js",
-    "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"url='wunderbaum.umd.min.js.map'\" --output build/wunderbaum.umd.min.js",
-    "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"url='wunderbaum.esm.min.js.map'\" --output build/wunderbaum.esm.min.js",
-    "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
-    "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s && npm run build:minjs -s && npm run build:types -s && npm run docs",
+    "build:js": "rollup -c rollup.config.mjs",
+    "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s && npm run build:types -s && npm run docs",
     "make_dist": "npm run build && rm dist/*.* ; cp build/*.* dist",
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
@@ -122,8 +122,5 @@
         "wunderbaum.umd.min.js.map"
       ]
     }
-  ],
-  "dependencies": {
-    "lib-sass-data-uri": "^0.0.5"
-  }
+  ]
 }

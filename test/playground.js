@@ -3,14 +3,14 @@
  *     `<script defer type="module" src="playground.js"></script>`
  */
 
-import { Wunderbaum } from "../build/wunderbaum.esm.js";
+import { Wunderbaum } from "../build/wunderbaum.esm.min.js";
 
 const util = Wunderbaum.util;
 // const ModeElemTemplate = `<select tabindex='-1'>
 //   <option value='1'>O1</option>
 //   <option value='2'>O2</option>
 // </select>`;
-let sequence = 1
+let sequence = 1;
 const tree = new Wunderbaum({
   element: "#tree",
   checkbox: true,
@@ -21,7 +21,7 @@ const tree = new Wunderbaum({
   // minExpandLevel: 1,
   emptyChildListExpandable: true,
 
-  header: true, //"Playground", 
+  header: true, //"Playground",
   // navigationModeOption: "cell",
 
   // source: "generator/ajax_1k_3_54 t_c.json",
@@ -39,14 +39,19 @@ const tree = new Wunderbaum({
   // },
   source: {
     children: [
-      {title: "a", children:[]},
-      {title: "b", children:[{
-        title: "ba"},
-      ]},
-      {title: "c", children:null},
-      {title: "d", children:false},
-      {title: "e"},
-    ]
+      { title: "a", children: [] },
+      {
+        title: "b",
+        children: [
+          {
+            title: "ba",
+          },
+        ],
+      },
+      { title: "c", children: null },
+      { title: "d", children: false },
+      { title: "e" },
+    ],
   },
   columns: [
     { title: "test", id: "*", width: "200px" },
@@ -130,8 +135,8 @@ const tree = new Wunderbaum({
       })
     );
   },
-  deactivate: (e) => { },
-  discard: (e) => { },
+  deactivate: (e) => {},
+  discard: (e) => {},
   change: (e) => {
     const node = e.node;
     const value = e.inputValue;
@@ -177,7 +182,7 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
 
     switch (action) {
       case "collapseAll":
-        tree.logTime("iter")
+        tree.logTime("iter");
         let count = 0;
         // for (const node of tree) {
         //   count++;
@@ -186,10 +191,10 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
           count++;
         });
 
-        tree.logTimeEnd("iter")
-        tree.log(`count: ${count}`)
+        tree.logTimeEnd("iter");
+        tree.log(`count: ${count}`);
         tree.expandAll(false, {
-          // force: true, 
+          // force: true,
           depth: 2,
         });
         break;
@@ -203,7 +208,7 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
         // console.info(tree.getActiveNode()._format_line(tree.root));
         // console.info((tree.getActiveNode() || tree.root).format((n)=>n.title));
         // tree.sortChildren(null, true)
-        tree.getActiveNode().setIcon("bi bi-diagram-3")
+        tree.getActiveNode().setIcon("bi bi-diagram-3");
         // tree.columns.push(
         //   { title: "Mode", id: "mode_" + sequence++, width: "100px" }
         // )
@@ -211,4 +216,4 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
         break;
     }
   });
-})
+});
