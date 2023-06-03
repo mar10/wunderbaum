@@ -54,7 +54,7 @@ new mar10.Wunderbaum({
     },
     drop: (e) => {
       console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode)
+      e.sourceNode.moveTo(e.node, e.defaultDropMode);
     },
   },
   edit: {
@@ -85,10 +85,12 @@ new mar10.Wunderbaum({
   },
   init: (e) => {
     console.log(e.type, e);
-    e.tree.findFirst("More...").setExpanded()
-    e.tree.findFirst((n) => {
-      return n.data.qty === 21;
-    }).setActive()
+    e.tree.findFirst("More...").setExpanded();
+    e.tree
+      .findFirst((n) => {
+        return n.data.qty === 21;
+      })
+      .setActive();
     // e.tree.setFocus();
   },
   load: (e) => {
@@ -101,7 +103,8 @@ new mar10.Wunderbaum({
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
+        // resolve({ url: "../assets/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
+        resolve({ url: "../assets/ajax-lazy-products.json" });
       }, 1500);
     });
   },
