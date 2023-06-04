@@ -28,9 +28,9 @@
   "exports": {
     ".": {
       "require": "./dist/wunderbaum.umd.min.js",
-      "import": "./dist/wunderbaum.esm.min.js",
-      "style": "./dist/wunderbaum.css"
-    }
+      "import": "./dist/wunderbaum.esm.min.js"
+    },
+    "./dist/*": "./dist/*"
   },
   "files": [
     "src",

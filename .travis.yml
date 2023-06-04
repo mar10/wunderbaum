@@ -1,7 +1,5 @@
 language: node_js
-# sudo: false
 dist: jammy
-# dist: focal
 node_js:
   - "lts/*"
 

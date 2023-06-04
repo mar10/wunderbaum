@@ -20,7 +20,7 @@ export default {
       format: "umd",
       name: "mar10",
     },
-    // Minify with terser did produce invalid files ( only first extension)???
+    // TODO: Minify with terser did produce invalid files (only first extension)?
     // running `terser` as npm script from package.json instead
     // {
     //   file: "build/wunderbaum.esm.min.js",
@@ -46,13 +46,22 @@ export default {
     // rup_terser(),
     rup_scss({
       fileName: "wunderbaum.css",
-      outputStyle: "compressed",
-      sourceMap: true,
-      // convert
+      // Convert image URLs to inline data-uris
       processor: () =>
         postcss().use(
           postcss_url({ url: "inline", maxSize: 10, fallback: "copy" })
         ),
     }),
+    // TODO: additional minfied version?
+    // rup_scss({
+    //   fileName: "wunderbaum.min.css",
+    //   outputStyle: "compressed",
+    //   sourceMap: true,
+    //   // Convert image URLs to inline data-uris
+    //   processor: () =>
+    //     postcss().use(
+    //       postcss_url({ url: "inline", maxSize: 10, fallback: "copy" })
+    //     ),
+    // }),
   ],
 };
