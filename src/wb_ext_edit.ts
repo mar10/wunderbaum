@@ -237,6 +237,7 @@ export class EditExtension extends WunderbaumExtension {
    * @param opts.canKeepOpen
    */
   _stopEditTitle(apply: boolean, options: any) {
+    options ??= {};
     const focusElem = document.activeElement as HTMLInputElement;
     let newValue = focusElem ? getValueFromElem(focusElem) : null;
     const node = this.curEditNode;
