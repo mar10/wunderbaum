@@ -3,9 +3,6 @@
   "version": "0.3.2-0",
   "title": "A treegrid control.",
   "description": "JavaScript tree/grid/treegrid control.",
-  "main": "dist/wunderbaum.umd.js",
-  "types": "dist/wunderbaum.d.ts",
-  "module": "dist/wunderbaum.esm.min.js",
   "homepage": "https://github.com/mar10/wunderbaum",
   "author": {
     "name": "Martin Wendt",
@@ -25,12 +22,17 @@
       "url": "https://raw.githubusercontent.com/mar10/wunderbaum/main/LICENSE.txt"
     }
   ],
+  "main": "./dist/wunderbaum.umd.js",
+  "module": "./dist/wunderbaum.esm.js",
+  "types": "./dist/wunderbaum.d.ts",
   "exports": {
     ".": {
-      "require": "./dist/wunderbaum.umd.min.js",
-      "import": "./dist/wunderbaum.esm.min.js"
+      "types": "./dist/wunderbaum.d.ts",
+      "require": "./dist/wunderbaum.umd.js",
+      "import": "./dist/wunderbaum.esm.js"
     },
-    "./dist/*": "./dist/*"
+    "./dist/": "./dist/",
+    "./src/": "./src/"
   },
   "files": [
     "src",
