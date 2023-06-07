@@ -1121,7 +1121,7 @@ declare module "wb_node" {
          * @param {function} callback the callback function.
          *     Return false to stop iteration, return "skip" to skip this node and
          *     its children only.
-         * @see {@link WunderbaumNode.*[Symbol.iterator]}, {@link Wunderbaum.visit}.
+         * @see {@link IterableIterator<WunderbaumNode>}, {@link Wunderbaum.visit}.
          */
         visit(callback: NodeVisitCallback, includeSelf?: boolean): NodeVisitResponse;
         /** Call fn(node) for all parent nodes, bottom-up, including invisible system root.<br>
@@ -1225,7 +1225,7 @@ declare module "types" {
         event: KeyboardEvent;
         node: WunderbaumNode;
         info: WbEventInfo;
-        /** Canical name of the key including modifiers. @see {@link eventToString} */
+        /** Canical name of the key including modifiers. @see {@link util.eventToString} */
         eventName: string;
     }
     export interface WbInitEventType extends WbTreeEventType {
@@ -1282,7 +1282,7 @@ declare module "types" {
     };
     /**
      * Column type definitions.
-     * @see {@link `Wunderbaum.columns`}
+     * @see {@link Wunderbaum.columns}
      */
     export interface ColumnDefinition {
         /** Column ID as defined in `tree.columns` definition ("*" for title column). */
@@ -1448,7 +1448,7 @@ declare module "types" {
         /** Do not send events. @default false */
         noEvents?: boolean;
     }
-    /** Possible values for {@link Wunderbaum.navigate()}. */
+    /** Possible values for {@link WunderbaumNode.navigate()}. */
     export interface NavigateOptions {
         /** Activate the new node (otherwise focus only). @default true */
         activate?: boolean;
@@ -1472,7 +1472,7 @@ declare module "types" {
         /** @internal. @default true */
         resizeCols?: boolean;
     }
-    /** Possible values for {@link scrollIntoView()} `options` argument. */
+    /** Possible values for {@link WunderbaumNode.scrollIntoView()} `options` argument. */
     export interface ScrollIntoViewOptions {
         /** Do not animate (currently not implemented). @default false */
         noAnimation?: boolean;
@@ -1500,12 +1500,12 @@ declare module "types" {
         focusTree?: boolean;
         /** Optional original event that will be passed to the (de)activate handler. */
         event?: Event;
-        /** Call {@link setColumn}. */
+        /** Call {@link Wunderbaum.setColumn}. */
         colIdx?: number;
     }
     /** Possible values for {@link WunderbaumNode.setExpanded()} `options` argument. */
     export interface SetExpandedOptions {
-        /** Ignore {@link minExpandLevel}. @default false */
+        /** Ignore {@link WunderbaumOptions.minExpandLevel}. @default false */
         force?: boolean;
         /** Immediately update viewport (async otherwise). @default false */
         immediate?: boolean;
@@ -2424,7 +2424,7 @@ declare module "wunderbaum" {
         protected _updateRows(options?: any): boolean;
         /**
          * Call `callback(node)` for all nodes in hierarchical order (depth-first, pre-order).
-         * @see {@link Wunderbaum.*[Symbol.iterator]}, {@link WunderbaumNode.visit}.
+         * @see {@link IterableIterator<WunderbaumNode>}, {@link WunderbaumNode.visit}.
          *
          * @param {function} callback the callback function.
          *     Return false to stop iteration, return "skip" to skip this node and

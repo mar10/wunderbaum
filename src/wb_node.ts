@@ -2281,7 +2281,7 @@ export class WunderbaumNode {
    * @param {function} callback the callback function.
    *     Return false to stop iteration, return "skip" to skip this node and
    *     its children only.
-   * @see {@link WunderbaumNode.*[Symbol.iterator]}, {@link Wunderbaum.visit}.
+   * @see {@link IterableIterator<WunderbaumNode>}, {@link Wunderbaum.visit}.
    */
   visit(
     callback: NodeVisitCallback,

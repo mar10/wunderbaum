@@ -6,6 +6,7 @@
 
 import { WunderbaumNode } from "./wb_node";
 import { Wunderbaum } from "./wunderbaum";
+import { WunderbaumOptions } from "./wb_options";
 
 /** Passed to `find...()` methods. Should return true if node matches. */
 export type MatcherCallback = (node: WunderbaumNode) => boolean;
@@ -99,7 +100,7 @@ export interface WbKeydownEventType extends WbTreeEventType {
   event: KeyboardEvent;
   node: WunderbaumNode;
   info: WbEventInfo;
-  /** Canical name of the key including modifiers. @see {@link eventToString} */
+  /** Canical name of the key including modifiers. @see {@link util.eventToString} */
   eventName: string;
 }
 
@@ -168,7 +169,7 @@ export type NodeTypeDefinitionMap = { [type: string]: NodeTypeDefinition };
 
 /**
  * Column type definitions.
- * @see {@link `Wunderbaum.columns`}
+ * @see {@link Wunderbaum.columns}
  */
 export interface ColumnDefinition {
   /** Column ID as defined in `tree.columns` definition ("*" for title column). */
@@ -380,7 +381,7 @@ export interface MakeVisibleOptions {
   noEvents?: boolean;
 }
 
-/** Possible values for {@link Wunderbaum.navigate()}. */
+/** Possible values for {@link WunderbaumNode.navigate()}. */
 export interface NavigateOptions {
   /** Activate the new node (otherwise focus only). @default true */
   activate?: boolean;
@@ -406,7 +407,7 @@ export interface RenderOptions {
   resizeCols?: boolean;
 }
 
-/** Possible values for {@link scrollIntoView()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.scrollIntoView()} `options` argument. */
 export interface ScrollIntoViewOptions {
   /** Do not animate (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -436,13 +437,13 @@ export interface SetActiveOptions {
   focusTree?: boolean;
   /** Optional original event that will be passed to the (de)activate handler. */
   event?: Event;
-  /** Call {@link setColumn}. */
+  /** Call {@link Wunderbaum.setColumn}. */
   colIdx?: number;
 }
 
 /** Possible values for {@link WunderbaumNode.setExpanded()} `options` argument. */
 export interface SetExpandedOptions {
-  /** Ignore {@link minExpandLevel}. @default false */
+  /** Ignore {@link WunderbaumOptions.minExpandLevel}. @default false */
   force?: boolean;
   /** Immediately update viewport (async otherwise). @default false */
   immediate?: boolean;
