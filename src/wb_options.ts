@@ -18,23 +18,12 @@ import {
   WbErrorEventType,
   WbInitEventType,
   WbKeydownEventType,
+  WbNodeData,
   WbNodeEventType,
   WbReceiveEventType,
   WbRenderEventType,
   WbTreeEventType,
 } from "./types";
-
-export interface WbNodeData {
-  title: string;
-  key?: string;
-  refKey?: string;
-  expanded?: boolean;
-  selected?: boolean;
-  checkbox?: boolean | string;
-  colspan?: boolean;
-  children?: Array<WbNodeData>;
-  // ...any?: Any;
-}
 
 /**
  * Available options for [[Wunderbaum]].

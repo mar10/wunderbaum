@@ -44,6 +44,8 @@ import {
   RenderFlag,
   NodeVisitCallback,
   SortCallback,
+  NodeToDictCallback,
+  WbNodeData,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -1770,6 +1772,19 @@ export class Wunderbaum {
     deep: boolean = false
   ): void {
     this.root.sortChildren(cmp, deep);
+  }
+
+  /** Convert tree to an array of plain objects.
+   *
+   * @param callback(dict, node) is called for every node, in order to allow
+   *     modifications.
+   *     Return `false` to ignore this node or `"skip"` to include this node
+   *     without its children.
+   * @see {@link WunderbaumNode.toDict}.
+   */
+  toDictArray(callback?: NodeToDictCallback): Array<WbNodeData> {
+    const res = this.root.toDict(true, callback);
+    return res.children ?? [];
   }
 
   /**

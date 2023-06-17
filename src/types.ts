@@ -24,8 +24,24 @@ export type NodeStringCallback = (node: WunderbaumNode) => string;
 
 export type NodeVisitResponse = "skip" | boolean | void;
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
+export type NodeToDictCallback = (
+  dict: WbNodeData,
+  node: WunderbaumNode
+) => NodeVisitResponse;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
+export interface WbNodeData {
+  title: string;
+  key?: string;
+  refKey?: string;
+  expanded?: boolean;
+  selected?: boolean;
+  checkbox?: boolean | string;
+  colspan?: boolean;
+  children?: Array<WbNodeData>;
+  treeId?: string;
+  // ...any?: Any;
+}
 
 /* -----------------------------------------------------------------------------
  * EVENT CALLBACK TYPES

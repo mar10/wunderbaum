@@ -17,8 +17,7 @@ import {
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { InsertNodeType } from "./types";
-import { WbNodeData } from "./wb_options";
+import { InsertNodeType, WbNodeData } from "./types";
 
 // const START_MARKER = "\uFFF7";
 

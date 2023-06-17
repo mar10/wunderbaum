@@ -31,6 +31,8 @@ import {
   SetSelectedOptions,
   SetStatusOptions,
   SortCallback,
+  NodeToDictCallback,
+  WbNodeData,
 } from "./types";
 import {
   iconMap,
@@ -45,7 +47,6 @@ import {
   nodeTitleSorter,
 } from "./common";
 import { Deferred } from "./deferred";
-import { WbNodeData } from "./wb_options";
 
 /** Top-level properties that can be passed with `data`. */
 const NODE_PROPS = new Set<string>([
@@ -330,7 +331,7 @@ export class WunderbaumNode {
    *
    * This a convenience function that calls addChildren()
    *
-   * @param {NodeData} node node definition
+   * @param nodeData node definition
    * @param [mode=child] 'before', 'after', 'firstChild', or 'child' ('over' is a synonym for 'child')
    * @returns new node
    */
@@ -1857,9 +1858,9 @@ export class WunderbaumNode {
    *     modifications.
    *     Return `false` to ignore this node or `"skip"` to include this node
    *     without its children.
-   * @returns {NodeData}
+   * @see {@link Wunderbaum.toDictArray}.
    */
-  toDict(recursive = false, callback?: any): any {
+  toDict(recursive = false, callback?: NodeToDictCallback): WbNodeData {
     const dict: any = {};
 
     NODE_ATTRS.forEach((propName: string) => {
@@ -1883,7 +1884,8 @@ export class WunderbaumNode {
     if (callback) {
       const res = callback(dict, this);
       if (res === false) {
-        return false; // Don't include this node nor its children
+        // Note: a return value of `false` is only used internally
+        return <any>false; // Don't include this node nor its children
       }
       if (res === "skip") {
         recursive = false; // Include this node, but not the children
@@ -1895,7 +1897,8 @@ export class WunderbaumNode {
         for (let i = 0, l = this.children!.length; i < l; i++) {
           const node = this.children![i];
           if (!node.isStatusNode()) {
-            const res = node.toDict(true, callback);
+            // Note: a return value of `false` is only used internally
+            const res = <any>node.toDict(true, callback);
             if (res !== false) {
               dict.children.push(res);
             }

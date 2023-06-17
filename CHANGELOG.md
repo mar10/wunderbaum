@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.3.2: Add `tree.toDictArray()`
+
 - v0.3.1: #20: Fix sourcemaps
 - v0.3.1: #19: Fix missing icons in deploymet by inlining
 - v0.3.1: #19: Make options optional: debugLevel, edit, filter, grid
