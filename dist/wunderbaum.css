@@ -1,19 +1,65 @@
 /*!
  * Wunderbaum style sheet (generated from wunderbaum.scss)
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.3, Wed, 07 Jun 2023 06:41:26 GMT (https://github.com/mar10/wunderbaum)
+ * v0.3.4-0, Sun, 18 Jun 2023 16:04:04 GMT (https://github.com/mar10/wunderbaum)
  */
+:root {
+  --wb-font-stack: Helvetica, sans-serif;
+  --wb-error-color: #b5373b;
+  --wb-node-text-color: #56534c;
+  --wb-border-color: #56534c;
+  --wb-bg-highlight-color: #26a0da;
+  --wb-header-color: #dedede;
+  --wb-background-color: white;
+  --wb-alternate-row-color: #f7f7f7;
+  --wb-alternate-row-color-hover: #f3f3f3;
+  --wb-focus-border-color: #275dc5;
+  --wb-drop-source-color: #d3d2ce;
+  --wb-drop-target-color: #d4ecf8;
+  --wb-dim-color: #8c877c;
+  --wb-error-background-color: #f5ddde;
+  --wb-hover-color: #f7fcfe;
+  --wb-hover-border-color: #f7fcfe;
+  --wb-grid-color: #dedede;
+  --wb-active-color: #e5f3fb;
+  --wb-active-cell-color: #7dc6e9;
+  --wb-active-border-color: #70c0e7;
+  --wb-active-hover-color: #dceff8;
+  --wb-active-hover-border-color: #26a0da;
+  --wb-active-column-color: #f7fcfe;
+  --wb-active-header-column-color: #c5c5c5;
+  --wb-active-color-grayscale: #f0f0f0;
+  --wb-active-border-color-grayscale: #acacac;
+  --wb-active-hover-color-grayscale: #eaeaea;
+  --wb-active-cell-color-grayscale: #b3b3b3;
+  --wb-grid-color-grayscale: #dedede;
+  --wb-filter-dim-color: #dedede;
+  --wb-filter-submatch-color: #868581;
+  --wb-row-outer-height: 22px;
+  --wb-row-inner-height: 20px;
+  --wb-row-padding-y: 1px;
+  --wb-col-padding-x: 2px;
+  --wb-icon-outer-height: 20px;
+  --wb-icon-outer-width: 20px;
+  --wb-icon-height: 16px;
+  --wb-icon-width: 16px;
+  --wb-icon-padding-y: 2px;
+  --wb-icon-padding-x: 2px;
+  --wb-header-height: 22px; }
+
+div.wunderbaum * {
+  box-sizing: border-box; }
+
 div.wunderbaum {
-  box-sizing: border-box;
   height: 100%;
   min-height: 4px;
-  background-color: white;
+  background-color: var(--wb-background-color);
   margin: 0;
   padding: 0;
-  font-family: Helvetica, sans-serif;
+  font-family: var(--wb-font-stack);
   font-size: 14px;
-  color: #56534c;
-  border: 2px solid #56534c;
+  color: var(--wb-node-text-color);
+  border: 2px solid var(--wb-border-color);
   border-radius: 4px;
   background-clip: content-box;
   overflow-x: auto;
@@ -29,7 +75,7 @@ div.wunderbaum {
   /* Skeleton */
   /* Auto-hide checkboxes unless selected or hovered */ }
   div.wunderbaum:focus, div.wunderbaum:focus-within {
-    border-color: #275dc5; }
+    border-color: var(--wb-focus-border-color); }
   div.wunderbaum.wb-disabled {
     opacity: 0.7;
     pointer-events: none; }
@@ -46,8 +92,8 @@ div.wunderbaum {
   div.wunderbaum div.wb-row {
     position: absolute;
     width: 100%;
-    height: 22px;
-    line-height: 22px;
+    height: var(--wb-row-outer-height);
+    line-height: var(--wb-row-outer-height);
     border: 1px solid transparent; }
   div.wunderbaum.wb-fixed-col {
     /* Sticky firdt column (header and nodes) */ }
@@ -55,49 +101,49 @@ div.wunderbaum {
       position: sticky;
       left: 0;
       z-index: 1;
-      background-color: white; }
+      background-color: var(--wb-background-color); }
     div.wunderbaum.wb-fixed-col div.wb-header span.wb-col:first-of-type {
-      background-color: #dedede; }
+      background-color: var(--wb-header-color); }
     div.wunderbaum.wb-fixed-col div.wb-node-list div.wb-row.wb-active span.wb-col:first-of-type,
     div.wunderbaum.wb-fixed-col div.wb-node-list div.wb-row.wb-selected span.wb-col:first-of-type {
-      background-color: #e5f3fb; }
+      background-color: var(--wb-active-color); }
     div.wunderbaum.wb-fixed-col div.wb-node-list div.wb-row.wb-active:hover span.wb-col:first-of-type,
     div.wunderbaum.wb-fixed-col div.wb-node-list div.wb-row.wb-selected:hover span.wb-col:first-of-type {
-      background-color: #dceff8; }
+      background-color: var(--wb-active-hover-color); }
     div.wunderbaum.wb-fixed-col div.wb-node-list div.wb-row:hover span.wb-col:first-of-type {
-      background-color: #f7fcfe; }
+      background-color: var(--wb-hover-color); }
     div.wunderbaum.wb-fixed-col:not(:focus-within) div.wb-node-list div.wb-row.wb-active span.wb-col:first-of-type,
     div.wunderbaum.wb-fixed-col:not(:focus-within) div.wb-node-list div.wb-row.wb-selected span.wb-col:first-of-type, div.wunderbaum.wb-fixed-col:not(:focus) div.wb-node-list div.wb-row.wb-active span.wb-col:first-of-type,
     div.wunderbaum.wb-fixed-col:not(:focus) div.wb-node-list div.wb-row.wb-selected span.wb-col:first-of-type {
-      background-color: #f0f0f0;
-      border-color: #acacac; }
+      background-color: var(--wb-active-color-grayscale);
+      border-color: var(--wb-active-border-color-grayscale); }
       div.wunderbaum.wb-fixed-col:not(:focus-within) div.wb-node-list div.wb-row.wb-active span.wb-col:first-of-type:hover span.wb-col:first-of-type,
       div.wunderbaum.wb-fixed-col:not(:focus-within) div.wb-node-list div.wb-row.wb-selected span.wb-col:first-of-type:hover span.wb-col:first-of-type, div.wunderbaum.wb-fixed-col:not(:focus) div.wb-node-list div.wb-row.wb-active span.wb-col:first-of-type:hover span.wb-col:first-of-type,
       div.wunderbaum.wb-fixed-col:not(:focus) div.wb-node-list div.wb-row.wb-selected span.wb-col:first-of-type:hover span.wb-col:first-of-type {
-        background-color: #eaeaea; }
+        background-color: var(--wb-active-hover-color-grayscale); }
   div.wunderbaum:not(:focus-within) div.wb-node-list div.wb-row.wb-active, div.wunderbaum:not(:focus-within) div.wb-node-list div.wb-row.wb-selected, div.wunderbaum:not(:focus) div.wb-node-list div.wb-row.wb-active, div.wunderbaum:not(:focus) div.wb-node-list div.wb-row.wb-selected {
-    background-color: #f0f0f0;
-    border-color: #acacac; }
+    background-color: var(--wb-active-color-grayscale);
+    border-color: var(--wb-active-border-color-grayscale); }
     div.wunderbaum:not(:focus-within) div.wb-node-list div.wb-row.wb-active:hover, div.wunderbaum:not(:focus-within) div.wb-node-list div.wb-row.wb-selected:hover, div.wunderbaum:not(:focus) div.wb-node-list div.wb-row.wb-active:hover, div.wunderbaum:not(:focus) div.wb-node-list div.wb-row.wb-selected:hover {
-      background-color: #eaeaea; }
+      background-color: var(--wb-active-hover-color-grayscale); }
   div.wunderbaum.wb-alternate div.wb-node-list div.wb-row:nth-of-type(even):not(.wb-active):not(.wb-selected) {
-    background-color: #f7f7f7; }
+    background-color: var(--wb-alternate-row-color); }
     div.wunderbaum.wb-alternate div.wb-node-list div.wb-row:nth-of-type(even):not(.wb-active):not(.wb-selected):hover {
-      background-color: #f3f3f3; }
+      background-color: var(--wb-alternate-row-color-hover); }
   div.wunderbaum div.wb-node-list div.wb-row:hover {
-    background-color: #f7fcfe; }
+    background-color: var(--wb-hover-color); }
   div.wunderbaum div.wb-node-list div.wb-row.wb-active, div.wunderbaum div.wb-node-list div.wb-row.wb-selected {
-    background-color: #e5f3fb; }
+    background-color: var(--wb-active-color); }
     div.wunderbaum div.wb-node-list div.wb-row.wb-active:hover, div.wunderbaum div.wb-node-list div.wb-row.wb-selected:hover {
-      background-color: #dceff8; }
+      background-color: var(--wb-active-hover-color); }
   div.wunderbaum div.wb-node-list div.wb-row.wb-focus:not(.wb-active) {
     border-style: dotted;
-    border-color: #70c0e7; }
+    border-color: var(--wb-active-border-color); }
   div.wunderbaum div.wb-node-list div.wb-row.wb-active {
     border-style: solid;
-    border-color: #70c0e7; }
+    border-color: var(--wb-active-border-color); }
     div.wunderbaum div.wb-node-list div.wb-row.wb-active:hover {
-      border-color: #26a0da; }
+      border-color: var(--wb-active-hover-border-color); }
   div.wunderbaum div.wb-node-list div.wb-row.wb-loading {
     font-style: italic; }
   div.wunderbaum div.wb-node-list div.wb-row.wb-busy,
@@ -107,13 +153,13 @@ div.wunderbaum {
     background: repeating-linear-gradient(45deg, transparent, transparent 3.88px, #dedede 3.88px, #dedede 7.78px);
     animation: wb-busy-animation 2s linear infinite; }
   div.wunderbaum div.wb-node-list div.wb-row.wb-error, div.wunderbaum div.wb-node-list div.wb-row.wb-status-error {
-    color: #b5373b; }
+    color: var(--wb-error-color); }
   div.wunderbaum div.wb-header {
     position: sticky;
-    height: 22px;
-    border-bottom: 1px solid #56534c;
+    height: var(--wb-header-height);
+    border-bottom: 1px solid var(--wb-border-color);
     padding: 0;
-    background-color: #dedede; }
+    background-color: var(--wb-header-color); }
     div.wunderbaum div.wb-header span.wb-col {
       font-weight: bold;
       overflow: visible; }
@@ -128,15 +174,15 @@ div.wunderbaum {
       right: -1px;
       width: 3px;
       border: none;
-      border-right: 2px solid #56534c;
+      border-right: 2px solid var(--wb-border-color);
       height: 100%;
       cursor: col-resize; }
   div.wunderbaum span.wb-col {
     position: absolute;
     display: inline-block;
     overflow: hidden;
-    height: 20px;
-    line-height: 20px;
+    height: var(--wb-row-inner-height);
+    line-height: var(--wb-row-inner-height);
     padding: 0 2px;
     border-right: 1px solid #dedede;
     white-space: nowrap; }
@@ -149,16 +195,16 @@ div.wunderbaum {
     div.wunderbaum span.wb-node i.wb-expander,
     div.wunderbaum span.wb-node i.wb-icon,
     div.wunderbaum span.wb-node i.wb-indent {
-      height: 20px;
-      width: 20px;
-      padding: 2px 2px;
+      height: var(--wb-icon-outer-height);
+      width: var(--wb-icon-outer-width);
+      padding: var(--wb-icon-padding) var(--wb-icon-padding-x);
       display: inline-block; }
     div.wunderbaum span.wb-node i.bi::before {
       vertical-align: baseline; }
     div.wunderbaum span.wb-node img.wb-icon {
-      width: 16px;
-      height: 16px;
-      padding: 2px 2px; }
+      width: var(--wb-icon-width);
+      height: var(--wb-icon-height);
+      padding: var(--wb-icon-padding-y) var(--wb-icon-padding-x); }
     div.wunderbaum span.wb-node i.wb-indent::before {
       content: "\00a0"; }
     div.wunderbaum span.wb-node i.wb-expander.wb-spin,
@@ -175,15 +221,15 @@ div.wunderbaum {
       white-space: nowrap;
       text-overflow: ellipsis; }
   div.wunderbaum.wb-grid div.wb-header div.wb-row span.wb-col:hover {
-    background-color: #c5c5c5; }
+    background-color: var(--wb-active-header-column-color); }
   div.wunderbaum.wb-grid.wb-cell-mode div.wb-header div.wb-row span.wb-col.wb-active {
-    background-color: #dceff8; }
+    background-color: var(--wb-active-hover-color); }
   div.wunderbaum.wb-grid div.wb-node-list div.wb-row {
-    border-bottom-color: #dedede; }
+    border-bottom-color: var(--wb-grid-color); }
     div.wunderbaum.wb-grid div.wb-node-list div.wb-row:hover:not(.wb-active):not(.wb-selected) {
-      background-color: #f7fcfe; }
+      background-color: var(--wb-hover-color); }
     div.wunderbaum.wb-grid div.wb-node-list div.wb-row.wb-active {
-      border-bottom-color: #70c0e7; }
+      border-bottom-color: var(--wb-active-border-color); }
     div.wunderbaum.wb-grid div.wb-node-list div.wb-row span.wb-col {
       border-right: 1px solid #dedede; }
       div.wunderbaum.wb-grid div.wb-node-list div.wb-row span.wb-col input.wb-input-edit,
@@ -203,39 +249,39 @@ div.wunderbaum {
       div.wunderbaum.wb-grid div.wb-node-list div.wb-row span.wb-col > input[type="week"],
       div.wunderbaum.wb-grid div.wb-node-list div.wb-row span.wb-col > select {
         width: 100%;
-        max-height: 20px;
+        max-height: var(--wb-row-inner-height);
         border: none; }
       div.wunderbaum.wb-grid div.wb-node-list div.wb-row span.wb-col > input:focus,
       div.wunderbaum.wb-grid div.wb-node-list div.wb-row span.wb-col > select:focus {
         border: 1px dashed #70c0e7; }
   div.wunderbaum.wb-grid.wb-cell-mode div.wb-row:not(.wb-colspan).wb-active span.wb-col.wb-active {
-    background-color: #b3b3b3; }
+    background-color: var(--wb-active-cell-color-grayscale); }
   div.wunderbaum.wb-grid.wb-cell-mode:focus-within div.wb-row:not(.wb-colspan):not(.wb-selected) span.wb-col.wb-active, div.wunderbaum.wb-grid.wb-cell-mode:focus div.wb-row:not(.wb-colspan):not(.wb-selected) span.wb-col.wb-active {
-    background-color: #f7fcfe; }
+    background-color: var(--wb-active-column-color); }
   div.wunderbaum.wb-grid.wb-cell-mode:focus-within div.wb-row:not(.wb-colspan):not(.wb-selected).wb-active, div.wunderbaum.wb-grid.wb-cell-mode:focus div.wb-row:not(.wb-colspan):not(.wb-selected).wb-active {
-    background-color: #f7fcfe; }
+    background-color: var(--wb-active-column-color); }
     div.wunderbaum.wb-grid.wb-cell-mode:focus-within div.wb-row:not(.wb-colspan):not(.wb-selected).wb-active span.wb-col.wb-active, div.wunderbaum.wb-grid.wb-cell-mode:focus div.wb-row:not(.wb-colspan):not(.wb-selected).wb-active span.wb-col.wb-active {
-      background-color: #7dc6e9; }
+      background-color: var(--wb-active-cell-color); }
   div.wunderbaum.wb-grid.wb-alternate div.wb-node-list div.wb-row:nth-of-type(even):not(.wb-active):not(.wb-selected) {
-    background-color: #f7f7f7; }
+    background-color: var(--wb-alternate-row-color); }
     div.wunderbaum.wb-grid.wb-alternate div.wb-node-list div.wb-row:nth-of-type(even):not(.wb-active):not(.wb-selected):hover {
-      background-color: #f3f3f3; }
+      background-color: var(--wb-alternate-row-color-hover); }
   div.wunderbaum.wb-grid:not(:focus-within) div.wb-node-list div.wb-row, div.wunderbaum.wb-grid:not(:focus) div.wb-node-list div.wb-row {
-    border-bottom-color: #dedede; }
+    border-bottom-color: var(--wb-grid-color-grayscale); }
   div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row, div.wunderbaum.wb-ext-filter-hide div.wb-node-list div.wb-row {
-    color: #dedede; }
+    color: var(--wb-filter-dim-color); }
     div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row.wb-submatch, div.wunderbaum.wb-ext-filter-hide div.wb-node-list div.wb-row.wb-submatch {
-      color: #868581; }
+      color: var(--wb-filter-submatch-color); }
     div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row.wb-match, div.wunderbaum.wb-ext-filter-hide div.wb-node-list div.wb-row.wb-match {
-      color: #56534c; }
+      color: var(--wb-node-text-color); }
   div.wunderbaum div.wb-row.wb-drag-source {
     opacity: 0.5; }
     div.wunderbaum div.wb-row.wb-drag-source .wb-node {
-      background-color: #d3d2ce; }
+      background-color: var(--wb-drop-source-color); }
   div.wunderbaum div.wb-row.wb-drop-target {
     overflow: visible; }
     div.wunderbaum div.wb-row.wb-drop-target .wb-node {
-      background-color: #d4ecf8;
+      background-color: var(--wb-drop-target-color);
       overflow: visible; }
       div.wunderbaum div.wb-row.wb-drop-target .wb-node .wb-icon {
         position: relative;
@@ -274,7 +320,7 @@ div.wunderbaum {
   div.wunderbaum.wb-fade-expander:focus-within i.wb-expander,
   div.wunderbaum.wb-fade-expander [class*="wb-statusnode-"] i.wb-expander {
     transition: color 0.6s;
-    color: #56534c; }
+    color: var(--wb-node-text-color); }
   div.wunderbaum div.wb-row.wb-skeleton span.wb-title,
   div.wunderbaum div.wb-row.wb-skeleton i.wb-icon {
     animation: wb-skeleton-animation 1s linear infinite alternate;
@@ -294,16 +340,16 @@ div.wunderbaum {
   text-align: center; }
 
 .wb-helper-disabled {
-  color: #8c877c; }
+  color: var(--wb-dim-color); }
 
 .wb-helper-hidden {
   display: none; }
 
 .wb-helper-invalid {
-  color: #b5373b; }
+  color: var(--wb-error-color); }
 
 .wb-helper-lazy-expander {
-  color: #26a0da; }
+  color: var(--wb-bg-highlight-color); }
 
 .wb-helper-link {
   cursor: pointer; }
@@ -336,12 +382,12 @@ div.wunderbaum {
  *   indeterminate -> checked -> unchecked -> indeterminate ...
  */
 .wb-col input[type="checkbox"]:indeterminate {
-  color: #8c877c;
+  color: var(--wb-dim-color);
   background-color: red; }
 
 .wb-col input:invalid {
-  color: #b5373b;
-  background-color: #f5ddde; }
+  color: var(--wb-error-color);
+  background-color: var(--wb-error-background-color); }
 
 @keyframes wb-spin-animation {
   0% {
