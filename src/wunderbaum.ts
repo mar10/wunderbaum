@@ -1915,6 +1915,8 @@ export class Wunderbaum {
 
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
+      // Add classes from `columns` definition to `<div.wb-col>` cells
+      col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
 
       const title = util.escapeHtml(col.title || col.id);
       let tooltip = "";

@@ -39,7 +39,7 @@ const tree = new Wunderbaum({
   // },
   source: {
     children: [
-      { title: "a", children: [] },
+      { title: "a", type: "book", details: "A book", children: [] },
       {
         title: "b",
         children: [
@@ -67,6 +67,7 @@ const tree = new Wunderbaum({
       id: "details",
       width: "100px",
       html: "<input type=text tabindex='-1'>",
+      classes: "wb-helper-end",
     },
     // { title: "Mode", id: "mode", width: "100px" },
     {

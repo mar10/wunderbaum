@@ -18,18 +18,22 @@ export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
 export type BoolOrStringOptionResolver = (
   node: WunderbaumNode
 ) => boolean | string;
-
+/** A callback that receives a node instance and returns an arbitrary value type. */
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
+/** A callback that receives a node instance and returns a string value. */
 export type NodeStringCallback = (node: WunderbaumNode) => string;
-
-export type NodeVisitResponse = "skip" | boolean | void;
+/** A callback that receives a node instance and returns an iteration modifier. */
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
+/** A callback that receives a node instance and returns a string value. */
+export type NodeVisitResponse = "skip" | boolean | void;
+/** A callback that receives a node-data dictionary and a node instance and returns an iteration modifier. */
 export type NodeToDictCallback = (
   dict: WbNodeData,
   node: WunderbaumNode
 ) => NodeVisitResponse;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
+/** A plain object (dictionary) that represents a node instance. */
 export interface WbNodeData {
   title: string;
   key?: string;
