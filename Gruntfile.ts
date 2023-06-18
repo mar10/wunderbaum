@@ -8,7 +8,7 @@ module.exports = (grunt: any) => {
     exec: {
       build: {
         stdin: true, // Allow interactive console
-        cmd: "yarn build",
+        cmd: "npm build",
       },
       copy_dist: {
         stdin: true, // Allow interactive console
@@ -16,11 +16,11 @@ module.exports = (grunt: any) => {
       },
       make_docs: {
         stdin: true, // Allow interactive console
-        cmd: "yarn docs",
+        cmd: "npm docs",
       },
       make_dist: {
         stdin: true, // Allow interactive console
-        cmd: "yarn make_dist",
+        cmd: "npm make_dist",
       },
     },
     connect: {
