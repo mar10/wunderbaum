@@ -177,6 +177,7 @@ tree.ready
   });
 
 document.body.style.setProperty("--wb-node-text-color", "#ff00ff");
+// document.body.style.setProperty("--wb-font-stack", "monospace");
 
 document.querySelectorAll(".demo-btn").forEach((elem) => {
   elem.addEventListener("click", (e) => {

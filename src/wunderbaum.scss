@@ -3,7 +3,7 @@
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
-@use "sass:meta";
+// @use "sass:meta";
 
 // ----------------------------------------------------------------------------
 // --- Define default colors and settings
@@ -75,6 +75,7 @@ $level-rainbow: rgb(255, 255, 201), rgb(218, 255, 218), rgb(255, 217, 254),
 
 :root {
   // --wb-font-stack: #{meta.inspect($font-stack)};
+  --wb-font-stack: #{$font-stack};
 
   // Basic Theme Colors
   --wb-error-color: #{$error-color};
