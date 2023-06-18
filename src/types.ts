@@ -208,8 +208,14 @@ export interface ColumnDefinition {
    * Default: `4px`.
    */
   minWidth?: string | number;
-  /** Optional class names that are added to all `span.wb-col` elements of that column.*/
+  /** Optional class names that are added to all `span.wb-col` header AND data
+   * elements of that column.
+   */
   classes?: string;
+  /** If `headerClasses` is a string, it will be used for the header element,
+   * while `classes` is used for data elements.
+   */
+  headerClasses?: string;
   /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
   // Internal use:

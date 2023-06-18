@@ -16,7 +16,7 @@ $node-text-color: #56534c;
 $border-color: $node-text-color;
 $bg-highlight-color: #26a0da;
 $header-color: #dedede;
-$background-color: white;
+$background-color: #ffffff;
 $alternate-row-color: #f7f7f7; // #fcfcfc;
 $alternate-row-color-hover: #f3f3f3; //#f7fcfe;
 $focus-border-color: #275dc5;
@@ -74,6 +74,7 @@ $level-rainbow: rgb(255, 255, 201), rgb(218, 255, 218), rgb(255, 217, 254),
 // --- Define CSS variables with calculated default values
 
 :root {
+  // TODO: do we need to use 'meta.inspect' in case a font name contains spaces?
   // --wb-font-stack: #{meta.inspect($font-stack)};
   --wb-font-stack: #{$font-stack};
 

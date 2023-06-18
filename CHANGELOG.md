@@ -7,11 +7,15 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.3.2: Add `tree.toDictArray()`
-- v0.3.2: #21: Use CSS variables to allow dynamic custom themes
-- v0.3.2: #22: Set box-sizing: border-box
-- v0.3.2: #23: wb-helper-end is not applied to column header
+- v0.3.5: #23: New `columns` option `headerClasses`
 
+- v0.3.4: Add `tree.toDictArray()`
+- v0.3.4: #21: Use CSS variables to allow dynamic custom themes
+- v0.3.4: #22: Set box-sizing: border-box
+- v0.3.4: #23: wb-helper-end is not applied to column header
+
+- v0.3.2, v0.3.3: Improve distribution
+-
 - v0.3.1: #20: Fix sourcemaps
 - v0.3.1: #19: Fix missing icons in deploymet by inlining
 - v0.3.1: #19: Make options optional: debugLevel, edit, filter, grid

@@ -67,6 +67,8 @@ const tree = new Wunderbaum({
       id: "details",
       width: "100px",
       html: "<input type=text tabindex='-1'>",
+      headerClasses: "wb-helper-center",
+      // headerClasses: "",
       classes: "wb-helper-end",
     },
     // { title: "Mode", id: "mode", width: "100px" },
