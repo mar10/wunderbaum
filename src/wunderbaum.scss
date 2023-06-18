@@ -61,8 +61,10 @@ $header-height: $row-outer-height;
 $level-rainbow: rgb(255, 255, 201), rgb(218, 255, 218), rgb(255, 217, 254),
   rgb(204, 250, 250);
 
-div.wunderbaum {
+div.wunderbaum * {
   box-sizing: border-box;
+}
+div.wunderbaum {
   height: 100%; // fill parent container
   min-height: 4px;
   background-color: $background-color;

@@ -8,6 +8,7 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.3.2: Add `tree.toDictArray()`
+- v0.3.2: #22: Set box-sizing: border-box
 
 - v0.3.1: #20: Fix sourcemaps
 - v0.3.1: #19: Fix missing icons in deploymet by inlining
