@@ -176,6 +176,8 @@ tree.ready
     console.error(`${tree} init failed.`, err);
   });
 
+document.body.style.setProperty("--wb-node-text-color", "#ff00ff");
+
 document.querySelectorAll(".demo-btn").forEach((elem) => {
   elem.addEventListener("click", (e) => {
     const action = e.target.dataset.action;
