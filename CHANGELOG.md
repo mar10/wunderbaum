@@ -15,7 +15,7 @@ First release.
 - v0.3.4: #23: wb-helper-end is not applied to column header
 
 - v0.3.2, v0.3.3: Improve distribution
--
+
 - v0.3.1: #20: Fix sourcemaps
 - v0.3.1: #19: Fix missing icons in deploymet by inlining
 - v0.3.1: #19: Make options optional: debugLevel, edit, filter, grid

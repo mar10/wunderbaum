@@ -8,7 +8,7 @@ module.exports = (grunt: any) => {
     exec: {
       build: {
         stdin: true, // Allow interactive console
-        cmd: "npm build",
+        cmd: "npm run build",
       },
       copy_dist: {
         stdin: true, // Allow interactive console
@@ -16,11 +16,11 @@ module.exports = (grunt: any) => {
       },
       make_docs: {
         stdin: true, // Allow interactive console
-        cmd: "npm docs",
+        cmd: "npm run docs",
       },
       make_dist: {
         stdin: true, // Allow interactive console
-        cmd: "npm make_dist",
+        cmd: "npm run make_dist",
       },
     },
     connect: {
