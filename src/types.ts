@@ -135,7 +135,7 @@ export interface WbReceiveEventType extends WbNodeEventType {
 export interface WbRenderEventType extends WbNodeEventType {
   /**
    * True if the node's markup was not yet created. In this case the render
-   * event should create embeddeb input controls (in addition to update the
+   * event should create embedded input controls (in addition to update the
    * values according to to current node data).
    */
   isNew: boolean;
