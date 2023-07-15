@@ -48,15 +48,15 @@ $filter-submatch-color: #868581;
 
 $row-outer-height: 22px;
 $row-inner-height: $row-outer-height - 2; // outer height minus border size
-$row-padding-y: ($row-outer-height - $row-inner-height) / 2;
+$row-padding-y: calc(($row-outer-height - $row-inner-height) / 2);
 $col-padding-x: 2px; // on each side within span.wb-col
 
 $icon-outer-height: $row-inner-height;
 $icon-outer-width: 20px;
 $icon-height: 16px;
 $icon-width: 16px;
-$icon-padding-y: ($icon-outer-height - $icon-height) / 2;
-$icon-padding-x: ($icon-outer-width - $icon-width) / 2;
+$icon-padding-y: calc(($icon-outer-height - $icon-height) / 2);
+$icon-padding-x: calc(($icon-outer-width - $icon-width) / 2);
 
 $header-height: $row-outer-height;
 
@@ -618,7 +618,7 @@ div.wunderbaum {
           z-index: 1000;
           content: url(../docs/assets/drop_marker_16x32.png);
           left: 0; //-$icon-outer-width;
-          top: ($row-outer-height - 16) / 2;
+          top: calc(($row-outer-height - --wb-icon-height) / 2);
         }
       }
     }
@@ -638,11 +638,15 @@ div.wunderbaum {
   div.wb-row.wb-drop-target.wb-drop-after .wb-node .wb-icon::after {
     content: url(../docs/assets/drop_marker_insert_16x64.png);
     left: 0; // $icon-outer-width * 1.5;
-    top: ($row-outer-height - 16) / 2 - $row-outer-height / 2;
+    top: calc(
+      ($row-outer-height - --wb-icon-height) / 2 - $row-outer-height / 2
+    );
   }
 
   div.wb-row.wb-drop-target.wb-drop-after .wb-node .wb-icon::after {
-    top: ($row-outer-height - 16) / 2 + $row-outer-height / 2;
+    top: calc(
+      ($row-outer-height - --wb-icon-height) / 2 + $row-outer-height / 2
+    );
   }
 
   /* --- SPECIAL EFFECTS --- */
