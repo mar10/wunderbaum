@@ -32,7 +32,7 @@ import {
   NodeTypeDefinitionMap,
   ScrollToOptions,
   SetActiveOptions,
-  SetModifiedOptions,
+  UpdateOptions,
   SetStatusOptions,
   NodeRegion,
   WbEventInfo,
@@ -363,17 +363,17 @@ export class Wunderbaum {
 
     // Async mode is sometimes required, because this.element.clientWidth
     // has a wrong value at start???
-    this.setModified(ChangeType.any);
+    this.update(ChangeType.any);
 
     // --- Bind listeners
     this.element.addEventListener("scroll", (e: Event) => {
       // this.log(`scroll, scrollTop:${e.target.scrollTop}`, e);
-      this.setModified(ChangeType.scroll);
+      this.update(ChangeType.scroll);
     });
 
     this.resizeObserver = new ResizeObserver((entries) => {
       // this.log("ResizeObserver: Size changed", entries);
-      this.setModified(ChangeType.resize);
+      this.update(ChangeType.resize);
     });
     this.resizeObserver.observe(this.element);
 
@@ -921,7 +921,7 @@ export class Wunderbaum {
     // public cellNavMode = false;
     // public lastQuicksearchTime = 0;
     // public lastQuicksearchTerm = "";
-    this.setModified(ChangeType.structure);
+    this.update(ChangeType.structure);
   }
 
   /**
@@ -984,7 +984,7 @@ export class Wunderbaum {
     (this.options as any)[name] = value;
     switch (name) {
       case "checkbox":
-        this.setModified(ChangeType.any);
+        this.update(ChangeType.any);
         break;
       case "enabled":
         this.setEnabled(!!value);
@@ -1490,7 +1490,7 @@ export class Wunderbaum {
         // Make sure the topNode is always visible
         this.scrollTo(topNode);
       }
-      // this.setModified(ChangeType.scroll);
+      // this.update(ChangeType.scroll);
     }
   }
 
@@ -1521,7 +1521,7 @@ export class Wunderbaum {
       `scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`
     );
     this.element.scrollLeft = newLeft;
-    // this.setModified(ChangeType.scroll);
+    // this.update(ChangeType.scroll);
   }
   /**
    * Set column #colIdx to 'active'.
@@ -1544,7 +1544,7 @@ export class Wunderbaum {
       }
     }
 
-    this.activeNode?.setModified(ChangeType.status);
+    this.activeNode?.update(ChangeType.status);
 
     // Update `wb-active` class for all cell spans
     for (let rowDiv of this.nodeListElement.children) {
@@ -1574,39 +1574,48 @@ export class Wunderbaum {
   }
 
   /**
+   * @deprecated since v0.3.6: use `update()` instead.
+   */
+  setModified(change: ChangeType, ...args: any[]): void {
+    this.logWarn("setModified() is deprecated: use update() instead.");
+    // @ts-ignore
+    // (!) TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+    return this.update.call(this, change, ...args);
+  }
+  /**
    * Schedule an update request to reflect a tree change.
    * The render operation is async and debounced unless the `immediate` option
    * is set.
-   * Use {@link WunderbaumNode.setModified()} if only a single node has changed,
-   * or {@link WunderbaumNode.render()}) to pass special options.
+   * Use {@link WunderbaumNode.update()} if only a single node has changed,
+   * or {@link WunderbaumNode._render()}) to pass special options.
    */
-  setModified(change: ChangeType, options?: SetModifiedOptions): void;
+  update(change: ChangeType, options?: UpdateOptions): void;
 
   /**
    * Update a row to reflect a single node's modification.
    *
-   * @see {@link WunderbaumNode.setModified()}, {@link WunderbaumNode.render()}
+   * @see {@link WunderbaumNode.update()}, {@link WunderbaumNode._render()}
    */
-  setModified(
+  update(
     change: ChangeType,
     node: WunderbaumNode,
-    options?: SetModifiedOptions
+    options?: UpdateOptions
   ): void;
 
-  setModified(
+  update(
     change: ChangeType,
     node?: WunderbaumNode | any,
-    options?: SetModifiedOptions
+    options?: UpdateOptions
   ): void {
     if (this._disableUpdateCount) {
       // Assuming that we redraw all when enableUpdate() is re-enabled.
       // this.log(
-      //   `IGNORED setModified(${change}) node=${node} (disable level ${this._disableUpdateCount})`
+      //   `IGNORED update(${change}) node=${node} (disable level ${this._disableUpdateCount})`
       // );
       this._disableUpdateIgnoreCount++;
       return;
     }
-    // this.log(`setModified(${change}) node=${node}`);
+    // this.log(`update(${change}) node=${node}`);
     if (!(node instanceof WunderbaumNode)) {
       options = node;
       node = null;
@@ -1641,7 +1650,7 @@ export class Wunderbaum {
         // Single nodes are immediately updated if already inside the viewport
         // (otherwise we can ignore)
         if (node._rowElem) {
-          node.render({ change: change });
+          node._render({ change: change });
         }
         break;
       default:
@@ -1704,7 +1713,7 @@ export class Wunderbaum {
       this.setColumn(0);
     }
     this.element.classList.toggle("wb-cell-mode", flag);
-    this.activeNode?.setModified(ChangeType.status);
+    this.activeNode?.update(ChangeType.status);
   }
 
   /** Set the tree's navigation mode option. */
@@ -1886,7 +1895,7 @@ export class Wunderbaum {
     // if (modified) {
     //   this._renderHeaderMarkup();
     //   if (options.renderMarkup) {
-    //     this.setModified(ChangeType.header, { removeMarkup: true });
+    //     this.update(ChangeType.header, { removeMarkup: true });
     //   } else if (options.updateRows) {
     //     this._updateRows();
     //   }
@@ -1942,11 +1951,11 @@ export class Wunderbaum {
   }
 
   /**
-   * Render pending changes that were scheduled using {@link WunderbaumNode.setModified} if any.
+   * Render pending changes that were scheduled using {@link WunderbaumNode.update} if any.
    *
    * This is hardly ever neccessary, since we normally either
-   * - call `setModified(ChangeType.TYPE)` (async, throttled), or
-   * - call `setModified(ChangeType.TYPE, {immediate: true})` (synchronous)
+   * - call `update(ChangeType.TYPE)` (async, throttled), or
+   * - call `update(ChangeType.TYPE, {immediate: true})` (synchronous)
    *
    * `updatePendingModifications()` will only force immediate execution of
    * pending async changes if any.
@@ -1962,7 +1971,7 @@ export class Wunderbaum {
    * It calls `updateColumns()` and `_updateRows()`.
    *
    * This protected method should not be called directly but via
-   * {@link WunderbaumNode.setModified}`, {@link Wunderbaum.setModified},
+   * {@link WunderbaumNode.update}`, {@link Wunderbaum.update},
    * or {@link Wunderbaum.updatePendingModifications}.
    * @internal
    */
@@ -2132,7 +2141,7 @@ export class Wunderbaum {
         if (rowDiv) {
           rowDiv.style.top = idx * ROW_HEIGHT + "px";
         }
-        node.render({ top: top, after: prevElem });
+        node._render({ top: top, after: prevElem });
         // node.log("render", top, prevElem, "=>", node._rowElem);
         prevElem = node._rowElem!;
       }
@@ -2372,7 +2381,7 @@ export class Wunderbaum {
           `enableUpdate(): active again. Re-painting to catch up with ${this._disableUpdateIgnoreCount} ignored update requests...`
         );
         this._disableUpdateIgnoreCount = 0;
-        this.setModified(ChangeType.any, { immediate: true });
+        this.update(ChangeType.any, { immediate: true });
       }
     } else {
       this._disableUpdateCount++;

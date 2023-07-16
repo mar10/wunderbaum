@@ -219,7 +219,7 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
         // tree.columns.push(
         //   { title: "Mode", id: "mode_" + sequence++, width: "100px" }
         // )
-        // tree.setModified("colStructure")
+        // tree.update("colStructure")
         break;
     }
   });

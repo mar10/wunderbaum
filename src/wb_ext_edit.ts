@@ -285,7 +285,7 @@ export class EditExtension extends WunderbaumExtension {
           node?.setTitle(newValue);
           // NOTE: At least on Safari, this render call triggers a scroll event
           // probably because the focused input is replaced.
-          this.curEditNode!.render({ preventScroll: true });
+          this.curEditNode!._render({ preventScroll: true });
           this.curEditNode = null;
           this.relatedNode = null;
           this.tree.setFocus(); // restore focus that was in the input element
@@ -299,7 +299,7 @@ export class EditExtension extends WunderbaumExtension {
       // Discard the embedded `<input>`
       // NOTE: At least on Safari, this render call triggers a scroll event
       // probably because the focused input is replaced.
-      this.curEditNode!.render({ preventScroll: true });
+      this.curEditNode!._render({ preventScroll: true });
       this.curEditNode = null;
       this.relatedNode = null;
       // We discarded the <input>, so we have to acquire keyboard focus again

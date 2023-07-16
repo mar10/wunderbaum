@@ -119,7 +119,7 @@ new mar10.Wunderbaum({
           e.node.data[colId] = e.inputValue;
           break;
       }
-      // e.node.setModified()
+      // e.node.update()
     }, 500);
   },
   render: function (e) {
