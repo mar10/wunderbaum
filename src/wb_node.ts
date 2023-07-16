@@ -370,6 +370,18 @@ export class WunderbaumNode {
   }
 
   /**
+   * Collapse all expanded sibling nodes if any.
+   * (Automatically called when `autoCollapse` is true.)
+   */
+  collapseSiblings(options?: SetExpandedOptions): any {
+    for (let node of this.parent.children!) {
+      if (node !== this && node.expanded) {
+        node.setExpanded(false, options);
+      }
+    }
+  }
+
+  /**
    * Add/remove one or more classes to `<div class='wb-row'>`.
    *
    * This also maintains `node.classes`, so the class will survive a re-render.
@@ -2044,6 +2056,9 @@ export class WunderbaumNode {
       return; // Nothing to do
     }
     // this.log("setExpanded()");
+    if (flag && this.getOption("autoCollapse")) {
+      this.collapseSiblings(options);
+    }
     if (flag && this.lazy && this.children == null) {
       await this.loadLazy();
     }

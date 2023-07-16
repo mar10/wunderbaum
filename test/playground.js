@@ -20,7 +20,7 @@ const tree = new Wunderbaum({
   debugLevel: 4,
   // minExpandLevel: 1,
   emptyChildListExpandable: true,
-
+  autoCollapse: true,
   header: true, //"Playground",
   // navigationModeOption: "cell",
 
@@ -179,8 +179,9 @@ tree.ready
     console.error(`${tree} init failed.`, err);
   });
 
-document.body.style.setProperty("--wb-node-text-color", "#ff00ff");
-// document.body.style.setProperty("--wb-font-stack", "monospace");
+document.body.style.setProperty("--wb-node-text-color", "#ff8080");
+document.querySelector("div.wunderbaum").style.setProperty("--wb-font-stack", "monospace");
+// document.querySelector("div.wunderbaum").style.setProperty("--wb-font-stack", "monospace");
 
 document.querySelectorAll(".demo-btn").forEach((elem) => {
   elem.addEventListener("click", (e) => {

@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.3.6: #26: New option `autoCollapse` and methods `node.collapseSiblings()`
+
 - v0.3.5: #23: New `columns` option `headerClasses`
 
 - v0.3.4: Add `tree.toDictArray()`

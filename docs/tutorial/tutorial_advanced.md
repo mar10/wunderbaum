@@ -30,8 +30,8 @@ special value.
 
 ### Feature Classes
 
-These classes can be set on the tree's `<div>` container to enable custom
-behavior:
+We can add special classes to the tree's `<div>` container in order to enable 
+custom behavior:
 
 - `wb-alternate` <br>
   Render even and odd rows in alternating background shades.
@@ -50,14 +50,24 @@ behavior:
 - `wb-rainbow` <br>
   Colorize distinct indentation levels.
 
-These classes are automatically set the tree's `<div>` container, allowing
-custom CSS rules:
+For example
+
+```html
+<div id="demo-tree" class="... wb-no-select wb-checkbox-auto-hide">
+  ...
+</div>
+```
+
+### Custom Styles
+
+These classes are automatically set the tree's `<div>` container, depending on 
+the current mode, allowing for custom CSS rules:
 
 - `wb-grid`
 - `wb-fixed-col`
 - `wb-cell-mode`
 
-These classes are automatically set for rows, allowing custom CSS rules:
+These classes are automatically set for distinct rows, allowing custom CSS rules:
 
 - `wb-active`
 - `wb-selected`
@@ -70,7 +80,38 @@ These classes are automatically set for rows, allowing custom CSS rules:
   (Typically combined with `wb-initializing`.)
 - `wb-status-STATUS`, e.g. `wb-status-error`
 
+```css
+TODO: example
+```
+
+### CSS Variables
+
+Many CSS styles can be accessed and modified using JavaScript like so:
+
+```js
+document.body.style.setProperty("--wb-node-text-color", "#ff00ff");
+document.querySelector("#tree").style.setProperty("--wb-font-stack", "monospace");
+```
+
+See [`wunderbaum.scss`](https://github.com/mar10/wunderbaum/blob/main/src/wunderbaum.scss) 
+for a complete list of all availabe CSS variables.
+
 ### CSS Hacks
+
+```css
+div.wunderbaum {
+  scroll-behavior: smooth;
+}
+```
+
+```css
+/* Show tree skeleton while initializing. */
+div.wunderbaum.wb-skeleton.wb-initializing {
+  background-position-y: 20px;
+  background-image: url("skeleton-transp.png");
+  background-repeat: no-repeat;
+}
+```
 
 ```css
 * {
@@ -78,12 +119,6 @@ These classes are automatically set for rows, allowing custom CSS rules:
   margin: 0;
   /* prevent scrollbars, which would break `100vh` */
   overflow: hidden;
-}
-```
-
-```css
-div.wunderbaum {
-  scroll-behavior: smooth;
 }
 ```
 
