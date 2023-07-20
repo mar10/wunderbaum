@@ -11,7 +11,7 @@
  * @date @DATE
  */
 
-import "./wunderbaum.scss";
+// import "./wunderbaum.scss";
 import * as util from "./util";
 import { FilterExtension } from "./wb_ext_filter";
 import { KeynavExtension } from "./wb_ext_keynav";

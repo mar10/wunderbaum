@@ -4,7 +4,6 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import "./wunderbaum.scss";
 import * as util from "./util";
 
 import { Wunderbaum } from "./wunderbaum";

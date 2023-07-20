@@ -85,7 +85,7 @@
       "src/"
     ],
     "ext": "ts,scss",
-    "exec": "npm run build:js -s",
+    "exec": "npm run build:js -s && npm run build:scss",
     "ignore": [
       "node_modules/",
       ".git",
@@ -104,9 +104,10 @@
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"base='build',url='wunderbaum.umd.min.js.map',filename='wunderbaum.umd.js'\" --output build/wunderbaum.umd.min.js",
     "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"base='build',url='wunderbaum.esm.min.js.map',filename='wunderbaum.esm.js'\" --output build/wunderbaum.esm.min.js",
     "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
+    "build:scss": "sass src/wunderbaum.scss build/wunderbaum.css",
     "build:js": "rollup -c rollup.config.mjs && npm run build:minjs",
     "build:types": "tsc -t esnext --moduleResolution node -d --emitDeclarationOnly --outFile build/wunderbaum.d.ts src/wunderbaum.ts",
-    "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s && npm run build:types -s && npm run docs",
+    "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s  && npm run build:scss && npm run build:types -s && npm run docs",
     "make_dist": "npm run build && rm dist/*.* ; cp build/*.* dist",
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",

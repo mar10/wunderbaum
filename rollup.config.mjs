@@ -3,7 +3,7 @@ import postcss from "postcss";
 import postcss_url from "postcss-url";
 import rup_modify from "rollup-plugin-modify";
 import rup_scss from "rollup-plugin-scss";
-import rup_terser from "@rollup/plugin-terser";
+// import rup_terser from "@rollup/plugin-terser";
 import rup_typescript from "@rollup/plugin-typescript";
 
 let package_json = JSON.parse(fs.readFileSync("package.json", "utf8"));
