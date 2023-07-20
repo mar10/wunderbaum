@@ -105,7 +105,7 @@ export class KeynavExtension extends WunderbaumExtension {
             tree.setFocus();
             break;
           case "Escape":
-            node.render();
+            node._render();
             tree.setFocus();
             break;
         }
@@ -224,7 +224,7 @@ export class KeynavExtension extends WunderbaumExtension {
       if (inputHasFocus) {
         if (eventName === "Escape") {
           // Discard changes
-          node.render();
+          node._render();
           // Keep cell-nav mode
           node.logDebug(`Reset focused input`);
           tree.setFocus();

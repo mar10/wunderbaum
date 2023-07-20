@@ -333,7 +333,6 @@ export class FilterExtension extends WunderbaumExtension {
       "wb-ext-filter-hide"
     );
     // tree._callHook("treeStructureChanged", this, "clearFilter");
-    // tree.render();
     tree.enableUpdate(true);
   }
 }

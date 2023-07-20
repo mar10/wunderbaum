@@ -316,7 +316,7 @@ export class WunderbaumNode {
       //   this.fixSelection3FromEndNodes();
       // }
       // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
-      tree.setModified(ChangeType.structure);
+      tree.update(ChangeType.structure);
     } finally {
       tree.enableUpdate(true);
     }
@@ -367,6 +367,18 @@ export class WunderbaumNode {
    */
   applyCommand(cmd: ApplyCommandType, options: ApplyCommandOptions): any {
     return this.tree.applyCommand(cmd, this, options);
+  }
+
+  /**
+   * Collapse all expanded sibling nodes if any.
+   * (Automatically called when `autoCollapse` is true.)
+   */
+  collapseSiblings(options?: SetExpandedOptions): any {
+    for (let node of this.parent.children!) {
+      if (node !== this && node.expanded) {
+        node.setExpanded(false, options);
+      }
+    }
   }
 
   /**
@@ -968,7 +980,7 @@ export class WunderbaumNode {
       tree.logInfo("Redefine columns", source.columns);
       tree.columns = source.columns;
       delete source.columns;
-      tree.setModified(ChangeType.colStructure);
+      tree.update(ChangeType.colStructure);
     }
 
     this.addChildren(source.children);
@@ -1131,9 +1143,9 @@ export class WunderbaumNode {
 
       if (wasExpanded) {
         this.expanded = true;
-        this.tree.setModified(ChangeType.structure);
+        this.tree.update(ChangeType.structure);
       } else {
-        this.setModified(); // Fix expander icon to 'loaded'
+        this.update(); // Fix expander icon to 'loaded'
       }
     } catch (e) {
       this.logError("Error during loadLazy()", e);
@@ -1315,7 +1327,7 @@ export class WunderbaumNode {
     // DragAndDrop to generate a dragend event on the source node
     setTimeout(() => {
       // Even indentation may have changed:
-      tree.setModified(ChangeType.any);
+      tree.update(ChangeType.any);
     }, 0);
     // TODO: fix selection state
     // TODO: fix active state
@@ -1364,7 +1376,7 @@ export class WunderbaumNode {
       n.removeMarkup();
       tree._unregisterNode(n);
     }, true);
-    tree.setModified(ChangeType.structure);
+    tree.update(ChangeType.structure);
   }
 
   /** Remove all descendants of this node. */
@@ -1397,7 +1409,7 @@ export class WunderbaumNode {
     if (!this.isRootNode()) {
       this.expanded = false;
     }
-    this.tree.setModified(ChangeType.structure);
+    this.tree.update(ChangeType.structure);
   }
 
   /** Remove all HTML markup from the DOM. */
@@ -1498,7 +1510,7 @@ export class WunderbaumNode {
 
   /**
    * Create a whole new `<div class="wb-row">` element.
-   * @see {@link WunderbaumNode.render}
+   * @see {@link WunderbaumNode._render}
    */
   protected _render_markup(opts: RenderOptions) {
     const tree = this.tree;
@@ -1633,7 +1645,7 @@ export class WunderbaumNode {
   /**
    * Render `node.title`, `.icon` into an existing row.
    *
-   * @see {@link WunderbaumNode.render}
+   * @see {@link WunderbaumNode._render}
    */
   protected _render_data(opts: RenderOptions) {
     util.assert(this._rowElem);
@@ -1706,7 +1718,7 @@ export class WunderbaumNode {
 
   /**
    * Update row classes to reflect active, focuses, etc.
-   * @see {@link WunderbaumNode.render}
+   * @see {@link WunderbaumNode._render}
    */
   protected _render_status(opts: RenderOptions) {
     // this.log("_render_status", opts);
@@ -1801,7 +1813,7 @@ export class WunderbaumNode {
     }
   }
 
-  /**
+  /*
    * Create or update node's markup.
    *
    * `options.change` defaults to ChangeType.data, which updates the title,
@@ -1812,10 +1824,10 @@ export class WunderbaumNode {
    * `options.change` should be set to ChangeType.status instead for best
    * efficiency.
    *
-   * Calling `setModified` instead may be a better alternative.
-   * @see {@link WunderbaumNode.setModified}
+   * Calling `update()` is almost always a better alternative.
+   * @see {@link WunderbaumNode.update}
    */
-  render(options?: RenderOptions) {
+  _render(options?: RenderOptions) {
     // this.log("render", options);
     const opts = Object.assign({ change: ChangeType.data }, options);
     if (!this._rowElem) {
@@ -1846,7 +1858,7 @@ export class WunderbaumNode {
     this.expanded = false;
     this.lazy = true;
     this.children = null;
-    this.tree.setModified(ChangeType.structure);
+    this.tree.update(ChangeType.structure);
   }
 
   /** Convert node (or whole branch) into a plain object.
@@ -1996,7 +2008,7 @@ export class WunderbaumNode {
             return;
           }
           tree.activeNode = null;
-          prev?.setModified(ChangeType.status);
+          prev?.update(ChangeType.status);
         }
       } else if (prev === this || retrigger) {
         this._callEvent("deactivate", { nextNode: null, event: orgEvent });
@@ -2009,8 +2021,8 @@ export class WunderbaumNode {
         if (focusNode || focusTree) tree.focusNode = this;
         if (focusTree) tree.setFocus();
       }
-      prev?.setModified(ChangeType.status);
-      this.setModified(ChangeType.status);
+      prev?.update(ChangeType.status);
+      this.update(ChangeType.status);
     }
     if (
       options &&
@@ -2044,13 +2056,16 @@ export class WunderbaumNode {
       return; // Nothing to do
     }
     // this.log("setExpanded()");
+    if (flag && this.getOption("autoCollapse")) {
+      this.collapseSiblings(options);
+    }
     if (flag && this.lazy && this.children == null) {
       await this.loadLazy();
     }
     this.expanded = flag;
     const updateOpts = { immediate: immediate };
     // const updateOpts = { immediate: !!util.getOption(options, "immediate") };
-    this.tree.setModified(ChangeType.structure, updateOpts);
+    this.tree.update(ChangeType.structure, updateOpts);
     if (flag && scrollIntoView !== false) {
       const lastChild = this.getLastChild();
       if (lastChild) {
@@ -2068,14 +2083,14 @@ export class WunderbaumNode {
     util.assert(!!flag, "blur is not yet implemented");
     const prev = this.tree.focusNode;
     this.tree.focusNode = this;
-    prev?.setModified();
-    this.setModified();
+    prev?.update();
+    this.update();
   }
 
   /** Set a new icon path or class. */
   setIcon(icon: string) {
     this.icon = icon;
-    this.setModified();
+    this.update();
   }
 
   /** Change node's {@link key} and/or {@link refKey}.  */
@@ -2084,19 +2099,26 @@ export class WunderbaumNode {
   }
 
   /**
+   * @deprecated since v0.3.6: use `update()` instead.
+   */
+  setModified(change: ChangeType = ChangeType.data): void {
+    this.logWarn("setModified() is deprecated: use update() instead.");
+    return this.update(change);
+  }
+  /**
    * Trigger a repaint, typically after a status or data change.
    *
    * `change` defaults to 'data', which handles modifcations of title, icon,
    * and column content. It can be reduced to 'ChangeType.status' if only
    * active/focus/selected state has changed.
    *
-   * This method will eventually call  {@link WunderbaumNode.render()} with
+   * This method will eventually call  {@link WunderbaumNode._render()} with
    * default options, but may be more consistent with the tree's
-   * {@link Wunderbaum.setModified()} API.
+   * {@link Wunderbaum.update()} API.
    */
-  setModified(change: ChangeType = ChangeType.data) {
+  update(change: ChangeType = ChangeType.data) {
     util.assert(change === ChangeType.status || change === ChangeType.data);
-    this.tree.setModified(change, this);
+    this.tree.update(change, this);
   }
 
   /** Modify the check/uncheck state. */
@@ -2106,7 +2128,7 @@ export class WunderbaumNode {
       this._callEvent("select", { flag: flag });
     }
     this.selected = !!flag;
-    this.setModified();
+    this.update();
   }
 
   /** Display node status (ok, loading, error, noData) using styles and a dummy child node. */
@@ -2141,7 +2163,7 @@ export class WunderbaumNode {
 
       statusNode = this.addNode(data, "prependChild");
       statusNode.match = true;
-      tree.setModified(ChangeType.structure);
+      tree.update(ChangeType.structure);
 
       return statusNode;
     };
@@ -2157,7 +2179,7 @@ export class WunderbaumNode {
         this._isLoading = true;
         this._errorInfo = null;
         if (this.parent) {
-          this.setModified(ChangeType.status);
+          this.update(ChangeType.status);
         } else {
           // If this is the invisible root, add a visible top-level node
           _setStatusNode({
@@ -2170,7 +2192,7 @@ export class WunderbaumNode {
             tooltip: details,
           });
         }
-        // this.render();
+        // this.update();
         break;
       case "error":
         _setStatusNode({
@@ -2200,14 +2222,14 @@ export class WunderbaumNode {
       default:
         util.error("invalid node status " + status);
     }
-    tree.setModified(ChangeType.structure);
+    tree.update(ChangeType.structure);
     return statusNode;
   }
 
   /** Rename this node. */
   setTitle(title: string): void {
     this.title = title;
-    this.setModified();
+    this.update();
     // this.triggerModify("rename"); // TODO
   }
 
@@ -2238,7 +2260,7 @@ export class WunderbaumNode {
     deep: boolean = false
   ): void {
     this._sortChildren(cmp || nodeTitleSorter, deep);
-    this.tree.setModified(ChangeType.structure);
+    this.tree.update(ChangeType.structure);
     // this.triggerModify("sort"); // TODO
   }
 

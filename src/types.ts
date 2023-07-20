@@ -294,7 +294,7 @@ export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 
 /**
- * Possible values for {@link WunderbaumNode.setModified()} and {@link Wunderbaum.setModified()}.
+ * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
  */
 export enum ChangeType {
   /** Re-render the whole viewport, headers, and all rows. */
@@ -415,7 +415,7 @@ export interface NavigateOptions {
   event?: Event;
 }
 
-/** Possible values for {@link WunderbaumNode.render()}. */
+/** Possible values for {@link WunderbaumNode._render()}. */
 export interface RenderOptions {
   /** Which parts need update? @default ChangeType.data */
   change?: ChangeType;
@@ -481,8 +481,8 @@ export interface SetExpandedOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setModified()} `options` argument. */
-export interface SetModifiedOptions {
+/** Possible values for {@link WunderbaumNode.update()} `options` argument. */
+export interface UpdateOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
   // /** Remove HTML markup of all rendered nodes before redraw. @default false */

@@ -78,5 +78,5 @@ const tree = new Wunderbaum({
 tree.columns.push(
   { title: "New Col", id: "col_" + sequence++, width: "100px" }
 )
-tree.setModified("colStructure")
+tree.update("colStructure")
 ```
