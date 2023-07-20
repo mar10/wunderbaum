@@ -328,8 +328,8 @@ div.wunderbaum {
           // $hover-color 3.88px,
           transparent,
           transparent 3.88px,
-          $grid-color 3.88px,
-          $grid-color 7.78px
+          var(--wb-grid-color) 3.88px,
+          var(--wb-grid-color) 7.78px
         );
         animation: wb-busy-animation 2s linear infinite;
       }
@@ -388,7 +388,7 @@ div.wunderbaum {
     height: var(--wb-row-inner-height);
     line-height: var(--wb-row-inner-height);
     padding: 0 val(--wb-col-padding-x);
-    border-right: 1px solid $grid-color;
+    border-right: 1px solid var(--wb-grid-color);
     white-space: nowrap;
 
     &:last-of-type {
@@ -482,7 +482,7 @@ div.wunderbaum {
       }
 
       span.wb-col {
-        border-right: 1px solid $grid-color;
+        border-right: 1px solid var(--wb-grid-color);
 
         input.wb-input-edit,
         > input[type="color"],
