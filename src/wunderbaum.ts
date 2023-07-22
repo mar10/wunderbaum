@@ -169,7 +169,7 @@ export class Wunderbaum {
         checkbox: false,
         minExpandLevel: 0,
         emptyChildListExpandable: false,
-        updateThrottleWait: 200,
+        // updateThrottleWait: 200,
         skeleton: false,
         connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
         // --- KeyNav ---

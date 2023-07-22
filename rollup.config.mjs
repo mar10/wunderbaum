@@ -1,7 +1,7 @@
 import fs from "fs";
 import postcss from "postcss";
 import postcss_url from "postcss-url";
-import rup_modify from "rollup-plugin-modify";
+import rup_replace from "@rollup/plugin-replace";
 import rup_scss from "rollup-plugin-scss";
 // import rup_terser from "@rollup/plugin-terser";
 import rup_typescript from "@rollup/plugin-typescript";
@@ -38,11 +38,6 @@ export default {
   ],
   plugins: [
     rup_typescript(),
-    rup_modify({
-      "@VERSION": "v" + package_json.version,
-      "@DATE": "" + new Date().toUTCString(),
-      "const default_debuglevel = 4;": "const default_debuglevel = 3;",
-    }),
     // rup_terser(),
     rup_scss({
       fileName: "wunderbaum.css",
@@ -51,6 +46,17 @@ export default {
         postcss().use(
           postcss_url({ url: "inline", maxSize: 10, fallback: "copy" })
         ),
+    }),
+    rup_replace({
+      // include: ["build/**/*.js", "build/**/*.css"],
+      // include: ["build/*.js", "build/*.css"],
+      preventAssignment: true,
+      delimiters: ["", ""],
+      values: {
+        "@VERSION": "v" + package_json.version,
+        "@DATE": "" + new Date().toUTCString(),
+        "const DEFAULT_DEBUGLEVEL = 4;": "const DEFAULT_DEBUGLEVEL = 3;",
+      },
     }),
     // TODO: additional minfied version?
     // rup_scss({

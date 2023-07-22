@@ -198,7 +198,7 @@ div.wunderbaum {
 
   /* Fixed column must be opaque, i.e. have the bg color set. */
   &.wb-fixed-col {
-    /* Sticky firdt column (header and nodes) */
+    // Sticky first column (header and nodes)
     span.wb-col:first-of-type {
       position: sticky;
       left: 0;

@@ -161,10 +161,10 @@ export interface WunderbaumOptions {
    * Default: false.
    */
   checkbox?: boolean | "radio" | BoolOptionResolver;
-  /**
-   * Default: 200
-   */
-  updateThrottleWait?: number;
+  // /**
+  //  * Default: 200
+  //  */
+  // updateThrottleWait?: number;
   /**
    * Default: true
    */

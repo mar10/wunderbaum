@@ -7,7 +7,7 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.3.6: Remove import of SCSS in TS modules
+- v0.3.6: Remove import of wunderbaum.scss into TS modules
 - v0.3.6: Renamed `setModified()` to `update()`
 - v0.3.6: Removed `node.render()`: use `node.update()` instead
 - v0.3.6: #26: New option `autoCollapse` and methods `node.collapseSiblings()`
