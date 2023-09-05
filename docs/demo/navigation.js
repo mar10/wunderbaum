@@ -36,22 +36,30 @@ document.addEventListener("DOMContentLoaded", (event) => {
       {
         title: "Unit Tests",
         type: "link",
-        href: is_local ? "../../test/unit/test-dev.html" : "../unittest/test-dist.html",
+        href: is_local
+          ? "../../test/unit/test-dev.html"
+          : "../unittest/test-dist.html",
       },
       {
         title: "Demo",
         type: "folder",
         expanded: true,
         children: [
-          { title: "Welcome", type: "show", key: "demo-welcome", icon: "bi bi-info-square" },
+          {
+            title: "Welcome",
+            type: "show",
+            key: "demo-welcome",
+            icon: "bi bi-info-square",
+          },
           { title: "Minimal", type: "show", key: "demo-minimal" },
           { title: "Plain", type: "show", key: "demo-plain" },
+          { title: "Select", type: "show", key: "demo-select" },
           { title: "Treegrid", type: "show", key: "demo-grid" },
-          { title: "Large Grid", type: "show", key: "demo-large", },
-          { title: "Readonly", type: "show", key: "demo-readonly", },
-          { title: "Editable", type: "show", key: "demo-editable", },
-          { title: "Fixed Column", type: "show", key: "demo-fixedcol", },
-          { title: "Custom Data", type: "show", key: "demo-custom", },
+          { title: "Large Grid", type: "show", key: "demo-large" },
+          { title: "Readonly", type: "show", key: "demo-readonly" },
+          { title: "Editable", type: "show", key: "demo-editable" },
+          { title: "Fixed Column", type: "show", key: "demo-fixedcol" },
+          { title: "Custom Data", type: "show", key: "demo-custom" },
         ],
       },
     ],
@@ -88,7 +96,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     reconfigureTree(window.location.hash);
   });
 
-  document.querySelectorAll("output.tree-version").forEach(elem => {
+  document.querySelectorAll("output.tree-version").forEach((elem) => {
     elem.textContent = mar10.Wunderbaum.version;
   });
 
@@ -96,51 +104,58 @@ document.addEventListener("DOMContentLoaded", (event) => {
    * Handle checkboxes that set global modifier classes, e.g. `wb-rainbow`, ...
    */
   util.onEvent(document, "change", "input.auto-class-setter", (e) => {
-    document.getElementById("demo-tree").classList.toggle(e.target.dataset.classname, e.target.checked);
-  })
+    document
+      .getElementById("demo-tree")
+      .classList.toggle(e.target.dataset.classname, e.target.checked);
+  });
 
   toggleButtonCreate("#filter-hide", (e, flag) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     tree.setOption("filter.mode", flag ? "hide" : "dim");
-  })
+  });
   toggleButtonCreate("#show-checkboxes", (e, flag) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     tree.setOption("checkbox", !!flag);
-  })
+  });
   toggleButtonCreate("#disable-tree", (e, flag) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     tree.setOption("enabled", !flag);
-  })
+  });
   toggleButtonCreate("#enable-cellnav", (e, flag) => {
     const tree = mar10.Wunderbaum.getTree("demo");
     if (tree.isRowNav() && tree.isGrid()) {
-      tree.setCellNav()
+      tree.setCellNav();
     } else {
-      tree.setCellNav(false)
+      tree.setCellNav(false);
     }
     return tree.isCellNav();
-  })
-  document.querySelector("#toggle-expand-all").addEventListener("click", (e) => {
-    const tree = mar10.Wunderbaum.getTree("demo");
-    tree.expandAll(!tree.getFirstChild().isExpanded());
   });
-  document.querySelector("#toggle-select-all").addEventListener("click", (e) => {
-    const tree = mar10.Wunderbaum.getTree("demo");
-    const label = tree.logTime(`selectAll()`)
-    tree.selectAll(!tree.getFirstChild().isSelected());
-    tree.logTimeEnd(label)
-  });
+  document
+    .querySelector("#toggle-expand-all")
+    .addEventListener("click", (e) => {
+      const tree = mar10.Wunderbaum.getTree("demo");
+      tree.expandAll(!tree.getFirstChild().isExpanded());
+    });
+  document
+    .querySelector("#toggle-select-all")
+    .addEventListener("click", (e) => {
+      const tree = mar10.Wunderbaum.getTree("demo");
+      const label = tree.logTime(`selectAll()`);
+      tree.toggleSelect();
+      // tree.selectAll(!tree.getFirstChild().isSelected());
+      tree.logTimeEnd(label);
+    });
   /* Update info pane every second. This is fast and we handle exceptions, so
      'evil' setInterval() should be Ok here. */
   const STATUS_UPDATE_INTERVAL = 1_000;
-  setInterval(()=>{
+  setInterval(() => {
     try {
       const demoTree = mar10.Wunderbaum.getTree("demo");
       showStatus(demoTree);
     } catch (error) {
-      console.error("showStatus() failed", error)
+      console.error("showStatus() failed", error);
     }
-  }, STATUS_UPDATE_INTERVAL)
+  }, STATUS_UPDATE_INTERVAL);
 });
 
 /**
@@ -148,59 +163,64 @@ document.addEventListener("DOMContentLoaded", (event) => {
  */
 function toggleButtonCreate(selector, onChange) {
   const buttonElem = document.querySelector(selector);
-  buttonElem.classList.add("toggle-button")
+  buttonElem.classList.add("toggle-button");
   buttonElem.addEventListener("click", (e) => {
-    buttonElem.classList.toggle("checked")
+    buttonElem.classList.toggle("checked");
     const res = onChange(e, buttonElem.classList.contains("checked"));
     if (typeof res === "boolean") {
-      buttonElem.classList.toggle("checked", res)
+      buttonElem.classList.toggle("checked", res);
     }
-  })
+  });
 }
 
 /**
- * 
+ *
  */
-function loadScript(url, async = true, module = true, type = "text/javascript", destroyExisting = true) {
+function loadScript(
+  url,
+  async = true,
+  module = true,
+  type = "text/javascript",
+  destroyExisting = true
+) {
   return new Promise((resolve, reject) => {
-    console.log(`Loading script ${url}...`)
+    console.log(`Loading script ${url}...`);
     // Update address of 'View Source Code' link:
     const sourceLink = document.getElementById("sourceLink");
     sourceLink.setAttribute("href", url);
     // Remove previously loaded demo scripts and event listeners:
     if (destroyExisting) {
-      document.querySelectorAll("script.demo-case-handler").forEach(elem => {
+      document.querySelectorAll("script.demo-case-handler").forEach((elem) => {
         console.log("Remove old script:", elem);
-        elem.remove()
+        elem.remove();
       });
     }
     // const scriptElem = document.querySelector("#demo-tree-script");
     let scriptElem = document.createElement("script");
     if (module) {
-      scriptElem.setAttribute("type", "module")
+      scriptElem.setAttribute("type", "module");
     }
-    scriptElem.setAttribute("type", type)
-    scriptElem.setAttribute("async", async)
-    scriptElem.classList.add("demo-case-handler")
+    scriptElem.setAttribute("type", type);
+    scriptElem.setAttribute("async", async);
+    scriptElem.classList.add("demo-case-handler");
     document.body.appendChild(scriptElem);
 
-    scriptElem.setAttribute("src", url)
+    scriptElem.setAttribute("src", url);
 
     scriptElem.addEventListener("load", (e) => {
-      console.log(`Loading script ${url} done.`)
+      console.log(`Loading script ${url} done.`);
       resolve(e);
     });
     scriptElem.addEventListener("error", (e) => {
-      console.error(`Loading script ${url}... ERROR:`, e)
+      console.error(`Loading script ${url}... ERROR:`, e);
       reject(e);
     });
-
   });
 }
 
 /**
- * 
- * @param {*} options 
+ *
+ * @param {*} options
  */
 function reconfigureTree(tag = null) {
   const navTree = mar10.Wunderbaum.getTree("navigation");
@@ -212,18 +232,26 @@ function reconfigureTree(tag = null) {
   if (tag == null) {
     tag = window.location.hash;
   }
-  tag = tag.replace(/^#/, "")
+  tag = tag.replace(/^#/, "");
   tag = tag || "demo-welcome";
   const isWelcome = tag === "demo-welcome";
-  const label = `reconfigureTree(${tag})`
-  console.time(label)
+  const label = `reconfigureTree(${tag})`;
+  console.time(label);
 
   window.location.hash = tag;
 
   detailsElem.classList.remove("error");
   detailsElem.innerHTML = `Loading demo '${tag}'&hellip;`;
-  document.querySelectorAll(".hide-on-welcome").forEach(elem => {
-    elem.classList.toggle("hidden", isWelcome)
+  // Elements that are hidden from the initial welcome page:
+  document.querySelectorAll(".hide-on-welcome").forEach((elem) => {
+    elem.classList.toggle("hidden", isWelcome);
+  });
+  // Elements that are hidden on every page change (need to explicitly show by demo code):
+  document.querySelectorAll(".hide-on-init").forEach((elem) => {
+    elem.classList.add("hidden");
+  });
+  document.querySelectorAll(".clear-on-init").forEach((elem) => {
+    elem.innerHTML = "";
   });
 
   demoTree?.destroy();
@@ -231,39 +259,49 @@ function reconfigureTree(tag = null) {
   demoTree?.element.classList.add("wb-initializing");
 
   const url = `./${tag}.js`;
-  navTree.setActiveNode(tag)
+  navTree.setActiveNode(tag);
 
-  loadScript(url).then(() => {
-    demoTree = mar10.Wunderbaum.getTree("demo");
-    console.debug(`Script ${url} was run. tree:`, demoTree);//, demoTree?.options);
-    if (!demoTree) {
-      detailsElem.innerHTML = "&nbsp;";
-      console.timeEnd(label)
-      return
-    }
+  loadScript(url)
+    .then(() => {
+      demoTree = mar10.Wunderbaum.getTree("demo");
+      console.debug(`Script ${url} was run. tree:`, demoTree); //, demoTree?.options);
+      if (!demoTree) {
+        detailsElem.innerHTML = "&nbsp;";
+        console.timeEnd(label);
+        return;
+      }
 
-    // Update GUI controls from current tree settings.
-    demoTree.ready.then(() => {
-      console.timeEnd(label)
-      // console.info("Reloaded tree is initialized!")
-      document.getElementById("show-checkboxes")
-        .classList.toggle("checked", !!demoTree.getOption("checkbox"));
-      document.getElementById("filter-hide")
-        .classList.toggle("checked", demoTree.getOption("filter.mode") === "hide");
-      document.getElementById("enable-cellnav")
-        .classList.toggle("checked", demoTree.isGrid() && demoTree.isRowNav());
+      // Update GUI controls from current tree settings.
+      demoTree.ready.then(() => {
+        console.timeEnd(label);
+        // console.info("Reloaded tree is initialized!")
+        document
+          .getElementById("show-checkboxes")
+          .classList.toggle("checked", !!demoTree.getOption("checkbox"));
+        document
+          .getElementById("filter-hide")
+          .classList.toggle(
+            "checked",
+            demoTree.getOption("filter.mode") === "hide"
+          );
+        document
+          .getElementById("enable-cellnav")
+          .classList.toggle(
+            "checked",
+            demoTree.isGrid() && demoTree.isRowNav()
+          );
+      });
     })
-
-  }).catch((e) => {
-    detailsElem.classList.add("error");
-    detailsElem.innerHTML = `${e}`;
-  });
+    .catch((e) => {
+      detailsElem.classList.add("error");
+      detailsElem.innerHTML = `${e}`;
+    });
 }
 
 /**
- * 
- * @param {*} tree 
- * @param {*} options 
+ *
+ * @param {*} tree
+ * @param {*} options
  */
 function showStatus(tree) {
   // const tree = mar10.Wunderbaum.getTree("demo");
@@ -276,11 +314,13 @@ function showStatus(tree) {
   const elemCount = nodeListElem.childElementCount;
   const activeNode = tree.getActiveNode();
   const focusNode = tree.getFocusNode();
-  const focusNodeInfo = activeNode && focusNode === activeNode ? " (has focus)" : ", Focus: " + focusNode;
-  const msg =
-    `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
-      .count(true)
-      .toLocaleString()}, rendered: ${elemCount}.
+  const focusNodeInfo =
+    activeNode && focusNode === activeNode
+      ? " (has focus)"
+      : ", Focus: " + focusNode;
+  const msg = `Nodes: ${tree.count().toLocaleString()}, rows: ${tree
+    .count(true)
+    .toLocaleString()}, rendered: ${elemCount}.
       Active: ${activeNode}${focusNodeInfo}
       `;
 

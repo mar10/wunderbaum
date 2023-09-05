@@ -66,3 +66,15 @@ Common event handlers include:
 </dd>
 </dl>
 
+<dt>beforeSelect(e)</dt>
+<dd>
+  Return `false` to prevent (de)selection.
+</dd>
+</dl>
+
+<dt>select(e)</dt>
+<dd>
+  `e.node` was selected (`e.flag === true`) or deselected (`e.flag === false`)
+</dd>
+</dl>
+

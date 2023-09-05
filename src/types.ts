@@ -8,6 +8,9 @@ import { WunderbaumNode } from "./wb_node";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumOptions } from "./wb_options";
 
+/** A value that can either be true, false, or undefined. */
+export type TristateType = boolean | undefined;
+
 /** Passed to `find...()` methods. Should return true if node matches. */
 export type MatcherCallback = (node: WunderbaumNode) => boolean;
 /** Passed to `sortChildren()` methods. Should return -1, 0, or 1. */
@@ -31,6 +34,8 @@ export type NodeToDictCallback = (
   dict: WbNodeData,
   node: WunderbaumNode
 ) => NodeVisitResponse;
+/** A callback that receives a node instance and returns a string value. */
+export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
 /** A plain object (dictionary) that represents a node instance. */
@@ -120,8 +125,6 @@ export interface WbKeydownEventType extends WbTreeEventType {
   event: KeyboardEvent;
   node: WunderbaumNode;
   info: WbEventInfo;
-  /** Canical name of the key including modifiers. @see {@link util.eventToString} */
-  eventName: string;
 }
 
 export interface WbInitEventType extends WbTreeEventType {
@@ -165,7 +168,7 @@ export interface NodeTypeDefinition {
   // /** Type ID that matches `node.type`. */
   // id: string;
   /** En/disable checkbox for matching nodes. */
-  checkbox?: boolean | BoolOrStringOptionResolver;
+  checkbox?: boolean | "radio" | BoolOrStringOptionResolver;
   /** Optional class names that are added to all `div.wb-row` elements of matching nodes. */
   classes?: string;
   /** Only show title and hide other columns if any. */
@@ -247,6 +250,12 @@ export type ColumnEventInfoMap = { [colId: string]: ColumnEventInfo };
  * @see {@link Wunderbaum.getEventInfo}
  */
 export interface WbEventInfo {
+  /** The original HTTP Event.*/
+  event: MouseEvent | KeyboardEvent;
+  /** Canonical descriptive string of the event type including modifiers,
+   * e.g. `Ctrl+Down`. @see {@link util.eventToString}
+   */
+  canonicalName: string;
   /** The tree instance. */
   tree: Wunderbaum;
   /** The affected node instance instance if any. */
@@ -268,6 +277,7 @@ export interface WbEventInfo {
 // export type WbRenderCallbackType = (e: WbRenderEventType) => void;
 
 export type FilterModeType = null | "dim" | "hide";
+export type SelectModeType = "single" | "multi" | "hier";
 export type ApplyCommandType =
   | "addChild"
   | "addSibling"
@@ -491,10 +501,16 @@ export interface UpdateOptions {
 
 /** Possible values for {@link WunderbaumNode.setSelected()} `options` argument. */
 export interface SetSelectedOptions {
-  /** Ignore restrictions. @default false */
+  /** Ignore restrictions, e.g. (`unselectable`). @default false */
   force?: boolean;
-  /** Do not send events. @default false */
+  /** Do not send `beforeSelect` or `select` events. @default false */
   noEvents?: boolean;
+  /** Apply to all descendant nodes (only for `selectMode: 'multi'`). @default false */
+  propagateDown?: boolean;
+  // /** Apply to all ancestor nodes. @default false */
+  // propagateUp?: boolean;
+  /** Called for every node. May return false to prevent action. @default null */
+  callback?: NodeSelectCallback;
 }
 
 /** Possible values for {@link WunderbaumNode.setStatus()} `options` argument. */

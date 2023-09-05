@@ -182,7 +182,7 @@ export class KeynavExtension extends WunderbaumExtension {
           //   tree._triggerNodeEvent("clickPaging", ctx, event);
           // } else
           if (node.getOption("checkbox")) {
-            node.setSelected(!node.isSelected());
+            node.toggleSelected();
           } else {
             node.setActive(true, { event: event });
           }
@@ -273,7 +273,7 @@ export class KeynavExtension extends WunderbaumExtension {
           break;
         case " ": // Space
           if (tree.activeColIdx === 0 && node.getOption("checkbox")) {
-            node.setSelected(!node.isSelected());
+            node.toggleSelected();
             handled = true;
           } else if (curInput && curInputType === "checkbox") {
             curInput.click();

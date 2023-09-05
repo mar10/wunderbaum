@@ -134,6 +134,10 @@ export class Wunderbaum {
   /** Expose some useful methods of the util.ts module as `tree._util`. */
   public _util = util;
 
+  // --- SELECT ---
+  // /** @internal */
+  // public selectRangeAnchor: WunderbaumNode | null = null;
+
   // --- FILTER ---
   public filterMode: FilterModeType = null;
 
@@ -172,6 +176,7 @@ export class Wunderbaum {
         // updateThrottleWait: 200,
         skeleton: false,
         connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+        selectMode: "multi", // SelectModeType
         // --- KeyNav ---
         navigationModeOption: null, // NavModeEnum.startRow,
         quicksearch: true,
@@ -380,7 +385,13 @@ export class Wunderbaum {
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
       const node = info.node;
-      // this.log("click", info, e);
+      const mouseEvent = e as MouseEvent;
+
+      // this.log("click", info);
+
+      // if (this._selectRange(info) === false) {
+      //   return;
+      // }
 
       if (
         this._callEvent("click", { event: e, node: node, info: info }) === false
@@ -389,6 +400,10 @@ export class Wunderbaum {
         return false;
       }
       if (node) {
+        if (mouseEvent.ctrlKey) {
+          node.toggleSelected();
+          return;
+        }
         // Edit title if 'clickActive' is triggered:
         const trigger = this.getOption("edit.trigger");
         const slowClickDelay = this.getOption("edit.slowClickDelay");
@@ -410,7 +425,7 @@ export class Wunderbaum {
         if (info.region === NodeRegion.expander) {
           node.setExpanded(!node.isExpanded());
         } else if (info.region === NodeRegion.checkbox) {
-          node.setSelected(!node.isSelected());
+          node.toggleSelected();
         }
       }
       this.lastClickTime = Date.now();
@@ -1010,8 +1025,15 @@ export class Wunderbaum {
     return this.isGrid() ? header !== false : !!header;
   }
 
-  /** Run code, but defer rendering of viewport until done. */
-  runWithoutUpdate(func: () => any, hint = null): void {
+  /** Run code, but defer rendering of viewport until done.
+   *
+   * ```
+   * tree.runWithDeferredUpdate(() => {
+   *   return someFuncThatWouldUpdateManyNodes();
+   * });
+   * ```
+   */
+  runWithDeferredUpdate(func: () => any, hint = null): void {
     try {
       this.enableUpdate(false);
       const res = func();
@@ -1022,30 +1044,72 @@ export class Wunderbaum {
     }
   }
 
-  /** Recursively expand all expandable nodes (triggers lazy load id needed). */
+  /** Recursively expand all expandable nodes (triggers lazy load if needed). */
   async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
     await this.root.expandAll(flag, options);
   }
 
   /** Recursively select all nodes. */
   selectAll(flag: boolean = true) {
-    try {
-      this.enableUpdate(false);
-      this.visit((node) => {
-        node.setSelected(flag);
-      });
-    } finally {
-      this.enableUpdate(true);
-    }
+    return this.root.setSelected(flag, { propagateDown: true });
   }
 
-  /** Return the number of nodes in the data model.*/
+  /** Toggle select all nodes. */
+  toggleSelect() {
+    this.selectAll(this.root._anySelectable());
+  }
+
+  /**
+   * Return an array of selected nodes.
+   * @param stopOnParents only return the topmost selected node (useful with selectMode 'hier')
+   */
+  getSelectedNodes(stopOnParents: boolean = false): WunderbaumNode[] {
+    return this.root.getSelectedNodes(stopOnParents);
+  }
+
+  /*
+   * Return an array of selected nodes.
+   */
+  protected _selectRange(eventInfo: WbEventInfo): false | void {
+    this.logDebug("_selectRange", eventInfo);
+    util.error("Not yet implemented.");
+    // const mode = this.options.selectMode!;
+    // if (mode !== "multi") {
+    //   this.logDebug(`Range selection only available for selectMode 'multi'`);
+    //   return;
+    // }
+
+    // if (eventInfo.canonicalName === "Meta+click") {
+    //   eventInfo.node?.toggleSelected();
+    //   return false; // don't
+    // } else if (eventInfo.canonicalName === "Shift+click") {
+    //   let from = this.activeNode;
+    //   let to = eventInfo.node;
+    //   if (!from || !to || from === to) {
+    //     return;
+    //   }
+    //   this.runWithDeferredUpdate(() => {
+    //     this.visitRows(
+    //       (node) => {
+    //         node.setSelected();
+    //       },
+    //       {
+    //         includeHidden: true,
+    //         includeSelf: false,
+    //         start: from,
+    //         reverse: from!._rowIdx! > to!._rowIdx!,
+    //       }
+    //     );
+    //   });
+    //   return false;
+    // }
+  }
+
+  /** Return the number of nodes in the data model.
+   * @param visible if true, nodes that are hidden due to collapsed parents are ignored.
+   */
   count(visible = false): number {
-    if (visible) {
-      return this.treeRowCount;
-      // return this.viewNodes.size;
-    }
-    return this.keyMap.size;
+    return visible ? this.treeRowCount : this.keyMap.size;
   }
 
   /** @internal sanity check. */
@@ -1152,7 +1216,7 @@ export class Wunderbaum {
         break;
       case "first":
         // First visible node
-        this.visit(function (n) {
+        this.visit((n) => {
           if (n.isVisible()) {
             res = n;
             return false;
@@ -1160,7 +1224,7 @@ export class Wunderbaum {
         });
         break;
       case "last":
-        this.visit(function (n) {
+        this.visit((n) => {
           // last visible node
           if (n.isVisible()) {
             res = n;
@@ -1306,6 +1370,8 @@ export class Wunderbaum {
       node = Wunderbaum.getNode(target),
       tree = node ? node.tree : Wunderbaum.getTree(event),
       res: WbEventInfo = {
+        event: <MouseEvent>event,
+        canonicalName: util.eventToString(event),
         tree: tree!,
         node: node,
         region: NodeRegion.unknown,
@@ -2242,7 +2308,7 @@ export class Wunderbaum {
           node.children.length &&
           (includeHidden || node.expanded)
         ) {
-          res = node.visit(function (n: WunderbaumNode) {
+          res = node.visit((n: WunderbaumNode) => {
             if (n === stopNode) {
               return false;
             }

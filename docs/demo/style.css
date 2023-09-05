@@ -144,7 +144,7 @@ output#parentPath:not(.hidden) {
   background-color: whitesmoke;
 }
 
-.hide-on-welcome.hidden {
+.hide-on-welcome.hidden, .hide-on-init.hidden {
   display: none;
 }
 

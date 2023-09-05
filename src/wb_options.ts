@@ -10,6 +10,7 @@ import {
   DndOptionsType,
   NavModeEnum,
   NodeTypeDefinitionMap,
+  SelectModeType,
   WbActivateEventType,
   WbChangeEventType,
   WbClickEventType,
@@ -173,6 +174,12 @@ export interface WunderbaumOptions {
    * Default: false
    */
   fixedCol?: boolean;
+
+  // --- Selection ---
+  /**
+   * Default: "multi"
+   */
+  selectMode?: SelectModeType;
 
   // --- KeyNav ---
   /**

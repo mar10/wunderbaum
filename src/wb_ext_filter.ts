@@ -78,7 +78,7 @@ export class FilterExtension extends WunderbaumExtension {
     branchMode: boolean,
     _opts: any
   ) {
-    return this.tree.runWithoutUpdate(() => {
+    return this.tree.runWithDeferredUpdate(() => {
       return this._applyFilterImpl(filter, branchMode, _opts);
     });
   }
