@@ -37,7 +37,7 @@ new mar10.Wunderbaum({
     },
     drop: (e) => {
       console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode)
+      e.sourceNode.moveTo(e.node, e.defaultDropMode);
     },
   },
   edit: {
@@ -59,8 +59,8 @@ new mar10.Wunderbaum({
           if (e.newValue.match(/.*\d.*/)) {
             e.inputElem.setCustomValidity("No numbers please.");
             reject();
-          }else{
-            resolve()
+          } else {
+            resolve();
           }
         }, 500);
       });
@@ -79,8 +79,8 @@ new mar10.Wunderbaum({
   },
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:
-    const node = e.tree.findFirst("Jumping dopily")
-    node.setActive()
+    const node = e.tree.findFirst("Jumping dopily");
+    node.setActive();
     e.tree.setFocus();
   },
   lazyLoad: function (e) {
@@ -91,7 +91,7 @@ new mar10.Wunderbaum({
     // ... Simulate a long-running request
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        reject("Epic fail")
+        reject("Epic fail");
         // resolve({ url: "../assets/ajax-lazy-products.json" });
       }, 1500);
     });

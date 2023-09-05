@@ -641,6 +641,11 @@ export type DndOptionsType = {
    * @default 20
    */
   scrollSensitivity: 20;
+  // /**
+  //  * Scroll events every N microseconds
+  //  * @default 50
+  //  */
+  // scrollnterval: 50;
   /**
    * Pixel per event
    * @default 5

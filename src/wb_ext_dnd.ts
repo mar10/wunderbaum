@@ -10,6 +10,7 @@ import { WunderbaumExtension } from "./wb_extension_base";
 import { WunderbaumNode } from "./wb_node";
 import { DropRegionType, DropRegionTypeSet } from "./types";
 import { ROW_HEIGHT } from "./common";
+import { DebouncedFunction, throttle } from "./debounce";
 
 const nodeMimeType = "application/x-wunderbaum-node";
 
@@ -21,6 +22,9 @@ export class DndExtension extends WunderbaumExtension {
   protected lastAllowedDropRegions: DropRegionTypeSet | null = null;
   protected lastDropEffect: string | null = null;
   protected lastDropRegion: DropRegionType | false = false;
+  protected currentScrollDir: number = 0;
+  // protected autoScrollThrottled: DebouncedFunction<(pageY: number) => number>;
+  protected applyScrollDirThrottled: DebouncedFunction<() => void>;
 
   constructor(tree: Wunderbaum) {
     super(tree, "dnd", {
@@ -41,7 +45,8 @@ export class DndExtension extends WunderbaumExtension {
       preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
       scroll: true, // Enable auto-scrolling while dragging
       scrollSensitivity: 20, // Active top/bottom margin in pixel
-      scrollSpeed: 5, // Pixel per event
+      // scrollnterval: 50, // Generste event every 50 ms
+      scrollSpeed: 5, // Scroll ixel per 50 ms
       // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
       sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
       // Events (drag support)
@@ -55,6 +60,7 @@ export class DndExtension extends WunderbaumExtension {
       dragDrop: null, // Callback(targetNode, data)
       dragLeave: null, // Callback(targetNode, data)
     });
+    this.applyScrollDirThrottled = throttle(this.applyScrollDir, 50);
   }
 
   init() {
@@ -141,27 +147,61 @@ export class DndExtension extends WunderbaumExtension {
   }
 
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
-  protected autoScroll(event: DragEvent): number {
-    let tree = this.tree,
-      dndOpts = tree.options.dnd!,
-      sp = tree.listContainerElement,
-      sensitivity = dndOpts.scrollSensitivity,
-      speed = dndOpts.scrollSpeed,
-      scrolled = 0;
-
-    const scrollTop = sp.offsetTop;
-    if (scrollTop + sp.offsetHeight - event.pageY < sensitivity) {
-      const delta = sp.scrollHeight - sp.clientHeight - scrollTop;
-      if (delta > 0) {
-        sp.scrollTop = scrolled = scrollTop + speed;
+  protected applyScrollDir(): void {
+    if (this.isDragging() && this.currentScrollDir) {
+      const dndOpts = this.tree.options.dnd!;
+      const sp = this.tree.element; // scroll parent
+      const scrollTop = sp.scrollTop;
+      if (this.currentScrollDir < 0) {
+        sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+      } else if (this.currentScrollDir > 0) {
+        sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
       }
-    } else if (scrollTop > 0 && event.pageY - scrollTop < sensitivity) {
-      sp.scrollTop = scrolled = scrollTop - speed;
     }
-    // if (scrolled) {
-    //   tree.logDebug("autoScroll: " + scrolled + "px");
-    // }
-    return scrolled;
+  }
+  /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
+  protected autoScroll(viewportY: number): number {
+    const tree = this.tree;
+    const dndOpts = tree.options.dnd!;
+    const sensitivity = dndOpts.scrollSensitivity;
+    const sp = tree.element; // scroll parent
+    const headerHeight = tree.headerElement.clientHeight; // May be 0
+    // const height = sp.clientHeight - headerHeight;
+    // const height = sp.offsetHeight + headerHeight;
+    const height = sp.offsetHeight;
+    const scrollTop = sp.scrollTop;
+
+    // tree.logDebug(
+    //   `autoScroll: height=${height}, scrollTop=${scrollTop}, viewportY=${viewportY}`
+    // );
+
+    this.currentScrollDir = 0;
+
+    if (
+      scrollTop > 0 &&
+      viewportY > 0 &&
+      viewportY <= sensitivity + headerHeight
+    ) {
+      // Mouse in top 20px area: scroll up
+      // sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+      this.currentScrollDir = -1;
+    } else if (
+      scrollTop < sp.scrollHeight - height &&
+      viewportY >= height - sensitivity
+    ) {
+      // Mouse in bottom 20px area: scroll down
+      // sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
+      this.currentScrollDir = +1;
+    }
+    if (this.currentScrollDir) {
+      this.applyScrollDirThrottled();
+    }
+    return sp.scrollTop - scrollTop;
+  }
+
+  /** Return true if a drag operation currently in progress. */
+  isDragging(): boolean {
+    return !!this.srcNode;
   }
 
   protected onDragEvent(e: DragEvent) {
@@ -303,7 +343,8 @@ export class DndExtension extends WunderbaumExtension {
 
       // --- dragover ---
     } else if (e.type === "dragover") {
-      this.autoScroll(e);
+      const viewportY = e.clientY - this.tree.element.offsetTop;
+      this.autoScroll(viewportY);
 
       const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
