@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -756,10 +756,10 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
- * Possible values for {@link WunderbaumNode.setModified()} and {@link Wunderbaum.setModified()}.
+ * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
  */
 var ChangeType;
 (function (ChangeType) {
@@ -820,7 +820,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1107,11 +1107,75 @@ function debounce(func, wait = 0, options = {}) {
     debounced.pending = pending;
     return debounced;
 }
+/**
+ * Creates a throttled function that only invokes `func` at most once per
+ * every `wait` milliseconds (or once per browser frame). The throttled function
+ * comes with a `cancel` method to cancel delayed `func` invocations and a
+ * `flush` method to immediately invoke them. Provide `options` to indicate
+ * whether `func` should be invoked on the leading and/or trailing edge of the
+ * `wait` timeout. The `func` is invoked with the last arguments provided to the
+ * throttled function. Subsequent calls to the throttled function return the
+ * result of the last `func` invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the throttled function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
+ * invocation will be deferred until the next frame is drawn (typically about
+ * 16ms).
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `throttle` and `debounce`.
+ *
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to throttle.
+ * @param {number} [wait=0]
+ *  The number of milliseconds to throttle invocations to; if omitted,
+ *  `requestAnimationFrame` is used (if available).
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=true]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new throttled function.
+ * @example
+ *
+ * // Avoid excessively updating the position while scrolling.
+ * jQuery(window).on('scroll', throttle(updatePosition, 100))
+ *
+ * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
+ * const throttled = throttle(renewToken, 300000, { 'trailing': false })
+ * jQuery(element).on('click', throttled)
+ *
+ * // Cancel the trailing throttled invocation.
+ * jQuery(window).on('popstate', throttled.cancel)
+ */
+function throttle(func, wait = 0, options = {}) {
+    let leading = true;
+    let trailing = true;
+    if (typeof func !== "function") {
+        throw new TypeError("Expected a function");
+    }
+    if (isObject(options)) {
+        leading = "leading" in options ? !!options.leading : leading;
+        trailing = "trailing" in options ? !!options.trailing : trailing;
+    }
+    return debounce(func, wait, {
+        leading,
+        trailing,
+        maxWait: wait,
+    });
+}
 
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1156,7 +1220,7 @@ class FilterExtension extends WunderbaumExtension {
         }
     }
     _applyFilterNoUpdate(filter, branchMode, _opts) {
-        return this.tree.runWithoutUpdate(() => {
+        return this.tree.runWithDeferredUpdate(() => {
             return this._applyFilterImpl(filter, branchMode, _opts);
         });
     }
@@ -1368,7 +1432,6 @@ class FilterExtension extends WunderbaumExtension {
         // "wb-ext-filter",
         "wb-ext-filter-dim", "wb-ext-filter-hide");
         // tree._callHook("treeStructureChanged", this, "clearFilter");
-        // tree.render();
         tree.enableUpdate(true);
     }
 }
@@ -1412,7 +1475,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1489,7 +1552,7 @@ class KeynavExtension extends WunderbaumExtension {
                         tree.setFocus();
                         break;
                     case "Escape":
-                        node.render();
+                        node._render();
                         tree.setFocus();
                         break;
                 }
@@ -1559,7 +1622,7 @@ class KeynavExtension extends WunderbaumExtension {
                     //   tree._triggerNodeEvent("clickPaging", ctx, event);
                     // } else
                     if (node.getOption("checkbox")) {
-                        node.setSelected(!node.isSelected());
+                        node.toggleSelected();
                     }
                     else {
                         node.setActive(true, { event: event });
@@ -1595,7 +1658,7 @@ class KeynavExtension extends WunderbaumExtension {
             if (inputHasFocus) {
                 if (eventName === "Escape") {
                     // Discard changes
-                    node.render();
+                    node._render();
                     // Keep cell-nav mode
                     node.logDebug(`Reset focused input`);
                     tree.setFocus();
@@ -1645,7 +1708,7 @@ class KeynavExtension extends WunderbaumExtension {
                     break;
                 case " ": // Space
                     if (tree.activeColIdx === 0 && node.getOption("checkbox")) {
-                        node.setSelected(!node.isSelected());
+                        node.toggleSelected();
                         handled = true;
                     }
                     else if (curInput && curInputType === "checkbox") {
@@ -1752,7 +1815,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1792,9 +1855,9 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
-const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script
+const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
  * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
  */
@@ -1836,10 +1899,10 @@ const iconMap = {
     // expanderLazy: "bi bi-chevron-bar-right",
     checkChecked: "bi bi-check-square",
     checkUnchecked: "bi bi-square",
-    checkUnknown: "bi dash-square-dotted",
+    checkUnknown: "bi bi-dash-square-dotted",
     radioChecked: "bi bi-circle-fill",
     radioUnchecked: "bi bi-circle",
-    radioUnknown: "bi bi-circle-dotted",
+    radioUnknown: "bi bi-record-circle",
     folder: "bi bi-folder2",
     folderOpen: "bi bi-folder2-open",
     folderLazy: "bi bi-folder-symlink",
@@ -2038,7 +2101,7 @@ function inflateSourceData(source) {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2061,6 +2124,7 @@ class DndExtension extends WunderbaumExtension {
             preventVoidMoves: true,
             scroll: true,
             scrollSensitivity: 20,
+            // scrollnterval: 50, // Generste event every 50 ms
             scrollSpeed: 5,
             // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
             sourceCopyHook: null,
@@ -2082,6 +2146,8 @@ class DndExtension extends WunderbaumExtension {
         this.lastAllowedDropRegions = null;
         this.lastDropEffect = null;
         this.lastDropRegion = false;
+        this.currentScrollDir = 0;
+        this.applyScrollDirThrottled = throttle(this.applyScrollDir, 50);
     }
     init() {
         super.init();
@@ -2152,22 +2218,55 @@ class DndExtension extends WunderbaumExtension {
         // return "over";
     }
     /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
-    autoScroll(event) {
-        let tree = this.tree, dndOpts = tree.options.dnd, sp = tree.listContainerElement, sensitivity = dndOpts.scrollSensitivity, speed = dndOpts.scrollSpeed, scrolled = 0;
-        const scrollTop = sp.offsetTop;
-        if (scrollTop + sp.offsetHeight - event.pageY < sensitivity) {
-            const delta = sp.scrollHeight - sp.clientHeight - scrollTop;
-            if (delta > 0) {
-                sp.scrollTop = scrolled = scrollTop + speed;
+    applyScrollDir() {
+        if (this.isDragging() && this.currentScrollDir) {
+            const dndOpts = this.tree.options.dnd;
+            const sp = this.tree.element; // scroll parent
+            const scrollTop = sp.scrollTop;
+            if (this.currentScrollDir < 0) {
+                sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+            }
+            else if (this.currentScrollDir > 0) {
+                sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
             }
         }
-        else if (scrollTop > 0 && event.pageY - scrollTop < sensitivity) {
-            sp.scrollTop = scrolled = scrollTop - speed;
+    }
+    /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
+    autoScroll(viewportY) {
+        const tree = this.tree;
+        const dndOpts = tree.options.dnd;
+        const sensitivity = dndOpts.scrollSensitivity;
+        const sp = tree.element; // scroll parent
+        const headerHeight = tree.headerElement.clientHeight; // May be 0
+        // const height = sp.clientHeight - headerHeight;
+        // const height = sp.offsetHeight + headerHeight;
+        const height = sp.offsetHeight;
+        const scrollTop = sp.scrollTop;
+        // tree.logDebug(
+        //   `autoScroll: height=${height}, scrollTop=${scrollTop}, viewportY=${viewportY}`
+        // );
+        this.currentScrollDir = 0;
+        if (scrollTop > 0 &&
+            viewportY > 0 &&
+            viewportY <= sensitivity + headerHeight) {
+            // Mouse in top 20px area: scroll up
+            // sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+            this.currentScrollDir = -1;
         }
-        // if (scrolled) {
-        //   tree.logDebug("autoScroll: " + scrolled + "px");
-        // }
-        return scrolled;
+        else if (scrollTop < sp.scrollHeight - height &&
+            viewportY >= height - sensitivity) {
+            // Mouse in bottom 20px area: scroll down
+            // sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
+            this.currentScrollDir = +1;
+        }
+        if (this.currentScrollDir) {
+            this.applyScrollDirThrottled();
+        }
+        return sp.scrollTop - scrollTop;
+    }
+    /** Return true if a drag operation currently in progress. */
+    isDragging() {
+        return !!this.srcNode;
     }
     onDragEvent(e) {
         // const tree = this.tree;
@@ -2291,7 +2390,8 @@ class DndExtension extends WunderbaumExtension {
             // --- dragover ---
         }
         else if (e.type === "dragover") {
-            this.autoScroll(e);
+            const viewportY = e.clientY - this.tree.element.offsetTop;
+            this.autoScroll(viewportY);
             const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
             this.lastDropRegion = region;
             if (dndOpts.autoExpandMS > 0 &&
@@ -2331,7 +2431,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2467,7 +2567,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2504,7 +2604,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2557,32 +2657,20 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
-/** Top-level properties that can be passed with `data`. */
+/** WunderbaumNode properties that can be passed with source data.
+ * (Any other source properties will be stored as `node.data.PROP`.)
+ */
 const NODE_PROPS = new Set([
-    // TODO: use NODE_ATTRS instead?
-    "classes",
-    "expanded",
-    "icon",
-    "key",
-    "lazy",
-    "refKey",
-    "selected",
-    "title",
-    "tooltip",
-    "type",
-]);
-const NODE_ATTRS = new Set([
     "checkbox",
-    "expanded",
     "classes",
-    "folder",
+    "expanded",
     "icon",
     "iconTooltip",
     "key",
     "lazy",
-    "partsel",
+    "_partsel",
     "radiogroup",
     "refKey",
     "selected",
@@ -2591,9 +2679,16 @@ const NODE_ATTRS = new Set([
     "tooltip",
     "type",
     "unselectable",
-    "unselectableIgnore",
-    "unselectableStatus",
+    // "unselectableIgnore",
+    // "unselectableStatus",
 ]);
+/** WunderbaumNode properties that will be returned by `node.toDict()`.)
+ */
+const NODE_DICT_PROPS = new Set(NODE_PROPS);
+NODE_DICT_PROPS.delete("_partsel");
+NODE_DICT_PROPS.delete("unselectable");
+// NODE_DICT_PROPS.delete("unselectableIgnore");
+// NODE_DICT_PROPS.delete("unselectableStatus");
 /**
  * A single tree node.
  *
@@ -2615,7 +2710,7 @@ class WunderbaumNode {
          * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
         this.expanded = false;
         /** Selection state.
-         * @see {@link isSelected}, {@link setSelected}. */
+         * @see {@link isSelected}, {@link setSelected}, {@link toggleSelected}. */
         this.selected = false;
         /** Additional classes added to `div.wb-row`.
          * @see {@link hasClass}, {@link setClass}. */
@@ -2637,16 +2732,23 @@ class WunderbaumNode {
         this.key = "" + ((_a = data.key) !== null && _a !== void 0 ? _a : ++WunderbaumNode.sequence);
         this.title = "" + ((_b = data.title) !== null && _b !== void 0 ? _b : "<" + this.key + ">");
         data.refKey != null ? (this.refKey = "" + data.refKey) : 0;
-        data.statusNodeType != null
-            ? (this.statusNodeType = "" + data.statusNodeType)
-            : 0;
         data.type != null ? (this.type = "" + data.type) : 0;
-        data.checkbox != null ? (this.checkbox = !!data.checkbox) : 0;
-        data.colspan != null ? (this.colspan = !!data.colspan) : 0;
         this.expanded = data.expanded === true;
         data.icon != null ? (this.icon = data.icon) : 0;
         this.lazy = data.lazy === true;
+        data.statusNodeType != null
+            ? (this.statusNodeType = "" + data.statusNodeType)
+            : 0;
+        data.colspan != null ? (this.colspan = !!data.colspan) : 0;
+        // Selection
+        data.checkbox != null ? (this.checkbox = !!data.checkbox) : 0;
+        data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
         this.selected = data.selected === true;
+        data.unselectable === true ? (this.unselectable = true) : 0;
+        // data.unselectableStatus != null
+        //   ? (this.unselectableStatus = !!data.unselectableStatus)
+        //   : 0;
+        // data.unselectableIgnore === true ? (this.unselectableIgnore = true) : 0;
         if (data.classes) {
             this.setClass(data.classes);
         }
@@ -2770,14 +2872,17 @@ class WunderbaumNode {
                 // insert nodeList after children[pos]
                 this.children.splice(pos, 0, ...nodeList);
             }
-            // TODO:
-            // if (tree.options.selectMode === 3) {
-            //   this.fixSelection3FromEndNodes();
-            // }
             // this.triggerModifyChild("add", nodeList.length === 1 ? nodeList[0] : null);
-            tree.setModified(ChangeType.structure);
+            tree.update(ChangeType.structure);
         }
         finally {
+            // if (tree.options.selectMode === "hier") {
+            //   if (this.parent && this.parent.children) {
+            //     this.fixSelection3FromEndNodes();
+            //   } else {
+            //     // my happen when loading __root__;
+            //   }
+            // }
             tree.enableUpdate(true);
         }
         // if(isTopCall && loadLazy){
@@ -2824,6 +2929,17 @@ class WunderbaumNode {
         return this.tree.applyCommand(cmd, this, options);
     }
     /**
+     * Collapse all expanded sibling nodes if any.
+     * (Automatically called when `autoCollapse` is true.)
+     */
+    collapseSiblings(options) {
+        for (let node of this.parent.children) {
+            if (node !== this && node.expanded) {
+                node.setExpanded(false, options);
+            }
+        }
+    }
+    /**
      * Add/remove one or more classes to `<div class='wb-row'>`.
      *
      * This also maintains `node.classes`, so the class will survive a re-render.
@@ -2862,7 +2978,7 @@ class WunderbaumNode {
         const tree = this.tree;
         const minExpandLevel = this.tree.options.minExpandLevel;
         let { depth = 99, loadLazy, force } = options !== null && options !== void 0 ? options : {};
-        const expand_opts = {
+        const expandOpts = {
             scrollIntoView: false,
             force: force,
             loadLazy: loadLazy,
@@ -2886,7 +3002,7 @@ class WunderbaumNode {
                         // Node is collapsed and may be expanded (i.e. has children or is lazy)
                         // Expanding may be async, so we store the promise.
                         // Also the recursion is delayed until expansion finished.
-                        const p = cn.setExpanded(true, expand_opts);
+                        const p = cn.setExpanded(true, expandOpts);
                         promises.push(p);
                         p.then(async () => {
                             await _iter(cn, level_1);
@@ -2902,7 +3018,7 @@ class WunderbaumNode {
                     // Collapsing is always synchronous, so no promises required
                     if (!minExpandLevel || force || cn.getLevel() > minExpandLevel) {
                         // Do not collapse until minExpandLevel
-                        cn.setExpanded(false, expand_opts);
+                        cn.setExpanded(false, expandOpts);
                     }
                     _iter(cn, level_1); // recursion, even if cn was already collapsed
                 }
@@ -3274,9 +3390,11 @@ class WunderbaumNode {
     isRootNode() {
         return this.tree.root === this;
     }
-    /** Return true if this node is selected, i.e. the checkbox is set. */
+    /** Return true if this node is selected, i.e. the checkbox is set.
+     * `undefined` if partly selected (tri-state), false otherwise.
+     */
     isSelected() {
-        return !!this.selected;
+        return this.selected ? true : this._partsel ? undefined : false;
     }
     /** Return true if this node is a temporarily generated system node like
      * 'loading', 'paging', or 'error' (node.statusNodeType contains the type).
@@ -3348,7 +3466,7 @@ class WunderbaumNode {
             tree.logInfo("Redefine columns", source.columns);
             tree.columns = source.columns;
             delete source.columns;
-            tree.setModified(ChangeType.colStructure);
+            tree.update(ChangeType.colStructure);
         }
         this.addChildren(source.children);
         // Add extra data to `tree.data`
@@ -3357,6 +3475,9 @@ class WunderbaumNode {
                 tree.data[key] = value;
                 tree.logDebug(`Add source.${key} to tree.data.${key}`);
             }
+        }
+        if (tree.options.selectMode === "hier") {
+            this.fixSelection3FromEndNodes();
         }
         this._callEvent("load");
     }
@@ -3487,10 +3608,10 @@ class WunderbaumNode {
             await this.load(source); // also calls setStatus('ok')
             if (wasExpanded) {
                 this.expanded = true;
-                this.tree.setModified(ChangeType.structure);
+                this.tree.update(ChangeType.structure);
             }
             else {
-                this.setModified(); // Fix expander icon to 'loaded'
+                this.update(); // Fix expander icon to 'loaded'
             }
         }
         catch (e) {
@@ -3647,7 +3768,7 @@ class WunderbaumNode {
             // Fix node.tree for all source nodes
             // 	util.assert(false, "Cross-tree move is not yet implemented.");
             this.logWarn("Cross-tree moveTo is experimental!");
-            this.visit(function (n) {
+            this.visit((n) => {
                 // TODO: fix selection state and activation, ...
                 n.tree = targetNode.tree;
             }, true);
@@ -3656,7 +3777,7 @@ class WunderbaumNode {
         // DragAndDrop to generate a dragend event on the source node
         setTimeout(() => {
             // Even indentation may have changed:
-            tree.setModified(ChangeType.any);
+            tree.update(ChangeType.any);
         }, 0);
         // TODO: fix selection state
         // TODO: fix active state
@@ -3703,7 +3824,7 @@ class WunderbaumNode {
             n.removeMarkup();
             tree._unregisterNode(n);
         }, true);
-        tree.setModified(ChangeType.structure);
+        tree.update(ChangeType.structure);
     }
     /** Remove all descendants of this node. */
     removeChildren() {
@@ -3735,7 +3856,7 @@ class WunderbaumNode {
         if (!this.isRootNode()) {
             this.expanded = false;
         }
-        this.tree.setModified(ChangeType.structure);
+        this.tree.update(ChangeType.structure);
     }
     /** Remove all HTML markup from the DOM. */
     removeMarkup() {
@@ -3830,12 +3951,13 @@ class WunderbaumNode {
     }
     /**
      * Create a whole new `<div class="wb-row">` element.
-     * @see {@link WunderbaumNode.render}
+     * @see {@link WunderbaumNode._render}
      */
     _render_markup(opts) {
         const tree = this.tree;
         const treeOptions = tree.options;
-        const checkbox = this.getOption("checkbox") !== false;
+        const checkbox = this.getOption("checkbox");
+        // const checkbox = this.getOption("checkbox") !== false;
         const columns = tree.columns;
         const level = this.getLevel();
         let elem;
@@ -3863,6 +3985,9 @@ class WunderbaumNode {
         if (checkbox) {
             checkboxSpan = document.createElement("i");
             checkboxSpan.classList.add("wb-checkbox");
+            if (checkbox === "radio" || this.parent.radiogroup) {
+                checkboxSpan.classList.add("wb-radio");
+            }
             nodeElem.appendChild(checkboxSpan);
             ofsTitlePx += ICON_WIDTH;
         }
@@ -3943,7 +4068,7 @@ class WunderbaumNode {
     /**
      * Render `node.title`, `.icon` into an existing row.
      *
-     * @see {@link WunderbaumNode.render}
+     * @see {@link WunderbaumNode._render}
      */
     _render_data(opts) {
         assert(this._rowElem);
@@ -4009,7 +4134,7 @@ class WunderbaumNode {
     }
     /**
      * Update row classes to reflect active, focuses, etc.
-     * @see {@link WunderbaumNode.render}
+     * @see {@link WunderbaumNode._render}
      */
     _render_status(opts) {
         // this.log("_render_status", opts);
@@ -4025,6 +4150,7 @@ class WunderbaumNode {
         this.expanded ? rowClasses.push("wb-expanded") : 0;
         this.lazy ? rowClasses.push("wb-lazy") : 0;
         this.selected ? rowClasses.push("wb-selected") : 0;
+        this._partsel ? rowClasses.push("wb-partsel") : 0;
         this === tree.activeNode ? rowClasses.push("wb-active") : 0;
         this === tree.focusNode ? rowClasses.push("wb-focus") : 0;
         this._errorInfo ? rowClasses.push("wb-error") : 0;
@@ -4064,12 +4190,30 @@ class WunderbaumNode {
             }
         }
         if (checkboxSpan) {
-            if (this.selected) {
-                checkboxSpan.className = "wb-checkbox " + iconMap.checkChecked;
+            let cbclass = "wb-checkbox ";
+            if (this.parent.radiogroup) {
+                cbclass += "wb-radio ";
+                if (this.selected) {
+                    cbclass += iconMap.radioChecked;
+                    // } else if (this._partsel) {
+                    //   cbclass += iconMap.radioUnknown;
+                }
+                else {
+                    cbclass += iconMap.radioUnchecked;
+                }
             }
             else {
-                checkboxSpan.className = "wb-checkbox " + iconMap.checkUnchecked;
+                if (this.selected) {
+                    cbclass += iconMap.checkChecked;
+                }
+                else if (this._partsel) {
+                    cbclass += iconMap.checkUnknown;
+                }
+                else {
+                    cbclass += iconMap.checkUnchecked;
+                }
             }
+            checkboxSpan.className = cbclass;
         }
         // Fix active cell in cell-nav mode
         if (!opts.isNew) {
@@ -4097,7 +4241,7 @@ class WunderbaumNode {
             }
         }
     }
-    /**
+    /*
      * Create or update node's markup.
      *
      * `options.change` defaults to ChangeType.data, which updates the title,
@@ -4108,10 +4252,10 @@ class WunderbaumNode {
      * `options.change` should be set to ChangeType.status instead for best
      * efficiency.
      *
-     * Calling `setModified` instead may be a better alternative.
-     * @see {@link WunderbaumNode.setModified}
+     * Calling `update()` is almost always a better alternative.
+     * @see {@link WunderbaumNode.update}
      */
-    render(options) {
+    _render(options) {
         // this.log("render", options);
         const opts = Object.assign({ change: ChangeType.data }, options);
         if (!this._rowElem) {
@@ -4141,7 +4285,7 @@ class WunderbaumNode {
         this.expanded = false;
         this.lazy = true;
         this.children = null;
-        this.tree.setModified(ChangeType.structure);
+        this.tree.update(ChangeType.structure);
     }
     /** Convert node (or whole branch) into a plain object.
      *
@@ -4156,7 +4300,7 @@ class WunderbaumNode {
      */
     toDict(recursive = false, callback) {
         const dict = {};
-        NODE_ATTRS.forEach((propName) => {
+        NODE_DICT_PROPS.forEach((propName) => {
             const val = this[propName];
             if (val instanceof Set) {
                 // Convert Set to string (or skip if set is empty)
@@ -4281,7 +4425,7 @@ class WunderbaumNode {
                         return;
                     }
                     tree.activeNode = null;
-                    prev === null || prev === void 0 ? void 0 : prev.setModified(ChangeType.status);
+                    prev === null || prev === void 0 ? void 0 : prev.update(ChangeType.status);
                 }
             }
             else if (prev === this || retrigger) {
@@ -4296,8 +4440,8 @@ class WunderbaumNode {
                 if (focusTree)
                     tree.setFocus();
             }
-            prev === null || prev === void 0 ? void 0 : prev.setModified(ChangeType.status);
-            this.setModified(ChangeType.status);
+            prev === null || prev === void 0 ? void 0 : prev.update(ChangeType.status);
+            this.update(ChangeType.status);
         }
         if (options &&
             options.colIdx != null &&
@@ -4326,13 +4470,16 @@ class WunderbaumNode {
             return; // Nothing to do
         }
         // this.log("setExpanded()");
+        if (flag && this.getOption("autoCollapse")) {
+            this.collapseSiblings(options);
+        }
         if (flag && this.lazy && this.children == null) {
             await this.loadLazy();
         }
         this.expanded = flag;
         const updateOpts = { immediate: immediate };
         // const updateOpts = { immediate: !!util.getOption(options, "immediate") };
-        this.tree.setModified(ChangeType.structure, updateOpts);
+        this.tree.update(ChangeType.structure, updateOpts);
         if (flag && scrollIntoView !== false) {
             const lastChild = this.getLastChild();
             if (lastChild) {
@@ -4349,17 +4496,24 @@ class WunderbaumNode {
         assert(!!flag, "blur is not yet implemented");
         const prev = this.tree.focusNode;
         this.tree.focusNode = this;
-        prev === null || prev === void 0 ? void 0 : prev.setModified();
-        this.setModified();
+        prev === null || prev === void 0 ? void 0 : prev.update();
+        this.update();
     }
     /** Set a new icon path or class. */
     setIcon(icon) {
         this.icon = icon;
-        this.setModified();
+        this.update();
     }
     /** Change node's {@link key} and/or {@link refKey}.  */
     setKey(key, refKey) {
         throw new Error("Not yet implemented");
+    }
+    /**
+     * @deprecated since v0.3.6: use `update()` instead.
+     */
+    setModified(change = ChangeType.data) {
+        this.logWarn("setModified() is deprecated: use update() instead.");
+        return this.update(change);
     }
     /**
      * Trigger a repaint, typically after a status or data change.
@@ -4368,22 +4522,219 @@ class WunderbaumNode {
      * and column content. It can be reduced to 'ChangeType.status' if only
      * active/focus/selected state has changed.
      *
-     * This method will eventually call  {@link WunderbaumNode.render()} with
+     * This method will eventually call  {@link WunderbaumNode._render()} with
      * default options, but may be more consistent with the tree's
-     * {@link Wunderbaum.setModified()} API.
+     * {@link Wunderbaum.update()} API.
      */
-    setModified(change = ChangeType.data) {
+    update(change = ChangeType.data) {
         assert(change === ChangeType.status || change === ChangeType.data);
-        this.tree.setModified(change, this);
+        this.tree.update(change, this);
+    }
+    /**
+     * Return an array of selected nodes.
+     * @param stopOnParents only return the topmost selected node (useful with selectMode 'hier')
+     */
+    getSelectedNodes(stopOnParents = false) {
+        let nodeList = [];
+        this.visit((node) => {
+            if (node.selected) {
+                nodeList.push(node);
+                if (stopOnParents === true) {
+                    return "skip"; // stop processing this branch
+                }
+            }
+        });
+        return nodeList;
+    }
+    /** Toggle the check/uncheck state. */
+    toggleSelected(options) {
+        let flag = this.isSelected();
+        if (flag === undefined) {
+            flag = this._anySelectable();
+        }
+        else {
+            flag = !flag;
+        }
+        return this.setSelected(flag, options);
+    }
+    /** Return true if at least on selectable descendant end-node is unselected. @internal */
+    _anySelectable() {
+        let found = false;
+        this.visit((node) => {
+            if (node.selected === false &&
+                !node.unselectable &&
+                !node.hasChildren() &&
+                !node.parent.radiogroup) {
+                found = true;
+                return false; // Stop iteration
+            }
+        });
+        return found;
+    }
+    /* Apply selection state to a single node. */
+    _changeSelectStatusProps(state) {
+        let changed = false;
+        switch (state) {
+            case false:
+                changed = this.selected || this._partsel;
+                this.selected = false;
+                this._partsel = false;
+                break;
+            case true:
+                changed = !this.selected || !this._partsel;
+                this.selected = true;
+                this._partsel = true;
+                break;
+            case undefined:
+                changed = this.selected || !this._partsel;
+                this.selected = false;
+                this._partsel = true;
+                break;
+            default:
+                error(`Invalid state: ${state}`);
+        }
+        if (changed) {
+            this.update();
+        }
+        return changed;
+    }
+    /**
+     * Fix selection status, after this node was (de)selected in `selectMode: 'hier'`.
+     * This includes (de)selecting all descendants.
+     */
+    fixSelection3AfterClick(opts) {
+        const force = !!(opts === null || opts === void 0 ? void 0 : opts.force);
+        let flag = this.isSelected();
+        this.visit((node) => {
+            if (node.radiogroup) {
+                return "skip"; // Don't (de)select this branch
+            }
+            if (force || !node.getOption("unselectable")) {
+                node._changeSelectStatusProps(flag);
+            }
+        });
+        this.fixSelection3FromEndNodes();
+    }
+    /**
+     * Fix selection status for multi-hier mode.
+     * Only end-nodes are considered to update the descendants branch and parents.
+     * Should be called after this node has loaded new children or after
+     * children have been modified using the API.
+     */
+    fixSelection3FromEndNodes(opts) {
+        const force = !!(opts === null || opts === void 0 ? void 0 : opts.force);
+        assert(this.tree.options.selectMode === "hier", "expected selectMode 'hier'");
+        // Visit all end nodes and adjust their parent's `selected` and `_partsel`
+        // attributes. Return selection state true, false, or undefined.
+        const _walk = (node) => {
+            let state;
+            const children = node.children;
+            if (children && children.length) {
+                // check all children recursively
+                let allSelected = true;
+                let someSelected = false;
+                for (let i = 0, l = children.length; i < l; i++) {
+                    const child = children[i];
+                    // the selection state of a node is not relevant; we need the end-nodes
+                    const s = _walk(child);
+                    if (s !== false) {
+                        someSelected = true;
+                    }
+                    if (s !== true) {
+                        allSelected = false;
+                    }
+                }
+                state = allSelected ? true : someSelected ? undefined : false;
+            }
+            else {
+                // This is an end-node: simply report the status
+                state = !!node.selected;
+            }
+            // #939: Keep a `_partsel` flag that was explicitly set on a lazy node
+            if (node._partsel &&
+                !node.selected &&
+                node.lazy &&
+                node.children == null) {
+                state = undefined;
+            }
+            if (force || !node.getOption("unselectable")) {
+                node._changeSelectStatusProps(state);
+            }
+            return state;
+        };
+        _walk(this);
+        // Update parent's state
+        this.visitParents((node) => {
+            let state;
+            const children = node.children;
+            let allSelected = true;
+            let someSelected = false;
+            for (let i = 0, l = children.length; i < l; i++) {
+                const child = children[i];
+                state = !!child.selected;
+                // When fixing the parents, we trust the sibling status (i.e. we don't recurse)
+                if (state || child._partsel) {
+                    someSelected = true;
+                }
+                if (!state) {
+                    allSelected = false;
+                }
+            }
+            state = allSelected ? true : someSelected ? undefined : false;
+            node._changeSelectStatusProps(state);
+        });
     }
     /** Modify the check/uncheck state. */
     setSelected(flag = true, options) {
-        const prev = this.selected;
-        if (!!flag !== prev) {
+        const tree = this.tree;
+        const sendEvents = !(options === null || options === void 0 ? void 0 : options.noEvents); // Default: send events
+        const prev = this.isSelected();
+        const isRadio = this.parent && this.parent.radiogroup;
+        const selectMode = tree.options.selectMode;
+        const canSelect = (options === null || options === void 0 ? void 0 : options.force) || !this.getOption("unselectable");
+        flag = !!flag;
+        // this.logDebug(`setSelected(${flag})`, this);
+        if (!canSelect) {
+            return prev;
+        }
+        if ((options === null || options === void 0 ? void 0 : options.propagateDown) && selectMode === "multi") {
+            tree.runWithDeferredUpdate(() => {
+                this.visit((node) => {
+                    node.setSelected(flag);
+                });
+            });
+            return prev;
+        }
+        if (flag === prev ||
+            (sendEvents && this._callEvent("beforeSelect", { flag: flag }) === false)) {
+            return prev;
+        }
+        tree.runWithDeferredUpdate(() => {
+            if (isRadio) {
+                // Radiobutton Group
+                if (!flag && !(options === null || options === void 0 ? void 0 : options.force)) {
+                    return prev; // don't uncheck radio buttons
+                }
+                for (let sibling of this.parent.children) {
+                    sibling.selected = sibling === this;
+                }
+            }
+            else {
+                this.selected = flag;
+                if (selectMode === "hier") {
+                    this.fixSelection3AfterClick();
+                }
+                else if (selectMode === "single") {
+                    tree.visit((n) => {
+                        n.selected = false;
+                    });
+                }
+            }
+        });
+        if (sendEvents) {
             this._callEvent("select", { flag: flag });
         }
-        this.selected = !!flag;
-        this.setModified();
+        return prev;
     }
     /** Display node status (ok, loading, error, noData) using styles and a dummy child node. */
     setStatus(status, options) {
@@ -4408,7 +4759,7 @@ class WunderbaumNode {
             assert(!firstChild || !firstChild.isStatusNode());
             statusNode = this.addNode(data, "prependChild");
             statusNode.match = true;
-            tree.setModified(ChangeType.structure);
+            tree.update(ChangeType.structure);
             return statusNode;
         };
         _clearStatusNode();
@@ -4421,7 +4772,7 @@ class WunderbaumNode {
                 this._isLoading = true;
                 this._errorInfo = null;
                 if (this.parent) {
-                    this.setModified(ChangeType.status);
+                    this.update(ChangeType.status);
                 }
                 else {
                     // If this is the invisible root, add a visible top-level node
@@ -4434,7 +4785,7 @@ class WunderbaumNode {
                         tooltip: details,
                     });
                 }
-                // this.render();
+                // this.update();
                 break;
             case "error":
                 _setStatusNode({
@@ -4463,13 +4814,13 @@ class WunderbaumNode {
             default:
                 error("invalid node status " + status);
         }
-        tree.setModified(ChangeType.structure);
+        tree.update(ChangeType.structure);
         return statusNode;
     }
     /** Rename this node. */
     setTitle(title) {
         this.title = title;
-        this.setModified();
+        this.update();
         // this.triggerModify("rename"); // TODO
     }
     _sortChildren(cmp, deep) {
@@ -4494,7 +4845,7 @@ class WunderbaumNode {
      */
     sortChildren(cmp = nodeTitleSorter, deep = false) {
         this._sortChildren(cmp || nodeTitleSorter, deep);
-        this.tree.setModified(ChangeType.structure);
+        this.tree.update(ChangeType.structure);
         // this.triggerModify("sort"); // TODO
     }
     /**
@@ -4522,7 +4873,7 @@ class WunderbaumNode {
         this.parent.triggerModifyChild(operation, this, extra);
     }
     /**
-     * Call `callback(node)` for all child nodes in hierarchical order (depth-first, pre-order).
+     * Call `callback(node)` for all descendant nodes in hierarchical order (depth-first, pre-order).
      *
      * Stop iteration, if fn() returns false. Skip current branch, if fn()
      * returns "skip".<br>
@@ -4602,7 +4953,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.3.5, Mon, 19 Jun 2023 06:20:59 GMT (https://github.com/mar10/wunderbaum)
+ * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -4830,7 +5181,7 @@ class EditExtension extends WunderbaumExtension {
                 node === null || node === void 0 ? void 0 : node.setTitle(newValue);
                 // NOTE: At least on Safari, this render call triggers a scroll event
                 // probably because the focused input is replaced.
-                this.curEditNode.render({ preventScroll: true });
+                this.curEditNode._render({ preventScroll: true });
                 this.curEditNode = null;
                 this.relatedNode = null;
                 this.tree.setFocus(); // restore focus that was in the input element
@@ -4845,7 +5196,7 @@ class EditExtension extends WunderbaumExtension {
             // Discard the embedded `<input>`
             // NOTE: At least on Safari, this render call triggers a scroll event
             // probably because the focused input is replaced.
-            this.curEditNode.render({ preventScroll: true });
+            this.curEditNode._render({ preventScroll: true });
             this.curEditNode = null;
             this.relatedNode = null;
             // We discarded the <input>, so we have to acquire keyboard focus again
@@ -4898,9 +5249,10 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.3.5
- * @date Mon, 19 Jun 2023 06:20:59 GMT
+ * @version v0.4.0
+ * @date Wed, 06 Sep 2023 08:21:56 GMT
  */
+// import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
     constructor(tree) {
         super(tree, null, {
@@ -4942,6 +5294,9 @@ class Wunderbaum {
         this.pendingChangeTypes = new Set();
         /** Expose some useful methods of the util.ts module as `tree._util`. */
         this._util = util;
+        // --- SELECT ---
+        // /** @internal */
+        // public selectRangeAnchor: WunderbaumNode | null = null;
         // --- FILTER ---
         this.filterMode = null;
         // --- KEYNAV ---
@@ -4976,9 +5331,10 @@ class Wunderbaum {
             checkbox: false,
             minExpandLevel: 0,
             emptyChildListExpandable: false,
-            updateThrottleWait: 200,
+            // updateThrottleWait: 200,
             skeleton: false,
             connectTopBreadcrumb: null,
+            selectMode: "multi",
             // --- KeyNav ---
             navigationModeOption: null,
             quicksearch: true,
@@ -5134,26 +5490,34 @@ class Wunderbaum {
         }
         // Async mode is sometimes required, because this.element.clientWidth
         // has a wrong value at start???
-        this.setModified(ChangeType.any);
+        this.update(ChangeType.any);
         // --- Bind listeners
         this.element.addEventListener("scroll", (e) => {
             // this.log(`scroll, scrollTop:${e.target.scrollTop}`, e);
-            this.setModified(ChangeType.scroll);
+            this.update(ChangeType.scroll);
         });
         this.resizeObserver = new ResizeObserver((entries) => {
             // this.log("ResizeObserver: Size changed", entries);
-            this.setModified(ChangeType.resize);
+            this.update(ChangeType.resize);
         });
         this.resizeObserver.observe(this.element);
         onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
             const info = Wunderbaum.getEventInfo(e);
             const node = info.node;
-            // this.log("click", info, e);
+            const mouseEvent = e;
+            // this.log("click", info);
+            // if (this._selectRange(info) === false) {
+            //   return;
+            // }
             if (this._callEvent("click", { event: e, node: node, info: info }) === false) {
                 this.lastClickTime = Date.now();
                 return false;
             }
             if (node) {
+                if (mouseEvent.ctrlKey) {
+                    node.toggleSelected();
+                    return;
+                }
                 // Edit title if 'clickActive' is triggered:
                 const trigger = this.getOption("edit.trigger");
                 const slowClickDelay = this.getOption("edit.slowClickDelay");
@@ -5173,7 +5537,7 @@ class Wunderbaum {
                     node.setExpanded(!node.isExpanded());
                 }
                 else if (info.region === NodeRegion.checkbox) {
-                    node.setSelected(!node.isSelected());
+                    node.toggleSelected();
                 }
             }
             this.lastClickTime = Date.now();
@@ -5620,7 +5984,7 @@ class Wunderbaum {
         // public cellNavMode = false;
         // public lastQuicksearchTime = 0;
         // public lastQuicksearchTerm = "";
-        this.setModified(ChangeType.structure);
+        this.update(ChangeType.structure);
     }
     /**
      * Clear nodes and markup and detach events and observers.
@@ -5678,7 +6042,7 @@ class Wunderbaum {
         this.options[name] = value;
         switch (name) {
             case "checkbox":
-                this.setModified(ChangeType.any);
+                this.update(ChangeType.any);
                 break;
             case "enabled":
                 this.setEnabled(!!value);
@@ -5701,8 +6065,15 @@ class Wunderbaum {
         const header = this.options.header;
         return this.isGrid() ? header !== false : !!header;
     }
-    /** Run code, but defer rendering of viewport until done. */
-    runWithoutUpdate(func, hint = null) {
+    /** Run code, but defer rendering of viewport until done.
+     *
+     * ```
+     * tree.runWithDeferredUpdate(() => {
+     *   return someFuncThatWouldUpdateManyNodes();
+     * });
+     * ```
+     */
+    runWithDeferredUpdate(func, hint = null) {
         try {
             this.enableUpdate(false);
             const res = func();
@@ -5713,29 +6084,66 @@ class Wunderbaum {
             this.enableUpdate(true);
         }
     }
-    /** Recursively expand all expandable nodes (triggers lazy load id needed). */
+    /** Recursively expand all expandable nodes (triggers lazy load if needed). */
     async expandAll(flag = true, options) {
         await this.root.expandAll(flag, options);
     }
     /** Recursively select all nodes. */
     selectAll(flag = true) {
-        try {
-            this.enableUpdate(false);
-            this.visit((node) => {
-                node.setSelected(flag);
-            });
-        }
-        finally {
-            this.enableUpdate(true);
-        }
+        return this.root.setSelected(flag, { propagateDown: true });
     }
-    /** Return the number of nodes in the data model.*/
+    /** Toggle select all nodes. */
+    toggleSelect() {
+        this.selectAll(this.root._anySelectable());
+    }
+    /**
+     * Return an array of selected nodes.
+     * @param stopOnParents only return the topmost selected node (useful with selectMode 'hier')
+     */
+    getSelectedNodes(stopOnParents = false) {
+        return this.root.getSelectedNodes(stopOnParents);
+    }
+    /*
+     * Return an array of selected nodes.
+     */
+    _selectRange(eventInfo) {
+        this.logDebug("_selectRange", eventInfo);
+        error("Not yet implemented.");
+        // const mode = this.options.selectMode!;
+        // if (mode !== "multi") {
+        //   this.logDebug(`Range selection only available for selectMode 'multi'`);
+        //   return;
+        // }
+        // if (eventInfo.canonicalName === "Meta+click") {
+        //   eventInfo.node?.toggleSelected();
+        //   return false; // don't
+        // } else if (eventInfo.canonicalName === "Shift+click") {
+        //   let from = this.activeNode;
+        //   let to = eventInfo.node;
+        //   if (!from || !to || from === to) {
+        //     return;
+        //   }
+        //   this.runWithDeferredUpdate(() => {
+        //     this.visitRows(
+        //       (node) => {
+        //         node.setSelected();
+        //       },
+        //       {
+        //         includeHidden: true,
+        //         includeSelf: false,
+        //         start: from,
+        //         reverse: from!._rowIdx! > to!._rowIdx!,
+        //       }
+        //     );
+        //   });
+        //   return false;
+        // }
+    }
+    /** Return the number of nodes in the data model.
+     * @param visible if true, nodes that are hidden due to collapsed parents are ignored.
+     */
     count(visible = false) {
-        if (visible) {
-            return this.treeRowCount;
-            // return this.viewNodes.size;
-        }
-        return this.keyMap.size;
+        return visible ? this.treeRowCount : this.keyMap.size;
     }
     /** @internal sanity check. */
     _check() {
@@ -5826,7 +6234,7 @@ class Wunderbaum {
                 break;
             case "first":
                 // First visible node
-                this.visit(function (n) {
+                this.visit((n) => {
                     if (n.isVisible()) {
                         res = n;
                         return false;
@@ -5834,7 +6242,7 @@ class Wunderbaum {
                 });
                 break;
             case "last":
-                this.visit(function (n) {
+                this.visit((n) => {
                     // last visible node
                     if (n.isVisible()) {
                         res = n;
@@ -5966,6 +6374,8 @@ class Wunderbaum {
      */
     static getEventInfo(event) {
         let target = event.target, cl = target.classList, parentCol = target.closest("span.wb-col"), node = Wunderbaum.getNode(target), tree = node ? node.tree : Wunderbaum.getTree(event), res = {
+            event: event,
+            canonicalName: eventToString(event),
             tree: tree,
             node: node,
             region: NodeRegion.unknown,
@@ -6131,7 +6541,7 @@ class Wunderbaum {
                 // Make sure the topNode is always visible
                 this.scrollTo(topNode);
             }
-            // this.setModified(ChangeType.scroll);
+            // this.update(ChangeType.scroll);
         }
     }
     /**
@@ -6159,7 +6569,7 @@ class Wunderbaum {
         // util.assert(node._rowIdx != null);
         this.log(`scrollToHorz(${this.activeColIdx}): ${colLeft}..${colRight}, fixedOfs=${fixedWidth}, vpWidth=${vpWidth}, curLeft=${scrollLeft} -> ${newLeft}`);
         this.element.scrollLeft = newLeft;
-        // this.setModified(ChangeType.scroll);
+        // this.update(ChangeType.scroll);
     }
     /**
      * Set column #colIdx to 'active'.
@@ -6181,7 +6591,7 @@ class Wunderbaum {
                 }
             }
         }
-        (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.setModified(ChangeType.status);
+        (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.update(ChangeType.status);
         // Update `wb-active` class for all cell spans
         for (let rowDiv of this.nodeListElement.children) {
             let i = 0;
@@ -6208,16 +6618,25 @@ class Wunderbaum {
             this.element.blur();
         }
     }
-    setModified(change, node, options) {
+    /**
+     * @deprecated since v0.3.6: use `update()` instead.
+     */
+    setModified(change, ...args) {
+        this.logWarn("setModified() is deprecated: use update() instead.");
+        // @ts-ignore
+        // (!) TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+        return this.update.call(this, change, ...args);
+    }
+    update(change, node, options) {
         if (this._disableUpdateCount) {
             // Assuming that we redraw all when enableUpdate() is re-enabled.
             // this.log(
-            //   `IGNORED setModified(${change}) node=${node} (disable level ${this._disableUpdateCount})`
+            //   `IGNORED update(${change}) node=${node} (disable level ${this._disableUpdateCount})`
             // );
             this._disableUpdateIgnoreCount++;
             return;
         }
-        // this.log(`setModified(${change}) node=${node}`);
+        // this.log(`update(${change}) node=${node}`);
         if (!(node instanceof WunderbaumNode)) {
             options = node;
             node = null;
@@ -6251,7 +6670,7 @@ class Wunderbaum {
                 // Single nodes are immediately updated if already inside the viewport
                 // (otherwise we can ignore)
                 if (node._rowElem) {
-                    node.render({ change: change });
+                    node._render({ change: change });
                 }
                 break;
             default:
@@ -6309,7 +6728,7 @@ class Wunderbaum {
             this.setColumn(0);
         }
         this.element.classList.toggle("wb-cell-mode", flag);
-        (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.setModified(ChangeType.status);
+        (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.update(ChangeType.status);
     }
     /** Set the tree's navigation mode option. */
     setNavigationOption(mode, reset = false) {
@@ -6473,7 +6892,7 @@ class Wunderbaum {
         // if (modified) {
         //   this._renderHeaderMarkup();
         //   if (options.renderMarkup) {
-        //     this.setModified(ChangeType.header, { removeMarkup: true });
+        //     this.update(ChangeType.header, { removeMarkup: true });
         //   } else if (options.updateRows) {
         //     this._updateRows();
         //   }
@@ -6525,11 +6944,11 @@ class Wunderbaum {
         }
     }
     /**
-     * Render pending changes that were scheduled using {@link WunderbaumNode.setModified} if any.
+     * Render pending changes that were scheduled using {@link WunderbaumNode.update} if any.
      *
      * This is hardly ever neccessary, since we normally either
-     * - call `setModified(ChangeType.TYPE)` (async, throttled), or
-     * - call `setModified(ChangeType.TYPE, {immediate: true})` (synchronous)
+     * - call `update(ChangeType.TYPE)` (async, throttled), or
+     * - call `update(ChangeType.TYPE, {immediate: true})` (synchronous)
      *
      * `updatePendingModifications()` will only force immediate execution of
      * pending async changes if any.
@@ -6544,7 +6963,7 @@ class Wunderbaum {
      * It calls `updateColumns()` and `_updateRows()`.
      *
      * This protected method should not be called directly but via
-     * {@link WunderbaumNode.setModified}`, {@link Wunderbaum.setModified},
+     * {@link WunderbaumNode.update}`, {@link Wunderbaum.update},
      * or {@link Wunderbaum.updatePendingModifications}.
      * @internal
      */
@@ -6699,7 +7118,7 @@ class Wunderbaum {
                 if (rowDiv) {
                     rowDiv.style.top = idx * ROW_HEIGHT + "px";
                 }
-                node.render({ top: top, after: prevElem });
+                node._render({ top: top, after: prevElem });
                 // node.log("render", top, prevElem, "=>", node._rowElem);
                 prevElem = node._rowElem;
             }
@@ -6779,7 +7198,7 @@ class Wunderbaum {
                 if (node.children &&
                     node.children.length &&
                     (includeHidden || node.expanded)) {
-                    res = node.visit(function (n) {
+                    res = node.visit((n) => {
                         if (n === stopNode) {
                             return false;
                         }
@@ -6899,7 +7318,7 @@ class Wunderbaum {
             if (this._disableUpdateCount === 0) {
                 this.logDebug(`enableUpdate(): active again. Re-painting to catch up with ${this._disableUpdateIgnoreCount} ignored update requests...`);
                 this._disableUpdateIgnoreCount = 0;
-                this.setModified(ChangeType.any, { immediate: true });
+                this.update(ChangeType.any, { immediate: true });
             }
         }
         else {
@@ -6953,7 +7372,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.3.5"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.4.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 
