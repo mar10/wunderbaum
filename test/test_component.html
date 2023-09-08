@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        html,
+        body {
+            height: 100%
+        }
+    </style>
+
+    <script defer type="module" src="../build/wunderbaum.esm.js"></script>
+</head>
+
+<body>
+    <button class="demo-btn" data-action="toggleEnable">Enable</button>
+    <button class="demo-btn" data-action="expandAll">Expand</button>
+    <button class="demo-btn" data-action="collapseAll">Collapse</button>
+    <button class="demo-btn" data-action="test1">Test 1</button>
+
+    <wunderbaum-tree id="tree" header="foobar"
+        icon-css="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+        source="https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json">
+    </wunderbaum-tree>
+
+</body>
+
+</html>

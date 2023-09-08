@@ -58,6 +58,7 @@ import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
 import { EditExtension } from "./wb_ext_edit";
 import { WunderbaumOptions } from "./wb_options";
+import { defineWunderbaumComponent } from "./define_component";
 
 class WbSystemRoot extends WunderbaumNode {
   constructor(tree: Wunderbaum) {
@@ -2513,3 +2514,31 @@ export class Wunderbaum {
     return (this.extensions.filter as FilterExtension).updateFilter();
   }
 }
+
+// let the browser know about the custom element
+// customElements.define("wunderbaum-tree", WunderbaumComponent);
+// customElements.define("wunderbaum-tree", WunderbaumComponent, { extends: "div"});
+defineWunderbaumComponent();
+
+/**
+ *  See test_component.js for now
+ */
+// window.customElements.define("wunderbaum-tree",
+//   class extends HTMLElement {
+//   // class extends HTMLDivElement {
+//     constructor() {
+//       super();
+//       // const template = document
+//       //   .getElementById('element-details-template')
+//       //   .content;
+//       // const shadowRoot = this.attachShadow({ mode: 'open' })
+//       //   .appendChild(template.cloneNode(true));
+//       let div = document.createElement("div")
+//       div.classList.
+//       const shadowRoot = this.attachShadow({ mode: 'open' })
+//         .appendChild(div);
+//     }
+
+//   }
+//   // {extends: "div"}
+// );

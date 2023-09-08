@@ -73,7 +73,10 @@ $level-rainbow: rgb(255, 255, 201), rgb(218, 255, 218), rgb(255, 217, 254),
 // ----------------------------------------------------------------------------
 // --- Define CSS variables with calculated default values
 
-:root {
+:root,
+:host {
+  // :host needed for ShadowDom
+
   // TODO: do we need to use 'meta.inspect' in case a font name contains spaces?
   // --wb-font-stack: #{meta.inspect($font-stack)};
   --wb-font-stack: #{$font-stack};
