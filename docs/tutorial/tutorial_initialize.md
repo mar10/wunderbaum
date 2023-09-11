@@ -205,9 +205,9 @@ Note that
 
 - The structure may be nested, e.g. a child node may in turn contain a `children` list.
 - Some reserved attributes names are part of the node data model:<br>
-  `classes`, `colspan`, `expanded`, `icon`, `key`, `lazy`, `refKey`, `selected`,
-  `title`, `tooltip`, `type`.<br>
-  They can be accesed as `node.title`, for example,
+  `checkbox`, `classes`, `expanded`, `icon`, `iconTooltip`, `key`, `lazy`, `radiogroup`, `refKey`, `selected`, `statusNodeType`, `title`, `tooltip`, `type`, `unselectable`.<br>
+  They can be accessed as `node.title`, for example,
+
 - All other properties are stored under the _data_ namespace and are accessed
   like `node.data.author`, for example.
 - Only `title` is mandatory
@@ -353,12 +353,14 @@ This example can be optimized:
 ```
 
 - Remove whitespace from the JSON.
+- Don't pass default values, e.g. `expanded: false` is not required.
+- Pass `1` instead of `true` and `0` instead of `false` (or don't pass it at all if it is the default).
 - Use `node.type` declarations, to extract shared properties (see above).
 - Use `_keyMap` and shorten the key names, e.g. send `{"t": "foo"}` instead of `{"title": "foo"}`
   (see below).
-- Use a `_typeList` and pass indexes into this list instead of sending type
+- Use a `_typeList` and pass numeric indexes into this list instead of sending type
   name strings.
-- Use the _Flat_ format described below, which is a even few percent smaller.
+- Use the _flat_ format described below, which is a even few percent smaller.
 
 ```json
 {
