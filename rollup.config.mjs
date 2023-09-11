@@ -1,8 +1,8 @@
 import fs from "fs";
-import postcss from "postcss";
-import postcss_url from "postcss-url";
+// import postcss from "postcss";
+// import postcss_url from "postcss-url";
 import rup_replace from "@rollup/plugin-replace";
-import rup_scss from "rollup-plugin-scss";
+// import rup_scss from "rollup-plugin-scss";
 // import rup_terser from "@rollup/plugin-terser";
 import rup_typescript from "@rollup/plugin-typescript";
 
@@ -38,18 +38,24 @@ export default {
   ],
   plugins: [
     rup_typescript(),
+
+    // TODO: Minify with terser did produce invalid files (only first extension)?
     // rup_terser(),
-    rup_scss({
-      fileName: "wunderbaum.css",
-      // Convert image URLs to inline data-uris
-      processor: () =>
-        postcss().use(
-          postcss_url({ url: "inline", maxSize: 10, fallback: "copy" })
-        ),
-    }),
+
+    // TODO: Could not get this to work. It seems to be ignored.
+    //       Using a package.json script instead (build:scss).
+    //       However, now we cannot auto-inline images. :-(
+    // rup_scss({
+    //   fileName: "wunderbaum.css",
+    //   // Convert image URLs to inline data-uris
+    //   processor: () =>
+    //     postcss().use(
+    //       postcss_url({ url: "inline", maxSize: 10, fallback: "copy" })
+    //     ),
+    // }),
+
+    // Replace @VERSION and @DATE in build files
     rup_replace({
-      // include: ["build/**/*.js", "build/**/*.css"],
-      // include: ["build/*.js", "build/*.css"],
       preventAssignment: true,
       delimiters: ["", ""],
       values: {
@@ -58,6 +64,7 @@ export default {
         "const DEFAULT_DEBUGLEVEL = 4;": "const DEFAULT_DEBUGLEVEL = 3;",
       },
     }),
+
     // TODO: additional minfied version?
     // rup_scss({
     //   fileName: "wunderbaum.min.css",
