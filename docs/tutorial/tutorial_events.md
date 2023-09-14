@@ -15,7 +15,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     receive: function (e) {},
     load: function (e) {},
     lazyLoad: function (e) {
-      return { url: `get/child/nodes?parentKey=${e.node.key}` };
+      return { url: 'get/child/nodes', params: { parentKey: e.node.key } };
     },
     render: function (e) {},
     ...
@@ -77,4 +77,3 @@ Common event handlers include:
   `e.node` was selected (`e.flag === true`) or deselected (`e.flag === false`)
 </dd>
 </dl>
-
