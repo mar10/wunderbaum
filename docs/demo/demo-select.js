@@ -11,11 +11,17 @@ Hierarchical selection demo (<code>selectMode: 'hier'</code>).<br>
 
 // document.getElementById("selectMode").classList.remove("hidden");
 
+addCssImport(
+  "fontawesome6",
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+);
+
 new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
   header: "Select Tree",
   // selectMode: "single",
+  iconMap: "fontawesome6",
   selectMode: "hier",
   source: [
     {
@@ -72,6 +78,7 @@ new mar10.Wunderbaum({
             {
               title: "n3.4.2 (selected)",
               selected: true,
+              lazy: true,
             },
             { title: "n3.4.3" },
           ],
@@ -109,7 +116,9 @@ new mar10.Wunderbaum({
     e.tree.setFocus();
   },
   lazyLoad: function (e) {
-    return { url: "../assets/ajax-lazy-products.json" };
+    return e.util.setTimeoutPromise(() => {
+      return { url: "../assets/ajax-lazy-products.json" };
+    }, 4000);
   },
   beforeSelect: function (e) {
     console.log(e.type, e);
