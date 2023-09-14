@@ -27,7 +27,11 @@ new mar10.Wunderbaum({
     {
       title: "n1",
       expanded: true,
-      children: [{ title: "n1.1" }, { title: "n1.2" }, { title: "n1.3" }],
+      children: [
+        { title: "n1.1" },
+        { title: "n1.2" },
+        { title: "n1.3", lazy: true },
+      ],
     },
     {
       title: "n2",
@@ -78,7 +82,6 @@ new mar10.Wunderbaum({
             {
               title: "n3.4.2 (selected)",
               selected: true,
-              lazy: true,
             },
             { title: "n3.4.3" },
           ],
