@@ -33,7 +33,11 @@ import {
   NodeToDictCallback,
   WbNodeData,
   TristateType,
+  CheckboxOption,
+  IconOption,
+  SourceType,
 } from "./types";
+
 import {
   iconMap,
   ICON_WIDTH,
@@ -68,16 +72,12 @@ const NODE_PROPS = new Set<string>([
   "tooltip",
   "type",
   "unselectable",
-  // "unselectableIgnore",
-  // "unselectableStatus",
 ]);
 /** WunderbaumNode properties that will be returned by `node.toDict()`.)
  */
 const NODE_DICT_PROPS = new Set<string>(NODE_PROPS);
 NODE_DICT_PROPS.delete("_partsel");
 NODE_DICT_PROPS.delete("unselectable");
-// NODE_DICT_PROPS.delete("unselectableIgnore");
-// NODE_DICT_PROPS.delete("unselectableStatus");
 
 /**
  * A single tree node.
@@ -105,30 +105,28 @@ export class WunderbaumNode {
    */
   public readonly refKey: string | undefined = undefined;
   public children: WunderbaumNode[] | null = null;
-  public checkbox?: boolean;
+  public checkbox?: CheckboxOption;
   public radiogroup?: boolean;
   /** If true, (in grid mode) no cells are rendered, except for the node title.*/
   public colspan?: boolean;
-  public icon?: boolean | string;
-  public lazy: boolean = false;
+  public icon?: IconOption;
+  public lazy?: boolean;
   /** Expansion state.
    * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
-  public expanded: boolean = false;
+  public expanded?: boolean;
   /** Selection state.
    * @see {@link isSelected}, {@link setSelected}, {@link toggleSelected}. */
-  public selected: boolean = false;
+  public selected?: boolean;
   public unselectable?: boolean;
-  // public unselectableStatus?: boolean;
-  // public unselectableIgnore?: boolean;
   public type?: string;
-  public tooltip?: string;
+  public tooltip?: string | boolean;
   /** Additional classes added to `div.wb-row`.
    * @see {@link hasClass}, {@link setClass}. */
   public classes: Set<string> | null = null; //new Set<string>();
   /** Custom data that was passed to the constructor */
   public data: any = {};
   // --- Node Status ---
-  public statusNodeType?: string;
+  public statusNodeType?: NodeStatusType;
   _isLoading = false;
   _requestId = 0;
   _errorInfo: any | null = null;
@@ -160,7 +158,7 @@ export class WunderbaumNode {
     data.icon != null ? (this.icon = data.icon) : 0;
     this.lazy = data.lazy === true;
     data.statusNodeType != null
-      ? (this.statusNodeType = "" + data.statusNodeType)
+      ? (this.statusNodeType = ("" + data.statusNodeType) as NodeStatusType)
       : 0;
     data.colspan != null ? (this.colspan = !!data.colspan) : 0;
 
@@ -169,10 +167,6 @@ export class WunderbaumNode {
     data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
     this.selected = data.selected === true;
     data.unselectable === true ? (this.unselectable = true) : 0;
-    // data.unselectableStatus != null
-    //   ? (this.unselectableStatus = !!data.unselectableStatus)
-    //   : 0;
-    // data.unselectableIgnore === true ? (this.unselectableIgnore = true) : 0;
 
     if (data.classes) {
       this.setClass(data.classes);
@@ -326,7 +320,7 @@ export class WunderbaumNode {
       //   if (this.parent && this.parent.children) {
       //     this.fixSelection3FromEndNodes();
       //   } else {
-      //     // my happen when loading __root__;
+      //     // may happen when loading __root__;
       //   }
       // }
       tree.enableUpdate(true);
@@ -818,7 +812,7 @@ export class WunderbaumNode {
       return false;
     }
     if (this.children == null) {
-      return this.lazy; // null or undefined can trigger lazy load
+      return !!this.lazy; // null or undefined can trigger lazy load
     }
     if (this.children.length === 0) {
       return !!this.tree.options.emptyChildListExpandable;
@@ -1015,7 +1009,7 @@ export class WunderbaumNode {
   async _fetchWithOptions(source: any) {
     // Either a URL string or an object with a `.url` property.
     let url: string, params, body, options, rest;
-    let fetchOpts: any = {};
+    let fetchOpts: RequestInit = {};
     if (typeof source === "string") {
       // source is a plain URL string: assume GET request
       url = source;
@@ -1023,6 +1017,12 @@ export class WunderbaumNode {
     } else if (util.isPlainObject(source)) {
       // source is a plain object with `.url` property.
       ({ url, params, body, options, ...rest } = source);
+      util.assert(
+        !rest || Object.keys(rest).length === 0,
+        `Unexpected source properties: ${Object.keys(
+          rest
+        )}. Use 'options' instead.`
+      );
       util.assert(typeof url === "string", `expected source.url as string`);
       if (util.isPlainObject(options)) {
         fetchOpts = options;
@@ -1052,7 +1052,7 @@ export class WunderbaumNode {
     return await response.json();
   }
   /** Download  data from the cloud, then call `.update()`. */
-  async load(source: any) {
+  async load(source: SourceType) {
     const tree = this.tree;
     const requestId = Date.now();
     const prevParent = this.parent;
@@ -1073,7 +1073,7 @@ export class WunderbaumNode {
     // const timerLabel = tree.logTime(this + ".load()");
 
     try {
-      let url: string = typeof source === "string" ? source : source.url;
+      let url: string = typeof source === "string" ? source : (<any>source).url;
       if (!url) {
         // An array or a plain object (that does NOT contain a `.url` property)
         // will be treated as native Wunderbaum data
