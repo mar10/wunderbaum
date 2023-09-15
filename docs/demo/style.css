@@ -1,18 +1,15 @@
 body {
-  /* height: 100%; */
-  /* font-family: system, -apple-system, ".SFNSText-Regular", "San Francisco", "Roboto", "Segoe UI", "Helvetica Neue", "Lucida Grande", sans-serif; */
-  /*A more traditional Garamond-based serif */
-  /* font-family: "Palatino Linotype", Palatino, Palladio, "URW Palladio L", "Book Antiqua", Baskerville, "Bookman Old Style", "Bitstream Charter", "Nimbus Roman No9 L", Garamond, "Apple Garamond", "ITC Garamond Narrow", "New Century Schoolbook", "Century Schoolbook", "Century Schoolbook L", Georgia, serif; */
-  /*The Helvetica/Arial-based sans serif */
-  /* font-family: Frutiger, "Frutiger Linotype", Univers, Calibri, "Gill Sans", "Gill Sans MT", "Myriad Pro", Myriad, "DejaVu Sans Condensed", "Liberation Sans", "Nimbus Sans L", Tahoma, Geneva, "Helvetica Neue", Helvetica, Arial, sans-serif; */
-  /*The Verdana-based sans serif */
-  /* font-family: Corbel, "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", "DejaVu Sans", "Bitstream Vera Sans", "Liberation Sans", Verdana, "Verdana Ref", sans-serif; */
-  /*The Trebuchet-based sans serif */
+  --font-color: darkslategray;
+  --bg-color: lightgray;
+  --bg-color-dimmed: whitesmoke;
+  --bg-color-light: white;
+  --hint-color: lightyellow;
+  --link-color: royalblue;
+  --error-color: red;
+
   font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
     "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
-  /*The heavier "Impact" sans serif */
-  /* font-family: Impact, Haettenschweiler, "Franklin Gothic Bold", Charcoal, "Helvetica Inserat", "Bitstream Vera Sans Bold", "Arial Black", sans-serif; */
-  color: darkslategray;
+  color: var(--font-color);
 }
 
 * {
@@ -39,17 +36,19 @@ div.grid-wrapper {
   height: 100vh;
   grid-template-columns: 1fr 4fr;
   grid-template-rows: 3em 6em auto 5em 1em;
-  background-color: rgb(240, 229, 207);
+  background-color: var(--bg-color);
   padding: 5px;
   grid-gap: 2px;
 }
 
 div.grid-wrapper div.menu {
+  /* background-color: var(--header-color); */
   grid-column: 1 / span 2;
   grid-row: 1;
 }
 
 div.grid-wrapper nav.nav {
+  background-color: var(--bg-color-dimmed);
   grid-column: 1;
   grid-row: 2 / 5;
   /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
@@ -57,7 +56,7 @@ div.grid-wrapper nav.nav {
 }
 
 div.grid-wrapper section.header {
-  background-color: whitesmoke;
+  background-color: var(--bg-color-light);
   grid-column: 2;
   grid-row: 2;
   padding: 5px;
@@ -65,6 +64,7 @@ div.grid-wrapper section.header {
 }
 
 div.grid-wrapper main.view {
+  background-color: var(--bg-color-light);
   grid-column: 2;
   grid-row: 3;
   min-height: 4px;
@@ -73,7 +73,7 @@ div.grid-wrapper main.view {
 }
 
 div.grid-wrapper section.footer {
-  background-color: whitesmoke;
+  background-color: var(--bg-color-dimmed);
   grid-column: 2;
   grid-row: 4;
   padding: 5px;
@@ -116,16 +116,16 @@ div.welcome-page {
 }
 
 output.error {
-  color: red;
+  color: var(--error-color);
 }
 
 output.hint {
   display: block;
   width: 100%;
   padding: 1px 4px;
-  margin: -2px -1px 0 -4px; 
-  color: darkslategray;
-  background-color:lightyellow;
+  margin: -2px -1px 0 -4px;
+  color: var(--font-color);
+  background-color: var(--hint-color);
   font-style: italic;
 }
 
@@ -140,24 +140,25 @@ output#parentPath:not(.hidden) {
   display: block;
   padding: 1px 3px;
   height: 12px;
-  /* background-color: #dedede; */
-  background-color: whitesmoke;
+  background-color: var(--bg-color-light);
 }
 
-.hide-on-welcome.hidden, .hide-on-init.hidden {
+.hide-on-welcome.hidden,
+.hide-on-init.hidden {
   display: none;
 }
 
 hr {
   margin: 1px 0;
   border: none;
-  background-color: darkslateblue;
+  background-color: var(--font-color);
   height: 1px;
 }
 
 
 a {
   text-decoration: none;
+  color: var(--link-color);
 }
 
 a:hover,
@@ -174,19 +175,19 @@ a.neutral:active {
 
 button.icon-button,
 button.toggle-button {
-  border: 1px solid whitesmoke;
+  border: 1px solid var(--bg-color-light);
   border-radius: 3px;
-  background-color: whitesmoke;
-  color: royalblue;
+  background-color: var(--bg-color-light);
+  color: var(--link-color);
   padding: 1px 2px;
 }
 
 button.icon-button:hover,
 button.toggle-button:hover {
-  border-color: royalblue;
+  border-color: var(--link-color);
 }
 
 button.toggle-button.checked {
-  background-color: royalblue;
-  color: whitesmoke;
+  background-color: var(--link-color);
+  color: var(--bg-color-light);
 }
