@@ -1,17 +1,13 @@
 body {
   --font-color: darkslategray;
-  --bg-color-dark: #7895CB;
-  /* --bg-color: lightgray; */
-  /* --bg-color-dimmed: #C5DFF8; */
+  --font-color-header: whitesmoke;
+  --bg-color-dark: #7895cb;
   --bg-color-dimmed: whitesmoke;
   --bg-color-light: white;
   --hint-color: lightyellow;
   --link-color: royalblue;
   --error-color: red;
-
-  font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
-    "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
-  color: var(--font-color);
+  --border-radius: 4px;
 }
 
 * {
@@ -25,6 +21,10 @@ ul {
 }
 
 body {
+  font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
+    "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+  background-color: var(--bg-color-dark);
+  color: var(--font-color);
   /* `<!DOCTYPE html>` switches to standard mode, which would define 
   100% as content height. We want 100% to interpreted as viewport height: */
   height: 100%;
@@ -38,19 +38,18 @@ div.grid-wrapper {
   height: 100vh;
   grid-template-columns: 1fr 4fr;
   grid-template-rows: 3em 6em auto 5em 1em;
-  background-color: var(--bg-color-dark);
   padding: 5px;
   grid-gap: 2px;
 }
 
 div.grid-wrapper div.menu {
-  /* background-color: var(--header-color); */
+  background-color: var(--bg-color-dark);
+  color: var(--font-color-header);
   grid-column: 1 / span 2;
   grid-row: 1;
 }
 
 div.grid-wrapper nav.nav {
-  background-color: var(--bg-color-dark);
   grid-column: 1;
   grid-row: 2 / 5;
   /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
@@ -58,6 +57,8 @@ div.grid-wrapper nav.nav {
 }
 
 div.grid-wrapper section.header {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
   background-color: var(--bg-color-light);
   grid-column: 2;
   grid-row: 2;
@@ -75,11 +76,13 @@ div.grid-wrapper main.view {
 }
 
 div.grid-wrapper section.footer {
-  background-color: var(--bg-color-dimmed);
   grid-column: 2;
   grid-row: 4;
   padding: 5px;
   font-size: 90%;
+  background-color: var(--bg-color-dimmed);
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
 }
 
 div.grid-wrapper div.statbar {
@@ -88,6 +91,7 @@ div.grid-wrapper div.statbar {
   text-align: right;
   font-size: 80%;
   padding: 1px 4px;
+  color: var(--font-color-header);
 }
 
 /* Suppress system focus border. */
@@ -135,7 +139,7 @@ output.hint {
 
 output.tree-version {
   font-size: 40%;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: "Courier New", Courier, monospace;
   font-weight: lighter;
 }
 
@@ -158,7 +162,6 @@ hr {
   background-color: var(--font-color);
   height: 1px;
 }
-
 
 a {
   text-decoration: none;
