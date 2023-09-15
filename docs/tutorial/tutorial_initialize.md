@@ -198,8 +198,7 @@ const tree = new mar10.Wunderbaum({
 ```
 
 Currently the following options are evaluated as dynamic options:
-`checkbox`, `colspan`, `icon`, `iconTooltip`, `tooltip`, `unselectable`,
-`unselectableIgnore`, `unselectableStatus`.
+`checkbox`, `icon`, `iconTooltip`, `tooltip`, `unselectable`.
 
 See method `node.getOption()` for details.
 

@@ -46,6 +46,11 @@ import {
   SortCallback,
   NodeToDictCallback,
   WbNodeData,
+  DynamicCheckboxOption,
+  SourceType,
+  DynamicIconOption,
+  DynamicStringOption,
+  DynamicBoolOption,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -121,6 +126,11 @@ export class Wunderbaum {
   public types: NodeTypeDefinitionMap = {};
   /** List of column definitions. */
   public columns: ColumnDefinitionList = []; // any[] = [];
+  public checkbox?: DynamicCheckboxOption;
+  public icon?: DynamicIconOption;
+  public iconTooltip?: DynamicStringOption;
+  public tooltip?: DynamicStringOption;
+  public unselectable?: DynamicBoolOption;
 
   protected _columnsById: { [key: string]: any } = {};
   protected resizeObserver: ResizeObserver;
@@ -2418,7 +2428,7 @@ export class Wunderbaum {
    * Previous data is cleared. Note that also column- and type defintions may
    * be passed with the `source` object.
    */
-  load(source: any) {
+  load(source: SourceType) {
     this.clear();
     return this.root.load(source);
   }

@@ -236,7 +236,7 @@ export class DndExtension extends WunderbaumExtension {
         n._org_key = n.key;
         delete n.key;
       });
-      nodeData.treeId = srcNode.tree.id;
+      nodeData._treeId = srcNode.tree.id;
 
       const json = JSON.stringify(nodeData);
       e.dataTransfer!.setData(nodeMimeType, json);

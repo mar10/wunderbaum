@@ -5,9 +5,12 @@
  */
 
 import {
-  BoolOptionResolver,
   ColumnDefinitionList,
   DndOptionsType,
+  DynamicBoolOption,
+  DynamicBoolOrStringOption,
+  DynamicCheckboxOption,
+  DynamicIconOption,
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
@@ -82,7 +85,7 @@ export interface WunderbaumOptions {
    *
    * Default: `{}`.
    */
-  types?: NodeTypeDefinitionMap; // { [key: string]: NodeTypeDefinition };
+  types?: NodeTypeDefinitionMap;
   /**
    * A list of maps that define column headers. If this option is set,
    * Wunderbaum becomes a treegrid control instead of a plain tree.
@@ -165,10 +168,20 @@ export interface WunderbaumOptions {
   showSpinner?: boolean;
   /**
    * If true, render a checkbox before the node tile to allow selection with the
-   * mouse.
+   * mouse. Pass `"radio"` to render a radio button instead.
    * Default: false.
    */
-  checkbox?: boolean | "radio" | BoolOptionResolver;
+  checkbox?: DynamicCheckboxOption;
+  /** Optional callback to render icons per node. */
+  icon?: DynamicIconOption;
+  /** Optional callback to render a tooltip for the icon. */
+  iconTooltip?: DynamicBoolOrStringOption;
+  /** Optional callback to render a tooltip for the node title.
+   * Pass `true` to use the node's `title` property as tooltip.
+   */
+  tooltip?: DynamicBoolOrStringOption;
+  /** Optional callback to make a node unselectable. */
+  unselectable?: DynamicBoolOption;
   // /**
   //  * Default: 200
   //  */

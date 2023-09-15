@@ -10,6 +10,43 @@ import { WunderbaumOptions } from "./wb_options";
 
 /** A value that can either be true, false, or undefined. */
 export type TristateType = boolean | undefined;
+/** Show/hide checkbox or display a radiobutton icon instead. */
+export type CheckboxOption = boolean | "radio";
+/** An icon may either be
+ * a string-tag that references an entry in the `iconMap` (e.g. `"folderOpen"`)),
+ * an HTML string that contains a `<` and is used as-is,
+ * an image URL string that contains a `.` or `/` and is rendered as `<img src='...'>`,
+ * a class string such as `"bi bi-folder"`,
+ * or a boolean value that indicates if the default icon should be used or hidden.
+ */
+export type IconOption = boolean | string;
+
+/*
+ * `source` can be a url, an array of nodes, or an object with `url`, ...
+ */
+export interface SourceAjaxType {
+  url: string;
+  params?: any;
+  body?: any;
+  options?: RequestInit;
+}
+export type SourceListType = Array<WbNodeData>;
+export interface SourceObjectType {
+  _format?: "nested" | "flat";
+  types?: NodeTypeDefinitionMap;
+  columns?: ColumnDefinitionList;
+  children: SourceListType;
+  _keyMap?: { [key: string]: string };
+  _typeList?: Array<string>;
+  _positional?: Array<string>;
+}
+
+/** Possible initilization for tree nodes. */
+export type SourceType =
+  | string
+  | SourceListType
+  | SourceAjaxType
+  | SourceObjectType;
 
 /** Passed to `find...()` methods. Should return true if node matches. */
 export type MatcherCallback = (node: WunderbaumNode) => boolean;
@@ -37,19 +74,44 @@ export type NodeToDictCallback = (
 /** A callback that receives a node instance and returns a string value. */
 export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
 
+/**
+ * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+ * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
+ */
+export type DynamicBoolOption = boolean | BoolOptionResolver;
+export type DynamicStringOption = string | BoolOptionResolver;
+export type DynamicBoolOrStringOption =
+  | boolean
+  | string
+  | BoolOrStringOptionResolver;
+export type DynamicCheckboxOption = CheckboxOption | BoolOrStringOptionResolver;
+export type DynamicIconOption = IconOption | BoolOrStringOptionResolver;
+
 // type WithWildcards<T> = T & { [key: string]: unknown };
 /** A plain object (dictionary) that represents a node instance. */
 export interface WbNodeData {
-  title: string;
-  key?: string;
-  refKey?: string;
-  expanded?: boolean;
-  selected?: boolean;
-  checkbox?: boolean | string;
-  colspan?: boolean;
+  checkbox?: CheckboxOption;
   children?: Array<WbNodeData>;
-  treeId?: string;
-  // ...any?: Any;
+  classes?: string;
+  colspan?: boolean;
+  expanded?: boolean;
+  icon?: IconOption;
+  iconTooltip?: boolean | string;
+  key?: string;
+  lazy?: boolean;
+  /** Make child nodes single-select radio buttons. */
+  radiogroup?: boolean;
+  refKey?: string;
+  selected?: boolean;
+  statusNodeType?: NodeStatusType;
+  title: string;
+  tooltip?: boolean | string;
+  type?: string;
+  unselectable?: boolean;
+  /** @internal */
+  _treeId?: string;
+  /** Other data is passed to `node.data` and can be accessed via `node.data.NAME` */
+  [key: string]: unknown;
 }
 
 /* -----------------------------------------------------------------------------
@@ -162,26 +224,23 @@ export interface WbRenderEventType extends WbNodeEventType {
 
 /**
  * Contains the node's type information, i.e. `tree.types[node.type]` if
- * defined. @see {@link Wunderbaum.types}
+ * defined.
+ * @see {@link Wunderbaum.types} and {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+ * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
  */
 export interface NodeTypeDefinition {
-  // /** Type ID that matches `node.type`. */
-  // id: string;
   /** En/disable checkbox for matching nodes. */
-  checkbox?: boolean | "radio" | BoolOrStringOptionResolver;
+  checkbox?: CheckboxOption;
   /** Optional class names that are added to all `div.wb-row` elements of matching nodes. */
   classes?: string;
   /** Only show title and hide other columns if any. */
-  colspan?: boolean | BoolOptionResolver;
+  colspan?: boolean;
   /** Default icon for matching nodes. */
-  icon?: boolean | string | BoolOrStringOptionResolver;
-  /**
-   * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
-   * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
-   */
+  icon?: IconOption;
+  /** Default icon for matching nodes. */
+  iconTooltip?: string | boolean;
   // and more
   [key: string]: unknown;
-  // _any: any;
 }
 
 /* -----------------------------------------------------------------------------
@@ -225,6 +284,8 @@ export interface ColumnDefinition {
   _weight?: number;
   _widthPx?: number;
   _ofsPx?: number;
+  // ... and more
+  [key: string]: unknown;
 }
 
 export type ColumnDefinitionList = Array<ColumnDefinition>;
@@ -339,7 +400,7 @@ export enum NodeStatusType {
   loading = "loading",
   error = "error",
   noData = "noData",
-  // paging = "paging",
+  paging = "paging",
 }
 
 /** Define the subregion of a node, where an event occurred. */
