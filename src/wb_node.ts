@@ -1520,6 +1520,27 @@ export class WunderbaumNode {
     } else {
       parentElem.appendChild(iconSpan);
     }
+
+    // Event handler can return a badge text or HTMLSpanElement
+    let iconBadge = this._callEvent("iconBadge", { iconSpan: iconSpan });
+    if (iconBadge != null && iconBadge !== false) {
+      let classes = "";
+      if (util.isPlainObject(iconBadge)) {
+        classes = iconBadge.classes ? " " + iconBadge.classes : "";
+        iconBadge = "" + iconBadge.value;
+      } else if (typeof iconBadge === "number") {
+        iconBadge = "" + iconBadge;
+      }
+      if (typeof iconBadge === "string") {
+        iconBadge = util.elemFromHtml(
+          `<span class="wb-badge${classes}">${util.escapeHtml(
+            iconBadge
+          )}</span>`
+        );
+      }
+      iconSpan.append(iconBadge);
+    }
+
     // this.log("_createIcon: ", iconSpan);
     return iconSpan;
   }
