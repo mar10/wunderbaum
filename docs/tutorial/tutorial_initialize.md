@@ -47,6 +47,46 @@ document.addEventListener("DOMContentLoaded", (event) => {
 });
 ```
 
+### Custom Icon Fonts
+
+This example uses [Font Awesome Icons](https://fontawesome.com/icons) instead of the
+[Bootstrap Icons](https://icons.getbootstrap.com/) icon font above:
+
+```html
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    ...
+  </head>
+</html>
+```
+
+```js
+const tree = new mar10.Wunderbaum({
+  element: document.getElementById("demo-tree"),
+  source: "get/root/nodes",
+  iconMap: "fontawesome6",
+  ...
+});
+```
+
+`iconMap` can also be a map of icon names, e.g.
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: {
+    folder: "bi bi-folder",
+    file: "bi bi-file-earmark",
+    ...
+  },
+  ...
+});
+```
+
 ## Passing Options
 
 There are many more options and callbacks available. Here are some of the

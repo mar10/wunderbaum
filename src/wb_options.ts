@@ -134,6 +134,13 @@ export interface WunderbaumOptions {
    */
   rowHeightPx?: number;
   /**
+   * Icon font definition. May be a string (e.g. "fontawesome6" or "bootstrap")
+   * or a map of `iconName: iconClass` pairs.
+   * Note: the icon font must be loaded separately.
+   * Default: "bootstrap"
+   */
+  iconMap?: string | { [key: string]: string };
+  /**
    * Collapse siblings when a node is expanded.
    * Default: false
    */

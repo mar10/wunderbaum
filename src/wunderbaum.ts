@@ -54,6 +54,7 @@ import {
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
+  iconMaps,
   makeNodeTitleStartMatcher,
   nodeTitleSorter,
   RENDER_MAX_PREFETCH,
@@ -174,6 +175,7 @@ export class Wunderbaum {
         header: null, // Show/hide header (pass bool or string)
         // headerHeightPx: ROW_HEIGHT,
         rowHeightPx: ROW_HEIGHT,
+        iconMap: "bootstrap",
         columns: null,
         types: null,
         // escapeTitles: true,
@@ -544,6 +546,16 @@ export class Wunderbaum {
     return null;
   }
 
+  /**
+   * Return the icon-function -> icon-definition mapping.
+   */
+  get iconMap(): { [key: string]: string } {
+    const map = this.options.iconMap!;
+    if (typeof map === "string") {
+      return iconMaps[map];
+    }
+    return map;
+  }
   /**
    * Return a WunderbaumNode instance from element or event.
    */

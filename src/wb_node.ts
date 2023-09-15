@@ -39,7 +39,6 @@ import {
 } from "./types";
 
 import {
-  iconMap,
   ICON_WIDTH,
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
@@ -1469,6 +1468,7 @@ export class WunderbaumNode {
   }
 
   protected _createIcon(
+    iconMap: any,
     parentElem: HTMLElement,
     replaceChild: HTMLElement | null,
     showLoading: boolean
@@ -1594,7 +1594,7 @@ export class WunderbaumNode {
 
     // Render the icon (show a 'loading' icon if we do not have an expander that
     // we would prefer).
-    iconSpan = this._createIcon(nodeElem, null, !expanderSpan);
+    iconSpan = this._createIcon(tree.iconMap, nodeElem, null, !expanderSpan);
     if (iconSpan) {
       ofsTitlePx += ICON_WIDTH;
     }
@@ -1743,6 +1743,7 @@ export class WunderbaumNode {
   protected _render_status(opts: RenderOptions) {
     // this.log("_render_status", opts);
     const tree = this.tree;
+    const iconMap = tree.iconMap;
     const treeOptions = tree.options;
     const typeInfo = this.type ? tree.types[this.type] : null;
     const rowDiv = this._rowElem!;
@@ -1831,7 +1832,7 @@ export class WunderbaumNode {
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
       const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
       if (iconSpan) {
-        this._createIcon(nodeElem, iconSpan, !expanderSpan);
+        this._createIcon(tree.iconMap, nodeElem, iconSpan, !expanderSpan);
       }
     }
     // Adjust column width

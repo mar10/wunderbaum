@@ -158,6 +158,19 @@ document.addEventListener("DOMContentLoaded", (event) => {
   }, STATUS_UPDATE_INTERVAL);
 });
 
+/** */
+function addCssImport(tag, url) {
+  let linkElem = document.querySelector(`link[data-tag="${tag}"]`);
+  if (!linkElem) {
+    linkElem = document.createElement("link");
+    linkElem.setAttribute("rel", "stylesheet");
+    linkElem.setAttribute("href", url);
+    linkElem.setAttribute("data-tag", tag);
+    document.head.appendChild(linkElem);
+  }
+  return linkElem;
+}
+
 /**
  * Toggle button
  */
