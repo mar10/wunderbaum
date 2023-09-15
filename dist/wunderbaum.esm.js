@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -756,7 +756,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -795,7 +795,7 @@ var NodeStatusType;
     NodeStatusType["loading"] = "loading";
     NodeStatusType["error"] = "error";
     NodeStatusType["noData"] = "noData";
-    // paging = "paging",
+    NodeStatusType["paging"] = "paging";
 })(NodeStatusType || (NodeStatusType = {}));
 /** Define the subregion of a node, where an event occurred. */
 var NodeRegion;
@@ -820,7 +820,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1175,7 +1175,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1475,7 +1475,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1815,7 +1815,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1855,7 +1855,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -1883,30 +1883,50 @@ const TEST_IMG = new RegExp(/\.|\//);
  * Default node icons.
  * Requires bootstrap icons https://icons.getbootstrap.com
  */
-const iconMap = {
-    error: "bi bi-exclamation-triangle",
-    // loading: "bi bi-hourglass-split wb-busy",
-    loading: "bi bi-chevron-right wb-busy",
-    // loading: "bi bi-arrow-repeat wb-spin",
-    // loading: '<div class="spinner-border spinner-border-sm" role="status"> <span class="visually-hidden">Loading...</span> </div>',
-    // noData: "bi bi-search",
-    noData: "bi bi-question-circle",
-    expanderExpanded: "bi bi-chevron-down",
-    // expanderExpanded: "bi bi-dash-square",
-    expanderCollapsed: "bi bi-chevron-right",
-    // expanderCollapsed: "bi bi-plus-square",
-    expanderLazy: "bi bi-chevron-right wb-helper-lazy-expander",
-    // expanderLazy: "bi bi-chevron-bar-right",
-    checkChecked: "bi bi-check-square",
-    checkUnchecked: "bi bi-square",
-    checkUnknown: "bi bi-dash-square-dotted",
-    radioChecked: "bi bi-circle-fill",
-    radioUnchecked: "bi bi-circle",
-    radioUnknown: "bi bi-record-circle",
-    folder: "bi bi-folder2",
-    folderOpen: "bi bi-folder2-open",
-    folderLazy: "bi bi-folder-symlink",
-    doc: "bi bi-file-earmark",
+const iconMaps = {
+    bootstrap: {
+        error: "bi bi-exclamation-triangle",
+        // loading: "bi bi-hourglass-split wb-busy",
+        loading: "bi bi-chevron-right wb-busy",
+        // loading: "bi bi-arrow-repeat wb-spin",
+        // loading: '<div class="spinner-border spinner-border-sm" role="status"> <span class="visually-hidden">Loading...</span> </div>',
+        // noData: "bi bi-search",
+        noData: "bi bi-question-circle",
+        expanderExpanded: "bi bi-chevron-down",
+        // expanderExpanded: "bi bi-dash-square",
+        expanderCollapsed: "bi bi-chevron-right",
+        // expanderCollapsed: "bi bi-plus-square",
+        expanderLazy: "bi bi-chevron-right wb-helper-lazy-expander",
+        // expanderLazy: "bi bi-chevron-bar-right",
+        checkChecked: "bi bi-check-square",
+        checkUnchecked: "bi bi-square",
+        checkUnknown: "bi bi-dash-square-dotted",
+        radioChecked: "bi bi-circle-fill",
+        radioUnchecked: "bi bi-circle",
+        radioUnknown: "bi bi-record-circle",
+        folder: "bi bi-folder2",
+        folderOpen: "bi bi-folder2-open",
+        folderLazy: "bi bi-folder-symlink",
+        doc: "bi bi-file-earmark",
+    },
+    fontawesome6: {
+        error: "fa-solid fa-triangle-exclamation",
+        loading: "fa-regular fa-chevron-right fa-beat",
+        noData: "fa-solid fa-circle-question",
+        expanderExpanded: "fa-regular fa-chevron-down",
+        expanderCollapsed: "fa-regular fa-chevron-right",
+        expanderLazy: "fa-regular fa-chevron-right wb-helper-lazy-expander",
+        checkChecked: "fa-regular fa-square-check",
+        checkUnchecked: "fa-regular fa-square",
+        checkUnknown: "fa-regular fa-square-minus",
+        radioChecked: "fa-solid fa-circle",
+        radioUnchecked: "fa-regular fa-circle",
+        radioUnknown: "fa-regular fa-circle-question",
+        folder: "fa-solid fa-folder-closed",
+        folderOpen: "fa-regular fa-folder-open",
+        folderLazy: "fa-solid fa-folder-plus",
+        doc: "fa-regular fa-file",
+    },
 };
 /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
 const RESERVED_TREE_SOURCE_KEYS = new Set([
@@ -2101,7 +2121,7 @@ function inflateSourceData(source) {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2298,7 +2318,7 @@ class DndExtension extends WunderbaumExtension {
                 n._org_key = n.key;
                 delete n.key;
             });
-            nodeData.treeId = srcNode.tree.id;
+            nodeData._treeId = srcNode.tree.id;
             const json = JSON.stringify(nodeData);
             e.dataTransfer.setData(nodeMimeType, json);
             // e.dataTransfer!.setData("text/html", $(node.span).html());
@@ -2431,7 +2451,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2567,7 +2587,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2604,7 +2624,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2657,7 +2677,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -2679,16 +2699,12 @@ const NODE_PROPS = new Set([
     "tooltip",
     "type",
     "unselectable",
-    // "unselectableIgnore",
-    // "unselectableStatus",
 ]);
 /** WunderbaumNode properties that will be returned by `node.toDict()`.)
  */
 const NODE_DICT_PROPS = new Set(NODE_PROPS);
 NODE_DICT_PROPS.delete("_partsel");
 NODE_DICT_PROPS.delete("unselectable");
-// NODE_DICT_PROPS.delete("unselectableIgnore");
-// NODE_DICT_PROPS.delete("unselectableStatus");
 /**
  * A single tree node.
  *
@@ -2705,13 +2721,6 @@ class WunderbaumNode {
          */
         this.refKey = undefined;
         this.children = null;
-        this.lazy = false;
-        /** Expansion state.
-         * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
-        this.expanded = false;
-        /** Selection state.
-         * @see {@link isSelected}, {@link setSelected}, {@link toggleSelected}. */
-        this.selected = false;
         /** Additional classes added to `div.wb-row`.
          * @see {@link hasClass}, {@link setClass}. */
         this.classes = null; //new Set<string>();
@@ -2737,7 +2746,7 @@ class WunderbaumNode {
         data.icon != null ? (this.icon = data.icon) : 0;
         this.lazy = data.lazy === true;
         data.statusNodeType != null
-            ? (this.statusNodeType = "" + data.statusNodeType)
+            ? (this.statusNodeType = ("" + data.statusNodeType))
             : 0;
         data.colspan != null ? (this.colspan = !!data.colspan) : 0;
         // Selection
@@ -2745,10 +2754,6 @@ class WunderbaumNode {
         data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
         this.selected = data.selected === true;
         data.unselectable === true ? (this.unselectable = true) : 0;
-        // data.unselectableStatus != null
-        //   ? (this.unselectableStatus = !!data.unselectableStatus)
-        //   : 0;
-        // data.unselectableIgnore === true ? (this.unselectableIgnore = true) : 0;
         if (data.classes) {
             this.setClass(data.classes);
         }
@@ -2880,7 +2885,7 @@ class WunderbaumNode {
             //   if (this.parent && this.parent.children) {
             //     this.fixSelection3FromEndNodes();
             //   } else {
-            //     // my happen when loading __root__;
+            //     // may happen when loading __root__;
             //   }
             // }
             tree.enableUpdate(true);
@@ -3325,7 +3330,7 @@ class WunderbaumNode {
             return false;
         }
         if (this.children == null) {
-            return this.lazy; // null or undefined can trigger lazy load
+            return !!this.lazy; // null or undefined can trigger lazy load
         }
         if (this.children.length === 0) {
             return !!this.tree.options.emptyChildListExpandable;
@@ -3494,6 +3499,7 @@ class WunderbaumNode {
         else if (isPlainObject(source)) {
             // source is a plain object with `.url` property.
             ({ url, params, body, options, ...rest } = source);
+            assert(!rest || Object.keys(rest).length === 0, `Unexpected source properties: ${Object.keys(rest)}. Use 'options' instead.`);
             assert(typeof url === "string", `expected source.url as string`);
             if (isPlainObject(options)) {
                 fetchOpts = options;
@@ -3892,7 +3898,7 @@ class WunderbaumNode {
             renderColInfosById: renderColInfosById,
         };
     }
-    _createIcon(parentElem, replaceChild, showLoading) {
+    _createIcon(iconMap, parentElem, replaceChild, showLoading) {
         let iconSpan;
         let icon = this.getOption("icon");
         if (this._errorInfo) {
@@ -4005,7 +4011,7 @@ class WunderbaumNode {
         }
         // Render the icon (show a 'loading' icon if we do not have an expander that
         // we would prefer).
-        iconSpan = this._createIcon(nodeElem, null, !expanderSpan);
+        iconSpan = this._createIcon(tree.iconMap, nodeElem, null, !expanderSpan);
         if (iconSpan) {
             ofsTitlePx += ICON_WIDTH;
         }
@@ -4139,6 +4145,7 @@ class WunderbaumNode {
     _render_status(opts) {
         // this.log("_render_status", opts);
         const tree = this.tree;
+        const iconMap = tree.iconMap;
         const treeOptions = tree.options;
         const typeInfo = this.type ? tree.types[this.type] : null;
         const rowDiv = this._rowElem;
@@ -4224,7 +4231,7 @@ class WunderbaumNode {
             // Update icon (if not opts.isNew, which would rebuild markup anyway)
             const iconSpan = nodeElem.querySelector("i.wb-icon");
             if (iconSpan) {
-                this._createIcon(nodeElem, iconSpan, !expanderSpan);
+                this._createIcon(tree.iconMap, nodeElem, iconSpan, !expanderSpan);
             }
         }
         // Adjust column width
@@ -4953,7 +4960,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.4.0, Wed, 06 Sep 2023 08:21:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.5.0, Fri, 15 Sep 2023 14:34:23 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5249,8 +5256,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.4.0
- * @date Wed, 06 Sep 2023 08:21:56 GMT
+ * @version v0.5.0
+ * @date Fri, 15 Sep 2023 14:34:23 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -5322,6 +5329,7 @@ class Wunderbaum {
             header: null,
             // headerHeightPx: ROW_HEIGHT,
             rowHeightPx: ROW_HEIGHT,
+            iconMap: "bootstrap",
             columns: null,
             types: null,
             // escapeTitles: true,
@@ -5635,6 +5643,16 @@ class Wunderbaum {
             return el._wb_tree;
         }
         return null;
+    }
+    /**
+     * Return the icon-function -> icon-definition mapping.
+     */
+    get iconMap() {
+        const map = this.options.iconMap;
+        if (typeof map === "string") {
+            return iconMaps[map];
+        }
+        return map;
     }
     /**
      * Return a WunderbaumNode instance from element or event.
@@ -7372,7 +7390,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.4.0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.5.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 

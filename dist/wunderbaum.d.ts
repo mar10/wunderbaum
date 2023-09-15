@@ -285,23 +285,10 @@ declare module "common" {
      * Default node icons.
      * Requires bootstrap icons https://icons.getbootstrap.com
      */
-    export const iconMap: {
-        error: string;
-        loading: string;
-        noData: string;
-        expanderExpanded: string;
-        expanderCollapsed: string;
-        expanderLazy: string;
-        checkChecked: string;
-        checkUnchecked: string;
-        checkUnknown: string;
-        radioChecked: string;
-        radioUnchecked: string;
-        radioUnknown: string;
-        folder: string;
-        folderOpen: string;
-        folderLazy: string;
-        doc: string;
+    export const iconMaps: {
+        [key: string]: {
+            [key: string]: string;
+        };
     };
     export const KEY_NODATA = "__not_found__";
     /** Define which keys are handled by embedded <input> control, and should
@@ -371,7 +358,7 @@ declare module "deferred" {
 }
 declare module "wb_node" {
     import { Wunderbaum } from "wunderbaum";
-    import { AddChildrenOptions, InsertNodeType, ApplyCommandOptions, ApplyCommandType, ChangeType, ExpandAllOptions, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortCallback, NodeToDictCallback, WbNodeData, TristateType } from "types";
+    import { AddChildrenOptions, InsertNodeType, ApplyCommandOptions, ApplyCommandType, ChangeType, ExpandAllOptions, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortCallback, NodeToDictCallback, WbNodeData, TristateType, CheckboxOption, IconOption, SourceType } from "types";
     /**
      * A single tree node.
      *
@@ -397,27 +384,27 @@ declare module "wb_node" {
          */
         readonly refKey: string | undefined;
         children: WunderbaumNode[] | null;
-        checkbox?: boolean;
+        checkbox?: CheckboxOption;
         radiogroup?: boolean;
         /** If true, (in grid mode) no cells are rendered, except for the node title.*/
         colspan?: boolean;
-        icon?: boolean | string;
-        lazy: boolean;
+        icon?: IconOption;
+        lazy?: boolean;
         /** Expansion state.
          * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
-        expanded: boolean;
+        expanded?: boolean;
         /** Selection state.
          * @see {@link isSelected}, {@link setSelected}, {@link toggleSelected}. */
-        selected: boolean;
+        selected?: boolean;
         unselectable?: boolean;
         type?: string;
-        tooltip?: string;
+        tooltip?: string | boolean;
         /** Additional classes added to `div.wb-row`.
          * @see {@link hasClass}, {@link setClass}. */
         classes: Set<string> | null;
         /** Custom data that was passed to the constructor */
         data: any;
-        statusNodeType?: string;
+        statusNodeType?: NodeStatusType;
         _isLoading: boolean;
         _requestId: number;
         _errorInfo: any | null;
@@ -666,7 +653,7 @@ declare module "wb_node" {
         protected _loadSourceObject(source: any, level?: number): void;
         _fetchWithOptions(source: any): Promise<any>;
         /** Download  data from the cloud, then call `.update()`. */
-        load(source: any): Promise<void>;
+        load(source: SourceType): Promise<void>;
         /**Load content of a lazy node. */
         loadLazy(forceReload?: boolean): Promise<void>;
         /** Alias for `logDebug` */
@@ -703,7 +690,7 @@ declare module "wb_node" {
         /** Remove all HTML markup from the DOM. */
         removeMarkup(): void;
         protected _getRenderInfo(): any;
-        protected _createIcon(parentElem: HTMLElement, replaceChild: HTMLElement | null, showLoading: boolean): HTMLElement | null;
+        protected _createIcon(iconMap: any, parentElem: HTMLElement, replaceChild: HTMLElement | null, showLoading: boolean): HTMLElement | null;
         /**
          * Create a whole new `<div class="wb-row">` element.
          * @see {@link WunderbaumNode._render}
@@ -879,7 +866,7 @@ declare module "wb_options" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { BoolOptionResolver, ColumnDefinitionList, DndOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbEnhanceTitleEventType, WbErrorEventType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
+    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbEnhanceTitleEventType, WbErrorEventType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
     /**
      * Available options for [[Wunderbaum]].
      *
@@ -979,6 +966,15 @@ declare module "wb_options" {
          */
         rowHeightPx?: number;
         /**
+         * Icon font definition. May be a string (e.g. "fontawesome6" or "bootstrap")
+         * or a map of `iconName: iconClass` pairs.
+         * Note: the icon font must be loaded separately.
+         * Default: "bootstrap"
+         */
+        iconMap?: string | {
+            [key: string]: string;
+        };
+        /**
          * Collapse siblings when a node is expanded.
          * Default: false
          */
@@ -1006,10 +1002,20 @@ declare module "wb_options" {
         showSpinner?: boolean;
         /**
          * If true, render a checkbox before the node tile to allow selection with the
-         * mouse.
+         * mouse. Pass `"radio"` to render a radio button instead.
          * Default: false.
          */
-        checkbox?: boolean | "radio" | BoolOptionResolver;
+        checkbox?: DynamicCheckboxOption;
+        /** Optional callback to render icons per node. */
+        icon?: DynamicIconOption;
+        /** Optional callback to render a tooltip for the icon. */
+        iconTooltip?: DynamicBoolOrStringOption;
+        /** Optional callback to render a tooltip for the node title.
+         * Pass `true` to use the node's `title` property as tooltip.
+         */
+        tooltip?: DynamicBoolOrStringOption;
+        /** Optional callback to make a node unselectable. */
+        unselectable?: DynamicBoolOption;
         /**
          * Default: true
          */
@@ -1160,6 +1166,36 @@ declare module "types" {
     import { Wunderbaum } from "wunderbaum";
     /** A value that can either be true, false, or undefined. */
     export type TristateType = boolean | undefined;
+    /** Show/hide checkbox or display a radiobutton icon instead. */
+    export type CheckboxOption = boolean | "radio";
+    /** An icon may either be
+     * a string-tag that references an entry in the `iconMap` (e.g. `"folderOpen"`)),
+     * an HTML string that contains a `<` and is used as-is,
+     * an image URL string that contains a `.` or `/` and is rendered as `<img src='...'>`,
+     * a class string such as `"bi bi-folder"`,
+     * or a boolean value that indicates if the default icon should be used or hidden.
+     */
+    export type IconOption = boolean | string;
+    export interface SourceAjaxType {
+        url: string;
+        params?: any;
+        body?: any;
+        options?: RequestInit;
+    }
+    export type SourceListType = Array<WbNodeData>;
+    export interface SourceObjectType {
+        _format?: "nested" | "flat";
+        types?: NodeTypeDefinitionMap;
+        columns?: ColumnDefinitionList;
+        children: SourceListType;
+        _keyMap?: {
+            [key: string]: string;
+        };
+        _typeList?: Array<string>;
+        _positional?: Array<string>;
+    }
+    /** Possible initilization for tree nodes. */
+    export type SourceType = string | SourceListType | SourceAjaxType | SourceObjectType;
     /** Passed to `find...()` methods. Should return true if node matches. */
     export type MatcherCallback = (node: WunderbaumNode) => boolean;
     /** Passed to `sortChildren()` methods. Should return -1, 0, or 1. */
@@ -1180,17 +1216,39 @@ declare module "types" {
     export type NodeToDictCallback = (dict: WbNodeData, node: WunderbaumNode) => NodeVisitResponse;
     /** A callback that receives a node instance and returns a string value. */
     export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
+    /**
+     * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+     * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
+     */
+    export type DynamicBoolOption = boolean | BoolOptionResolver;
+    export type DynamicStringOption = string | BoolOptionResolver;
+    export type DynamicBoolOrStringOption = boolean | string | BoolOrStringOptionResolver;
+    export type DynamicCheckboxOption = CheckboxOption | BoolOrStringOptionResolver;
+    export type DynamicIconOption = IconOption | BoolOrStringOptionResolver;
     /** A plain object (dictionary) that represents a node instance. */
     export interface WbNodeData {
-        title: string;
-        key?: string;
-        refKey?: string;
-        expanded?: boolean;
-        selected?: boolean;
-        checkbox?: boolean | string;
-        colspan?: boolean;
+        checkbox?: CheckboxOption;
         children?: Array<WbNodeData>;
-        treeId?: string;
+        classes?: string;
+        colspan?: boolean;
+        expanded?: boolean;
+        icon?: IconOption;
+        iconTooltip?: boolean | string;
+        key?: string;
+        lazy?: boolean;
+        /** Make child nodes single-select radio buttons. */
+        radiogroup?: boolean;
+        refKey?: string;
+        selected?: boolean;
+        statusNodeType?: NodeStatusType;
+        title: string;
+        tooltip?: boolean | string;
+        type?: string;
+        unselectable?: boolean;
+        /** @internal */
+        _treeId?: string;
+        /** Other data is passed to `node.data` and can be accessed via `node.data.NAME` */
+        [key: string]: unknown;
     }
     export interface WbTreeEventType {
         /** Name of the event. */
@@ -1284,21 +1342,21 @@ declare module "types" {
     }
     /**
      * Contains the node's type information, i.e. `tree.types[node.type]` if
-     * defined. @see {@link Wunderbaum.types}
+     * defined.
+     * @see {@link Wunderbaum.types} and {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
+     * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
      */
     export interface NodeTypeDefinition {
         /** En/disable checkbox for matching nodes. */
-        checkbox?: boolean | "radio" | BoolOrStringOptionResolver;
+        checkbox?: CheckboxOption;
         /** Optional class names that are added to all `div.wb-row` elements of matching nodes. */
         classes?: string;
         /** Only show title and hide other columns if any. */
-        colspan?: boolean | BoolOptionResolver;
+        colspan?: boolean;
         /** Default icon for matching nodes. */
-        icon?: boolean | string | BoolOrStringOptionResolver;
-        /**
-         * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
-         * to evaluate `node.NAME` setting and `tree.types[node.type].NAME`.
-         */
+        icon?: IconOption;
+        /** Default icon for matching nodes. */
+        iconTooltip?: string | boolean;
         [key: string]: unknown;
     }
     export type NodeTypeDefinitionMap = {
@@ -1338,6 +1396,7 @@ declare module "types" {
         _weight?: number;
         _widthPx?: number;
         _ofsPx?: number;
+        [key: string]: unknown;
     }
     export type ColumnDefinitionList = Array<ColumnDefinition>;
     /**
@@ -1419,7 +1478,8 @@ declare module "types" {
         ok = "ok",
         loading = "loading",
         error = "error",
-        noData = "noData"
+        noData = "noData",
+        paging = "paging"
     }
     /** Define the subregion of a node, where an event occurred. */
     export enum NodeRegion {
@@ -2070,7 +2130,7 @@ declare module "wunderbaum" {
      */
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, UpdateOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, VisitRowsOptions, NodeFilterCallback, FilterNodesOptions, RenderFlag, NodeVisitCallback, SortCallback, NodeToDictCallback, WbNodeData } from "types";
+    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, UpdateOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, VisitRowsOptions, NodeFilterCallback, FilterNodesOptions, RenderFlag, NodeVisitCallback, SortCallback, NodeToDictCallback, WbNodeData, DynamicCheckboxOption, SourceType, DynamicIconOption, DynamicStringOption, DynamicBoolOption } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     /**
@@ -2117,6 +2177,11 @@ declare module "wunderbaum" {
         types: NodeTypeDefinitionMap;
         /** List of column definitions. */
         columns: ColumnDefinitionList;
+        checkbox?: DynamicCheckboxOption;
+        icon?: DynamicIconOption;
+        iconTooltip?: DynamicStringOption;
+        tooltip?: DynamicStringOption;
+        unselectable?: DynamicBoolOption;
         protected _columnsById: {
             [key: string]: any;
         };
@@ -2151,6 +2216,12 @@ declare module "wunderbaum" {
          * ```
          */
         static getTree(el?: Element | Event | number | string | WunderbaumNode): Wunderbaum | null;
+        /**
+         * Return the icon-function -> icon-definition mapping.
+         */
+        get iconMap(): {
+            [key: string]: string;
+        };
         /**
          * Return a WunderbaumNode instance from element or event.
          */
@@ -2530,7 +2601,7 @@ declare module "wunderbaum" {
          * Previous data is cleared. Note that also column- and type defintions may
          * be passed with the `source` object.
          */
-        load(source: any): Promise<void>;
+        load(source: SourceType): Promise<void>;
         /**
          * Disable render requests during operations that would trigger many updates.
          *
