@@ -5,7 +5,8 @@
  */
 
 document.getElementById("demo-info").innerHTML = `
-Hierarchical selection demo (<code>selectMode: 'hier'</code>).<br>
+Hierarchical selection demo (<code>selectMode: 'hier'</code>).
+Also uses icons from <a href="https://fontawesome.com/">Font Awesome</a>.<br>
 100k nodes: click <i class="bi bi-plus-slash-minus"></i> to expand them all.
 `;
 

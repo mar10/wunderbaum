@@ -1,6 +1,8 @@
 body {
   --font-color: darkslategray;
-  --bg-color: lightgray;
+  --bg-color-dark: #7895CB;
+  /* --bg-color: lightgray; */
+  /* --bg-color-dimmed: #C5DFF8; */
   --bg-color-dimmed: whitesmoke;
   --bg-color-light: white;
   --hint-color: lightyellow;
@@ -36,7 +38,7 @@ div.grid-wrapper {
   height: 100vh;
   grid-template-columns: 1fr 4fr;
   grid-template-rows: 3em 6em auto 5em 1em;
-  background-color: var(--bg-color);
+  background-color: var(--bg-color-dark);
   padding: 5px;
   grid-gap: 2px;
 }
@@ -48,7 +50,7 @@ div.grid-wrapper div.menu {
 }
 
 div.grid-wrapper nav.nav {
-  background-color: var(--bg-color-dimmed);
+  background-color: var(--bg-color-dark);
   grid-column: 1;
   grid-row: 2 / 5;
   /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
@@ -101,7 +103,9 @@ div#demo-tree {
 }
 
 div#nav-tree {
-  background-color: transparent;
+  background-color: var(--bg-color-dimmed);
+  /* background-color: transparent; */
+  overflow: hidden; /* keep background color outside round borders */
 }
 
 /* Show tree skeleton while initializing. */
