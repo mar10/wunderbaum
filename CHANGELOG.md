@@ -7,7 +7,7 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.5.1: Add support for `tree.iconBadge` (allows to implement counter badges, ...)
+- v0.5.1: Add EXPERIMENTAL support for `tree.iconBadge` (allows to implement counter badges, ...)
 
 - v0.5.0: Add support for Font Awesome icons (`options.iconMap: "fontawesome6"`)
 

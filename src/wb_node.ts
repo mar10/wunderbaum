@@ -881,7 +881,7 @@ export class WunderbaumNode {
 
   /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
   isRadio(): boolean {
-    return !!(this.checkbox === "radio" || this.parent.radiogroup);
+    return this.checkbox === "radio" || !!this.parent.radiogroup;
   }
 
   /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
