@@ -1549,7 +1549,7 @@ export class WunderbaumNode {
         );
       }
       if (badge) {
-        iconSpan.append(badge);
+        iconSpan.append(<HTMLSpanElement>badge);
       }
     }
 
