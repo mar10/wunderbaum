@@ -18,8 +18,8 @@ import {
   WbChangeEventType,
   WbClickEventType,
   WbDeactivateEventType,
-  WbEnhanceTitleEventType,
   WbErrorEventType,
+  WbIconBadgeCallback,
   WbInitEventType,
   WbKeydownEventType,
   WbNodeData,
@@ -258,7 +258,12 @@ export interface WunderbaumOptions {
    *
    * @category Callback
    */
-  enhanceTitle?: (e: WbEnhanceTitleEventType) => void;
+  iconBadge?: WbIconBadgeCallback;
+  // /**
+  //  *
+  //  * @category Callback
+  //  */
+  // enhanceTitle?: (e: WbEnhanceTitleEventType) => void;
   /**
    *
    * @category Callback

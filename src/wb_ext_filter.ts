@@ -287,7 +287,6 @@ export class FilterExtension extends WunderbaumExtension {
     let tree = this.tree;
     // statusNode = tree.root.findDirectChild(KEY_NODATA),
     // escapeTitles = tree.options.escapeTitles;
-    // enhanceTitle = tree.options.enhanceTitle,
     tree.enableUpdate(false);
 
     // if (statusNode) {
@@ -299,16 +298,10 @@ export class FilterExtension extends WunderbaumExtension {
     delete tree.root.subMatchCount;
 
     tree.visit((node) => {
-      if (node.match && node._rowElem) {
-        // #491, #601
-        let titleElem = node._rowElem.querySelector("span.wb-title")!;
-        // if (escapeTitles) {
-        titleElem.textContent = node.title;
-        // } else {
-        //   titleElem.innerHTML = node.title;
-        // }
-        node._callEvent("enhanceTitle", { titleElem: titleElem });
-      }
+      // if (node.match && node._rowElem) {
+      //   let titleElem = node._rowElem.querySelector("span.wb-title")!;
+      //   node._callEvent("enhanceTitle", { titleElem: titleElem });
+      // }
       delete node.match;
       delete node.subMatchCount;
       delete node.titleWithHighlight;

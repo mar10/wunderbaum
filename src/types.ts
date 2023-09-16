@@ -50,6 +50,10 @@ export type SourceType =
 
 /** Passed to `find...()` methods. Should return true if node matches. */
 export type MatcherCallback = (node: WunderbaumNode) => boolean;
+/** Used for `tree.iconBadge` event. */
+export type WbIconBadgeCallback = (
+  e: WbIconBadgeEventType
+) => WbIconBadgeEventResultType;
 /** Passed to `sortChildren()` methods. Should return -1, 0, or 1. */
 export type SortCallback = (a: WunderbaumNode, b: WunderbaumNode) => number;
 /** When set as option, called when the value is needed (e.g. `colspan` type definition). */
@@ -171,8 +175,20 @@ export interface WbDeactivateEventType extends WbNodeEventType {
   event: Event;
 }
 
-export interface WbEnhanceTitleEventType extends WbNodeEventType {
-  titleSpan: HTMLSpanElement;
+// export interface WbEnhanceTitleEventType extends WbNodeEventType {
+//   titleSpan: HTMLSpanElement;
+// }
+
+export interface WbIconBadgeEventType extends WbNodeEventType {
+  iconSpan: HTMLElement;
+}
+export interface WbIconBadgeEventResultType {
+  /** Content of the badge `<span class='wb-badge'>` if any. */
+  badge: string | number | HTMLSpanElement | null | false;
+  /** Additional class name(s), separate with space. */
+  badgeClass?: string;
+  /** Additional class name(s), separate with space. */
+  badgeTooltip?: string;
 }
 
 export interface WbFocusEventType extends WbTreeEventType {

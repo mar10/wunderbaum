@@ -193,10 +193,11 @@ export class Wunderbaum {
         navigationModeOption: null, // NavModeEnum.startRow,
         quicksearch: true,
         // --- Events ---
-        change: util.noop,
-        enhanceTitle: util.noop,
-        error: util.noop,
-        receive: util.noop,
+        iconBadge: null,
+        change: null,
+        // enhanceTitle: null,
+        error: null,
+        receive: null,
         // --- Strings ---
         strings: {
           loadError: "Error",

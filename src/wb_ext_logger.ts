@@ -11,7 +11,8 @@ import { Wunderbaum } from "./wunderbaum";
 export class LoggerExtension extends WunderbaumExtension {
   readonly prefix: string;
   protected ignoreEvents = new Set<string>([
-    "enhanceTitle",
+    "iconBadge",
+    // "enhanceTitle",
     "render",
     "discard",
   ]);
