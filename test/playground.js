@@ -29,7 +29,7 @@ const tree = new Wunderbaum({
   // source: "generator/fixture_department_1k_3_6_comp.json",
   // source: "../docs/assets/ajax-tree-products.json",
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "generator/fixture.json",
   // source: (e)=>{
   //   console.info("SOURCE", e.type, e)
@@ -37,22 +37,22 @@ const tree = new Wunderbaum({
   //     return {url: "../docs/assets/ajax-tree-products.json"};
   //   }, 5000);
   // },
-  source: {
-    children: [
-      { title: "a", type: "book", details: "A book", children: [] },
-      {
-        title: "b",
-        children: [
-          {
-            title: "ba",
-          },
-        ],
-      },
-      { title: "c", children: null },
-      { title: "d", children: false },
-      { title: "e" },
-    ],
-  },
+  // source: {
+  //   children: [
+  //     { title: "a", type: "book", details: "A book", children: [] },
+  //     {
+  //       title: "b",
+  //       children: [
+  //         {
+  //           title: "ba",
+  //         },
+  //       ],
+  //     },
+  //     { title: "c", children: null },
+  //     { title: "d", children: false },
+  //     { title: "e" },
+  //   ],
+  // },
   columns: [
     { title: "test", id: "*", width: "200px" },
     // {
@@ -83,21 +83,6 @@ const tree = new Wunderbaum({
     book: { icon: "bi bi-book", classes: "extra-book-class" },
   },
   // showSpinner: true,
-  // source: {
-  //   children: [
-  //     { title: "Node 1", expanded: true, children: [{ title: "Node 1.1" }] },
-  //     {
-  //       title: "Node 2",
-  //       selected: true,
-  //       icon: "../docs/assets/favicon/favicon-16x16.png",
-  //       children: [
-  //         { title: "book2", type: "book" },
-  //         { title: "book2", type: "book" },
-  //       ],
-  //     },
-  //     { title: "Node 3", type: "book" },
-  //   ],
-  // },
 
   dnd: {
     dragStart: (e) => {
@@ -138,8 +123,8 @@ const tree = new Wunderbaum({
       })
     );
   },
-  deactivate: (e) => {},
-  discard: (e) => {},
+  deactivate: (e) => { },
+  discard: (e) => { },
   change: (e) => {
     const node = e.node;
     const value = e.inputValue;
@@ -168,6 +153,20 @@ const tree = new Wunderbaum({
       }
     }
   },
+  iconBadge: (e) => {
+    const count = e.node.children?.length || 0;
+    if (count > 0 && !e.node.expanded) {
+      if (count > 99) {
+        return { badge: "99+", badgeTooltip: `${count} children` };
+      }
+
+      // return { badge: count };
+      // return { badge: count, classes: "badge-primary" };
+      // return "" + count;
+      return count;
+      // return `<span class="badge badge-pill badge-primary">${count}</span>`;
+    }
+  },
 });
 console.log(`Created  ${tree}`);
 
@@ -179,8 +178,10 @@ tree.ready
     console.error(`${tree} init failed.`, err);
   });
 
-document.body.style.setProperty("--wb-node-text-color", "#ff8080");
-document.querySelector("div.wunderbaum").style.setProperty("--wb-font-stack", "monospace");
+// document.body.style.setProperty("--wb-node-text-color", "#ff8080");
+document
+  .querySelector("div.wunderbaum")
+  .style.setProperty("--wb-font-stack", "monospace");
 // document.querySelector("div.wunderbaum").style.setProperty("--wb-font-stack", "monospace");
 
 document.querySelectorAll(".demo-btn").forEach((elem) => {

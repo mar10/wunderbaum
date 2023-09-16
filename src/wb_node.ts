@@ -36,6 +36,7 @@ import {
   CheckboxOption,
   IconOption,
   SourceType,
+  WbIconBadgeEventResultType,
 } from "./types";
 
 import {
@@ -1525,6 +1526,38 @@ export class WunderbaumNode {
     } else {
       parentElem.appendChild(iconSpan);
     }
+
+    // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
+
+    let cbRes: WbIconBadgeEventResultType | void | false = this._callEvent(
+      "iconBadge",
+      { iconSpan: iconSpan }
+    );
+    let badge = null;
+    if (cbRes != null && cbRes !== false) {
+      let classes = "";
+      let tooltip = "";
+      if (util.isPlainObject(cbRes)) {
+        badge = "" + cbRes.badge;
+        classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
+        tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
+      } else if (typeof cbRes === "number") {
+        badge = "" + cbRes;
+      } else {
+        badge = cbRes; // string or HTMLSpanElement
+      }
+      if (typeof badge === "string") {
+        badge = util.elemFromHtml(
+          `<span class="wb-badge${classes}"${tooltip}>${util.escapeHtml(
+            badge
+          )}</span>`
+        );
+      }
+      if (badge) {
+        iconSpan.append(<HTMLSpanElement>badge);
+      }
+    }
+
     // this.log("_createIcon: ", iconSpan);
     return iconSpan;
   }
@@ -1608,7 +1641,7 @@ export class WunderbaumNode {
     titleSpan.classList.add("wb-title");
     nodeElem.appendChild(titleSpan);
 
-    this._callEvent("enhanceTitle", { titleSpan: titleSpan });
+    // this._callEvent("enhanceTitle", { titleSpan: titleSpan });
 
     // Store the width of leading icons with the node, so we can calculate
     // the width of the embedded title span later
