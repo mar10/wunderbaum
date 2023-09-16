@@ -13,6 +13,7 @@ $font-stack: Helvetica, sans-serif;
 // Basic Theme Colors
 $error-color: #b5373b;
 $node-text-color: #56534c;
+$node-text-color-on-select: $node-text-color;
 $border-color: $node-text-color;
 $bg-highlight-color: #26a0da;
 $header-color: #dedede;
@@ -20,6 +21,11 @@ $background-color: #ffffff;
 $alternate-row-color: #f7f7f7; // #fcfcfc;
 $alternate-row-color-hover: #f3f3f3; //#f7fcfe;
 $focus-border-color: #275dc5;
+
+$dark-node-text-color: #ffffff;
+$dark-node-text-color-on-select: $node-text-color;
+$dark-background-color: #56534c;
+$dark-header-color: #56534c;
 
 // derived
 $drop-source-color: adjust-color($node-text-color, $lightness: 50%);
@@ -131,6 +137,20 @@ $level-rainbow: rgb(255, 255, 201), rgb(218, 255, 218), rgb(255, 217, 254),
   --wb-header-height: #{$header-height};
 }
 
+@media (prefers-color-scheme: dark) {
+  :root,
+  :host {
+    --wb-node-text-color: #{$dark-node-text-color};
+    --wb-node-text-color-on-select: #{$dark-node-text-color-on-select};
+    --wb-background-color: #{$dark-background-color};
+    --wb-header-color: #{$dark-header-color};
+  }
+  // div.wunderbaum {
+  //   --wb-background-color: #{$dark-background-color};
+  //   --wb-header-color: #{$dark-header-color};
+  // }
+}
+
 // ----------------------------------------------------------------------------
 // --- SCSS Rules
 
@@ -219,11 +239,13 @@ div.wunderbaum {
     div.wb-node-list div.wb-row {
       &.wb-active span.wb-col:first-of-type,
       &.wb-selected span.wb-col:first-of-type {
+        color: var(--wb-node-text-color-on-select);
         background-color: var(--wb-active-color);
       }
 
       &.wb-active:hover span.wb-col:first-of-type,
       &.wb-selected:hover span.wb-col:first-of-type {
+        color: var(--wb-node-text-color-on-select);
         background-color: var(--wb-active-hover-color);
       }
 
@@ -284,10 +306,12 @@ div.wunderbaum {
 
       &.wb-active,
       &.wb-selected {
+        color: var(--wb-node-text-color-on-select);
         background-color: var(--wb-active-color);
 
         // border-color: var(--wb-active-border-color);
         &:hover {
+          color: var(--wb-node-text-color-on-select);
           background-color: var(--wb-active-hover-color);
           // border-color: var(--wb-active-hover-border-color);
         }

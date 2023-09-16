@@ -41,6 +41,7 @@ img.logo {
   background-color: var(--bg-color-dimmed);
   border-radius: 2px;
 }
+
 div.grid-wrapper {
   display: grid;
   width: 100vw;
@@ -116,7 +117,7 @@ div#demo-tree {
 }
 
 div#nav-tree {
-  background-color: var(--bg-color-dimmed);
+  /* background-color: var(--bg-color-dimmed); */
   /* background-color: transparent; */
   overflow: hidden; /* keep background color outside round borders */
 }
