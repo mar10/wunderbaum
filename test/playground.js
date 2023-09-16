@@ -26,10 +26,10 @@ const tree = new Wunderbaum({
 
   // source: "generator/ajax_1k_3_54 t_c.json",
   // source: "generator/fixture_department_1k_3_6_flat_comp.json",
-  source: "generator/fixture_department_1k_3_6_comp.json",
+  // source: "generator/fixture_department_1k_3_6_comp.json",
   // source: "../docs/assets/ajax-tree-products.json",
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "generator/fixture.json",
   // source: (e)=>{
   //   console.info("SOURCE", e.type, e)
@@ -123,8 +123,8 @@ const tree = new Wunderbaum({
       })
     );
   },
-  deactivate: (e) => {},
-  discard: (e) => {},
+  deactivate: (e) => { },
+  discard: (e) => { },
   change: (e) => {
     const node = e.node;
     const value = e.inputValue;
@@ -156,9 +156,14 @@ const tree = new Wunderbaum({
   iconBadge: (e) => {
     const count = e.node.children?.length || 0;
     if (count > 0 && !e.node.expanded) {
-      // return { value: count };
-      // return { value: count, classes: "badge-primary" };
-      return "+" + count;
+      if (count > 99) {
+        return { badge: "99+", badgeTooltip: `${count} children` };
+      }
+
+      // return { badge: count };
+      // return { badge: count, classes: "badge-primary" };
+      // return "" + count;
+      return count;
       // return `<span class="badge badge-pill badge-primary">${count}</span>`;
     }
   },
