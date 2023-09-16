@@ -879,6 +879,11 @@ export class WunderbaumNode {
   }
 
   /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
+  isRadio(): boolean {
+    return !!(this.checkbox === "radio" || this.parent.radiogroup);
+  }
+
+  /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
   isRendered(): boolean {
     return !!this._rowElem;
   }
@@ -2178,7 +2183,7 @@ export class WunderbaumNode {
   /** Toggle the check/uncheck state. */
   toggleSelected(options?: SetSelectedOptions): TristateType {
     let flag = this.isSelected();
-    if (flag === undefined) {
+    if (flag === undefined && !this.isRadio()) {
       flag = this._anySelectable();
     } else {
       flag = !flag;
