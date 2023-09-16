@@ -187,7 +187,7 @@ export interface WbIconBadgeEventResultType {
   badge: string | number | HTMLSpanElement | null | false;
   /** Additional class name(s), separate with space. */
   badgeClass?: string;
-  /** Additional class name(s), separate with space. */
+  /** Tooltip for the badge. */
   badgeTooltip?: string;
 }
 
