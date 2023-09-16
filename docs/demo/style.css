@@ -1,7 +1,8 @@
 body {
   --font-color: darkslategray;
   --font-color-header: whitesmoke;
-  --bg-color-dark: #7895cb;
+  --bg-color-dark: #707070;
+  /* --bg-color-dark: #7895cb; */
   --bg-color-dimmed: whitesmoke;
   --bg-color-light: white;
   --hint-color: lightyellow;
@@ -32,6 +33,14 @@ body {
   overflow: hidden;
 }
 
+img.logo {
+  height: 1em;
+  vertical-align: text-bottom;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  padding: 3px;
+  background-color: var(--bg-color-dimmed);
+  border-radius: 2px;
+}
 div.grid-wrapper {
   display: grid;
   width: 100vw;

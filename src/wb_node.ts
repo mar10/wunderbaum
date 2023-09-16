@@ -36,7 +36,6 @@ import {
   CheckboxOption,
   IconOption,
   SourceType,
-  WbIconBadgeEventResultType,
 } from "./types";
 
 import {
@@ -1529,10 +1528,7 @@ export class WunderbaumNode {
 
     // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
 
-    let cbRes: WbIconBadgeEventResultType | void | false = this._callEvent(
-      "iconBadge",
-      { iconSpan: iconSpan }
-    );
+    let cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
     let badge = null;
     if (cbRes != null && cbRes !== false) {
       let classes = "";
