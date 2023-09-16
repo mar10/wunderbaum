@@ -627,6 +627,8 @@ declare module "wb_node" {
         /** Return true if this node is partially selected (tri-state). */
         isPartsel(): boolean;
         /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
+        isRadio(): boolean;
+        /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
         isRendered(): boolean;
         /** Return true if this node is the (invisible) system root node.
          * (See also [[isTopLevel()]].)
@@ -866,7 +868,7 @@ declare module "wb_options" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbEnhanceTitleEventType, WbErrorEventType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
+    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
     /**
      * Available options for [[Wunderbaum]].
      *
@@ -1079,7 +1081,7 @@ declare module "wb_options" {
          *
          * @category Callback
          */
-        enhanceTitle?: (e: WbEnhanceTitleEventType) => void;
+        iconBadge?: WbIconBadgeCallback;
         /**
          *
          * @category Callback
@@ -1198,6 +1200,8 @@ declare module "types" {
     export type SourceType = string | SourceListType | SourceAjaxType | SourceObjectType;
     /** Passed to `find...()` methods. Should return true if node matches. */
     export type MatcherCallback = (node: WunderbaumNode) => boolean;
+    /** Used for `tree.iconBadge` event. */
+    export type WbIconBadgeCallback = (e: WbIconBadgeEventType) => WbIconBadgeEventResultType;
     /** Passed to `sortChildren()` methods. Should return -1, 0, or 1. */
     export type SortCallback = (a: WunderbaumNode, b: WunderbaumNode) => number;
     /** When set as option, called when the value is needed (e.g. `colspan` type definition). */
@@ -1295,8 +1299,16 @@ declare module "types" {
         /** The original event. */
         event: Event;
     }
-    export interface WbEnhanceTitleEventType extends WbNodeEventType {
-        titleSpan: HTMLSpanElement;
+    export interface WbIconBadgeEventType extends WbNodeEventType {
+        iconSpan: HTMLElement;
+    }
+    export interface WbIconBadgeEventResultType {
+        /** Content of the badge `<span class='wb-badge'>` if any. */
+        badge: string | number | HTMLSpanElement | null | false;
+        /** Additional class name(s), separate with space. */
+        badgeClass?: string;
+        /** Additional class name(s), separate with space. */
+        badgeTooltip?: string;
     }
     export interface WbFocusEventType extends WbTreeEventType {
         /** The original event. */

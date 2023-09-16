@@ -458,6 +458,25 @@ div.wunderbaum.wb-checkbox-auto-hide:focus .wb-row.wb-active i.wb-checkbox, div.
   text-align: left;
 }
 
+i.wb-icon {
+  position: relative;
+}
+i.wb-icon > span.wb-badge {
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  left: -0.6rem;
+  color: white;
+  background-color: var(--wb-bg-highlight-color);
+  padding: 0.2em 0.3rem 0.1em 0.3rem;
+  font-size: 60%;
+  font-weight: 200;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+}
+
 /* Class 'wb-tristate' is used to mark checkboxes that should toggle like
  *   indeterminate -> checked -> unchecked -> indeterminate ...
  */
