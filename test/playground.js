@@ -13,7 +13,9 @@ const util = Wunderbaum.util;
 let sequence = 1;
 const tree = new Wunderbaum({
   element: "#tree",
-  checkbox: true,
+  // checkbox: (node) => "radio",
+  // checkbox: "radio",
+  // checkbox: true,
   id: "Playground",
   // enabled: false,
   fixedCol: true,
@@ -24,35 +26,6 @@ const tree = new Wunderbaum({
   header: true, //"Playground",
   // navigationModeOption: "cell",
 
-  // source: "generator/ajax_1k_3_54 t_c.json",
-  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
-  // source: "generator/fixture_department_1k_3_6_comp.json",
-  // source: "../docs/assets/ajax-tree-products.json",
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // source: "generator/fixture.json",
-  // source: (e)=>{
-  //   console.info("SOURCE", e.type, e)
-  //   return util.setTimeoutPromise(() => {
-  //     return {url: "../docs/assets/ajax-tree-products.json"};
-  //   }, 5000);
-  // },
-  // source: {
-  //   children: [
-  //     { title: "a", type: "book", details: "A book", children: [] },
-  //     {
-  //       title: "b",
-  //       children: [
-  //         {
-  //           title: "ba",
-  //         },
-  //       ],
-  //     },
-  //     { title: "c", children: null },
-  //     { title: "d", children: false },
-  //     { title: "e" },
-  //   ],
-  // },
   columns: [
     { title: "test", id: "*", width: "200px" },
     // {
@@ -81,7 +54,42 @@ const tree = new Wunderbaum({
   ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
+    folder: {
+      icon: "bi bi-folder",
+      classes: "extra-book-class",
+      checkbox: "radio",
+    },
   },
+  // source: "generator/ajax_1k_3_54 t_c.json",
+  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
+  // source: "generator/fixture_department_1k_3_6_comp.json",
+  source: "../docs/assets/ajax-tree-products.json",
+  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+  // source:
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+  // source: "generator/fixture.json",
+  // source: (e)=>{
+  //   console.info("SOURCE", e.type, e)
+  //   return util.setTimeoutPromise(() => {
+  //     return {url: "../docs/assets/ajax-tree-products.json"};
+  //   }, 5000);
+  // },
+  // source: {
+  //   children: [
+  //     { title: "a", type: "book", details: "A book", children: [] },
+  //     {
+  //       title: "b",
+  //       children: [
+  //         {
+  //           title: "ba",
+  //         },
+  //       ],
+  //     },
+  //     { title: "c", children: null },
+  //     { title: "d", children: false },
+  //     { title: "e" },
+  //   ],
+  // },
   // showSpinner: true,
 
   dnd: {
@@ -123,8 +131,8 @@ const tree = new Wunderbaum({
       })
     );
   },
-  deactivate: (e) => { },
-  discard: (e) => { },
+  deactivate: (e) => {},
+  discard: (e) => {},
   change: (e) => {
     const node = e.node;
     const value = e.inputValue;
@@ -155,7 +163,10 @@ const tree = new Wunderbaum({
   },
   iconBadge: (e) => {
     const count = e.node.children?.length || 0;
-    if (count > 0 && !e.node.expanded) {
+    const subMatch = e.node.subMatch || 0;
+    if (subMatch > 0) {
+      return { badge: subMatch, badgeTooltip: `${subMatch} matches` };
+    } else if (count > 0 && !e.node.expanded) {
       if (count > 99) {
         return { badge: "99+", badgeTooltip: `${count} children` };
       }

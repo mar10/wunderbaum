@@ -880,7 +880,7 @@ export class WunderbaumNode {
 
   /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
   isRadio(): boolean {
-    return this.checkbox === "radio" || !!this.parent.radiogroup;
+    return !!this.parent.radiogroup || this.getOption("checkbox") === "radio";
   }
 
   /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
@@ -1000,7 +1000,7 @@ export class WunderbaumNode {
     for (const [key, value] of Object.entries(source)) {
       if (!RESERVED_TREE_SOURCE_KEYS.has(key)) {
         tree.data[key] = value;
-        tree.logDebug(`Add source.${key} to tree.data.${key}`);
+        // tree.logDebug(`Add source.${key} to tree.data.${key}`);
       }
     }
     if (tree.options.selectMode === "hier") {
@@ -1566,7 +1566,6 @@ export class WunderbaumNode {
     const tree = this.tree;
     const treeOptions = tree.options;
     const checkbox = this.getOption("checkbox");
-    // const checkbox = this.getOption("checkbox") !== false;
     const columns = tree.columns;
     const level = this.getLevel();
     let elem: HTMLElement;
@@ -1837,7 +1836,7 @@ export class WunderbaumNode {
     }
     if (checkboxSpan) {
       let cbclass = "wb-checkbox ";
-      if (this.parent.radiogroup) {
+      if (this.isRadio()) {
         cbclass += "wb-radio ";
         if (this.selected) {
           cbclass += iconMap.radioChecked;
