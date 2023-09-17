@@ -77,6 +77,15 @@ new mar10.Wunderbaum({
     connectInput: "input#filterQuery",
     mode: "hide",
   },
+  iconBadge: (e) => {
+    const node = e.node;
+    if (node.children?.length > 0 && !node.expanded && node.subMatchCount > 0) {
+      return {
+        badge: node.subMatchCount,
+        badgeTooltip: `${node.subMatchCount} matches`,
+      };
+    }
+  },
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:
     const node = e.tree.findFirst("Jumping dopily");
