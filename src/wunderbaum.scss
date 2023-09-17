@@ -395,7 +395,7 @@ div.wunderbaum {
     overflow: hidden;
     height: var(--wb-row-inner-height);
     line-height: var(--wb-row-inner-height);
-    padding: 0 val(--wb-col-padding-x);
+    padding: 0 var(--wb-col-padding-x);
     border-right: 1px solid var(--wb-grid-color);
     white-space: nowrap;
 
