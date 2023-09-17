@@ -5,9 +5,9 @@
  */
 
 document.getElementById("demo-info").innerHTML = `
-Hierarchical selection demo (<code>selectMode: 'hier'</code>).
+Hierarchical selection demo (<code>selectMode: 'hier'</code>) .
 Also uses icons from <a href="https://fontawesome.com/">Font Awesome</a>.<br>
-100k nodes: click <i class="bi bi-plus-slash-minus"></i> to expand them all.
+Collapse nodes to test select counter badges.
 `;
 
 // document.getElementById("selectMode").classList.remove("hidden");
@@ -24,6 +24,10 @@ new mar10.Wunderbaum({
   // selectMode: "single",
   iconMap: "fontawesome6",
   selectMode: "hier",
+  checkbox: true,
+  // minExpandLevel: 1,
+  types: {},
+
   source: [
     {
       title: "n1",
@@ -92,29 +96,7 @@ new mar10.Wunderbaum({
   ],
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
-  checkbox: true,
-  // minExpandLevel: 1,
-  types: {},
-  // dnd: {
-  //   dragStart: (e) => {
-  //     if (e.node.type === "folder") {
-  //       return false;
-  //     }
-  //     e.event.dataTransfer.effectAllowed = "all";
-  //     return true;
-  //   },
-  //   dragEnter: (e) => {
-  //     if (e.node.type === "folder") {
-  //       e.event.dataTransfer.dropEffect = "copy";
-  //       return "over";
-  //     }
-  //     return ["before", "after"];
-  //   },
-  //   drop: (e) => {
-  //     console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
-  //     e.sourceNode.moveTo(e.node, e.defaultDropMode)
-  //   },
-  // },
+
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:
     e.tree.setFocus();
@@ -124,6 +106,15 @@ new mar10.Wunderbaum({
       return { url: "../assets/ajax-lazy-products.json" };
     }, 4000);
   },
+  iconBadge: (e) => {
+    const node = e.node;
+    if (node.expanded || !node.children) {
+      return;
+    }
+    const count = node.children && node.getSelectedNodes()?.length;
+    return { badge: count, badgeTooltip: `${count} selected` };
+  },
+
   beforeSelect: function (e) {
     console.log(e.type, e);
   },
