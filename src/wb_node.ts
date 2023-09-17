@@ -134,7 +134,7 @@ export class WunderbaumNode {
   // --- FILTER ---
   public match?: boolean; // Added and removed by filter code
   public subMatchCount?: number = 0;
-  public subMatchBadge?: HTMLElement;
+  // public subMatchBadge?: HTMLElement;
   /** @internal */
   public titleWithHighlight?: string;
   public _filterAutoExpanded?: boolean;

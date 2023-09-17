@@ -112,7 +112,11 @@ new mar10.Wunderbaum({
       return;
     }
     const count = node.children && node.getSelectedNodes()?.length;
-    return { badge: count, badgeTooltip: `${count} selected` };
+    return {
+      badge: count,
+      badgeTooltip: `${count} selected`,
+      badgeClass: "selection-count",
+    };
   },
 
   beforeSelect: function (e) {

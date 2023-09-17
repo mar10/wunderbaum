@@ -305,10 +305,10 @@ export class FilterExtension extends WunderbaumExtension {
       delete node.match;
       delete node.subMatchCount;
       delete node.titleWithHighlight;
-      if (node.subMatchBadge) {
-        node.subMatchBadge.remove();
-        delete node.subMatchBadge;
-      }
+      // if (node.subMatchBadge) {
+      //   node.subMatchBadge.remove();
+      //   delete node.subMatchBadge;
+      // }
       if (node._filterAutoExpanded && node.expanded) {
         node.setExpanded(false, {
           noAnimation: true,

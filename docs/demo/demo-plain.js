@@ -83,6 +83,7 @@ new mar10.Wunderbaum({
       return {
         badge: node.subMatchCount,
         badgeTooltip: `${node.subMatchCount} matches`,
+        badgeClass: "match-count",
       };
     }
   },

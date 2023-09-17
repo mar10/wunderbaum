@@ -128,6 +128,17 @@ div.wunderbaum.wb-skeleton.wb-initializing {
   background-repeat: no-repeat;
 }
 
+div.wunderbaum span.wb-badge {
+  &.selection-count {
+    color: white;
+    background-color: green;
+  }
+  &.match-count {
+    color: darkgreen;
+    background-color: #e0e0e0;
+  }
+}
+
 div.welcome-page {
   padding: 4px 4px;
 }
