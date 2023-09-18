@@ -709,6 +709,11 @@ export type DndOptionsType = {
    */
   preventVoidMoves: boolean;
   /**
+   * Serialize Node Data to datatransfer object
+   * @default true
+   */
+  serializeClipboardData: boolean | ((nodeData: WbNodeData) => string);
+  /**
    * Enable auto-scrolling while dragging
    * @default true
    */
