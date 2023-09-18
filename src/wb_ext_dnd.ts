@@ -43,6 +43,7 @@ export class DndExtension extends WunderbaumExtension {
       preventRecursion: true, // Prevent dropping nodes on own descendants
       preventSameParent: false, // Prevent dropping nodes under same direct parent
       preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
+      serializeClipboardData: true, // Serialize Node Data to datatransfer object
       scroll: true, // Enable auto-scrolling while dragging
       scrollSensitivity: 20, // Active top/bottom margin in pixel
       // scrollnterval: 50, // Generste event every 50 ms
@@ -238,8 +239,12 @@ export class DndExtension extends WunderbaumExtension {
       });
       nodeData._treeId = srcNode.tree.id;
 
-      const json = JSON.stringify(nodeData);
-      e.dataTransfer!.setData(nodeMimeType, json);
+      if (dndOpts.serializeClipboardData) {
+        if (typeof dndOpts.serializeClipboardData === 'function')
+          e.dataTransfer!.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData));  
+        else
+          e.dataTransfer!.setData(nodeMimeType,  JSON.stringify(nodeData));
+      }
       // e.dataTransfer!.setData("text/html", $(node.span).html());
       e.dataTransfer!.setData("text/plain", srcNode.title);
       this.srcNode = srcNode;
