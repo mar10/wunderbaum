@@ -615,6 +615,124 @@ export interface VisitRowsOptions {
   wrap?: boolean;
 }
 
+export type FilterOptionsType = {
+  /**
+   * Element or selector of an input control for filter query strings
+   * @default null
+   */
+  connectInput?: null | string | Element;
+  /**
+   * Re-apply last filter if lazy data is loaded
+   * @default true
+   */
+  autoApply?: boolean;
+  /**
+   * Expand all branches that contain matches while filtered
+   * @default false
+   */
+  autoExpand?: boolean;
+  /**
+   * Show a badge with number of matching child nodes near parent icons
+   * @default true
+   */
+  counter?: boolean;
+  /**
+   * Match single characters in order, e.g. 'fb' will match 'FooBar'
+   * @default false
+   */
+  fuzzy?: boolean;
+  /**
+   * Hide counter badge if parent is expanded
+   * @default true
+   */
+  hideExpandedCounter?: boolean;
+  /**
+   * Hide expanders if all child nodes are hidden by filter
+   * @default false;
+   */
+  hideExpanders?: boolean;
+  /**
+   * Highlight matches by wrapping inside <mark> tags
+   * @default true
+   */
+  highlight?: boolean;
+  /**
+   * Match end nodes only
+   * @default false
+   */
+  leavesOnly?: boolean;
+  /**
+   * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+   * @default 'dim'
+   */
+  mode?: "dim" | "hide";
+  /**
+   * Display a 'no data' status node if result is empty
+   * @default true
+   */
+  noData?: boolean;
+};
+
+export type EditOptionsType = {
+  /**
+   * @default 100
+   */
+  debounce?: number;
+  /**
+   * @default 1
+   */
+  minlength?: number;
+  /**
+   * @default null;
+   */
+  maxlength?: null | number;
+  /**
+   * ["clickActive", "F2", "macEnter"],
+   * @default []
+   */
+  trigger?: string[];
+  /**
+   * @default true
+   */
+  trim?: boolean;
+  /**
+   * @default true
+   */
+  select?: boolean;
+  /**
+   * Handle 'clickActive' only if last click is less than this old (0: always)
+   * @default 1000
+   */
+  slowClickDelay?: number;
+  /**
+   * Please enter a title",
+   * @default true
+   */
+  validity?: boolean;
+
+  // --- Events ---
+  // (note: there is also the `tree.change` event.)
+  /**
+   * `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+   */
+  beforeEdit?: null | ((e: WbNodeEventType) => boolean) | string;
+  /**
+   *
+   */
+  edit?:
+    | null
+    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
+  /**
+   *
+   */
+  apply?:
+    | null
+    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
+    | Promise<any>;
+};
+
+export type GridOptionsType = {};
+
 /* -----------------------------------------------------------------------------
  * wb_ext_dnd
  * ---------------------------------------------------------------------------*/
@@ -750,7 +868,7 @@ export type DndOptionsType = {
    * Callback(sourceNode, data), return true, to enable dnd drag
    * @default null
    */
-  dragStart?: (e: WbNodeEventType & { event: DragEvent }) => boolean;
+  dragStart: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(sourceNode, data)
    * @default null
@@ -766,7 +884,7 @@ export type DndOptionsType = {
    * Callback(targetNode, data), return true, to enable dnd drop
    * @default null
    */
-  dragEnter?: (e: WbNodeEventType & { event: DragEvent }) => boolean;
+  dragEnter?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(targetNode, data)
    * @default null
@@ -776,19 +894,21 @@ export type DndOptionsType = {
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
    */
-  dragExpand?: (e: WbNodeEventType & { event: DragEvent }) => void;
+  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(targetNode, data)
    * @default null
    */
-  drop?: (
-    e: WbNodeEventType & {
-      event: DragEvent;
-      region: DropRegionType;
-      defaultDropMode: string;
-      sourceNode: WunderbaumNode;
-    }
-  ) => void;
+  drop?:
+    | null
+    | ((
+        e: WbNodeEventType & {
+          event: DragEvent;
+          region: DropRegionType;
+          defaultDropMode: string;
+          sourceNode: WunderbaumNode;
+        }
+      ) => void);
   /**
    * Callback(targetNode, data)
    * @default null
