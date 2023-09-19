@@ -436,7 +436,9 @@ export class Wunderbaum {
         }
 
         if (info.region === NodeRegion.expander) {
-          node.setExpanded(!node.isExpanded());
+          node.setExpanded(!node.isExpanded(), {
+            scrollIntoView: options.scrollIntoViewOnExpandClick,
+          });
         } else if (info.region === NodeRegion.checkbox) {
           node.toggleSelected();
         }
