@@ -17,11 +17,11 @@ import {
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { InsertNodeType, WbNodeData } from "./types";
+import { EditOptionsType, InsertNodeType, WbNodeData } from "./types";
 
 // const START_MARKER = "\uFFF7";
 
-export class EditExtension extends WunderbaumExtension {
+export class EditExtension extends WunderbaumExtension<EditOptionsType> {
   protected debouncedOnChange: (e: Event) => void;
   protected curEditNode: WunderbaumNode | null = null;
   protected relatedNode: WunderbaumNode | null = null;

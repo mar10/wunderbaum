@@ -11,6 +11,8 @@ import {
   DynamicBoolOrStringOption,
   DynamicCheckboxOption,
   DynamicIconOption,
+  EditOptionsType,
+  FilterOptionsType,
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
@@ -215,8 +217,8 @@ export interface WunderbaumOptions {
 
   // --- Extensions ------------------------------------------------------------
   dnd?: DndOptionsType; // = {};
-  edit?: any; // = {};
-  filter?: any; // = {};
+  edit?: EditOptionsType; // = {};
+  filter?: FilterOptionsType; // = {};
   grid?: any; // = {};
 
   // --- Events ----------------------------------------------------------------

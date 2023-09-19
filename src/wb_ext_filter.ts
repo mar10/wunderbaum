@@ -13,6 +13,7 @@ import {
 } from "./util";
 import {
   FilterNodesOptions,
+  FilterOptionsType,
   NodeFilterCallback,
   NodeStatusType,
 } from "./types";
@@ -26,7 +27,7 @@ const END_MARKER = "\uFFF8";
 const RE_START_MARKER = new RegExp(escapeRegex(START_MARKER), "g");
 const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
 
-export class FilterExtension extends WunderbaumExtension {
+export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   public queryInput?: HTMLInputElement;
   public lastFilterArgs: IArguments | null = null;
 
@@ -272,7 +273,7 @@ export class FilterExtension extends WunderbaumExtension {
     if (
       tree.filterMode &&
       this.lastFilterArgs &&
-      tree.options.filter.autoApply
+      tree.options.filter?.autoApply
     ) {
       this._applyFilterNoUpdate.apply(this, <any>this.lastFilterArgs);
     } else {

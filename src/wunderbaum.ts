@@ -105,7 +105,7 @@ export class Wunderbaum {
   public readonly data: { [key: string]: any } = {};
 
   protected readonly _updateViewportThrottled: (...args: any) => void;
-  protected extensionList: WunderbaumExtension[] = [];
+  protected extensionList: WunderbaumExtension<any>[] = [];
   protected extensions: ExtensionsDict = {};
 
   /** Merged options from constructor args and tree- and extension defaults. */
@@ -436,7 +436,9 @@ export class Wunderbaum {
         }
 
         if (info.region === NodeRegion.expander) {
-          node.setExpanded(!node.isExpanded(), { scrollIntoView: options.scrollIntoViewOnExpandClick });
+          node.setExpanded(!node.isExpanded(), {
+            scrollIntoView: options.scrollIntoViewOnExpandClick,
+          });
         } else if (info.region === NodeRegion.checkbox) {
           node.toggleSelected();
         }
@@ -596,7 +598,7 @@ export class Wunderbaum {
   }
 
   /** @internal */
-  protected _registerExtension(extension: WunderbaumExtension): void {
+  protected _registerExtension(extension: WunderbaumExtension<any>): void {
     this.extensionList.push(extension);
     this.extensions[extension.id] = extension;
     // this.extensionMap.set(extension.id, extension);
@@ -647,7 +649,10 @@ export class Wunderbaum {
   }
 
   /** Call all hook methods of all registered extensions.*/
-  protected _callHook(hook: keyof WunderbaumExtension, data: any = {}): any {
+  protected _callHook(
+    hook: keyof WunderbaumExtension<any>,
+    data: any = {}
+  ): any {
     let res;
     let d = util.extend(
       {},

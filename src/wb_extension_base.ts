@@ -7,16 +7,16 @@
 import * as util from "./util";
 import { Wunderbaum } from "./wunderbaum";
 
-export type ExtensionsDict = { [key: string]: WunderbaumExtension };
+export type ExtensionsDict = { [key: string]: WunderbaumExtension<any> };
 
-export abstract class WunderbaumExtension {
+export abstract class WunderbaumExtension<TOptions> {
   public enabled = true;
   readonly id: string;
   readonly tree: Wunderbaum;
   readonly treeOpts: any;
   readonly extensionOpts: any;
 
-  constructor(tree: Wunderbaum, id: string, defaults: any) {
+  constructor(tree: Wunderbaum, id: string, defaults: TOptions) {
     this.tree = tree;
     this.id = id;
     this.treeOpts = tree.options;
