@@ -207,6 +207,12 @@ export interface WunderbaumOptions {
    */
   quicksearch?: boolean;
 
+  /**
+   * Scroll Node into view on Expand Click
+   * @default true
+   */
+  scrollIntoViewOnExpandClick?: boolean;
+
   // --- Extensions ------------------------------------------------------------
   dnd?: DndOptionsType; // = {};
   edit?: any; // = {};
