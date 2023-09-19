@@ -1514,7 +1514,9 @@ export class WunderbaumNode {
       iconSpan = util.elemFromHtml(icon);
     } else if (TEST_IMG.test(icon)) {
       // Image URL
-      iconSpan = util.elemFromHtml(`<img src="${icon}" class="wb-icon">`);
+      iconSpan = util.elemFromHtml(
+        `<i class="wb-icon" style="background-image: url('${icon}');">`
+      );
     } else {
       // Class name
       iconSpan = document.createElement("i");
