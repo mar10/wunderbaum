@@ -712,7 +712,7 @@ export type DndOptionsType = {
    * Serialize Node Data to datatransfer object
    * @default true
    */
-  serializeClipboardData : boolean | ((nodeData: WbNodeData) => string);
+  serializeClipboardData: boolean | ((nodeData: WbNodeData) => string);
   /**
    * Enable auto-scrolling while dragging
    * @default true
@@ -748,7 +748,7 @@ export type DndOptionsType = {
    * Callback(sourceNode, data), return true, to enable dnd drag
    * @default null
    */
-  dragStart?: WbNodeEventType;
+  dragStart?: (e: WbNodeEventType & { event: DragEvent }) => boolean;
   /**
    * Callback(sourceNode, data)
    * @default null
@@ -764,7 +764,7 @@ export type DndOptionsType = {
    * Callback(targetNode, data), return true, to enable dnd drop
    * @default null
    */
-  dragEnter: null;
+  dragEnter?: (e: WbNodeEventType & { event: DragEvent }) => boolean;
   /**
    * Callback(targetNode, data)
    * @default null
@@ -774,12 +774,19 @@ export type DndOptionsType = {
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
    */
-  dragExpand: null;
+  dragExpand?: (e: WbNodeEventType & { event: DragEvent }) => void;
   /**
    * Callback(targetNode, data)
    * @default null
    */
-  dragDrop: null;
+  drop?: (
+    e: WbNodeEventType & {
+      event: DragEvent;
+      region: DropRegionType;
+      defaultDropMode: string;
+      sourceNode: WunderbaumNode;
+    }
+  ) => void;
   /**
    * Callback(targetNode, data)
    * @default null

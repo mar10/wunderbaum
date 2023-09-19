@@ -240,10 +240,12 @@ export class DndExtension extends WunderbaumExtension {
       nodeData._treeId = srcNode.tree.id;
 
       if (dndOpts.serializeClipboardData) {
-        if (typeof dndOpts.serializeClipboardData === 'function')
-          e.dataTransfer!.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData));  
-        else
-          e.dataTransfer!.setData(nodeMimeType,  JSON.stringify(nodeData));
+        if (typeof dndOpts.serializeClipboardData === "function")
+          e.dataTransfer!.setData(
+            nodeMimeType,
+            dndOpts.serializeClipboardData(nodeData)
+          );
+        else e.dataTransfer!.setData(nodeMimeType, JSON.stringify(nodeData));
       }
       // e.dataTransfer!.setData("text/html", $(node.span).html());
       e.dataTransfer!.setData("text/plain", srcNode.title);
