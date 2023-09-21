@@ -870,12 +870,12 @@ export type DndOptionsType = {
    * Callback(sourceNode, data)
    * @default null
    */
-  dragDrag: null;
+  dragDrag: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(sourceNode, data)
    * @default null
    */
-  dragEnd: null;
+  dragEnd: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
@@ -886,17 +886,17 @@ export type DndOptionsType = {
    * Callback(targetNode, data)
    * @default null
    */
-  dragOver: null;
+  dragOver: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
    */
-  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(targetNode, data)
    * @default null
    */
-  drop?:
+  dragDrop?:
     | null
     | ((
         e: WbNodeEventType & {
