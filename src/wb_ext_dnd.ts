@@ -36,7 +36,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
       effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
       // dropEffect: "auto", // 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
-      dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
+      dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
       preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
       preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes
       preventNonNodes: false, // Prevent dropping items other than Wunderbaum tree nodes
@@ -52,7 +52,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
       // Events (drag support)
       dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
-      dragDrag: null, // Callback(sourceNode, data)
+      drag: null, // Callback(sourceNode, data)
       dragEnd: null, // Callback(sourceNode, data)
       // Events (drop support)
       dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
@@ -207,7 +207,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
   protected onDragEvent(e: DragEvent) {
     // const tree = this.tree;
-    const dndOpts = this.treeOpts.dnd;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const srcNode = Wunderbaum.getNode(e);
 
     if (!srcNode) {
@@ -258,7 +258,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
       // --- drag ---
     } else if (e.type === "drag") {
-      // This event occurs very often...
+      if (dndOpts.drag) srcNode._callEvent("dnd.drag", { event: e });
       // --- dragend ---
     } else if (e.type === "dragend") {
       srcNode.setClass("wb-drag-source", false);
@@ -266,6 +266,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       if (this.lastTargetNode) {
         this._leaveNode();
       }
+      if (dndOpts.dragEnd) srcNode._callEvent("dnd.dragEnd", { event: e });
     }
     return true;
   }
@@ -275,7 +276,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     const srcNode = this.srcNode;
     const srcTree = srcNode ? srcNode.tree : null;
     const targetNode = Wunderbaum.getNode(e)!;
-    const dndOpts = this.treeOpts.dnd;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const dt = e.dataTransfer!;
 
     if (!targetNode) {
@@ -353,6 +354,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       const viewportY = e.clientY - this.tree.element.offsetTop;
       this.autoScroll(viewportY);
 
+      if (dndOpts.dragOver) targetNode._callEvent("dnd.dragOver", { event: e });
+
       const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
       this.lastDropRegion = region;
@@ -383,6 +386,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     } else if (e.type === "dragleave") {
       // NOTE: we cannot trust this event, since it is always fired,
       // Instead we remove the marker on dragenter
+      if (dndOpts.dragLeave)
+        targetNode._callEvent("dnd.dragLeave", { event: e });
       // --- drop ---
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
