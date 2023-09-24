@@ -50,6 +50,19 @@ const tree = new Wunderbaum({
 - `util.setValueToElem()`
 - `util.toggleCheckbox()`
 
+### Performance Tips
+
+Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many 
+nodes at once.
+
+```js
+tree.runWithDeferredUpdate(() => {
+  tree.visit((node) => {
+    node.setSelected(true);
+  });
+});
+```
+
 ### Related CSS Rules
 
 ```css
