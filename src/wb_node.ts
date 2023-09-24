@@ -424,10 +424,15 @@ export class WunderbaumNode {
   async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
     const tree = this.tree;
     const minExpandLevel = this.tree.options.minExpandLevel;
-    let { depth = 99, loadLazy, force } = options ?? {};
+    let {
+      depth = 99,
+      loadLazy,
+      force,
+      keepActiveNodeVisible = true,
+    } = options ?? {};
 
     const expandOpts = {
-      scrollIntoView: false,
+      scrollIntoView: false, // don't scroll very node on iteration
       force: force,
       loadLazy: loadLazy,
     };
@@ -483,6 +488,9 @@ export class WunderbaumNode {
     } finally {
       tree.enableUpdate(true);
       tree.logTimeEnd(tag);
+    }
+    if (tree.activeNode && keepActiveNodeVisible) {
+      tree.activeNode.scrollIntoView();
     }
   }
 
@@ -1225,7 +1233,6 @@ export class WunderbaumNode {
       len = parents.length,
       noAnimation = util.getOption(options, "noAnimation", false),
       scroll = util.getOption(options, "scrollIntoView", true);
-    // scroll = !(options && options.scrollIntoView === false);
 
     // Expand bottom-up, so only the top node is animated
     for (i = len - 1; i >= 0; i--) {
@@ -2136,7 +2143,7 @@ export class WunderbaumNode {
     const updateOpts = { immediate: immediate };
     // const updateOpts = { immediate: !!util.getOption(options, "immediate") };
     this.tree.update(ChangeType.structure, updateOpts);
-    if (flag && scrollIntoView !== false) {
+    if (flag && scrollIntoView) {
       const lastChild = this.getLastChild();
       if (lastChild) {
         this.tree.updatePendingModifications();

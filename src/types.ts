@@ -471,6 +471,8 @@ export interface ExpandAllOptions {
   loadLazy?: boolean;
   /** Ignore `minExpandLevel` option @default false */
   force?: boolean;
+  /** Keep active node visible @default true */
+  keepActiveNodeVisible?: boolean;
 }
 
 /** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */

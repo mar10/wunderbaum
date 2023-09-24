@@ -225,7 +225,6 @@ export class FilterExtension extends WunderbaumExtension {
             p.setExpanded(true, {
               noAnimation: true,
               noEvents: true,
-              scrollIntoView: false,
             });
             p._filterAutoExpanded = true;
           }
@@ -313,7 +312,6 @@ export class FilterExtension extends WunderbaumExtension {
         node.setExpanded(false, {
           noAnimation: true,
           noEvents: true,
-          scrollIntoView: false,
         });
       }
       delete node._filterAutoExpanded;
