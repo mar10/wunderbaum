@@ -1829,19 +1829,23 @@ export class WunderbaumNode {
     }
 
     if (expanderSpan) {
+      let image = null;
       if (this._isLoading) {
-        expanderSpan.className = "wb-expander " + iconMap.loading;
+        image = iconMap.loading;
       } else if (this.isExpandable(false)) {
         if (this.expanded) {
-          expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+          image = iconMap.expanderExpanded;
         } else {
-          expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+          image = iconMap.expanderCollapsed;
         }
       } else if (this.lazy && this.children == null) {
-        expanderSpan.className = "wb-expander " + iconMap.expanderLazy;
-      } else {
-        expanderSpan.classList.add("wb-indent");
+        image = iconMap.expanderLazy;
       }
+
+      if (image == null) expanderSpan.classList.add("wb-indent");
+      else if (TEST_IMG.test(image))
+        expanderSpan.style.backgroundImage = `url('${image}')`;
+      else expanderSpan.className = "wb-expander " + image;
     }
     if (checkboxSpan) {
       let cbclass = "wb-checkbox ";
