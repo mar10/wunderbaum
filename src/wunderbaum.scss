@@ -419,6 +419,9 @@ div.wunderbaum {
       padding: var(--wb-icon-padding) var(--wb-icon-padding-x);
       display: inline-block;
     }
+    i.wb-icon {
+      background-repeat: no-repeat;
+    }
 
     /* Fix Bootstrap Icon alignment */
     i.bi::before {
