@@ -202,7 +202,6 @@ div.wunderbaum {
 
   /* Fixed column must be opaque, i.e. have the bg color set. */
   &.wb-fixed-col {
-
     // Sticky first column (header and nodes)
     span.wb-col:first-of-type {
       position: sticky;
@@ -218,7 +217,6 @@ div.wunderbaum {
     }
 
     div.wb-node-list div.wb-row {
-
       &.wb-active span.wb-col:first-of-type,
       &.wb-selected span.wb-col:first-of-type {
         background-color: var(--wb-active-color);
@@ -237,7 +235,6 @@ div.wunderbaum {
     &:not(:focus-within),
     &:not(:focus) {
       div.wb-node-list div.wb-row {
-
         &.wb-active span.wb-col:first-of-type,
         &.wb-selected span.wb-col:first-of-type {
           background-color: var(--wb-active-color-grayscale);
@@ -257,7 +254,6 @@ div.wunderbaum {
   &:not(:focus-within),
   &:not(:focus) {
     div.wb-node-list div.wb-row {
-
       &.wb-active,
       &.wb-selected {
         background-color: var(--wb-active-color-grayscale);
@@ -334,13 +330,15 @@ div.wunderbaum {
         //       = 15.56px
         // We use the half distance to get a finer stripe pattern:
         //     d/2 = 7.78
-        background: repeating-linear-gradient(45deg,
-            // $hover-color,
-            // $hover-color 3.88px,
-            transparent,
-            transparent 3.88px,
-            var(--wb-grid-color) 3.88px,
-            var(--wb-grid-color) 7.78px);
+        background: repeating-linear-gradient(
+          45deg,
+          // $hover-color,
+          // $hover-color 3.88px,
+          transparent,
+          transparent 3.88px,
+          var(--wb-grid-color) 3.88px,
+          var(--wb-grid-color) 7.78px
+        );
         animation: wb-busy-animation 2s linear infinite;
       }
 
@@ -441,7 +439,6 @@ div.wunderbaum {
     }
 
     i.wb-indent {
-
       // border-left: 1px solid gray;
       &::before {
         content: "\00a0";
@@ -502,28 +499,28 @@ div.wunderbaum {
         border-right: 1px solid var(--wb-grid-color);
 
         input.wb-input-edit,
-        >input[type="color"],
-        >input[type="date"],
-        >input[type="datetime"],
-        >input[type="datetime-local"],
-        >input[type="email"],
-        >input[type="month"],
-        >input[type="number"],
-        >input[type="password"],
-        >input[type="search"],
-        >input[type="tel"],
-        >input[type="text"],
-        >input[type="time"],
-        >input[type="url"],
-        >input[type="week"],
-        >select {
+        > input[type="color"],
+        > input[type="date"],
+        > input[type="datetime"],
+        > input[type="datetime-local"],
+        > input[type="email"],
+        > input[type="month"],
+        > input[type="number"],
+        > input[type="password"],
+        > input[type="search"],
+        > input[type="tel"],
+        > input[type="text"],
+        > input[type="time"],
+        > input[type="url"],
+        > input[type="week"],
+        > select {
           width: 100%;
           max-height: var(--wb-row-inner-height);
           border: none;
         }
 
-        >input:focus,
-        >select:focus {
+        > input:focus,
+        > select:focus {
           border: 1px dashed $active-border-color;
         }
       }
@@ -660,11 +657,15 @@ div.wunderbaum {
     // content: url(../docs/assets/drop_marker_insert_16x64.png);
     content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAMAAACROYkbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACNUExURe/v9/f39+//7+f35+f/79bW5wgIawwYd97e55Tnpc731rjA2d7350LOY1LWa7Xvvf///wAQcyAze97e773vxgAAAHuczgA5pQBCpdb33rXvxu//9whjxgBaxlKU1oOz5ABz3gB73tbn99bW1rXe/wCM9xiU997v/97e3gCc/xil/9bv/wic/+/3/wAAAParqS4AAAAvdFJOU/////////////////////////////////////////////////////////////8AWqU49wAAAAlwSFlzAAAOwwAADsMBx2+oZAAAALlJREFUOE/FktsSgiAQhglMS8WstKLzQTM77Ps/XguL16I208cFyzB8/LPAYCC/ErARzcCFx23pBgnGfjAxBYhpKDwq3SBB5DeGWCYz0SUDClIkmgeLpV7HMiNDbrbbYbBaWzbaoKTaJiHfQe5oYLA/NBwxTiyVyqTSghYwox4MTmfL5XozgqxjAtODoizv1QPXPXqgKer6WeH9+Iw9XgF5ve15/Q+6/SQSsE+q8yMcocoREgzg3wKAL4vrpBIKREShAAAAAElFTkSuQmCC);
     left: 0; // $icon-outer-width * 1.5;
-    top: calc(($row-outer-height - --wb-icon-height) / 2 - $row-outer-height / 2);
+    top: calc(
+      ($row-outer-height - --wb-icon-height) / 2 - $row-outer-height / 2
+    );
   }
 
   div.wb-row.wb-drop-target.wb-drop-after .wb-node .wb-icon::after {
-    top: calc(($row-outer-height - --wb-icon-height) / 2 + $row-outer-height / 2);
+    top: calc(
+      ($row-outer-height - --wb-icon-height) / 2 + $row-outer-height / 2
+    );
   }
 
   /* --- SPECIAL EFFECTS --- */
@@ -672,7 +673,6 @@ div.wunderbaum {
   /* Colorize indentation levels. */
   &.wb-rainbow {
     @for $i from 1 through length($level-rainbow) {
-
       i.wb-expander:nth-child(#{length($level-rainbow)}n + #{$i}),
       i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
         background: nth($level-rainbow, $i);
@@ -702,7 +702,6 @@ div.wunderbaum {
 
   /* Skeleton */
   div.wb-row.wb-skeleton {
-
     span.wb-title,
     i.wb-icon {
       animation: wb-skeleton-animation 1s linear infinite alternate;
@@ -775,24 +774,23 @@ div.wunderbaum {
 
 /* RTL support */
 .wb-helper-start,
-.wb-helper-start>input {
+.wb-helper-start > input {
   text-align: left;
 }
 
 .wb-helper-end,
-.wb-helper-end>input {
+.wb-helper-end > input {
   text-align: right;
 }
 
 .wb-rtl {
-
   .wb-helper-start,
-  .wb-helper-start>input {
+  .wb-helper-start > input {
     text-align: right;
   }
 
   .wb-helper-end,
-  .wb-helper-end>input {
+  .wb-helper-end > input {
     text-align: left;
   }
 }
@@ -800,7 +798,7 @@ div.wunderbaum {
 i.wb-icon {
   position: relative;
 
-  >span.wb-badge {
+  > span.wb-badge {
     position: absolute;
     display: inline-block;
     top: 0;
