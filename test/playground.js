@@ -10,7 +10,7 @@ const util = Wunderbaum.util;
 //   <option value='1'>O1</option>
 //   <option value='2'>O2</option>
 // </select>`;
-let sequence = 1;
+// let sequence = 1;
 const tree = new Wunderbaum({
   element: "#tree",
   // checkbox: (node) => "radio",
@@ -57,9 +57,8 @@ const tree = new Wunderbaum({
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
     folder: {
-      icon: "bi bi-folder",
-      classes: "extra-book-class",
-      checkbox: "radio",
+      // icon: "bi bi-folder",
+      // checkbox: "radio",
     },
   },
   // source: "generator/ajax_1k_3_54 t_c.json",
@@ -151,34 +150,36 @@ const tree = new Wunderbaum({
     }, 500);
   },
   render: (e) => {
-    // e.node.log(e.type, e, e.node.data);
+    const node = e.node;
+    // node.log(e.type, e, node, e.nodeElem.querySelector("span.wb-title"));
 
+    // e.nodeElem.querySelector( "span.wb-title" ).innerHTML = `<u>${node.title}</u>`;
     for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
         default:
           // Assumption: we named column.id === node.data.NAME
-          util.setValueToElem(col.elem, e.node.data[col.id]);
+          util.setValueToElem(col.elem, node.data[col.id]);
           break;
       }
     }
   },
-  iconBadge: (e) => {
-    const count = e.node.children?.length || 0;
-    const subMatch = e.node.subMatch || 0;
-    if (subMatch > 0) {
-      return { badge: subMatch, badgeTooltip: `${subMatch} matches` };
-    } else if (count > 0 && !e.node.expanded) {
-      if (count > 99) {
-        return { badge: "99+", badgeTooltip: `${count} children` };
-      }
+  // iconBadge: (e) => {
+  //   const count = e.node.children?.length || 0;
+  //   const subMatch = e.node.subMatch || 0;
+  //   if (subMatch > 0) {
+  //     return { badge: subMatch, badgeTooltip: `${subMatch} matches` };
+  //   } else if (count > 0 && !e.node.expanded) {
+  //     if (count > 99) {
+  //       return { badge: "99+", badgeTooltip: `${count} children` };
+  //     }
 
-      // return { badge: count };
-      // return { badge: count, classes: "badge-primary" };
-      // return "" + count;
-      return count;
-      // return `<span class="badge badge-pill badge-primary">${count}</span>`;
-    }
-  },
+  //     // return { badge: count };
+  //     // return { badge: count, classes: "badge-primary" };
+  //     // return "" + count;
+  //     return count;
+  //     // return `<span class="badge badge-pill badge-primary">${count}</span>`;
+  //   }
+  // },
 });
 console.log(`Created  ${tree}`);
 
@@ -191,9 +192,6 @@ tree.ready
   });
 
 // document.body.style.setProperty("--wb-node-text-color", "#ff8080");
-document
-  .querySelector("div.wunderbaum")
-  .style.setProperty("--wb-font-stack", "monospace");
 // document.querySelector("div.wunderbaum").style.setProperty("--wb-font-stack", "monospace");
 
 document.querySelectorAll(".demo-btn").forEach((elem) => {

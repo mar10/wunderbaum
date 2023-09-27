@@ -2091,19 +2091,17 @@ export class Wunderbaum {
       // this.log("_updateViewportImmediately(): scroll only.");
     } else {
       this.log("_updateViewportImmediately():", pending);
-      let height = this.listContainerElement.clientHeight;
-      // We cannot get the height for absolute positioned parent, so look at first col
-      // let headerHeight = this.headerElement.clientHeight
-      // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
-      // const headerHeight = this.options.headerHeightPx;
-      const headerHeight = this.headerElement.clientHeight; // May be 0
-      const wantHeight =
-        this.element.clientHeight - headerHeight - FIX_ADJUST_HEIGHT;
+      if (this.options.adjustHeight !== false) {
+        let height = this.listContainerElement.clientHeight;
+        const headerHeight = this.headerElement.clientHeight; // May be 0
+        const wantHeight =
+          this.element.clientHeight - headerHeight - FIX_ADJUST_HEIGHT;
 
-      if (Math.abs(height - wantHeight) > 1.0) {
-        // this.log("resize", height, wantHeight);
-        this.listContainerElement.style.height = wantHeight + "px";
-        height = wantHeight;
+        if (Math.abs(height - wantHeight) > 1.0) {
+          // this.log("resize", height, wantHeight);
+          this.listContainerElement.style.height = wantHeight + "px";
+          height = wantHeight;
+        }
       }
       // console.profile(`_updateViewportImmediately()`)
 
