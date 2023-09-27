@@ -8,13 +8,13 @@ import { EventCallbackType, onEvent } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { WunderbaumNode } from "./wb_node";
-import { DropRegionType, DropRegionTypeSet } from "./types";
+import { DndOptionsType, DropRegionType, DropRegionTypeSet } from "./types";
 import { ROW_HEIGHT } from "./common";
 import { DebouncedFunction, throttle } from "./debounce";
 
 const nodeMimeType = "application/x-wunderbaum-node";
 
-export class DndExtension extends WunderbaumExtension {
+export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   // public dropMarkerElem?: HTMLElement;
   protected srcNode: WunderbaumNode | null = null;
   protected lastTargetNode: WunderbaumNode | null = null;
@@ -58,7 +58,7 @@ export class DndExtension extends WunderbaumExtension {
       dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
       dragOver: null, // Callback(targetNode, data)
       dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
-      dragDrop: null, // Callback(targetNode, data)
+      drop: null, // Callback(targetNode, data)
       dragLeave: null, // Callback(targetNode, data)
     });
     this.applyScrollDirThrottled = throttle(this.applyScrollDir, 50);

@@ -12,7 +12,7 @@ import { WunderbaumExtension } from "./wb_extension_base";
 
 const QUICKSEARCH_DELAY = 500;
 
-export class KeynavExtension extends WunderbaumExtension {
+export class KeynavExtension extends WunderbaumExtension<any> {
   constructor(tree: Wunderbaum) {
     super(tree, "keynav", {});
   }

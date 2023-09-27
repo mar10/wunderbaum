@@ -8,7 +8,7 @@ import { overrideMethod } from "./util";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { Wunderbaum } from "./wunderbaum";
 
-export class LoggerExtension extends WunderbaumExtension {
+export class LoggerExtension extends WunderbaumExtension<any> {
   readonly prefix: string;
   protected ignoreEvents = new Set<string>([
     "iconBadge",
