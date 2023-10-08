@@ -794,7 +794,7 @@ export type DndOptionsType = {
   //  */
   // dropEffect: "auto";
   /**
-   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
+   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
    * @default "move"
    */
   dropEffectDefault: string;
@@ -873,12 +873,12 @@ export type DndOptionsType = {
    * Callback(sourceNode, data)
    * @default null
    */
-  dragDrag: null;
+  drag: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(sourceNode, data)
    * @default null
    */
-  dragEnd: null;
+  dragEnd: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
@@ -889,12 +889,12 @@ export type DndOptionsType = {
    * Callback(targetNode, data)
    * @default null
    */
-  dragOver: null;
+  dragOver: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
    */
-  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(targetNode, data)
    * @default null
