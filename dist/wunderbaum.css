@@ -210,7 +210,7 @@ div.wunderbaum span.wb-col {
   overflow: hidden;
   height: var(--wb-row-inner-height);
   line-height: var(--wb-row-inner-height);
-  padding: 0 val(--wb-col-padding-x);
+  padding: 0 var(--wb-col-padding-x);
   border-right: 1px solid var(--wb-grid-color);
   white-space: nowrap;
 }
@@ -229,6 +229,11 @@ div.wunderbaum span.wb-node i.wb-indent {
   width: var(--wb-icon-outer-width);
   padding: var(--wb-icon-padding) var(--wb-icon-padding-x);
   display: inline-block;
+}
+div.wunderbaum span.wb-node i.wb-expander,
+div.wunderbaum span.wb-node i.wb-icon {
+  background-repeat: no-repeat;
+  background-size: contain;
 }
 div.wunderbaum span.wb-node i.bi::before {
   vertical-align: baseline;

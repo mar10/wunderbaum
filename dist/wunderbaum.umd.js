@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -762,7 +762,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -826,7 +826,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1181,7 +1181,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1348,7 +1348,6 @@
                           p.setExpanded(true, {
                               noAnimation: true,
                               noEvents: true,
-                              scrollIntoView: false,
                           });
                           p._filterAutoExpanded = true;
                       }
@@ -1379,10 +1378,11 @@
        * [ext-filter] Re-apply current filter.
        */
       updateFilter() {
+          var _a;
           let tree = this.tree;
           if (tree.filterMode &&
               this.lastFilterArgs &&
-              tree.options.filter.autoApply) {
+              ((_a = tree.options.filter) === null || _a === void 0 ? void 0 : _a.autoApply)) {
               this._applyFilterNoUpdate.apply(this, this.lastFilterArgs);
           }
           else {
@@ -1412,15 +1412,14 @@
               delete node.match;
               delete node.subMatchCount;
               delete node.titleWithHighlight;
-              if (node.subMatchBadge) {
-                  node.subMatchBadge.remove();
-                  delete node.subMatchBadge;
-              }
+              // if (node.subMatchBadge) {
+              //   node.subMatchBadge.remove();
+              //   delete node.subMatchBadge;
+              // }
               if (node._filterAutoExpanded && node.expanded) {
                   node.setExpanded(false, {
                       noAnimation: true,
                       noEvents: true,
-                      scrollIntoView: false,
                   });
               }
               delete node._filterAutoExpanded;
@@ -1474,7 +1473,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1814,7 +1813,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1855,7 +1854,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
   /**
@@ -2121,7 +2120,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2142,6 +2141,7 @@
               preventRecursion: true,
               preventSameParent: false,
               preventVoidMoves: true,
+              serializeClipboardData: true,
               scroll: true,
               scrollSensitivity: 20,
               // scrollnterval: 50, // Generste event every 50 ms
@@ -2150,13 +2150,13 @@
               sourceCopyHook: null,
               // Events (drag support)
               dragStart: null,
-              dragDrag: null,
+              drag: null,
               dragEnd: null,
               // Events (drop support)
               dragEnter: null,
               dragOver: null,
               dragExpand: null,
-              dragDrop: null,
+              drop: null,
               dragLeave: null, // Callback(targetNode, data)
           });
           // public dropMarkerElem?: HTMLElement;
@@ -2319,8 +2319,12 @@
                   delete n.key;
               });
               nodeData._treeId = srcNode.tree.id;
-              const json = JSON.stringify(nodeData);
-              e.dataTransfer.setData(nodeMimeType, json);
+              if (dndOpts.serializeClipboardData) {
+                  if (typeof dndOpts.serializeClipboardData === "function")
+                      e.dataTransfer.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData));
+                  else
+                      e.dataTransfer.setData(nodeMimeType, JSON.stringify(nodeData));
+              }
               // e.dataTransfer!.setData("text/html", $(node.span).html());
               e.dataTransfer.setData("text/plain", srcNode.title);
               this.srcNode = srcNode;
@@ -2331,13 +2335,19 @@
               }, 0);
               // --- drag ---
           }
-          else if (e.type === "drag") ;
+          else if (e.type === "drag") {
+              if (dndOpts.drag)
+                  srcNode._callEvent("dnd.drag", { event: e });
+              // --- dragend ---
+          }
           else if (e.type === "dragend") {
               srcNode.setClass("wb-drag-source", false);
               this.srcNode = null;
               if (this.lastTargetNode) {
                   this._leaveNode();
               }
+              if (dndOpts.dragEnd)
+                  srcNode._callEvent("dnd.dragEnd", { event: e });
           }
           return true;
       }
@@ -2412,6 +2422,8 @@
           else if (e.type === "dragover") {
               const viewportY = e.clientY - this.tree.element.offsetTop;
               this.autoScroll(viewportY);
+              if (dndOpts.dragOver)
+                  targetNode._callEvent("dnd.dragOver", { event: e });
               const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
               this.lastDropRegion = region;
               if (dndOpts.autoExpandMS > 0 &&
@@ -2433,7 +2445,13 @@
               return false;
               // --- dragleave ---
           }
-          else if (e.type === "dragleave") ;
+          else if (e.type === "dragleave") {
+              // NOTE: we cannot trust this event, since it is always fired,
+              // Instead we remove the marker on dragenter
+              if (dndOpts.dragLeave)
+                  targetNode._callEvent("dnd.dragLeave", { event: e });
+              // --- drop ---
+          }
           else if (e.type === "drop") {
               e.stopPropagation(); // prevent browser from opening links?
               this._leaveNode();
@@ -2451,7 +2469,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2587,7 +2605,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2624,7 +2642,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2677,7 +2695,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /** WunderbaumNode properties that can be passed with source data.
    * (Any other source properties will be stored as `node.data.PROP`.)
@@ -2982,7 +3000,7 @@
       async expandAll(flag = true, options) {
           const tree = this.tree;
           const minExpandLevel = this.tree.options.minExpandLevel;
-          let { depth = 99, loadLazy, force } = options !== null && options !== void 0 ? options : {};
+          let { depth = 99, loadLazy, force, keepActiveNodeVisible = true, } = options !== null && options !== void 0 ? options : {};
           const expandOpts = {
               scrollIntoView: false,
               force: force,
@@ -3042,6 +3060,9 @@
           finally {
               tree.enableUpdate(true);
               tree.logTimeEnd(tag);
+          }
+          if (tree.activeNode && keepActiveNodeVisible) {
+              tree.activeNode.scrollIntoView();
           }
       }
       /**
@@ -3387,7 +3408,7 @@
       }
       /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
       isRadio() {
-          return this.checkbox === "radio" || !!this.parent.radiogroup;
+          return !!this.parent.radiogroup || this.getOption("checkbox") === "radio";
       }
       /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
       isRendered() {
@@ -3482,7 +3503,7 @@
           for (const [key, value] of Object.entries(source)) {
               if (!RESERVED_TREE_SOURCE_KEYS.has(key)) {
                   tree.data[key] = value;
-                  tree.logDebug(`Add source.${key} to tree.data.${key}`);
+                  // tree.logDebug(`Add source.${key} to tree.data.${key}`);
               }
           }
           if (tree.options.selectMode === "hier") {
@@ -3670,7 +3691,6 @@
        */
       async makeVisible(options) {
           let i, dfd = new Deferred(), deferreds = [], parents = this.getParentList(false, false), len = parents.length, noAnimation = getOption(options, "noAnimation", false), scroll = getOption(options, "scrollIntoView", true);
-          // scroll = !(options && options.scrollIntoView === false);
           // Expand bottom-up, so only the top node is animated
           for (i = len - 1; i >= 0; i--) {
               // self.debug("pushexpand" + parents[i]);
@@ -3943,7 +3963,7 @@
           }
           else if (TEST_IMG.test(icon)) {
               // Image URL
-              iconSpan = elemFromHtml(`<img src="${icon}" class="wb-icon">`);
+              iconSpan = elemFromHtml(`<i class="wb-icon" style="background-image: url('${icon}');">`);
           }
           else {
               // Class name
@@ -3991,7 +4011,6 @@
           const tree = this.tree;
           const treeOptions = tree.options;
           const checkbox = this.getOption("checkbox");
-          // const checkbox = this.getOption("checkbox") !== false;
           const columns = tree.columns;
           const level = this.getLevel();
           let elem;
@@ -4206,27 +4225,31 @@
               rowDiv.classList.add(...typeInfo.classes);
           }
           if (expanderSpan) {
+              let image = null;
               if (this._isLoading) {
-                  expanderSpan.className = "wb-expander " + iconMap.loading;
+                  image = iconMap.loading;
               }
               else if (this.isExpandable(false)) {
                   if (this.expanded) {
-                      expanderSpan.className = "wb-expander " + iconMap.expanderExpanded;
+                      image = iconMap.expanderExpanded;
                   }
                   else {
-                      expanderSpan.className = "wb-expander " + iconMap.expanderCollapsed;
+                      image = iconMap.expanderCollapsed;
                   }
               }
               else if (this.lazy && this.children == null) {
-                  expanderSpan.className = "wb-expander " + iconMap.expanderLazy;
+                  image = iconMap.expanderLazy;
               }
-              else {
+              if (image == null)
                   expanderSpan.classList.add("wb-indent");
-              }
+              else if (TEST_IMG.test(image))
+                  expanderSpan.style.backgroundImage = `url('${image}')`;
+              else
+                  expanderSpan.className = "wb-expander " + image;
           }
           if (checkboxSpan) {
               let cbclass = "wb-checkbox ";
-              if (this.parent.radiogroup) {
+              if (this.isRadio()) {
                   cbclass += "wb-radio ";
                   if (this.selected) {
                       cbclass += iconMap.radioChecked;
@@ -4515,7 +4538,7 @@
           const updateOpts = { immediate: immediate };
           // const updateOpts = { immediate: !!util.getOption(options, "immediate") };
           this.tree.update(ChangeType.structure, updateOpts);
-          if (flag && scrollIntoView !== false) {
+          if (flag && scrollIntoView) {
               const lastChild = this.getLastChild();
               if (lastChild) {
                   this.tree.updatePendingModifications();
@@ -4988,7 +5011,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.1, Sat, 16 Sep 2023 19:08:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -5284,8 +5307,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.5.1
-   * @date Sat, 16 Sep 2023 19:08:55 GMT
+   * @version v0.5.2
+   * @date Mon, 09 Oct 2023 18:32:56 GMT
    */
   // import "./wunderbaum.scss";
   class WbSystemRoot extends WunderbaumNode {
@@ -5571,7 +5594,9 @@
                       node.setActive(true, { event: e });
                   }
                   if (info.region === NodeRegion.expander) {
-                      node.setExpanded(!node.isExpanded());
+                      node.setExpanded(!node.isExpanded(), {
+                          scrollIntoView: options.scrollIntoViewOnExpandClick !== false,
+                      });
                   }
                   else if (info.region === NodeRegion.checkbox) {
                       node.toggleSelected();
@@ -7033,17 +7058,15 @@
           }
           else {
               this.log("_updateViewportImmediately():", pending);
-              let height = this.listContainerElement.clientHeight;
-              // We cannot get the height for absolute positioned parent, so look at first col
-              // let headerHeight = this.headerElement.clientHeight
-              // let headerHeight = this.headerElement.children[0].children[0].clientHeight;
-              // const headerHeight = this.options.headerHeightPx;
-              const headerHeight = this.headerElement.clientHeight; // May be 0
-              const wantHeight = this.element.clientHeight - headerHeight - FIX_ADJUST_HEIGHT;
-              if (Math.abs(height - wantHeight) > 1.0) {
-                  // this.log("resize", height, wantHeight);
-                  this.listContainerElement.style.height = wantHeight + "px";
-                  height = wantHeight;
+              if (this.options.adjustHeight !== false) {
+                  let height = this.listContainerElement.clientHeight;
+                  const headerHeight = this.headerElement.clientHeight; // May be 0
+                  const wantHeight = this.element.clientHeight - headerHeight - FIX_ADJUST_HEIGHT;
+                  if (Math.abs(height - wantHeight) > 1.0) {
+                      // this.log("resize", height, wantHeight);
+                      this.listContainerElement.style.height = wantHeight + "px";
+                      height = wantHeight;
+                  }
               }
               // console.profile(`_updateViewportImmediately()`)
               if (pending.has(RF.clearMarkup)) {
@@ -7419,7 +7442,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.5.1"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.5.2"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 

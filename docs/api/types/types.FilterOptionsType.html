@@ -1,4 +1,4 @@
-<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>ApplyCommandType | wunderbaum - v0.5.2</title><meta name="description" content="Documentation for wunderbaum"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="tsd-search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
+<!DOCTYPE html><html class="default" lang="en"><head><meta charSet="utf-8"/><meta http-equiv="x-ua-compatible" content="IE=edge"/><title>FilterOptionsType | wunderbaum - v0.5.2</title><meta name="description" content="Documentation for wunderbaum"/><meta name="viewport" content="width=device-width, initial-scale=1"/><link rel="stylesheet" href="../assets/style.css"/><link rel="stylesheet" href="../assets/highlight.css"/><script defer src="../assets/main.js"></script><script async src="../assets/search.js" id="tsd-search-script"></script></head><body><script>document.documentElement.dataset.theme = localStorage.getItem("tsd-theme") || "os"</script><header class="tsd-page-toolbar">
 <div class="tsd-toolbar-contents container">
 <div class="table-cell" id="tsd-search" data-base="..">
 <div class="field"><label for="tsd-search-field" class="tsd-widget tsd-toolbar-icon search no-caption"><svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M15.7824 13.833L12.6666 10.7177C12.5259 10.5771 12.3353 10.499 12.1353 10.499H11.6259C12.4884 9.39596 13.001 8.00859 13.001 6.49937C13.001 2.90909 10.0914 0 6.50048 0C2.90959 0 0 2.90909 0 6.49937C0 10.0896 2.90959 12.9987 6.50048 12.9987C8.00996 12.9987 9.39756 12.4863 10.5008 11.6239V12.1332C10.5008 12.3332 10.5789 12.5238 10.7195 12.6644L13.8354 15.7797C14.1292 16.0734 14.6042 16.0734 14.8948 15.7797L15.7793 14.8954C16.0731 14.6017 16.0731 14.1267 15.7824 13.833ZM6.50048 10.499C4.29094 10.499 2.50018 8.71165 2.50018 6.49937C2.50018 4.29021 4.28781 2.49976 6.50048 2.49976C8.71001 2.49976 10.5008 4.28708 10.5008 6.49937C10.5008 8.70852 8.71314 10.499 6.50048 10.499Z" fill="var(--color-text)"></path></svg></label><input type="text" id="tsd-search-field" aria-label="Search"/></div>
@@ -14,11 +14,91 @@
 <ul class="tsd-breadcrumb">
 <li><a href="../index.html">wunderbaum</a></li>
 <li><a href="../modules/types.html">types</a></li>
-<li><a href="types.ApplyCommandType.html">ApplyCommandType</a></li></ul>
-<h1>Type alias ApplyCommandType</h1></div>
-<div class="tsd-signature"><span class="tsd-kind-type-alias">Apply<wbr/>Command<wbr/>Type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">&quot;addChild&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;addSibling&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;copy&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;cut&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;down&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;first&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;indent&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;last&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;left&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;moveDown&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;moveUp&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;outdent&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;pageDown&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;pageUp&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;parent&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;paste&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;remove&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;rename&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;right&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;up&quot;</span></div><aside class="tsd-sources">
+<li><a href="types.FilterOptionsType.html">FilterOptionsType</a></li></ul>
+<h1>Type alias FilterOptionsType</h1></div>
+<div class="tsd-signature"><span class="tsd-kind-type-alias">Filter<wbr/>Options<wbr/>Type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span><span class="tsd-kind-property">autoApply</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">autoExpand</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">connectInput</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Element</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">counter</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">fuzzy</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">hideExpandedCounter</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">hideExpanders</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">highlight</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">leavesOnly</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">mode</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;dim&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;hide&quot;</span><span class="tsd-signature-symbol">; </span><br/><span>    </span><span class="tsd-kind-property">noData</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></div>
+<div class="tsd-type-declaration">
+<h4>Type declaration</h4>
+<ul class="tsd-parameters">
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">auto<wbr/>Apply</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Re-apply last filter if lazy data is loaded</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">true</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">auto<wbr/>Expand</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Expand all branches that contain matches while filtered</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">false</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">connect<wbr/>Input</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">null</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type ">Element</span></h5>
+<div class="tsd-comment tsd-typography"><p>Element or selector of an input control for filter query strings</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">null</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">counter</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Show a badge with number of matching child nodes near parent icons</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">true</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">fuzzy</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Match single characters in order, e.g. &#39;fb&#39; will match &#39;FooBar&#39;</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">false</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">hide<wbr/>Expanded<wbr/>Counter</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Hide counter badge if parent is expanded</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">true</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">hide<wbr/>Expanders</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Hide expanders if all child nodes are hidden by filter</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">false</span><span class="hl-1">;</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">highlight</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Highlight matches by wrapping inside <mark> tags</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">true</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">leaves<wbr/>Only</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Match end nodes only</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">false</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">mode</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">&quot;dim&quot;</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">&quot;hide&quot;</span></h5>
+<div class="tsd-comment tsd-typography"><p>Grayout unmatched nodes (pass &quot;hide&quot; to remove unmatched node instead)</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-7">&#39;dim&#39;</span>
+</code><button>Copy</button></pre>
+</div></li>
+<li class="tsd-parameter">
+<h5><code class="tsd-tag ts-flagOptional">Optional</code> <span class="tsd-kind-property">no<wbr/>Data</span><span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">boolean</span></h5>
+<div class="tsd-comment tsd-typography"><p>Display a &#39;no data&#39; status node if result is empty</p>
+
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-0">true</span>
+</code><button>Copy</button></pre>
+</div></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c71d05/src/types.ts#L358">types.ts:358</a></li></ul></aside></div>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c71d05/src/types.ts#L618">types.ts:618</a></li></ul></aside></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -100,7 +180,7 @@
 <li><a href="../interfaces/types.WbReceiveEventType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Wb<wbr/>Receive<wbr/>Event<wbr/>Type</span></a></li>
 <li><a href="../interfaces/types.WbRenderEventType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Wb<wbr/>Render<wbr/>Event<wbr/>Type</span></a></li>
 <li><a href="../interfaces/types.WbTreeEventType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-256-path"></use><use href="#icon-256-text"></use></svg><span>Wb<wbr/>Tree<wbr/>Event<wbr/>Type</span></a></li>
-<li><a href="types.ApplyCommandType.html" class="current"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-type-alias)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg><span>Apply<wbr/>Command<wbr/>Type</span></a></li>
+<li><a href="types.ApplyCommandType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><rect fill="var(--color-icon-background)" stroke="var(--color-ts-type-alias)" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="6" id="icon-4194304-path"></rect><path d="M11.31 16V8.224H8.91V7.24H14.79V8.224H12.39V16H11.31Z" fill="var(--color-text)" id="icon-4194304-text"></path></svg><span>Apply<wbr/>Command<wbr/>Type</span></a></li>
 <li><a href="types.BoolOptionResolver.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Bool<wbr/>Option<wbr/>Resolver</span></a></li>
 <li><a href="types.BoolOrStringOptionResolver.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Bool<wbr/>Or<wbr/>String<wbr/>Option<wbr/>Resolver</span></a></li>
 <li><a href="types.CheckboxOption.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Checkbox<wbr/>Option</span></a></li>
@@ -116,7 +196,7 @@
 <li><a href="types.DynamicStringOption.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Dynamic<wbr/>String<wbr/>Option</span></a></li>
 <li><a href="types.EditOptionsType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Edit<wbr/>Options<wbr/>Type</span></a></li>
 <li><a href="types.FilterModeType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Filter<wbr/>Mode<wbr/>Type</span></a></li>
-<li><a href="types.FilterOptionsType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Filter<wbr/>Options<wbr/>Type</span></a></li>
+<li><a href="types.FilterOptionsType.html" class="current"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Filter<wbr/>Options<wbr/>Type</span></a></li>
 <li><a href="types.GridOptionsType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Grid<wbr/>Options<wbr/>Type</span></a></li>
 <li><a href="types.IconOption.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Icon<wbr/>Option</span></a></li>
 <li><a href="types.InsertNodeType.html"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-4194304-path"></use><use href="#icon-4194304-text"></use></svg><span>Insert<wbr/>Node<wbr/>Type</span></a></li>
