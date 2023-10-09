@@ -125,7 +125,7 @@ export class KeynavExtension extends WunderbaumExtension<any> {
         }
         tree.lastQuicksearchTime = stamp;
         tree.lastQuicksearchTerm += eventName;
-        let matchNode = tree.findNextNode(
+        const matchNode = tree.findNextNode(
           tree.lastQuicksearchTerm,
           tree.getActiveNode()
         );

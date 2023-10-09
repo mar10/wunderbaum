@@ -101,7 +101,7 @@
   "scripts": {
     "test": "npm run lint && npm run build:js && grunt ci --verbose",
     "docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
-    "format": "prettier src -w && eslint src --fix && npm run lint",
+    "format": "eslint src --fix && prettier src -w && npm run lint",
     "lint": "prettier src --check && eslint src && tsc -t esnext --noEmit",
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"base='build',url='wunderbaum.umd.min.js.map',filename='wunderbaum.umd.js'\" --output build/wunderbaum.umd.min.js",
     "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"base='build',url='wunderbaum.esm.min.js.map',filename='wunderbaum.esm.js'\" --output build/wunderbaum.esm.min.js",

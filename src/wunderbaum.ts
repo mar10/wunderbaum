@@ -166,7 +166,7 @@ export class Wunderbaum {
   protected lastClickTime = 0;
 
   constructor(options: WunderbaumOptions) {
-    let opts = (this.options = util.extend(
+    const opts = (this.options = util.extend(
       {
         id: null,
         source: null, // URL for GET/PUT, Ajax options, or callback
@@ -524,7 +524,7 @@ export class Wunderbaum {
       el = document.querySelectorAll(".wunderbaum")[el]; // el was an integer: return nth element
     } else if (typeof el === "string") {
       // Search all trees for matching ID
-      for (let treeElem of document.querySelectorAll(".wunderbaum")) {
+      for (const treeElem of document.querySelectorAll(".wunderbaum")) {
         const tree = (<any>treeElem)._wb_tree;
         if (tree && tree.id === el) {
           return tree;
@@ -606,7 +606,7 @@ export class Wunderbaum {
 
   /** Called on tree (re)init after markup is created, before loading. */
   protected _initExtensions(): void {
-    for (let ext of this.extensionList) {
+    for (const ext of this.extensionList) {
       ext.init();
     }
   }
@@ -619,9 +619,9 @@ export class Wunderbaum {
       `Missing or duplicate key: '${key}'.`
     );
     this.keyMap.set(key, node);
-    let rk = node.refKey;
+    const rk = node.refKey;
     if (rk) {
-      let rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
+      const rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
       if (rks) {
         rks.add(node);
       } else {
@@ -654,13 +654,13 @@ export class Wunderbaum {
     data: any = {}
   ): any {
     let res;
-    let d = util.extend(
+    const d = util.extend(
       {},
       { tree: this, options: this.options, result: undefined },
       data
     );
 
-    for (let ext of this.extensionList) {
+    for (const ext of this.extensionList) {
       res = (<any>ext[hook]).call(ext, d);
       if (res === false) {
         break;
@@ -1194,7 +1194,7 @@ export class Wunderbaum {
     let res: WunderbaumNode | null = null,
       firstNode = this.getFirstChild()!;
 
-    let matcher =
+    const matcher =
       typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
     startNode = startNode || firstNode;
 
@@ -1392,7 +1392,7 @@ export class Wunderbaum {
    *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
    */
   static getEventInfo(event: Event): WbEventInfo {
-    let target = <Element>event.target,
+    const target = <Element>event.target,
       cl = target.classList,
       parentCol = target.closest("span.wb-col") as HTMLSpanElement,
       node = Wunderbaum.getNode(target),
@@ -1465,7 +1465,7 @@ export class Wunderbaum {
    * Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
    */
   isLoading(): boolean {
-    var res = false;
+    let res = false;
 
     this.root.visit((n) => {
       // also visit rootNode
@@ -1630,9 +1630,9 @@ export class Wunderbaum {
 
     // Update `wb-active` class for all headers
     if (this.hasHeader()) {
-      for (let rowDiv of this.headerElement.children) {
+      for (const rowDiv of this.headerElement.children) {
         let i = 0;
-        for (let colDiv of rowDiv.children) {
+        for (const colDiv of rowDiv.children) {
           (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
         }
       }
@@ -1641,9 +1641,9 @@ export class Wunderbaum {
     this.activeNode?.update(ChangeType.status);
 
     // Update `wb-active` class for all cell spans
-    for (let rowDiv of this.nodeListElement.children) {
+    for (const rowDiv of this.nodeListElement.children) {
       let i = 0;
-      for (let colDiv of rowDiv.children) {
+      for (const colDiv of rowDiv.children) {
         (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
       }
     }
@@ -1857,7 +1857,7 @@ export class Wunderbaum {
       util.extend(this.types, types);
     }
     // Convert `TYPE.classes` to a Set
-    for (let t of Object.values(this.types) as any) {
+    for (const t of Object.values(this.types) as any) {
       if (t.classes) {
         t.classes = util.toSet(t.classes);
       }
@@ -1920,9 +1920,9 @@ export class Wunderbaum {
     }
     // Gather width definitions
     this._columnsById = {};
-    for (let col of columns) {
+    for (const col of columns) {
       this._columnsById[<string>col.id] = col;
-      let cw = col.width;
+      const cw = col.width;
       if (col.id === "*" && col !== col0) {
         throw new Error(
           `Column id '*' must be defined only once: '${col.title}'.`
@@ -1937,7 +1937,7 @@ export class Wunderbaum {
         totalWeight += cw;
       } else if (typeof cw === "string" && cw.endsWith("px")) {
         col._weight = 0;
-        let px = parseFloat(cw.slice(0, -2));
+        const px = parseFloat(cw.slice(0, -2));
         if (col._widthPx != px) {
           modified = true;
           col._widthPx = px;
@@ -1953,7 +1953,7 @@ export class Wunderbaum {
     const restPx = Math.max(0, vpWidth - fixedWidth);
     let ofsPx = 0;
 
-    for (let col of columns) {
+    for (const col of columns) {
       let minWidth: number;
 
       if (col._weight) {

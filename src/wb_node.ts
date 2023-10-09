@@ -283,7 +283,7 @@ export class WunderbaumNode {
       }
       const forceExpand =
         applyMinExpanLevel && _level < tree.options.minExpandLevel!;
-      for (let child of <WbNodeData[]>nodeData) {
+      for (const child of <WbNodeData[]>nodeData) {
         const subChildren = child.children;
         delete child.children;
 
@@ -304,7 +304,7 @@ export class WunderbaumNode {
       } else {
         // Returns null if before is not a direct child:
         before = this.findDirectChild(before)!;
-        let pos = this.children.indexOf(before);
+        const pos = this.children.indexOf(before);
         util.assert(
           pos >= 0,
           `options.before must be a direct child of ${this}`
@@ -378,7 +378,7 @@ export class WunderbaumNode {
    * (Automatically called when `autoCollapse` is true.)
    */
   collapseSiblings(options?: SetExpandedOptions): any {
-    for (let node of this.parent.children!) {
+    for (const node of this.parent.children!) {
       if (node !== this && node.expanded) {
         node.setExpanded(false, options);
       }
@@ -424,7 +424,7 @@ export class WunderbaumNode {
   async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
     const tree = this.tree;
     const minExpandLevel = this.tree.options.minExpandLevel;
-    let {
+    const {
       depth = 99,
       loadLazy,
       force,
@@ -534,9 +534,11 @@ export class WunderbaumNode {
   findDirectChild(
     ptr: number | string | WunderbaumNode
   ): WunderbaumNode | null {
-    let cl = this.children;
+    const cl = this.children;
 
-    if (!cl) return null;
+    if (!cl) {
+      return null;
+    }
     if (typeof ptr === "string") {
       for (let i = 0, l = cl.length; i < l; i++) {
         if (cl[i].key === ptr) {
@@ -607,7 +609,7 @@ export class WunderbaumNode {
     };
 
     yield name_cb(this);
-    for (let node of this) {
+    for (const node of this) {
       yield _format_line(node);
     }
   }
@@ -630,7 +632,7 @@ export class WunderbaumNode {
    */
   format(name_cb?: NodeStringCallback, connectors?: string[]): string {
     const a = [];
-    for (let line of this.format_iter(name_cb, connectors)) {
+    for (const line of this.format_iter(name_cb, connectors)) {
       a.push(line);
     }
     return a.join("\n");
@@ -675,8 +677,8 @@ export class WunderbaumNode {
 
   /** Return the successive node (under the same parent) or null. */
   getNextSibling(): WunderbaumNode | null {
-    let ac = this.parent.children!;
-    let idx = ac.indexOf(this);
+    const ac = this.parent.children!;
+    const idx = ac.indexOf(this);
     return ac[idx + 1] || null;
   }
 
@@ -733,8 +735,8 @@ export class WunderbaumNode {
 
   /** Return the preceeding node (under the same parent) or null. */
   getPrevSibling(): WunderbaumNode | null {
-    let ac = this.parent.children!;
-    let idx = ac.indexOf(this);
+    const ac = this.parent.children!;
+    const idx = ac.indexOf(this);
     return ac[idx - 1] || null;
   }
 
@@ -796,7 +798,7 @@ export class WunderbaumNode {
     if (!other || other.tree !== this.tree) {
       return false;
     }
-    var p = this.parent;
+    let p = this.parent;
     while (p) {
       if (p === other) {
         return true;
@@ -839,13 +841,13 @@ export class WunderbaumNode {
 
   /** Return true if this node is the first node of its parent's children. */
   isFirstSibling(): boolean {
-    var p = this.parent;
+    const p = this.parent;
     return !p || p.children![0] === this;
   }
 
   /** Return true if this node is the last node of its parent's children. */
   isLastSibling(): boolean {
-    var p = this.parent;
+    const p = this.parent;
     return !p || p.children![p.children!.length - 1] === this;
   }
 
@@ -1085,7 +1087,8 @@ export class WunderbaumNode {
     // const timerLabel = tree.logTime(this + ".load()");
 
     try {
-      let url: string = typeof source === "string" ? source : (<any>source).url;
+      const url: string =
+        typeof source === "string" ? source : (<any>source).url;
       if (!url) {
         // An array or a plain object (that does NOT contain a `.url` property)
         // will be treated as native Wunderbaum data
@@ -1460,7 +1463,7 @@ export class WunderbaumNode {
       : null;
 
     let idx = 0;
-    for (let col of this.tree.columns) {
+    for (const col of this.tree.columns) {
       allColInfosById[col.id] = {
         id: col.id,
         idx: idx,
@@ -1537,7 +1540,7 @@ export class WunderbaumNode {
 
     // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
 
-    let cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
+    const cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
     let badge = null;
     if (cbRes != null && cbRes !== false) {
       let classes = "";
@@ -1661,7 +1664,7 @@ export class WunderbaumNode {
 
     if (!isColspan && columns.length > 1) {
       let colIdx = 0;
-      for (let col of columns) {
+      for (const col of columns) {
         colIdx++;
 
         let colElem;
@@ -1741,7 +1744,7 @@ export class WunderbaumNode {
     // Set the width of the title span, so overflow ellipsis work
     if (!treeOptions.skeleton) {
       if (isColspan) {
-        let vpWidth = tree.element.clientWidth;
+        const vpWidth = tree.element.clientWidth;
         titleSpan.style.width =
           vpWidth - (<any>nodeElem)._ofsTitlePx - TITLE_SPAN_PAD_Y + "px";
       } else {
@@ -1799,7 +1802,7 @@ export class WunderbaumNode {
       "i.wb-checkbox"
     ) as HTMLLIElement;
 
-    let rowClasses = ["wb-row"];
+    const rowClasses = ["wb-row"];
     this.expanded ? rowClasses.push("wb-expanded") : 0;
     this.lazy ? rowClasses.push("wb-lazy") : 0;
     this.selected ? rowClasses.push("wb-selected") : 0;
@@ -1842,10 +1845,13 @@ export class WunderbaumNode {
         image = iconMap.expanderLazy;
       }
 
-      if (image == null) expanderSpan.classList.add("wb-indent");
-      else if (TEST_IMG.test(image))
+      if (image == null) {
+        expanderSpan.classList.add("wb-indent");
+      } else if (TEST_IMG.test(image)) {
         expanderSpan.style.backgroundImage = `url('${image}')`;
-      else expanderSpan.className = "wb-expander " + image;
+      } else {
+        expanderSpan.className = "wb-expander " + image;
+      }
     }
     if (checkboxSpan) {
       let cbclass = "wb-checkbox ";
@@ -1872,7 +1878,7 @@ export class WunderbaumNode {
     // Fix active cell in cell-nav mode
     if (!opts.isNew) {
       let i = 0;
-      for (let colSpan of rowDiv.children) {
+      for (const colSpan of rowDiv.children) {
         colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
       }
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
@@ -1886,7 +1892,7 @@ export class WunderbaumNode {
       const colElems = rowDiv.querySelectorAll("span.wb-col");
       let idx = 0;
       let ofs = 0;
-      for (let colDef of this.tree.columns) {
+      for (const colDef of this.tree.columns) {
         const colElem = colElems[idx] as HTMLSpanElement;
         colElem.style.left = `${ofs}px`;
         colElem.style.width = `${colDef._widthPx}px`;
@@ -2020,18 +2026,18 @@ export class WunderbaumNode {
    * {@link Wunderbaum.getOption|Wunderbaum.getOption()}
    */
   getOption(name: string, defaultValue?: any) {
-    let tree = this.tree;
+    const tree = this.tree;
     let opts: any = tree.options;
 
     // Lookup `name` in options dict
     if (name.indexOf(".") >= 0) {
       [opts, name] = name.split(".");
     }
-    let value = opts[name]; // ?? defaultValue;
+    const value = opts[name]; // ?? defaultValue;
 
     // A callback resolver always takes precedence
     if (typeof value === "function") {
-      let res = value.call(tree, {
+      const res = value.call(tree, {
         type: "resolve",
         tree: tree,
         node: this,
@@ -2046,8 +2052,8 @@ export class WunderbaumNode {
       return (<any>this)[name];
     }
     // Use value from type definition if defined
-    let typeInfo = this.type ? tree.types[this.type] : undefined;
-    let res = typeInfo ? typeInfo[name] : undefined;
+    const typeInfo = this.type ? tree.types[this.type] : undefined;
+    const res = typeInfo ? typeInfo[name] : undefined;
     if (res !== undefined) {
       return res;
     }
@@ -2101,8 +2107,12 @@ export class WunderbaumNode {
     if (prev !== this) {
       if (flag) {
         tree.activeNode = this;
-        if (focusNode || focusTree) tree.focusNode = this;
-        if (focusTree) tree.setFocus();
+        if (focusNode || focusTree) {
+          tree.focusNode = this;
+        }
+        if (focusTree) {
+          tree.setFocus();
+        }
       }
       prev?.update(ChangeType.status);
       this.update(ChangeType.status);
@@ -2209,7 +2219,7 @@ export class WunderbaumNode {
    * @param stopOnParents only return the topmost selected node (useful with selectMode 'hier')
    */
   getSelectedNodes(stopOnParents: boolean = false): WunderbaumNode[] {
-    let nodeList: WunderbaumNode[] = [];
+    const nodeList: WunderbaumNode[] = [];
     this.visit((node) => {
       if (node.selected) {
         nodeList.push(node);
@@ -2282,7 +2292,7 @@ export class WunderbaumNode {
    */
   fixSelection3AfterClick(opts?: SetSelectedOptions): void {
     const force = !!opts?.force;
-    let flag = this.isSelected();
+    const flag = this.isSelected();
 
     this.visit((node) => {
       if (node.radiogroup) {
@@ -2414,7 +2424,7 @@ export class WunderbaumNode {
         if (!flag && !options?.force) {
           return prev; // don't uncheck radio buttons
         }
-        for (let sibling of this.parent.children!) {
+        for (const sibling of this.parent.children!) {
           sibling.selected = sibling === this;
         }
       } else {
@@ -2448,7 +2458,7 @@ export class WunderbaumNode {
 
     const _clearStatusNode = () => {
       // Remove dedicated dummy node, if any
-      let children = this.children;
+      const children = this.children;
 
       if (children && children.length && children[0].isStatusNode()) {
         children[0].remove();
@@ -2459,8 +2469,8 @@ export class WunderbaumNode {
       // Create/modify the dedicated dummy node for 'loading...' or
       // 'error!' status. (only called for direct child of the invisible
       // system root)
-      let children = this.children;
-      let firstChild = children ? children[0] : null;
+      const children = this.children;
+      const firstChild = children ? children[0] : null;
 
       util.assert(data.statusNodeType);
       util.assert(!firstChild || !firstChild.isStatusNode());
@@ -2578,7 +2588,9 @@ export class WunderbaumNode {
     extra?: any
   ) {
     this.logDebug(`modifyChild(${operation})`, extra, child);
-    if (!this.tree.options.modifyChild) return;
+    if (!this.tree.options.modifyChild) {
+      return;
+    }
     if (child && child.parent !== this) {
       util.error("child " + child + " is not a child of " + this);
     }

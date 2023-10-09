@@ -193,7 +193,7 @@ function unflattenSource(source: any): void {
     );
   }
   // Inverse keyMap:
-  let longToShort: any = {};
+  const longToShort: any = {};
   if (_keyMap) {
     for (const [key, value] of Object.entries(_keyMap)) {
       longToShort[<string>value] = key;
@@ -277,7 +277,7 @@ export function inflateSourceData(source: any): void {
   delete source._positional;
 
   function _iter(childList: any[]) {
-    for (let node of childList) {
+    for (const node of childList) {
       // Expand short alias names
       if (_keyMap) {
         // Iterate over a list of names, because we modify inside the loop:

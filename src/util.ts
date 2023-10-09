@@ -147,7 +147,7 @@ export function each(
       }
     }
   } else {
-    for (let k in obj) {
+    for (const k in obj) {
       if (callback.call(obj[i], k, obj[k]) === false) {
         break;
       }
@@ -438,7 +438,7 @@ export function eventTargetFromSelector(
  * ```
  */
 export function eventToString(event: Event): string {
-  let key = (<KeyboardEvent>event).key,
+  const key = (<KeyboardEvent>event).key,
     et = event.type,
     s = [];
 
@@ -479,11 +479,11 @@ export function eventToString(event: Event): string {
 // TODO: support deep merge --> https://stackoverflow.com/a/42740894
 export function extend(...args: any[]) {
   for (let i = 1; i < args.length; i++) {
-    let arg = args[i];
+    const arg = args[i];
     if (arg == null) {
       continue;
     }
-    for (let key in arg) {
+    for (const key in arg) {
       if (Object.prototype.hasOwnProperty.call(arg, key)) {
         args[0][key] = arg[key];
       }
@@ -615,7 +615,7 @@ export function overrideMethod(
       return prevFunc.apply(self, argsArray);
     };
 
-  let wrapper = (...args: any[]) => {
+  const wrapper = (...args: any[]) => {
     try {
       prevSuper = self._super;
       prevSuperApply = self._superApply;
@@ -717,7 +717,7 @@ export function getOption(
     [ext, name] = name.split(".");
     opts = opts[ext];
   }
-  let value = opts ? opts[name] : null;
+  const value = opts ? opts[name] : null;
   // Use value from value options dict, fallback do default
   return value ?? defaultValue;
 }
@@ -728,7 +728,7 @@ export function toSet(val: any): Set<string> {
     return val;
   }
   if (typeof val === "string") {
-    let set = new Set<string>();
+    const set = new Set<string>();
     for (const c of val.split(" ")) {
       set.add(c.trim());
     }

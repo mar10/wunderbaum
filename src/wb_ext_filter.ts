@@ -128,16 +128,16 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       } else {
         match = escapeRegex(filter); // make sure a '.' is treated literally
       }
-      let re = new RegExp(match, "i");
-      let reHighlight = new RegExp(escapeRegex(filter), "gi");
+      const re = new RegExp(match, "i");
+      const reHighlight = new RegExp(escapeRegex(filter), "gi");
       filter = (node: WunderbaumNode) => {
         if (!node.title) {
           return false;
         }
         // let text = escapeTitles ? node.title : extractHtmlText(node.title);
-        let text = node.title;
+        const text = node.title;
         // `.match` instead of `.test` to get the capture groups
-        let res = text.match(re);
+        const res = text.match(re);
 
         if (res && opts.highlight) {
           // if (escapeTitles) {
@@ -268,7 +268,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
    * [ext-filter] Re-apply current filter.
    */
   updateFilter() {
-    let tree = this.tree;
+    const tree = this.tree;
     if (
       tree.filterMode &&
       this.lastFilterArgs &&
@@ -284,7 +284,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
    * [ext-filter] Reset the filter.
    */
   clearFilter() {
-    let tree = this.tree;
+    const tree = this.tree;
     // statusNode = tree.root.findDirectChild(KEY_NODATA),
     // escapeTitles = tree.options.escapeTitles;
     tree.enableUpdate(false);
@@ -341,14 +341,14 @@ function _markFuzzyMatchedChars(
   matches: RegExpMatchArray,
   escapeTitles = true
 ) {
-  let matchingIndices = [];
+  const matchingIndices = [];
   // get the indices of matched characters (Iterate through `RegExpMatchArray`)
   for (
     let _matchingArrIdx = 1;
     _matchingArrIdx < matches.length;
     _matchingArrIdx++
   ) {
-    let _mIdx: number =
+    const _mIdx: number =
       // get matching char index by cumulatively adding
       // the matched group length
       matches[_matchingArrIdx].length +
@@ -357,7 +357,7 @@ function _markFuzzyMatchedChars(
     matchingIndices.push(_mIdx);
   }
   // Map each `text` char to its position and store in `textPoses`.
-  let textPoses = text.split("");
+  const textPoses = text.split("");
   if (escapeTitles) {
     // If escaping the title, then wrap the matching char within exotic chars
     matchingIndices.forEach(function (v) {

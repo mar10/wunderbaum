@@ -232,7 +232,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         e.preventDefault();
         return false;
       }
-      let nodeData = srcNode.toDict(true, (n: any) => {
+      const nodeData = srcNode.toDict(true, (n: any) => {
         // We don't want to re-use the key on drop:
         n._org_key = n.key;
         delete n.key;
@@ -240,12 +240,14 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       nodeData._treeId = srcNode.tree.id;
 
       if (dndOpts.serializeClipboardData) {
-        if (typeof dndOpts.serializeClipboardData === "function")
+        if (typeof dndOpts.serializeClipboardData === "function") {
           e.dataTransfer!.setData(
             nodeMimeType,
             dndOpts.serializeClipboardData(nodeData)
           );
-        else e.dataTransfer!.setData(nodeMimeType, JSON.stringify(nodeData));
+        } else {
+          e.dataTransfer!.setData(nodeMimeType, JSON.stringify(nodeData));
+        }
       }
       // e.dataTransfer!.setData("text/html", $(node.span).html());
       e.dataTransfer!.setData("text/plain", srcNode.title);
@@ -258,7 +260,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
       // --- drag ---
     } else if (e.type === "drag") {
-      if (dndOpts.drag) srcNode._callEvent("dnd.drag", { event: e });
+      if (dndOpts.drag) {
+        srcNode._callEvent("dnd.drag", { event: e });
+      }
       // --- dragend ---
     } else if (e.type === "dragend") {
       srcNode.setClass("wb-drag-source", false);
@@ -266,7 +270,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       if (this.lastTargetNode) {
         this._leaveNode();
       }
-      if (dndOpts.dragEnd) srcNode._callEvent("dnd.dragEnd", { event: e });
+      if (dndOpts.dragEnd) {
+        srcNode._callEvent("dnd.dragEnd", { event: e });
+      }
     }
     return true;
   }
@@ -354,7 +360,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       const viewportY = e.clientY - this.tree.element.offsetTop;
       this.autoScroll(viewportY);
 
-      if (dndOpts.dragOver) targetNode._callEvent("dnd.dragOver", { event: e });
+      if (dndOpts.dragOver) {
+        targetNode._callEvent("dnd.dragOver", { event: e });
+      }
 
       const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
@@ -386,8 +394,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     } else if (e.type === "dragleave") {
       // NOTE: we cannot trust this event, since it is always fired,
       // Instead we remove the marker on dragenter
-      if (dndOpts.dragLeave)
+      if (dndOpts.dragLeave) {
         targetNode._callEvent("dnd.dragLeave", { event: e });
+      }
       // --- drop ---
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
