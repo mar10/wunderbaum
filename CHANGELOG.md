@@ -8,7 +8,9 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.5.2: Improved typing and drag'n'drop behavior (@jogibear9988)
-- v0.5.2: Add `tree.options.adjustHeight` (defaults to `true`)
+- v0.5.2: Add `tree.options.adjustHeight` (default: `true`)
+- v0.5.2: Add `tree.options.scrollIntoViewOnExpandClick` (default: `true`)
+- v0.5.2: Add `tree.options.dnd.serializeClipboardData` (default: `true`)
 
 - v0.5.1: Add EXPERIMENTAL support for `tree.iconBadge` (allows to implement counter badges, ...)
 
