@@ -256,11 +256,13 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
         value = input.valueAsNumber;
         break;
       case "radio":
-        const name = input.name;
-        const checked = input.parentElement!.querySelector(
-          `input[name="${name}"]:checked`
-        );
-        value = checked ? (<HTMLInputElement>checked).value : undefined;
+        {
+          const name = input.name;
+          const checked = input.parentElement!.querySelector(
+            `input[name="${name}"]:checked`
+          );
+          value = checked ? (<HTMLInputElement>checked).value : undefined;
+        }
         break;
       case "text":
       default:

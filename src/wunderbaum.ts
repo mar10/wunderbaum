@@ -979,8 +979,9 @@ export class Wunderbaum {
     this.clear();
     this.resizeObserver.disconnect();
     this.element.innerHTML = "";
+
     // Remove all event handlers
-    this.element.outerHTML = this.element.outerHTML;
+    this.element.outerHTML = this.element.outerHTML; // eslint-disable-line
   }
 
   /**
@@ -1291,13 +1292,15 @@ export class Wunderbaum {
         res = this._getNextNodeInView(node);
         break;
       case "pageDown":
-        const bottomNode = this.getLowestVpNode();
-        // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
+        {
+          const bottomNode = this.getLowestVpNode();
+          // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
 
-        if (node._rowIdx! < bottomNode._rowIdx!) {
-          res = bottomNode;
-        } else {
-          res = this._getNextNodeInView(node, pageSize);
+          if (node._rowIdx! < bottomNode._rowIdx!) {
+            res = bottomNode;
+          } else {
+            res = this._getNextNodeInView(node, pageSize);
+          }
         }
         break;
       case "pageUp":
@@ -1667,15 +1670,15 @@ export class Wunderbaum {
     }
   }
 
-  /**
-   * @deprecated since v0.3.6: use `update()` instead.
-   */
-  setModified(change: ChangeType, ...args: any[]): void {
-    this.logWarn("setModified() is deprecated: use update() instead.");
-    // @ts-ignore
-    // (!) TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-    return this.update.call(this, change, ...args);
-  }
+  // /**
+  //  * @deprecated since v0.3.6: use `update()` instead.
+  //  */
+  // setModified(change: ChangeType, ...args: any[]): void {
+  //   this.logWarn("setModified() is deprecated: use update() instead.");
+  //   // @ts-ignore
+  //   // (!) TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
+  //   return this.update.call(this, change, ...args);
+  // }
   /**
    * Schedule an update request to reflect a tree change.
    * The render operation is async and debounced unless the `immediate` option

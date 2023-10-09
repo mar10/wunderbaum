@@ -731,7 +731,7 @@ export type EditOptionsType = {
     | Promise<any>;
 };
 
-export type GridOptionsType = {};
+export type GridOptionsType = object;
 
 /* -----------------------------------------------------------------------------
  * wb_ext_dnd

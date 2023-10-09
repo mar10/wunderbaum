@@ -270,6 +270,7 @@ export function debounce<F extends Procedure>(
     const isInvoking = shouldInvoke(time);
 
     lastArgs = args;
+    // eslint-disable-next-line  @typescript-eslint/no-this-alias
     lastThis = this;
     lastCallTime = time;
 

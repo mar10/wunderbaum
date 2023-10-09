@@ -9,8 +9,10 @@ module.exports = {
     "prefer-const": "warn",
     "prefer-spread": "warn",
     "prefer-rest-params": "warn",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/no-unused-vars": "warn",
+    "require-yield": "warn",
+    "no-constant-condition": ["error", { checkLoops: false }],
+    "@typescript-eslint/no-explicit-any": "off",
+    "@typescript-eslint/no-unused-vars": "off",
     // "@typescript-eslint/curly": "warn",
   },
 };

@@ -1388,7 +1388,9 @@ export class WunderbaumNode {
     // setFocus/setActive will scroll later (if autoScroll is specified)
     try {
       node.makeVisible({ scrollIntoView: false });
-    } catch (e) {} // #272
+    } catch (e) {
+      // ignore
+    }
     node.setFocus();
     if (options?.activate === false) {
       return Promise.resolve(this);
@@ -2191,13 +2193,13 @@ export class WunderbaumNode {
     throw new Error("Not yet implemented");
   }
 
-  /**
-   * @deprecated since v0.3.6: use `update()` instead.
-   */
-  setModified(change: ChangeType = ChangeType.data): void {
-    this.logWarn("setModified() is deprecated: use update() instead.");
-    return this.update(change);
-  }
+  // /**
+  //  * @deprecated since v0.3.6: use `update()` instead.
+  //  */
+  // setModified(change: ChangeType = ChangeType.data): void {
+  //   this.logWarn("setModified() is deprecated: use update() instead.");
+  //   return this.update(change);
+  // }
   /**
    * Trigger a repaint, typically after a status or data change.
    *

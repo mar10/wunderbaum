@@ -7,6 +7,9 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.5.3: Use eslint
+- v0.5.3: Removed deprecated `setModified()`
+
 - v0.5.2: Improved typing and drag'n'drop behavior (@jogibear9988)
 - v0.5.2: Add `tree.options.adjustHeight` (default: `true`)
 - v0.5.2: Add `tree.options.scrollIntoViewOnExpandClick` (default: `true`)
