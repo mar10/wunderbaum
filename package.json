@@ -79,7 +79,7 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.2",
-    "typedoc": "^0.24.7",
+    "typedoc": "^0.25.2",
     "typescript": "^5.2.2"
   },
   "nodemonConfig": {
