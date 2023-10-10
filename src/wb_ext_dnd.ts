@@ -154,9 +154,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       const sp = this.tree.element; // scroll parent
       const scrollTop = sp.scrollTop;
       if (this.currentScrollDir < 0) {
-        sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+        sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed!);
       } else if (this.currentScrollDir > 0) {
-        sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
+        sp.scrollTop = scrollTop + dndOpts.scrollSpeed!;
       }
     }
   }
@@ -181,14 +181,14 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     if (
       scrollTop > 0 &&
       viewportY > 0 &&
-      viewportY <= sensitivity + headerHeight
+      viewportY <= sensitivity! + headerHeight
     ) {
       // Mouse in top 20px area: scroll up
       // sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
       this.currentScrollDir = -1;
     } else if (
       scrollTop < sp.scrollHeight - height &&
-      viewportY >= height - sensitivity
+      viewportY >= height - sensitivity!
     ) {
       // Mouse in bottom 20px area: scroll down
       // sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
@@ -220,7 +220,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // --- dragstart ---
     if (e.type === "dragstart") {
       // Set a default definition of allowed effects
-      e.dataTransfer!.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
+      e.dataTransfer!.effectAllowed = dndOpts.effectAllowed!; //"copyMove"; // "all";
       if (srcNode.isEditing()) {
         srcNode.logDebug("Prevented dragging node in edit mode.");
         e.preventDefault();
@@ -369,10 +369,10 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       this.lastDropRegion = region;
 
       if (
-        dndOpts.autoExpandMS > 0 &&
+        dndOpts.autoExpandMS! > 0 &&
         targetNode.isExpandable(true) &&
         !targetNode._isLoading &&
-        Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS &&
+        Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS! &&
         targetNode._callEvent("dnd.dragExpand", { event: e }) !== false
       ) {
         targetNode.setExpanded();
