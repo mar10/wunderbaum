@@ -33,6 +33,7 @@ export class LoggerExtension extends WunderbaumExtension<any> {
       const prefix = this.prefix;
 
       overrideMethod(tree, "callEvent", function (name, extra) {
+        /* eslint-disable prefer-rest-params */
         if (ignoreEvents.has(name)) {
           return (<any>tree)._superApply(arguments);
         }

@@ -9,7 +9,7 @@ module.exports = {
     // "@typescript-eslint/curly": "warn",
     "prefer-const": ["error", { destructuring: "all" }],
     "prefer-spread": "warn",
-    "prefer-rest-params": "warn",
+    // "prefer-rest-params": "warn",
     "require-yield": "warn",
     "no-constant-condition": ["error", { checkLoops: false }],
     "@typescript-eslint/no-explicit-any": "off",

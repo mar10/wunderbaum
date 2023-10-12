@@ -171,7 +171,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     }
 
     tree.filterMode = opts.mode;
-    this.lastFilterArgs = arguments;
+    this.lastFilterArgs = arguments; // eslint-disable-line prefer-rest-params
 
     tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
     tree.element.classList.toggle("wb-ext-filter-dim", !hideMode);
