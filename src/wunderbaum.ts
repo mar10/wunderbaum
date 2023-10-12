@@ -1330,7 +1330,7 @@ export class Wunderbaum {
     name_cb?: NodeStringCallback,
     connectors?: string[]
   ): IterableIterator<string> {
-    return this.root.format_iter(name_cb, connectors);
+    yield* this.root.format_iter(name_cb, connectors);
   }
 
   /**

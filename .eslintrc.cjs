@@ -10,7 +10,7 @@ module.exports = {
     "prefer-const": ["error", { destructuring: "all" }],
     "prefer-spread": "warn",
     // "prefer-rest-params": "warn",
-    "require-yield": "warn",
+    // "require-yield": "warn",
     "no-constant-condition": ["error", { checkLoops: false }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
