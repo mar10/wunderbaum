@@ -6,6 +6,7 @@ module.exports = {
   root: true,
   rules: {
     curly: ["error", "all"],
+    // "@typescript-eslint/curly": "warn",
     "prefer-const": ["error", { destructuring: "all" }],
     "prefer-spread": "warn",
     "prefer-rest-params": "warn",
@@ -13,9 +14,6 @@ module.exports = {
     "no-constant-condition": ["error", { checkLoops: false }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-unused-vars": "off",
-    // "one-var": ["error", { const: "always" }],
-    // "one-var": ["error", { var: "always", let: "never", const: "never" }],
-
-    // "@typescript-eslint/curly": "warn",
+    "one-var": ["error", { const: "never" }],
   },
 };

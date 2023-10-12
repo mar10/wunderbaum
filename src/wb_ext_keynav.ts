@@ -41,13 +41,13 @@ export class KeynavExtension extends WunderbaumExtension<any> {
   }
 
   onKeyEvent(data: any): boolean | undefined {
-    const event = data.event,
-      tree = this.tree,
-      opts = data.options,
-      activate = !event.ctrlKey || opts.autoActivate,
-      curInput = this._getEmbeddedInputElem(event.target),
-      inputHasFocus = curInput && this._isCurInputFocused(),
-      navModeOption = opts.navigationModeOption as NavModeEnum;
+    const event = data.event;
+    const tree = this.tree;
+    const opts = data.options;
+    const activate = !event.ctrlKey || opts.autoActivate;
+    const curInput = this._getEmbeddedInputElem(event.target);
+    const inputHasFocus = curInput && this._isCurInputFocused();
+    const navModeOption = opts.navigationModeOption as NavModeEnum;
     // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
 
     let focusNode,

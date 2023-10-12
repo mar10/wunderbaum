@@ -718,8 +718,8 @@ export class WunderbaumNode {
     // separator = separator || "/";
 
     let val;
-    const path: string[] = [],
-      isFunc = typeof part === "function";
+    const path: string[] = [];
+    const isFunc = typeof part === "function";
 
     this.visitParents((n) => {
       if (n.parent) {
@@ -936,8 +936,8 @@ export class WunderbaumNode {
    * whether the node is scrolled into the visible part of the screen or viewport.
    */
   isVisible(): boolean {
-    const hasFilter = this.tree.filterMode === "hide",
-      parents = this.getParentList(false, false);
+    const hasFilter = this.tree.filterMode === "hide";
+    const parents = this.getParentList(false, false);
 
     // TODO: check $(n.span).is(":visible")
     // i.e. return false for nodes (but not parents) that are hidden
@@ -1227,12 +1227,12 @@ export class WunderbaumNode {
    */
   async makeVisible(options?: MakeVisibleOptions) {
     let i;
-    const dfd = new Deferred(),
-      deferreds = [],
-      parents = this.getParentList(false, false),
-      len = parents.length,
-      noAnimation = util.getOption(options, "noAnimation", false),
-      scroll = util.getOption(options, "scrollIntoView", true);
+    const dfd = new Deferred();
+    const deferreds = [];
+    const parents = this.getParentList(false, false);
+    const len = parents.length;
+    const noAnimation = util.getOption(options, "noAnimation", false);
+    const scroll = util.getOption(options, "scrollIntoView", true);
 
     // Expand bottom-up, so only the top node is animated
     for (i = len - 1; i >= 0; i--) {
@@ -1276,9 +1276,10 @@ export class WunderbaumNode {
       }
     }
     let pos;
-    const tree = this.tree,
-      prevParent = this.parent,
-      targetParent = mode === "appendChild" ? targetNode : targetNode.parent;
+    const tree = this.tree;
+    const prevParent = this.parent;
+    const targetParent =
+      mode === "appendChild" ? targetNode : targetNode.parent;
 
     if (this === targetNode) {
       return;

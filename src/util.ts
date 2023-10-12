@@ -440,9 +440,9 @@ export function eventTargetFromSelector(
  * ```
  */
 export function eventToString(event: Event): string {
-  const key = (<KeyboardEvent>event).key,
-    et = event.type,
-    s = [];
+  const key = (<KeyboardEvent>event).key;
+  const et = event.type;
+  const s = [];
 
   if ((<KeyboardEvent>event).altKey) {
     s.push("Alt");
@@ -607,14 +607,14 @@ export function overrideMethod(
   ctx?: any
 ) {
   let prevSuper: FunctionType, prevSuperApply: FunctionType;
-  const self = ctx || instance,
-    prevFunc = instance[methodName],
-    _super = (...args: any[]) => {
-      return prevFunc.apply(self, args);
-    },
-    _superApply = (argsArray: any[]) => {
-      return prevFunc.apply(self, argsArray);
-    };
+  const self = ctx || instance;
+  const prevFunc = instance[methodName];
+  const _super = (...args: any[]) => {
+    return prevFunc.apply(self, args);
+  };
+  const _superApply = (argsArray: any[]) => {
+    return prevFunc.apply(self, argsArray);
+  };
 
   const wrapper = (...args: any[]) => {
     try {

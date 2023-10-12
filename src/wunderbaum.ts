@@ -1395,22 +1395,22 @@ export class Wunderbaum {
    *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
    */
   static getEventInfo(event: Event): WbEventInfo {
-    const target = <Element>event.target,
-      cl = target.classList,
-      parentCol = target.closest("span.wb-col") as HTMLSpanElement,
-      node = Wunderbaum.getNode(target),
-      tree = node ? node.tree : Wunderbaum.getTree(event),
-      res: WbEventInfo = {
-        event: <MouseEvent>event,
-        canonicalName: util.eventToString(event),
-        tree: tree!,
-        node: node,
-        region: NodeRegion.unknown,
-        colDef: undefined,
-        colIdx: -1,
-        colId: undefined,
-        colElem: parentCol,
-      };
+    const target = <Element>event.target;
+    const cl = target.classList;
+    const parentCol = target.closest("span.wb-col") as HTMLSpanElement;
+    const node = Wunderbaum.getNode(target);
+    const tree = node ? node.tree : Wunderbaum.getTree(event);
+    const res: WbEventInfo = {
+      event: <MouseEvent>event,
+      canonicalName: util.eventToString(event),
+      tree: tree!,
+      node: node,
+      region: NodeRegion.unknown,
+      colDef: undefined,
+      colIdx: -1,
+      colId: undefined,
+      colElem: parentCol,
+    };
 
     if (cl.contains("wb-title")) {
       res.region = NodeRegion.title;
@@ -2292,8 +2292,8 @@ export class Wunderbaum {
       siblingOfs = 0,
       skipFirstNode = options.includeSelf === false,
       node: WunderbaumNode = options.start || this.root.children![0];
-    const includeHidden = !!options.includeHidden,
-      checkFilter = !includeHidden && this.filterMode === "hide";
+    const includeHidden = !!options.includeHidden;
+    const checkFilter = !includeHidden && this.filterMode === "hide";
     parent = node.parent;
     while (parent) {
       // visit siblings

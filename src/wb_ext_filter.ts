@@ -92,14 +92,14 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     let match,
       temp,
       count = 0;
-    const start = Date.now(),
-      tree = this.tree,
-      treeOpts = tree.options,
-      // escapeTitles = treeOpts.escapeTitles,
-      prevAutoCollapse = treeOpts.autoCollapse,
-      opts = extend({}, treeOpts.filter, _opts),
-      hideMode = opts.mode === "hide",
-      leavesOnly = !!opts.leavesOnly && !branchMode;
+    const start = Date.now();
+    const tree = this.tree;
+    const treeOpts = tree.options;
+    // escapeTitles = treeOpts.escapeTitles,
+    const prevAutoCollapse = treeOpts.autoCollapse;
+    const opts = extend({}, treeOpts.filter, _opts);
+    const hideMode = opts.mode === "hide";
+    const leavesOnly = !!opts.leavesOnly && !branchMode;
 
     // Default to 'match title substring (case insensitive)'
     if (typeof filter === "string") {
