@@ -1488,24 +1488,21 @@ export class Wunderbaum {
   /** Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
     if (this.options.debugLevel! >= 4) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.log.apply(console, args);
+      console.log(this.toString(), ...args);
     }
   }
 
   /** Log error to console. */
   logError(...args: any[]) {
     if (this.options.debugLevel! >= 1) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.error.apply(console, args);
+      console.error(this.toString(), ...args);
     }
   }
 
   /** Log to console if opts.debugLevel >= 3 */
   logInfo(...args: any[]) {
     if (this.options.debugLevel! >= 3) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.info.apply(console, args);
+      console.info(this.toString(), ...args);
     }
   }
 
@@ -1527,8 +1524,7 @@ export class Wunderbaum {
   /** Log to console if opts.debugLevel >= 2 */
   logWarn(...args: any[]) {
     if (this.options.debugLevel! >= 2) {
-      Array.prototype.unshift.call(args, this.toString());
-      console.warn.apply(console, args);
+      console.warn(this.toString(), ...args);
     }
   }
 
