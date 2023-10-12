@@ -137,8 +137,8 @@ export function each(
     // accept `null` or `undefined`
     return obj;
   }
-  let length = obj.length,
-    i = 0;
+  const length = obj.length;
+  let i = 0;
 
   if (typeof length === "number") {
     for (; i < length; i++) {
@@ -606,9 +606,8 @@ export function overrideMethod(
   handler: FunctionType,
   ctx?: any
 ) {
-  let prevSuper: FunctionType,
-    prevSuperApply: FunctionType,
-    self = ctx || instance,
+  let prevSuper: FunctionType, prevSuperApply: FunctionType;
+  const self = ctx || instance,
     prevFunc = instance[methodName],
     _super = (...args: any[]) => {
       return prevFunc.apply(self, args);

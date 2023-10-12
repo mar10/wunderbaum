@@ -91,8 +91,8 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   ) {
     let match,
       temp,
-      start = Date.now(),
-      count = 0,
+      count = 0;
+    const start = Date.now(),
       tree = this.tree,
       treeOpts = tree.options,
       // escapeTitles = treeOpts.escapeTitles,

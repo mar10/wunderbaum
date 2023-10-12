@@ -1192,8 +1192,8 @@ export class Wunderbaum {
     startNode?: WunderbaumNode | null
   ): WunderbaumNode | null {
     //, visibleOnly) {
-    let res: WunderbaumNode | null = null,
-      firstNode = this.getFirstChild()!;
+    let res: WunderbaumNode | null = null;
+    const firstNode = this.getFirstChild()!;
 
     const matcher =
       typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
@@ -1670,15 +1670,6 @@ export class Wunderbaum {
     }
   }
 
-  // /**
-  //  * @deprecated since v0.3.6: use `update()` instead.
-  //  */
-  // setModified(change: ChangeType, ...args: any[]): void {
-  //   this.logWarn("setModified() is deprecated: use update() instead.");
-  //   // @ts-ignore
-  //   // (!) TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-  //   return this.update.call(this, change, ...args);
-  // }
   /**
    * Schedule an update request to reflect a tree change.
    * The render operation is async and debounced unless the `immediate` option
@@ -2300,10 +2291,9 @@ export class Wunderbaum {
       stopNode: WunderbaumNode,
       siblingOfs = 0,
       skipFirstNode = options.includeSelf === false,
-      includeHidden = !!options.includeHidden,
-      checkFilter = !includeHidden && this.filterMode === "hide",
       node: WunderbaumNode = options.start || this.root.children![0];
-
+    const includeHidden = !!options.includeHidden,
+      checkFilter = !includeHidden && this.filterMode === "hide";
     parent = node.parent;
     while (parent) {
       // visit siblings
@@ -2384,8 +2374,8 @@ export class Wunderbaum {
     let children,
       idx,
       parent,
-      includeHidden = !!options.includeHidden,
       node = options.start || this.root.children![0];
+    const includeHidden = !!options.includeHidden;
 
     if (options.includeSelf !== false) {
       if (callback(node) === false) {

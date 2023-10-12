@@ -693,8 +693,8 @@ export class WunderbaumNode {
    * @param includeSelf Include the node itself.
    */
   getParentList(includeRoot = false, includeSelf = false) {
-    let l = [],
-      dtn = includeSelf ? this : this.parent;
+    const l = [];
+    let dtn = includeSelf ? this : this.parent;
     while (dtn) {
       if (includeRoot || dtn.parent) {
         l.unshift(dtn);
@@ -717,8 +717,8 @@ export class WunderbaumNode {
     // part = part || "title";
     // separator = separator || "/";
 
-    let val,
-      path: string[] = [],
+    let val;
+    const path: string[] = [],
       isFunc = typeof part === "function";
 
     this.visitParents((n) => {
@@ -936,10 +936,7 @@ export class WunderbaumNode {
    * whether the node is scrolled into the visible part of the screen or viewport.
    */
   isVisible(): boolean {
-    let i,
-      l,
-      n,
-      hasFilter = this.tree.filterMode === "hide",
+    const hasFilter = this.tree.filterMode === "hide",
       parents = this.getParentList(false, false);
 
     // TODO: check $(n.span).is(":visible")
@@ -950,8 +947,8 @@ export class WunderbaumNode {
       return false;
     }
 
-    for (i = 0, l = parents.length; i < l; i++) {
-      n = parents[i];
+    for (let i = 0, l = parents.length; i < l; i++) {
+      const n = parents[i];
 
       if (!n.expanded) {
         // this.debug("isVisible: HIDDEN (parent collapsed)");
@@ -1229,8 +1226,8 @@ export class WunderbaumNode {
    *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
    */
   async makeVisible(options?: MakeVisibleOptions) {
-    let i,
-      dfd = new Deferred(),
+    let i;
+    const dfd = new Deferred(),
       deferreds = [],
       parents = this.getParentList(false, false),
       len = parents.length,
@@ -1278,8 +1275,8 @@ export class WunderbaumNode {
         mode = "appendChild";
       }
     }
-    let pos,
-      tree = this.tree,
+    let pos;
+    const tree = this.tree,
       prevParent = this.parent,
       targetParent = mode === "appendChild" ? targetNode : targetNode.parent;
 
@@ -1583,11 +1580,10 @@ export class WunderbaumNode {
     const columns = tree.columns;
     const level = this.getLevel();
     let elem: HTMLElement;
-    let nodeElem: HTMLElement;
     let rowDiv = this._rowElem;
-    let titleSpan: HTMLElement;
+    // let titleSpan: HTMLElement;
     let checkboxSpan: HTMLElement | null = null;
-    let iconSpan: HTMLElement | null;
+    // let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement | null = null;
     const activeColIdx = tree.isRowNav() ? null : tree.activeColIdx;
 
@@ -1609,7 +1605,7 @@ export class WunderbaumNode {
     // Attach a node reference to the DOM Element:
     (<any>rowDiv)._wb_node = this;
 
-    nodeElem = document.createElement("span");
+    const nodeElem: HTMLElement = document.createElement("span");
     nodeElem.classList.add("wb-node", "wb-col");
     rowDiv.appendChild(nodeElem);
 
@@ -1641,12 +1637,17 @@ export class WunderbaumNode {
 
     // Render the icon (show a 'loading' icon if we do not have an expander that
     // we would prefer).
-    iconSpan = this._createIcon(tree.iconMap, nodeElem, null, !expanderSpan);
+    const iconSpan = this._createIcon(
+      tree.iconMap,
+      nodeElem,
+      null,
+      !expanderSpan
+    );
     if (iconSpan) {
       ofsTitlePx += ICON_WIDTH;
     }
 
-    titleSpan = document.createElement("span");
+    const titleSpan = document.createElement("span");
     titleSpan.classList.add("wb-title");
     nodeElem.appendChild(titleSpan);
 
@@ -2193,13 +2194,6 @@ export class WunderbaumNode {
     throw new Error("Not yet implemented");
   }
 
-  // /**
-  //  * @deprecated since v0.3.6: use `update()` instead.
-  //  */
-  // setModified(change: ChangeType = ChangeType.data): void {
-  //   this.logWarn("setModified() is deprecated: use update() instead.");
-  //   return this.update(change);
-  // }
   /**
    * Trigger a repaint, typically after a status or data change.
    *
@@ -2630,10 +2624,8 @@ export class WunderbaumNode {
     callback: NodeVisitCallback,
     includeSelf: boolean = false
   ): NodeVisitResponse {
-    let i,
-      l,
-      res: any = true,
-      children = this.children;
+    let res: any = true;
+    const children = this.children;
 
     if (includeSelf === true) {
       res = callback(this);
@@ -2642,7 +2634,7 @@ export class WunderbaumNode {
       }
     }
     if (children) {
-      for (i = 0, l = children.length; i < l; i++) {
+      for (let i = 0, l = children.length; i < l; i++) {
         res = children[i].visit(callback, true);
         if (res === false) {
           break;
@@ -2687,13 +2679,10 @@ export class WunderbaumNode {
     callback: (node: WunderbaumNode) => boolean | void,
     includeSelf: boolean = false
   ): boolean {
-    let i,
-      l,
-      n,
-      ac = this.parent.children!;
+    const ac = this.parent.children!;
 
-    for (i = 0, l = ac.length; i < l; i++) {
-      n = ac[i];
+    for (let i = 0, l = ac.length; i < l; i++) {
+      const n = ac[i];
       if (includeSelf || n !== this) {
         if (callback(n) === false) {
           return false;
