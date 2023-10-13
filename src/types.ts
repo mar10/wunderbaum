@@ -761,7 +761,7 @@ export type DndOptionsType = {
    * Expand nodes after n milliseconds of hovering
    * @default 1500
    */
-  autoExpandMS: 1500;
+  autoExpandMS?: 1500;
   // /**
   //  * Additional offset for drop-marker with hitMode = "before"/"after"
   //  * @default
@@ -782,12 +782,12 @@ export type DndOptionsType = {
    * true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
    * @default false
    */
-  multiSource: false;
+  multiSource?: false;
   /**
    * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
    * @default "all"
    */
-  effectAllowed: "all";
+  effectAllowed?: "all";
   // /**
   //  * 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
   //  * @default
@@ -797,52 +797,52 @@ export type DndOptionsType = {
    * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
    * @default "move"
    */
-  dropEffectDefault: string;
+  dropEffectDefault?: string;
   /**
    * Prevent dropping nodes from different Wunderbaum trees
    * @default false
    */
-  preventForeignNodes: boolean;
+  preventForeignNodes?: boolean;
   /**
    * Prevent dropping items on unloaded lazy Wunderbaum tree nodes
    * @default true
    */
-  preventLazyParents: boolean;
+  preventLazyParents?: boolean;
   /**
    * Prevent dropping items other than Wunderbaum tree nodes
    * @default false
    */
-  preventNonNodes: boolean;
+  preventNonNodes?: boolean;
   /**
    * Prevent dropping nodes on own descendants
    * @default true
    */
-  preventRecursion: boolean;
+  preventRecursion?: boolean;
   /**
    * Prevent dropping nodes under same direct parent
    * @default false
    */
-  preventSameParent: false;
+  preventSameParent?: false;
   /**
    * Prevent dropping nodes 'before self', etc. (move only)
    * @default true
    */
-  preventVoidMoves: boolean;
+  preventVoidMoves?: boolean;
   /**
    * Serialize Node Data to datatransfer object
    * @default true
    */
-  serializeClipboardData: boolean | ((nodeData: WbNodeData) => string);
+  serializeClipboardData?: boolean | ((nodeData: WbNodeData) => string);
   /**
    * Enable auto-scrolling while dragging
    * @default true
    */
-  scroll: boolean;
+  scroll?: boolean;
   /**
    * Active top/bottom margin in pixel
    * @default 20
    */
-  scrollSensitivity: 20;
+  scrollSensitivity?: 20;
   // /**
   //  * Scroll events every N microseconds
   //  * @default 50
@@ -852,7 +852,7 @@ export type DndOptionsType = {
    * Pixel per event
    * @default 5
    */
-  scrollSpeed: 5;
+  scrollSpeed?: 5;
   // /**
   //  * Allow dragging of nodes to different IE windows
   //  * @default false
@@ -862,23 +862,23 @@ export type DndOptionsType = {
    * Optional callback passed to `toDict` on dragStart @since 2.38
    * @default null
    */
-  sourceCopyHook: null;
+  sourceCopyHook?: null;
   // Events (drag support)
   /**
    * Callback(sourceNode, data), return true, to enable dnd drag
    * @default null
    */
-  dragStart: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
+  dragStart?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(sourceNode, data)
    * @default null
    */
-  drag: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  drag?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(sourceNode, data)
    * @default null
    */
-  dragEnd: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  dragEnd?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
@@ -889,7 +889,7 @@ export type DndOptionsType = {
    * Callback(targetNode, data)
    * @default null
    */
-  dragOver: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  dragOver?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
@@ -913,5 +913,5 @@ export type DndOptionsType = {
    * Callback(targetNode, data)
    * @default null
    */
-  dragLeave: null;
+  dragLeave?: null;
 };
