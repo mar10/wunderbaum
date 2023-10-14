@@ -1191,28 +1191,28 @@ export class WunderbaumNode {
   /* Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
     if (this.tree.options.debugLevel! >= 4) {
-      console.log(this.toString(), ...args);
+      console.log(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
   /* Log error to console. */
   logError(...args: any[]) {
     if (this.tree.options.debugLevel! >= 1) {
-      console.error(this.toString(), ...args);
+      console.error(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
   /* Log to console if opts.debugLevel >= 3 */
   logInfo(...args: any[]) {
     if (this.tree.options.debugLevel! >= 3) {
-      console.info(this.toString(), ...args);
+      console.info(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
   /* Log warning to console if opts.debugLevel >= 2 */
   logWarn(...args: any[]) {
     if (this.tree.options.debugLevel! >= 2) {
-      console.warn(this.toString(), ...args);
+      console.warn(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 

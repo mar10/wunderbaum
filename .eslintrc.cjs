@@ -6,6 +6,8 @@ module.exports = {
   root: true,
   rules: {
     curly: ["error", "all"],
+    "no-alert": "error",
+    "no-console": "error",
     // "@typescript-eslint/curly": "warn",
     "prefer-const": ["error", { destructuring: "all" }],
     // "prefer-spread": "warn",

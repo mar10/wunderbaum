@@ -363,7 +363,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         (dndOpts.preventVoidMoves && targetNode === srcNode)
       ) {
         dt.dropEffect = "none";
-        console.log("Prevented drop operation");
+        this.tree.log("Prevented drop operation");
         return true; // Prevent drop operation
       }
 

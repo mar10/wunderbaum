@@ -2,7 +2,8 @@
  * Note: This file must be import as module:
  *     `<script defer type="module" src="playground.js"></script>`
  */
-
+/* eslint-env browser */
+/* eslint-disable no-console */
 import { Wunderbaum } from "../build/wunderbaum.esm.min.js";
 
 const util = Wunderbaum.util;
