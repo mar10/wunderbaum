@@ -123,7 +123,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     throw new Error("Unsupported drop region definition: " + res);
   }
 
-  /** */
+  /**
+   * Calculates the drop region based on the drag event and the allowed drop regions.
+   */
   protected _calcDropRegion(
     e: DragEvent,
     allowed: DropRegionTypeSet | null
@@ -277,6 +279,30 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     return true;
   }
 
+  /* Don't allow void operation ('drop on self').*/
+  private _isVoidDrop(
+    targetNode: WunderbaumNode,
+    srcNode: WunderbaumNode | null,
+    dropRegion: DropRegionType | false
+  ): boolean {
+    this.tree.logDebug(
+      `_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`
+    );
+    // TODO: should be checked on  move only
+    if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
+      return false;
+    }
+    if (
+      (dropRegion === "before" && targetNode === srcNode.getNextSibling()) ||
+      (dropRegion === "after" && targetNode === srcNode.getPrevSibling())
+    ) {
+      this.tree.logDebug("Prevented before/after self");
+      return true;
+    }
+    // Don't allow dropping nodes on own parent (or self)
+    return srcNode === targetNode || srcNode.parent === targetNode;
+  }
+
   protected onDropEvent(e: DragEvent) {
     // const isLink = event.dataTransfer.types.includes("text/uri-list");
     const srcNode = this.srcNode;
@@ -284,6 +310,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     const targetNode = Wunderbaum.getNode(e)!;
     const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const dt = e.dataTransfer!;
+    const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
     if (!targetNode) {
       this._leaveNode();
@@ -300,7 +327,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
           ", de: " +
           dt?.dropEffect,
         ", cy: " + e.offsetY,
-        ", r: " + this._calcDropRegion(e, this.lastAllowedDropRegions),
+        ", r: " + dropRegion,
+        ", srcNode: " + srcNode,
         e
       );
     }
@@ -326,17 +354,16 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         // Prevent dropping items other than Wunderbaum tree nodes:
         (dndOpts.preventNonNodes && !srcNode) ||
         // Prevent dropping nodes on own descendants:
-        (dndOpts.preventRecursion &&
-          srcNode &&
-          srcNode.isAncestorOf(targetNode)) ||
+        (dndOpts.preventRecursion && srcNode?.isAncestorOf(targetNode)) ||
         // Prevent dropping nodes under same direct parent:
         (dndOpts.preventSameParent &&
           srcNode &&
           targetNode.parent === srcNode.parent) ||
-        // Don't allow void operation ('drop on self'): TODO: should be checke onn  move only
+        // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
         (dndOpts.preventVoidMoves && targetNode === srcNode)
       ) {
         dt.dropEffect = "none";
+        console.log("Prevented drop operation");
         return true; // Prevent drop operation
       }
 
@@ -378,7 +405,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         targetNode.setExpanded();
       }
 
-      if (!region) {
+      if (!region || this._isVoidDrop(targetNode, srcNode, region)) {
         return; // We already rejected in dragenter
       }
       targetNode.setClass("wb-drop-over", region === "over");
