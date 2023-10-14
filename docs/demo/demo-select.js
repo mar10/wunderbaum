@@ -6,7 +6,7 @@
 
 document.getElementById("demo-info").innerHTML = `
 Hierarchical selection demo (<code>selectMode: 'hier'</code>) .
-Also uses icons from <a href="https://fontawesome.com/">Font Awesome</a>.<br>
+Uses icons from <a href="https://fontawesome.com/">Font Awesome</a>.<br>
 Collapse nodes to test select counter badges.
 `;
 

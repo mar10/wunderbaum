@@ -94,10 +94,25 @@ const tree = new Wunderbaum({
 
   dnd: {
     dragStart: (e) => {
+      if (e.node.type === "folder") {
+        return false;
+      }
+      e.event.dataTransfer.effectAllowed = "all";
       return true;
     },
     dragEnter: (e) => {
-      return true;
+      if (e.node.type === "folder") {
+        // e.event.dataTransfer.dropEffect = "copy";
+        return "over";
+      }
+      return ["before", "after"];
+    },
+    drag: (e) => {
+      // e.tree.log(e.type, e);
+    },
+    drop: (e) => {
+      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
+      e.sourceNode.moveTo(e.node, e.defaultDropMode);
     },
   },
   // edit: {
@@ -163,23 +178,23 @@ const tree = new Wunderbaum({
       }
     }
   },
-  // iconBadge: (e) => {
-  //   const count = e.node.children?.length || 0;
-  //   const subMatch = e.node.subMatch || 0;
-  //   if (subMatch > 0) {
-  //     return { badge: subMatch, badgeTooltip: `${subMatch} matches` };
-  //   } else if (count > 0 && !e.node.expanded) {
-  //     if (count > 99) {
-  //       return { badge: "99+", badgeTooltip: `${count} children` };
-  //     }
+  iconBadge: (e) => {
+    const count = e.node.children?.length || 0;
+    const subMatch = e.node.subMatch || 0;
+    if (subMatch > 0) {
+      return { badge: subMatch, badgeTooltip: `${subMatch} matches` };
+    } else if (count > 0 && !e.node.expanded) {
+      if (count > 99) {
+        return { badge: "99+", badgeTooltip: `${count} children` };
+      }
 
-  //     // return { badge: count };
-  //     // return { badge: count, classes: "badge-primary" };
-  //     // return "" + count;
-  //     return count;
-  //     // return `<span class="badge badge-pill badge-primary">${count}</span>`;
-  //   }
-  // },
+      // return { badge: count };
+      // return { badge: count, classes: "badge-primary" };
+      // return "" + count;
+      return count;
+      // return `<span class="badge badge-pill badge-primary">${count}</span>`;
+    }
+  },
 });
 console.log(`Created  ${tree}`);
 
