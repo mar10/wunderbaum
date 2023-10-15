@@ -1576,13 +1576,12 @@ export class WunderbaumNode {
     const checkbox = this.getOption("checkbox");
     const columns = tree.columns;
     const level = this.getLevel();
+    const activeColIdx = tree.isRowNav() ? null : tree.activeColIdx;
+
     let elem: HTMLElement;
     let rowDiv = this._rowElem;
-    // let titleSpan: HTMLElement;
     let checkboxSpan: HTMLElement | null = null;
-    // let iconSpan: HTMLElement | null;
     let expanderSpan: HTMLElement | null = null;
-    const activeColIdx = tree.isRowNav() ? null : tree.activeColIdx;
 
     const isNew = !rowDiv;
     util.assert(isNew);

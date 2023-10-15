@@ -119,6 +119,7 @@ div#nav-tree {
   background-color: var(--bg-color-dimmed);
   /* background-color: transparent; */
   overflow: hidden; /* keep background color outside round borders */
+  border: none;
 }
 
 /* Show tree skeleton while initializing. */

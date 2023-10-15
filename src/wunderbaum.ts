@@ -1890,7 +1890,7 @@ export class Wunderbaum {
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
     // Shorten last column width to avoid h-scrollbar
-    const FIX_ADJUST_LAST_COL = 2;
+    const FIX_ADJUST_LAST_COL = 0; // 2;
     const columns = this.columns;
     const col0 = columns[0];
 
