@@ -813,7 +813,7 @@ export function adaptiveThrottle(
       try {
         callback.apply(this, useArgs);
       } catch (error) {
-        console.error(error);
+        console.error(error); // eslint-disable-line no-console
       }
       const elap = Date.now() - start;
 

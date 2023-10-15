@@ -220,7 +220,7 @@ export class Wunderbaum {
         } catch (error) {
           // We re-raise in the reject handler, but Chrome resets the stack
           // frame then, so we log it here:
-          console.error("Exception inside `init(e)` event:", error);
+          this.logError("Exception inside `init(e)` event:", error);
         }
       })
       .catch((err) => {
@@ -1438,7 +1438,7 @@ export class Wunderbaum {
     } else {
       // Somewhere near the title
       if (event.type !== "mousemove" && !(event instanceof KeyboardEvent)) {
-        console.warn("getEventInfo(): not found", event, res);
+        tree?.logWarn("getEventInfo(): not found", event, res);
       }
       return res;
     }
@@ -1488,28 +1488,28 @@ export class Wunderbaum {
   /** Log to console if opts.debugLevel >= 4 */
   logDebug(...args: any[]) {
     if (this.options.debugLevel! >= 4) {
-      console.log(this.toString(), ...args);
+      console.log(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
   /** Log error to console. */
   logError(...args: any[]) {
     if (this.options.debugLevel! >= 1) {
-      console.error(this.toString(), ...args);
+      console.error(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
   /** Log to console if opts.debugLevel >= 3 */
   logInfo(...args: any[]) {
     if (this.options.debugLevel! >= 3) {
-      console.info(this.toString(), ...args);
+      console.info(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
   /** @internal */
   logTime(label: string): string {
     if (this.options.debugLevel! >= 4) {
-      console.time(this + ": " + label);
+      console.time(this + ": " + label); // eslint-disable-line no-console
     }
     return label;
   }
@@ -1517,14 +1517,14 @@ export class Wunderbaum {
   /** @internal */
   logTimeEnd(label: string): void {
     if (this.options.debugLevel! >= 4) {
-      console.timeEnd(this + ": " + label);
+      console.timeEnd(this + ": " + label); // eslint-disable-line no-console
     }
   }
 
   /** Log to console if opts.debugLevel >= 2 */
   logWarn(...args: any[]) {
     if (this.options.debugLevel! >= 2) {
-      console.warn(this.toString(), ...args);
+      console.warn(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
