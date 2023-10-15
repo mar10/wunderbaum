@@ -227,7 +227,7 @@ div.wunderbaum span.wb-node i.wb-icon,
 div.wunderbaum span.wb-node i.wb-indent {
   height: var(--wb-icon-outer-height);
   width: var(--wb-icon-outer-width);
-  padding: var(--wb-icon-padding) var(--wb-icon-padding-x);
+  padding: var(--wb-icon-padding-y) var(--wb-icon-padding-x);
   display: inline-block;
 }
 div.wunderbaum span.wb-node i.wb-expander,
@@ -355,16 +355,16 @@ div.wunderbaum div.wb-row.wb-drop-target .wb-node .wb-icon::after {
   z-index: 1000;
   content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAQCAMAAABA3o1rAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACKUExURe/v9/f39+//7+f35+f/79bW5wgIawwYd97e55Tnpc731rjA2d7350LOY1LWa7Xvvf///wAQcyAze97e773vxnuczgA5pQBCpdb33rXvxu//9whjxgBaxlKU1oOz5ABz3gB73tbn99bW1rXe/wCM9xiU997v/97e3gCc/xil/9bv/wic/+/3/wAAALM9X5QAAAAudFJOU////////////////////////////////////////////////////////////wCCj3NVAAAACXBIWXMAAA7DAAAOwwHHb6hkAAAAqUlEQVQoU6WQ2w6CMAxA54agsCHq1HlFBREv/f/fs1tHAoaoiedlbXrWtGXwhV8FNqAXuAi4DwkShmE0cgGIcSwCCgkSkrAxpEonot0DhQxJptFsbnOpdNdgsFh6VtYwyqzTmG+oijDY7hr22E4qY7QybeGQe46nsxP0Wwc3Q1GWl+qKec8MlqKubxX+xzV7tkDuD1+3d+heigT2zGx/hCMUeUj4wL8CwAsW1kqCTugMCwAAAABJRU5ErkJggg==);
   left: 0;
-  top: calc((22px - --wb-icon-height) / 2);
+  top: calc((22px - var(--wb-icon-height)) / 2);
 }
 div.wunderbaum div.wb-row.wb-drop-target.wb-drop-before .wb-node .wb-icon::after,
 div.wunderbaum div.wb-row.wb-drop-target.wb-drop-after .wb-node .wb-icon::after {
   content: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAAAQCAMAAACROYkbAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAACNUExURe/v9/f39+//7+f35+f/79bW5wgIawwYd97e55Tnpc731rjA2d7350LOY1LWa7Xvvf///wAQcyAze97e773vxgAAAHuczgA5pQBCpdb33rXvxu//9whjxgBaxlKU1oOz5ABz3gB73tbn99bW1rXe/wCM9xiU997v/97e3gCc/xil/9bv/wic/+/3/wAAAParqS4AAAAvdFJOU/////////////////////////////////////////////////////////////8AWqU49wAAAAlwSFlzAAAOwwAADsMBx2+oZAAAALlJREFUOE/FktsSgiAQhglMS8WstKLzQTM77Ps/XguL16I208cFyzB8/LPAYCC/ErARzcCFx23pBgnGfjAxBYhpKDwq3SBB5DeGWCYz0SUDClIkmgeLpV7HMiNDbrbbYbBaWzbaoKTaJiHfQe5oYLA/NBwxTiyVyqTSghYwox4MTmfL5XozgqxjAtODoizv1QPXPXqgKer6WeH9+Iw9XgF5ve15/Q+6/SQSsE+q8yMcocoREgzg3wKAL4vrpBIKREShAAAAAElFTkSuQmCC);
   left: 0;
-  top: calc((22px - --wb-icon-height) / 2 - 11px);
+  top: calc((22px - var(--wb-icon-height)) / 2 - 11px);
 }
 div.wunderbaum div.wb-row.wb-drop-target.wb-drop-after .wb-node .wb-icon::after {
-  top: calc((22px - --wb-icon-height) / 2 + 11px);
+  top: calc((22px - var(--wb-icon-height)) / 2 + 11px);
 }
 div.wunderbaum.wb-rainbow i.wb-expander:nth-child(4n+1),
 div.wunderbaum.wb-rainbow i.wb-indent:nth-child(4n+1) {
@@ -480,6 +480,7 @@ i.wb-icon > span.wb-badge {
   text-align: center;
   white-space: nowrap;
   border-radius: 0.5rem;
+  pointer-events: none;
 }
 
 /* Class 'wb-tristate' is used to mark checkboxes that should toggle like

@@ -764,10 +764,6 @@ declare module "wb_node" {
         /** Change node's {@link key} and/or {@link refKey}.  */
         setKey(key: string | null, refKey: string | null): void;
         /**
-         * @deprecated since v0.3.6: use `update()` instead.
-         */
-        setModified(change?: ChangeType): void;
-        /**
          * Trigger a repaint, typically after a status or data change.
          *
          * `change` defaults to 'data', which handles modifcations of title, icon,
@@ -1792,7 +1788,7 @@ declare module "types" {
             inputElem: HTMLInputElement;
         }) => any) | Promise<any>;
     };
-    export type GridOptionsType = {};
+    export type GridOptionsType = object;
     export type InsertNodeType = "before" | "after" | "prependChild" | "appendChild";
     export type DropRegionType = "over" | "before" | "after";
     export type DropRegionTypeSet = Set<DropRegionType>;
@@ -1801,96 +1797,96 @@ declare module "types" {
          * Expand nodes after n milliseconds of hovering
          * @default 1500
          */
-        autoExpandMS: 1500;
+        autoExpandMS?: 1500;
         /**
          * true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
          * @default false
          */
-        multiSource: false;
+        multiSource?: false;
         /**
          * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
          * @default "all"
          */
-        effectAllowed: "all";
+        effectAllowed?: "all";
         /**
          * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
          * @default "move"
          */
-        dropEffectDefault: string;
+        dropEffectDefault?: string;
         /**
          * Prevent dropping nodes from different Wunderbaum trees
          * @default false
          */
-        preventForeignNodes: boolean;
+        preventForeignNodes?: boolean;
         /**
          * Prevent dropping items on unloaded lazy Wunderbaum tree nodes
          * @default true
          */
-        preventLazyParents: boolean;
+        preventLazyParents?: boolean;
         /**
          * Prevent dropping items other than Wunderbaum tree nodes
          * @default false
          */
-        preventNonNodes: boolean;
+        preventNonNodes?: boolean;
         /**
          * Prevent dropping nodes on own descendants
          * @default true
          */
-        preventRecursion: boolean;
+        preventRecursion?: boolean;
         /**
          * Prevent dropping nodes under same direct parent
          * @default false
          */
-        preventSameParent: false;
+        preventSameParent?: false;
         /**
          * Prevent dropping nodes 'before self', etc. (move only)
          * @default true
          */
-        preventVoidMoves: boolean;
+        preventVoidMoves?: boolean;
         /**
          * Serialize Node Data to datatransfer object
          * @default true
          */
-        serializeClipboardData: boolean | ((nodeData: WbNodeData) => string);
+        serializeClipboardData?: boolean | ((nodeData: WbNodeData) => string);
         /**
          * Enable auto-scrolling while dragging
          * @default true
          */
-        scroll: boolean;
+        scroll?: boolean;
         /**
          * Active top/bottom margin in pixel
          * @default 20
          */
-        scrollSensitivity: 20;
+        scrollSensitivity?: 20;
         /**
          * Pixel per event
          * @default 5
          */
-        scrollSpeed: 5;
+        scrollSpeed?: 5;
         /**
          * Optional callback passed to `toDict` on dragStart @since 2.38
          * @default null
          */
-        sourceCopyHook: null;
+        sourceCopyHook?: null;
         /**
          * Callback(sourceNode, data), return true, to enable dnd drag
          * @default null
          */
-        dragStart: null | ((e: WbNodeEventType & {
+        dragStart?: null | ((e: WbNodeEventType & {
             event: DragEvent;
         }) => boolean);
         /**
          * Callback(sourceNode, data)
          * @default null
          */
-        drag: null | ((e: WbNodeEventType & {
+        drag?: null | ((e: WbNodeEventType & {
             event: DragEvent;
         }) => void);
         /**
          * Callback(sourceNode, data)
          * @default null
          */
-        dragEnd: null | ((e: WbNodeEventType & {
+        dragEnd?: null | ((e: WbNodeEventType & {
             event: DragEvent;
         }) => void);
         /**
@@ -1904,7 +1900,7 @@ declare module "types" {
          * Callback(targetNode, data)
          * @default null
          */
-        dragOver: null | ((e: WbNodeEventType & {
+        dragOver?: null | ((e: WbNodeEventType & {
             event: DragEvent;
         }) => void);
         /**
@@ -1928,7 +1924,7 @@ declare module "types" {
          * Callback(targetNode, data)
          * @default null
          */
-        dragLeave: null;
+        dragLeave?: null;
     };
 }
 declare module "wb_extension_base" {
@@ -2158,13 +2154,16 @@ declare module "wb_ext_dnd" {
         protected _leaveNode(): void;
         /** */
         protected unifyDragover(res: any): DropRegionTypeSet | false;
-        /** */
+        /**
+         * Calculates the drop region based on the drag event and the allowed drop regions.
+         */
         protected _calcDropRegion(e: DragEvent, allowed: DropRegionTypeSet | null): DropRegionType | false;
         protected applyScrollDir(): void;
         protected autoScroll(viewportY: number): number;
         /** Return true if a drag operation currently in progress. */
         isDragging(): boolean;
         protected onDragEvent(e: DragEvent): boolean;
+        private _isVoidDrop;
         protected onDropEvent(e: DragEvent): boolean;
     }
 }
@@ -2651,10 +2650,6 @@ declare module "wunderbaum" {
         setActiveNode(key: string, flag?: boolean, options?: SetActiveOptions): void;
         /** Set or remove keybaord focus to the tree container. */
         setFocus(flag?: boolean): void;
-        /**
-         * @deprecated since v0.3.6: use `update()` instead.
-         */
-        setModified(change: ChangeType, ...args: any[]): void;
         /**
          * Schedule an update request to reflect a tree change.
          * The render operation is async and debounced unless the `immediate` option

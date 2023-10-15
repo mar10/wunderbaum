@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -126,7 +126,8 @@
           // accept `null` or `undefined`
           return obj;
       }
-      let length = obj.length, i = 0;
+      const length = obj.length;
+      let i = 0;
       if (typeof length === "number") {
           for (; i < length; i++) {
               if (callback.call(obj[i], i, obj[i]) === false) {
@@ -135,7 +136,7 @@
           }
       }
       else {
-          for (let k in obj) {
+          for (const k in obj) {
               if (callback.call(obj[i], k, obj[k]) === false) {
                   break;
               }
@@ -235,9 +236,11 @@
                   value = input.valueAsNumber;
                   break;
               case "radio":
-                  const name = input.name;
-                  const checked = input.parentElement.querySelector(`input[name="${name}"]:checked`);
-                  value = checked ? checked.value : undefined;
+                  {
+                      const name = input.name;
+                      const checked = input.parentElement.querySelector(`input[name="${name}"]:checked`);
+                      value = checked ? checked.value : undefined;
+                  }
                   break;
               case "text":
               default:
@@ -409,7 +412,9 @@
    * ```
    */
   function eventToString(event) {
-      let key = event.key, et = event.type, s = [];
+      const key = event.key;
+      const et = event.type;
+      const s = [];
       if (event.altKey) {
           s.push("Alt");
       }
@@ -447,11 +452,11 @@
   // TODO: support deep merge --> https://stackoverflow.com/a/42740894
   function extend(...args) {
       for (let i = 1; i < args.length; i++) {
-          let arg = args[i];
+          const arg = args[i];
           if (arg == null) {
               continue;
           }
-          for (let key in arg) {
+          for (const key in arg) {
               if (Object.prototype.hasOwnProperty.call(arg, key)) {
                   args[0][key] = arg[key];
               }
@@ -519,12 +524,16 @@
     ```
     */
   function overrideMethod(instance, methodName, handler, ctx) {
-      let prevSuper, prevSuperApply, self = ctx || instance, prevFunc = instance[methodName], _super = (...args) => {
+      let prevSuper, prevSuperApply;
+      const self = ctx || instance;
+      const prevFunc = instance[methodName];
+      const _super = (...args) => {
           return prevFunc.apply(self, args);
-      }, _superApply = (argsArray) => {
+      };
+      const _superApply = (argsArray) => {
           return prevFunc.apply(self, argsArray);
       };
-      let wrapper = (...args) => {
+      const wrapper = (...args) => {
           try {
               prevSuper = self._super;
               prevSuperApply = self._superApply;
@@ -610,7 +619,7 @@
           [ext, name] = name.split(".");
           opts = opts[ext];
       }
-      let value = opts ? opts[name] : null;
+      const value = opts ? opts[name] : null;
       // Use value from value options dict, fallback do default
       return value !== null && value !== void 0 ? value : defaultValue;
   }
@@ -620,7 +629,7 @@
           return val;
       }
       if (typeof val === "string") {
-          let set = new Set();
+          const set = new Set();
           for (const c of val.split(" ")) {
               set.add(c.trim());
           }
@@ -693,7 +702,7 @@
                   callback.apply(this, useArgs);
               }
               catch (error) {
-                  console.error(error);
+                  console.error(error); // eslint-disable-line no-console
               }
               const elap = Date.now() - start;
               const curDelay = Math.min(Math.max(minDelay, elap * opts.delayFactor), maxDelay);
@@ -762,7 +771,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -826,7 +835,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1091,6 +1100,7 @@
           const time = Date.now();
           const isInvoking = shouldInvoke(time);
           lastArgs = args;
+          // eslint-disable-next-line  @typescript-eslint/no-this-alias
           lastThis = this;
           lastCallTime = time;
           if (isInvoking) {
@@ -1181,7 +1191,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1231,9 +1241,15 @@
           });
       }
       _applyFilterImpl(filter, branchMode, _opts) {
-          let match, temp, start = Date.now(), count = 0, tree = this.tree, treeOpts = tree.options, 
+          let match, temp, count = 0;
+          const start = Date.now();
+          const tree = this.tree;
+          const treeOpts = tree.options;
           // escapeTitles = treeOpts.escapeTitles,
-          prevAutoCollapse = treeOpts.autoCollapse, opts = extend({}, treeOpts.filter, _opts), hideMode = opts.mode === "hide", leavesOnly = !!opts.leavesOnly && !branchMode;
+          const prevAutoCollapse = treeOpts.autoCollapse;
+          const opts = extend({}, treeOpts.filter, _opts);
+          const hideMode = opts.mode === "hide";
+          const leavesOnly = !!opts.leavesOnly && !branchMode;
           // Default to 'match title substring (case insensitive)'
           if (typeof filter === "string") {
               if (filter === "") {
@@ -1260,16 +1276,16 @@
               else {
                   match = escapeRegex(filter); // make sure a '.' is treated literally
               }
-              let re = new RegExp(match, "i");
-              let reHighlight = new RegExp(escapeRegex(filter), "gi");
+              const re = new RegExp(match, "i");
+              const reHighlight = new RegExp(escapeRegex(filter), "gi");
               filter = (node) => {
                   if (!node.title) {
                       return false;
                   }
                   // let text = escapeTitles ? node.title : extractHtmlText(node.title);
-                  let text = node.title;
+                  const text = node.title;
                   // `.match` instead of `.test` to get the capture groups
-                  let res = text.match(re);
+                  const res = text.match(re);
                   if (res && opts.highlight) {
                       // if (escapeTitles) {
                       if (opts.fuzzy) {
@@ -1302,6 +1318,7 @@
               };
           }
           tree.filterMode = opts.mode;
+          // eslint-disable-next-line prefer-rest-params, prefer-spread
           this.lastFilterArgs = arguments;
           tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
           tree.element.classList.toggle("wb-ext-filter-dim", !hideMode);
@@ -1379,10 +1396,11 @@
        */
       updateFilter() {
           var _a;
-          let tree = this.tree;
+          const tree = this.tree;
           if (tree.filterMode &&
               this.lastFilterArgs &&
               ((_a = tree.options.filter) === null || _a === void 0 ? void 0 : _a.autoApply)) {
+              // eslint-disable-next-line prefer-spread
               this._applyFilterNoUpdate.apply(this, this.lastFilterArgs);
           }
           else {
@@ -1393,7 +1411,7 @@
        * [ext-filter] Reset the filter.
        */
       clearFilter() {
-          let tree = this.tree;
+          const tree = this.tree;
           // statusNode = tree.root.findDirectChild(KEY_NODATA),
           // escapeTitles = tree.options.escapeTitles;
           tree.enableUpdate(false);
@@ -1441,10 +1459,10 @@
    * @param {RegExpMatchArray} matches
    */
   function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
-      let matchingIndices = [];
+      const matchingIndices = [];
       // get the indices of matched characters (Iterate through `RegExpMatchArray`)
       for (let _matchingArrIdx = 1; _matchingArrIdx < matches.length; _matchingArrIdx++) {
-          let _mIdx = 
+          const _mIdx = 
           // get matching char index by cumulatively adding
           // the matched group length
           matches[_matchingArrIdx].length +
@@ -1453,7 +1471,7 @@
           matchingIndices.push(_mIdx);
       }
       // Map each `text` char to its position and store in `textPoses`.
-      let textPoses = text.split("");
+      const textPoses = text.split("");
       if (escapeTitles) {
           // If escaping the title, then wrap the matching char within exotic chars
           matchingIndices.forEach(function (v) {
@@ -1473,7 +1491,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1503,7 +1521,13 @@
           return !!ace;
       }
       onKeyEvent(data) {
-          const event = data.event, tree = this.tree, opts = data.options, activate = !event.ctrlKey || opts.autoActivate, curInput = this._getEmbeddedInputElem(event.target), inputHasFocus = curInput && this._isCurInputFocused(), navModeOption = opts.navigationModeOption;
+          const event = data.event;
+          const tree = this.tree;
+          const opts = data.options;
+          const activate = !event.ctrlKey || opts.autoActivate;
+          const curInput = this._getEmbeddedInputElem(event.target);
+          const inputHasFocus = curInput && this._isCurInputFocused();
+          const navModeOption = opts.navigationModeOption;
           // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
           let focusNode, eventName = eventToString(event), node = data.node, handled = true;
           // tree.log(`onKeyEvent: ${eventName}, curInput`, curInput);
@@ -1568,7 +1592,7 @@
                   }
                   tree.lastQuicksearchTime = stamp;
                   tree.lastQuicksearchTerm += eventName;
-                  let matchNode = tree.findNextNode(tree.lastQuicksearchTerm, tree.getActiveNode());
+                  const matchNode = tree.findNextNode(tree.lastQuicksearchTerm, tree.getActiveNode());
                   if (matchNode) {
                       matchNode.setActive(true, { event: event });
                   }
@@ -1813,7 +1837,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1834,19 +1858,20 @@
               const ignoreEvents = this.ignoreEvents;
               const prefix = this.prefix;
               overrideMethod(tree, "callEvent", function (name, extra) {
+                  /* eslint-disable prefer-rest-params */
                   if (ignoreEvents.has(name)) {
                       return tree._superApply(arguments);
                   }
                   const start = Date.now();
                   const res = tree._superApply(arguments);
-                  console.debug(`${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`, arguments[1]);
+                  tree.logDebug(`${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`, arguments[1]);
                   return res;
               });
           }
       }
       onKeyEvent(data) {
           // this.tree.logInfo("onKeyEvent", eventToString(data.event), data);
-          console.debug(`${this.prefix}: onKeyEvent()`, data);
+          this.tree.logDebug(`${this.prefix}: onKeyEvent()`, data);
           return;
       }
   }
@@ -1854,7 +1879,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
   /**
@@ -2012,7 +2037,7 @@
           throw new Error(`source._positional must not include "children": ${_positional}`);
       }
       // Inverse keyMap:
-      let longToShort = {};
+      const longToShort = {};
       if (_keyMap) {
           for (const [key, value] of Object.entries(_keyMap)) {
               longToShort[value] = key;
@@ -2085,7 +2110,7 @@
       delete source._typeList;
       delete source._positional;
       function _iter(childList) {
-          for (let node of childList) {
+          for (const node of childList) {
               // Expand short alias names
               if (_keyMap) {
                   // Iterate over a list of names, because we modify inside the loop:
@@ -2120,7 +2145,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2215,7 +2240,9 @@
           }
           throw new Error("Unsupported drop region definition: " + res);
       }
-      /** */
+      /**
+       * Calculates the drop region based on the drag event and the allowed drop regions.
+       */
       _calcDropRegion(e, allowed) {
           const dy = e.offsetY;
           if (!allowed) {
@@ -2313,17 +2340,19 @@
                   e.preventDefault();
                   return false;
               }
-              let nodeData = srcNode.toDict(true, (n) => {
+              const nodeData = srcNode.toDict(true, (n) => {
                   // We don't want to re-use the key on drop:
                   n._org_key = n.key;
                   delete n.key;
               });
               nodeData._treeId = srcNode.tree.id;
               if (dndOpts.serializeClipboardData) {
-                  if (typeof dndOpts.serializeClipboardData === "function")
+                  if (typeof dndOpts.serializeClipboardData === "function") {
                       e.dataTransfer.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData));
-                  else
+                  }
+                  else {
                       e.dataTransfer.setData(nodeMimeType, JSON.stringify(nodeData));
+                  }
               }
               // e.dataTransfer!.setData("text/html", $(node.span).html());
               e.dataTransfer.setData("text/plain", srcNode.title);
@@ -2336,8 +2365,9 @@
               // --- drag ---
           }
           else if (e.type === "drag") {
-              if (dndOpts.drag)
+              if (dndOpts.drag) {
                   srcNode._callEvent("dnd.drag", { event: e });
+              }
               // --- dragend ---
           }
           else if (e.type === "dragend") {
@@ -2346,10 +2376,26 @@
               if (this.lastTargetNode) {
                   this._leaveNode();
               }
-              if (dndOpts.dragEnd)
+              if (dndOpts.dragEnd) {
                   srcNode._callEvent("dnd.dragEnd", { event: e });
+              }
           }
           return true;
+      }
+      /* Don't allow void operation ('drop on self').*/
+      _isVoidDrop(targetNode, srcNode, dropRegion) {
+          this.tree.logDebug(`_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`);
+          // TODO: should be checked on  move only
+          if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
+              return false;
+          }
+          if ((dropRegion === "before" && targetNode === srcNode.getNextSibling()) ||
+              (dropRegion === "after" && targetNode === srcNode.getPrevSibling())) {
+              this.tree.logDebug("Prevented before/after self");
+              return true;
+          }
+          // Don't allow dropping nodes on own parent (or self)
+          return srcNode === targetNode || srcNode.parent === targetNode;
       }
       onDropEvent(e) {
           // const isLink = event.dataTransfer.types.includes("text/uri-list");
@@ -2358,6 +2404,7 @@
           const targetNode = Wunderbaum.getNode(e);
           const dndOpts = this.treeOpts.dnd;
           const dt = e.dataTransfer;
+          const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
           if (!targetNode) {
               this._leaveNode();
               return;
@@ -2370,7 +2417,7 @@
                   ", ea: " +
                   (dt === null || dt === void 0 ? void 0 : dt.effectAllowed) +
                   ", de: " +
-                  (dt === null || dt === void 0 ? void 0 : dt.dropEffect), ", cy: " + e.offsetY, ", r: " + this._calcDropRegion(e, this.lastAllowedDropRegions), e);
+                  (dt === null || dt === void 0 ? void 0 : dt.dropEffect), ", cy: " + e.offsetY, ", r: " + dropRegion, ", srcNode: " + srcNode, e);
           }
           // --- dragenter ---
           if (e.type === "dragenter") {
@@ -2392,16 +2439,15 @@
                   // Prevent dropping items other than Wunderbaum tree nodes:
                   (dndOpts.preventNonNodes && !srcNode) ||
                   // Prevent dropping nodes on own descendants:
-                  (dndOpts.preventRecursion &&
-                      srcNode &&
-                      srcNode.isAncestorOf(targetNode)) ||
+                  (dndOpts.preventRecursion && (srcNode === null || srcNode === void 0 ? void 0 : srcNode.isAncestorOf(targetNode))) ||
                   // Prevent dropping nodes under same direct parent:
                   (dndOpts.preventSameParent &&
                       srcNode &&
                       targetNode.parent === srcNode.parent) ||
-                  // Don't allow void operation ('drop on self'): TODO: should be checke onn  move only
+                  // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
                   (dndOpts.preventVoidMoves && targetNode === srcNode)) {
                   dt.dropEffect = "none";
+                  this.tree.log("Prevented drop operation");
                   return true; // Prevent drop operation
               }
               // User may return a set of regions (or `false` to prevent drop)
@@ -2422,8 +2468,9 @@
           else if (e.type === "dragover") {
               const viewportY = e.clientY - this.tree.element.offsetTop;
               this.autoScroll(viewportY);
-              if (dndOpts.dragOver)
+              if (dndOpts.dragOver) {
                   targetNode._callEvent("dnd.dragOver", { event: e });
+              }
               const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
               this.lastDropRegion = region;
               if (dndOpts.autoExpandMS > 0 &&
@@ -2433,7 +2480,7 @@
                   targetNode._callEvent("dnd.dragExpand", { event: e }) !== false) {
                   targetNode.setExpanded();
               }
-              if (!region) {
+              if (!region || this._isVoidDrop(targetNode, srcNode, region)) {
                   return; // We already rejected in dragenter
               }
               targetNode.setClass("wb-drop-over", region === "over");
@@ -2448,8 +2495,9 @@
           else if (e.type === "dragleave") {
               // NOTE: we cannot trust this event, since it is always fired,
               // Instead we remove the marker on dragenter
-              if (dndOpts.dragLeave)
+              if (dndOpts.dragLeave) {
                   targetNode._callEvent("dnd.dragLeave", { event: e });
+              }
               // --- drop ---
           }
           else if (e.type === "drop") {
@@ -2469,7 +2517,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2605,7 +2653,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2642,7 +2690,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2695,7 +2743,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   /** WunderbaumNode properties that can be passed with source data.
    * (Any other source properties will be stored as `node.data.PROP`.)
@@ -2869,7 +2917,7 @@
                   nodeData = [nodeData];
               }
               const forceExpand = applyMinExpanLevel && _level < tree.options.minExpandLevel;
-              for (let child of nodeData) {
+              for (const child of nodeData) {
                   const subChildren = child.children;
                   delete child.children;
                   const n = new WunderbaumNode(tree, this, child);
@@ -2890,7 +2938,7 @@
               else {
                   // Returns null if before is not a direct child:
                   before = this.findDirectChild(before);
-                  let pos = this.children.indexOf(before);
+                  const pos = this.children.indexOf(before);
                   assert(pos >= 0, `options.before must be a direct child of ${this}`);
                   // insert nodeList after children[pos]
                   this.children.splice(pos, 0, ...nodeList);
@@ -2956,7 +3004,7 @@
        * (Automatically called when `autoCollapse` is true.)
        */
       collapseSiblings(options) {
-          for (let node of this.parent.children) {
+          for (const node of this.parent.children) {
               if (node !== this && node.expanded) {
                   node.setExpanded(false, options);
               }
@@ -3000,7 +3048,7 @@
       async expandAll(flag = true, options) {
           const tree = this.tree;
           const minExpandLevel = this.tree.options.minExpandLevel;
-          let { depth = 99, loadLazy, force, keepActiveNodeVisible = true, } = options !== null && options !== void 0 ? options : {};
+          const { depth = 99, loadLazy, force, keepActiveNodeVisible = true, } = options !== null && options !== void 0 ? options : {};
           const expandOpts = {
               scrollIntoView: false,
               force: force,
@@ -3101,9 +3149,10 @@
       }
       /** Return the direct child with a given key, index or null. */
       findDirectChild(ptr) {
-          let cl = this.children;
-          if (!cl)
+          const cl = this.children;
+          if (!cl) {
               return null;
+          }
           if (typeof ptr === "string") {
               for (let i = 0, l = cl.length; i < l; i++) {
                   if (cl[i].key === ptr) {
@@ -3166,7 +3215,7 @@
               return parts.join("");
           };
           yield name_cb(this);
-          for (let node of this) {
+          for (const node of this) {
               yield _format_line(node);
           }
       }
@@ -3188,7 +3237,7 @@
        */
       format(name_cb, connectors) {
           const a = [];
-          for (let line of this.format_iter(name_cb, connectors)) {
+          for (const line of this.format_iter(name_cb, connectors)) {
               a.push(line);
           }
           return a.join("\n");
@@ -3227,8 +3276,8 @@
       }
       /** Return the successive node (under the same parent) or null. */
       getNextSibling() {
-          let ac = this.parent.children;
-          let idx = ac.indexOf(this);
+          const ac = this.parent.children;
+          const idx = ac.indexOf(this);
           return ac[idx + 1] || null;
       }
       /** Return the parent node (null for the system root node). */
@@ -3241,7 +3290,8 @@
        * @param includeSelf Include the node itself.
        */
       getParentList(includeRoot = false, includeSelf = false) {
-          let l = [], dtn = includeSelf ? this : this.parent;
+          const l = [];
+          let dtn = includeSelf ? this : this.parent;
           while (dtn) {
               if (includeRoot || dtn.parent) {
                   l.unshift(dtn);
@@ -3259,7 +3309,9 @@
           // includeSelf = includeSelf !== false;
           // part = part || "title";
           // separator = separator || "/";
-          let val, path = [], isFunc = typeof part === "function";
+          let val;
+          const path = [];
+          const isFunc = typeof part === "function";
           this.visitParents((n) => {
               if (n.parent) {
                   val = isFunc
@@ -3273,8 +3325,8 @@
       }
       /** Return the preceeding node (under the same parent) or null. */
       getPrevSibling() {
-          let ac = this.parent.children;
-          let idx = ac.indexOf(this);
+          const ac = this.parent.children;
+          const idx = ac.indexOf(this);
           return ac[idx - 1] || null;
       }
       /** Return true if node has children.
@@ -3329,7 +3381,7 @@
           if (!other || other.tree !== this.tree) {
               return false;
           }
-          var p = this.parent;
+          let p = this.parent;
           while (p) {
               if (p === other) {
                   return true;
@@ -3368,12 +3420,12 @@
       }
       /** Return true if this node is the first node of its parent's children. */
       isFirstSibling() {
-          var p = this.parent;
+          const p = this.parent;
           return !p || p.children[0] === this;
       }
       /** Return true if this node is the last node of its parent's children. */
       isLastSibling() {
-          var p = this.parent;
+          const p = this.parent;
           return !p || p.children[p.children.length - 1] === this;
       }
       /** Return true if this node is lazy (even if data was already loaded) */
@@ -3447,7 +3499,8 @@
        * whether the node is scrolled into the visible part of the screen or viewport.
        */
       isVisible() {
-          let i, l, n, hasFilter = this.tree.filterMode === "hide", parents = this.getParentList(false, false);
+          const hasFilter = this.tree.filterMode === "hide";
+          const parents = this.getParentList(false, false);
           // TODO: check $(n.span).is(":visible")
           // i.e. return false for nodes (but not parents) that are hidden
           // by a filter
@@ -3455,8 +3508,8 @@
               // this.debug( "isVisible: HIDDEN (" + hasFilter + ", " + this.match + ", " + this.match + ")" );
               return false;
           }
-          for (i = 0, l = parents.length; i < l; i++) {
-              n = parents[i];
+          for (let i = 0, l = parents.length; i < l; i++) {
+              const n = parents[i];
               if (!n.expanded) {
                   // this.debug("isVisible: HIDDEN (parent collapsed)");
                   return false;
@@ -3566,7 +3619,7 @@
           this._requestId = requestId;
           // const timerLabel = tree.logTime(this + ".load()");
           try {
-              let url = typeof source === "string" ? source : source.url;
+              const url = typeof source === "string" ? source : source.url;
               if (!url) {
                   // An array or a plain object (that does NOT contain a `.url` property)
                   // will be treated as native Wunderbaum data
@@ -3654,34 +3707,30 @@
       }
       /** Alias for `logDebug` */
       log(...args) {
-          this.logDebug.apply(this, args);
+          this.logDebug(...args);
       }
       /* Log to console if opts.debugLevel >= 4 */
       logDebug(...args) {
           if (this.tree.options.debugLevel >= 4) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.log.apply(console, args);
+              console.log(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /* Log error to console. */
       logError(...args) {
           if (this.tree.options.debugLevel >= 1) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.error.apply(console, args);
+              console.error(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /* Log to console if opts.debugLevel >= 3 */
       logInfo(...args) {
           if (this.tree.options.debugLevel >= 3) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.info.apply(console, args);
+              console.info(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /* Log warning to console if opts.debugLevel >= 2 */
       logWarn(...args) {
           if (this.tree.options.debugLevel >= 2) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.warn.apply(console, args);
+              console.warn(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /** Expand all parents and optionally scroll into visible area as neccessary.
@@ -3690,7 +3739,13 @@
        *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
        */
       async makeVisible(options) {
-          let i, dfd = new Deferred(), deferreds = [], parents = this.getParentList(false, false), len = parents.length, noAnimation = getOption(options, "noAnimation", false), scroll = getOption(options, "scrollIntoView", true);
+          let i;
+          const dfd = new Deferred();
+          const deferreds = [];
+          const parents = this.getParentList(false, false);
+          const len = parents.length;
+          const noAnimation = getOption(options, "noAnimation", false);
+          const scroll = getOption(options, "scrollIntoView", true);
           // Expand bottom-up, so only the top node is animated
           for (i = len - 1; i >= 0; i--) {
               // self.debug("pushexpand" + parents[i]);
@@ -3729,7 +3784,10 @@
                   mode = "appendChild";
               }
           }
-          let pos, tree = this.tree, prevParent = this.parent, targetParent = mode === "appendChild" ? targetNode : targetNode.parent;
+          let pos;
+          const tree = this.tree;
+          const prevParent = this.parent;
+          const targetParent = mode === "appendChild" ? targetNode : targetNode.parent;
           if (this === targetNode) {
               return;
           }
@@ -3837,7 +3895,9 @@
           try {
               node.makeVisible({ scrollIntoView: false });
           }
-          catch (e) { } // #272
+          catch (e) {
+              // ignore
+          }
           node.setFocus();
           if ((options === null || options === void 0 ? void 0 : options.activate) === false) {
               return Promise.resolve(this);
@@ -3904,7 +3964,7 @@
               ? (this._rowElem.querySelectorAll("span.wb-col"))
               : null;
           let idx = 0;
-          for (let col of this.tree.columns) {
+          for (const col of this.tree.columns) {
               allColInfosById[col.id] = {
                   id: col.id,
                   idx: idx,
@@ -3977,7 +4037,7 @@
               parentElem.appendChild(iconSpan);
           }
           // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
-          let cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
+          const cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
           let badge = null;
           if (cbRes != null && cbRes !== false) {
               let classes = "";
@@ -4013,14 +4073,11 @@
           const checkbox = this.getOption("checkbox");
           const columns = tree.columns;
           const level = this.getLevel();
-          let elem;
-          let nodeElem;
-          let rowDiv = this._rowElem;
-          let titleSpan;
-          let checkboxSpan = null;
-          let iconSpan;
-          let expanderSpan = null;
           const activeColIdx = tree.isRowNav() ? null : tree.activeColIdx;
+          let elem;
+          let rowDiv = this._rowElem;
+          let checkboxSpan = null;
+          let expanderSpan = null;
           const isNew = !rowDiv;
           assert(isNew);
           assert(!isNew || (opts && opts.after), "opts.after expected, unless updating");
@@ -4031,7 +4088,7 @@
           this._rowElem = rowDiv;
           // Attach a node reference to the DOM Element:
           rowDiv._wb_node = this;
-          nodeElem = document.createElement("span");
+          const nodeElem = document.createElement("span");
           nodeElem.classList.add("wb-node", "wb-col");
           rowDiv.appendChild(nodeElem);
           let ofsTitlePx = 0;
@@ -4058,11 +4115,11 @@
           }
           // Render the icon (show a 'loading' icon if we do not have an expander that
           // we would prefer).
-          iconSpan = this._createIcon(tree.iconMap, nodeElem, null, !expanderSpan);
+          const iconSpan = this._createIcon(tree.iconMap, nodeElem, null, !expanderSpan);
           if (iconSpan) {
               ofsTitlePx += ICON_WIDTH;
           }
-          titleSpan = document.createElement("span");
+          const titleSpan = document.createElement("span");
           titleSpan.classList.add("wb-title");
           nodeElem.appendChild(titleSpan);
           // this._callEvent("enhanceTitle", { titleSpan: titleSpan });
@@ -4077,7 +4134,7 @@
           const isColspan = this.isColspan();
           if (!isColspan && columns.length > 1) {
               let colIdx = 0;
-              for (let col of columns) {
+              for (const col of columns) {
                   colIdx++;
                   let colElem;
                   if (col.id === "*") {
@@ -4150,7 +4207,7 @@
           // Set the width of the title span, so overflow ellipsis work
           if (!treeOptions.skeleton) {
               if (isColspan) {
-                  let vpWidth = tree.element.clientWidth;
+                  const vpWidth = tree.element.clientWidth;
                   titleSpan.style.width =
                       vpWidth - nodeElem._ofsTitlePx - TITLE_SPAN_PAD_Y + "px";
               }
@@ -4200,7 +4257,7 @@
           const nodeElem = rowDiv.querySelector("span.wb-node");
           const expanderSpan = nodeElem.querySelector("i.wb-expander");
           const checkboxSpan = nodeElem.querySelector("i.wb-checkbox");
-          let rowClasses = ["wb-row"];
+          const rowClasses = ["wb-row"];
           this.expanded ? rowClasses.push("wb-expanded") : 0;
           this.lazy ? rowClasses.push("wb-lazy") : 0;
           this.selected ? rowClasses.push("wb-selected") : 0;
@@ -4240,12 +4297,15 @@
               else if (this.lazy && this.children == null) {
                   image = iconMap.expanderLazy;
               }
-              if (image == null)
+              if (image == null) {
                   expanderSpan.classList.add("wb-indent");
-              else if (TEST_IMG.test(image))
+              }
+              else if (TEST_IMG.test(image)) {
                   expanderSpan.style.backgroundImage = `url('${image}')`;
-              else
+              }
+              else {
                   expanderSpan.className = "wb-expander " + image;
+              }
           }
           if (checkboxSpan) {
               let cbclass = "wb-checkbox ";
@@ -4276,7 +4336,7 @@
           // Fix active cell in cell-nav mode
           if (!opts.isNew) {
               let i = 0;
-              for (let colSpan of rowDiv.children) {
+              for (const colSpan of rowDiv.children) {
                   colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
               }
               // Update icon (if not opts.isNew, which would rebuild markup anyway)
@@ -4290,7 +4350,7 @@
               const colElems = rowDiv.querySelectorAll("span.wb-col");
               let idx = 0;
               let ofs = 0;
-              for (let colDef of this.tree.columns) {
+              for (const colDef of this.tree.columns) {
                   const colElem = colElems[idx];
                   colElem.style.left = `${ofs}px`;
                   colElem.style.width = `${colDef._widthPx}px`;
@@ -4419,16 +4479,16 @@
        * {@link Wunderbaum.getOption|Wunderbaum.getOption()}
        */
       getOption(name, defaultValue) {
-          let tree = this.tree;
+          const tree = this.tree;
           let opts = tree.options;
           // Lookup `name` in options dict
           if (name.indexOf(".") >= 0) {
               [opts, name] = name.split(".");
           }
-          let value = opts[name]; // ?? defaultValue;
+          const value = opts[name]; // ?? defaultValue;
           // A callback resolver always takes precedence
           if (typeof value === "function") {
-              let res = value.call(tree, {
+              const res = value.call(tree, {
                   type: "resolve",
                   tree: tree,
                   node: this,
@@ -4443,8 +4503,8 @@
               return this[name];
           }
           // Use value from type definition if defined
-          let typeInfo = this.type ? tree.types[this.type] : undefined;
-          let res = typeInfo ? typeInfo[name] : undefined;
+          const typeInfo = this.type ? tree.types[this.type] : undefined;
+          const res = typeInfo ? typeInfo[name] : undefined;
           if (res !== undefined) {
               return res;
           }
@@ -4493,10 +4553,12 @@
           if (prev !== this) {
               if (flag) {
                   tree.activeNode = this;
-                  if (focusNode || focusTree)
+                  if (focusNode || focusTree) {
                       tree.focusNode = this;
-                  if (focusTree)
+                  }
+                  if (focusTree) {
                       tree.setFocus();
+                  }
               }
               prev === null || prev === void 0 ? void 0 : prev.update(ChangeType.status);
               this.update(ChangeType.status);
@@ -4567,13 +4629,6 @@
           throw new Error("Not yet implemented");
       }
       /**
-       * @deprecated since v0.3.6: use `update()` instead.
-       */
-      setModified(change = ChangeType.data) {
-          this.logWarn("setModified() is deprecated: use update() instead.");
-          return this.update(change);
-      }
-      /**
        * Trigger a repaint, typically after a status or data change.
        *
        * `change` defaults to 'data', which handles modifcations of title, icon,
@@ -4593,7 +4648,7 @@
        * @param stopOnParents only return the topmost selected node (useful with selectMode 'hier')
        */
       getSelectedNodes(stopOnParents = false) {
-          let nodeList = [];
+          const nodeList = [];
           this.visit((node) => {
               if (node.selected) {
                   nodeList.push(node);
@@ -4662,7 +4717,7 @@
        */
       fixSelection3AfterClick(opts) {
           const force = !!(opts === null || opts === void 0 ? void 0 : opts.force);
-          let flag = this.isSelected();
+          const flag = this.isSelected();
           this.visit((node) => {
               if (node.radiogroup) {
                   return "skip"; // Don't (de)select this branch
@@ -4773,7 +4828,7 @@
                   if (!flag && !(options === null || options === void 0 ? void 0 : options.force)) {
                       return prev; // don't uncheck radio buttons
                   }
-                  for (let sibling of this.parent.children) {
+                  for (const sibling of this.parent.children) {
                       sibling.selected = sibling === this;
                   }
               }
@@ -4802,7 +4857,7 @@
           let statusNode = null;
           const _clearStatusNode = () => {
               // Remove dedicated dummy node, if any
-              let children = this.children;
+              const children = this.children;
               if (children && children.length && children[0].isStatusNode()) {
                   children[0].remove();
               }
@@ -4811,8 +4866,8 @@
               // Create/modify the dedicated dummy node for 'loading...' or
               // 'error!' status. (only called for direct child of the invisible
               // system root)
-              let children = this.children;
-              let firstChild = children ? children[0] : null;
+              const children = this.children;
+              const firstChild = children ? children[0] : null;
               assert(data.statusNodeType);
               assert(!firstChild || !firstChild.isStatusNode());
               statusNode = this.addNode(data, "prependChild");
@@ -4912,8 +4967,9 @@
        */
       triggerModifyChild(operation, child, extra) {
           this.logDebug(`modifyChild(${operation})`, extra, child);
-          if (!this.tree.options.modifyChild)
+          if (!this.tree.options.modifyChild) {
               return;
+          }
           if (child && child.parent !== this) {
               error("child " + child + " is not a child of " + this);
           }
@@ -4943,7 +4999,8 @@
        * @see {@link IterableIterator<WunderbaumNode>}, {@link Wunderbaum.visit}.
        */
       visit(callback, includeSelf = false) {
-          let i, l, res = true, children = this.children;
+          let res = true;
+          const children = this.children;
           if (includeSelf === true) {
               res = callback(this);
               if (res === false || res === "skip") {
@@ -4951,7 +5008,7 @@
               }
           }
           if (children) {
-              for (i = 0, l = children.length; i < l; i++) {
+              for (let i = 0, l = children.length; i < l; i++) {
                   res = children[i].visit(callback, true);
                   if (res === false) {
                       break;
@@ -4988,9 +5045,9 @@
        *     Return false to stop iteration.
        */
       visitSiblings(callback, includeSelf = false) {
-          let i, l, n, ac = this.parent.children;
-          for (i = 0, l = ac.length; i < l; i++) {
-              n = ac[i];
+          const ac = this.parent.children;
+          for (let i = 0, l = ac.length; i < l; i++) {
+              const n = ac[i];
               if (includeSelf || n !== this) {
                   if (callback(n) === false) {
                       return false;
@@ -5011,7 +5068,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.2, Mon, 09 Oct 2023 18:32:56 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.3, Sun, 15 Oct 2023 16:42:56 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -5307,8 +5364,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.5.2
-   * @date Mon, 09 Oct 2023 18:32:56 GMT
+   * @version v0.5.3
+   * @date Sun, 15 Oct 2023 16:42:56 GMT
    */
   // import "./wunderbaum.scss";
   class WbSystemRoot extends WunderbaumNode {
@@ -5372,7 +5429,7 @@
            * @alias Wunderbaum.logDebug
            */
           this.log = this.logDebug;
-          let opts = (this.options = extend({
+          const opts = (this.options = extend({
               id: null,
               source: null,
               element: null,
@@ -5423,7 +5480,7 @@
               catch (error) {
                   // We re-raise in the reject handler, but Chrome resets the stack
                   // frame then, so we log it here:
-                  console.error("Exception inside `init(e)` event:", error);
+                  this.logError("Exception inside `init(e)` event:", error);
               }
           })
               .catch((err) => {
@@ -5674,7 +5731,7 @@
           }
           else if (typeof el === "string") {
               // Search all trees for matching ID
-              for (let treeElem of document.querySelectorAll(".wunderbaum")) {
+              for (const treeElem of document.querySelectorAll(".wunderbaum")) {
                   const tree = treeElem._wb_tree;
                   if (tree && tree.id === el) {
                       return tree;
@@ -5753,7 +5810,7 @@
       }
       /** Called on tree (re)init after markup is created, before loading. */
       _initExtensions() {
-          for (let ext of this.extensionList) {
+          for (const ext of this.extensionList) {
               ext.init();
           }
       }
@@ -5762,9 +5819,9 @@
           const key = node.key;
           assert(key != null && !this.keyMap.has(key), `Missing or duplicate key: '${key}'.`);
           this.keyMap.set(key, node);
-          let rk = node.refKey;
+          const rk = node.refKey;
           if (rk) {
-              let rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
+              const rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
               if (rks) {
                   rks.add(node);
               }
@@ -5793,8 +5850,8 @@
       /** Call all hook methods of all registered extensions.*/
       _callHook(hook, data = {}) {
           let res;
-          let d = extend({}, { tree: this, options: this.options, result: undefined }, data);
-          for (let ext of this.extensionList) {
+          const d = extend({}, { tree: this, options: this.options, result: undefined }, data);
+          for (const ext of this.extensionList) {
               res = ext[hook].call(ext, d);
               if (res === false) {
                   break;
@@ -6071,7 +6128,7 @@
           this.resizeObserver.disconnect();
           this.element.innerHTML = "";
           // Remove all event handlers
-          this.element.outerHTML = this.element.outerHTML;
+          this.element.outerHTML = this.element.outerHTML; // eslint-disable-line
       }
       /**
        * Return `tree.option.NAME` (also resolving if this is a callback).
@@ -6261,8 +6318,9 @@
        */
       findNextNode(match, startNode) {
           //, visibleOnly) {
-          let res = null, firstNode = this.getFirstChild();
-          let matcher = typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
+          let res = null;
+          const firstNode = this.getFirstChild();
+          const matcher = typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
           startNode = startNode || firstNode;
           function _checkNode(n) {
               // console.log("_check " + n)
@@ -6353,13 +6411,15 @@
                   res = this._getNextNodeInView(node);
                   break;
               case "pageDown":
-                  const bottomNode = this.getLowestVpNode();
-                  // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
-                  if (node._rowIdx < bottomNode._rowIdx) {
-                      res = bottomNode;
-                  }
-                  else {
-                      res = this._getNextNodeInView(node, pageSize);
+                  {
+                      const bottomNode = this.getLowestVpNode();
+                      // this.logDebug(`${where}(${node}) -> ${bottomNode}`);
+                      if (node._rowIdx < bottomNode._rowIdx) {
+                          res = bottomNode;
+                      }
+                      else {
+                          res = this._getNextNodeInView(node, pageSize);
+                      }
                   }
                   break;
               case "pageUp":
@@ -6386,7 +6446,7 @@
        * Iterator version of {@link Wunderbaum.format}.
        */
       *format_iter(name_cb, connectors) {
-          return this.root.format_iter(name_cb, connectors);
+          yield* this.root.format_iter(name_cb, connectors);
       }
       /**
        * Return multiline string representation of the node hierarchy.
@@ -6445,7 +6505,12 @@
        *     TYPE: 'title' | 'prefix' | 'expander' | 'checkbox' | 'icon' | undefined
        */
       static getEventInfo(event) {
-          let target = event.target, cl = target.classList, parentCol = target.closest("span.wb-col"), node = Wunderbaum.getNode(target), tree = node ? node.tree : Wunderbaum.getTree(event), res = {
+          const target = event.target;
+          const cl = target.classList;
+          const parentCol = target.closest("span.wb-col");
+          const node = Wunderbaum.getNode(target);
+          const tree = node ? node.tree : Wunderbaum.getTree(event);
+          const res = {
               event: event,
               canonicalName: eventToString(event),
               tree: tree,
@@ -6486,7 +6551,7 @@
           else {
               // Somewhere near the title
               if (event.type !== "mousemove" && !(event instanceof KeyboardEvent)) {
-                  console.warn("getEventInfo(): not found", event, res);
+                  tree === null || tree === void 0 ? void 0 : tree.logWarn("getEventInfo(): not found", event, res);
               }
               return res;
           }
@@ -6513,7 +6578,7 @@
        * Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
        */
       isLoading() {
-          var res = false;
+          let res = false;
           this.root.visit((n) => {
               // also visit rootNode
               if (n._isLoading || n._requestId) {
@@ -6526,42 +6591,38 @@
       /** Log to console if opts.debugLevel >= 4 */
       logDebug(...args) {
           if (this.options.debugLevel >= 4) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.log.apply(console, args);
+              console.log(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /** Log error to console. */
       logError(...args) {
           if (this.options.debugLevel >= 1) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.error.apply(console, args);
+              console.error(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /** Log to console if opts.debugLevel >= 3 */
       logInfo(...args) {
           if (this.options.debugLevel >= 3) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.info.apply(console, args);
+              console.info(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /** @internal */
       logTime(label) {
           if (this.options.debugLevel >= 4) {
-              console.time(this + ": " + label);
+              console.time(this + ": " + label); // eslint-disable-line no-console
           }
           return label;
       }
       /** @internal */
       logTimeEnd(label) {
           if (this.options.debugLevel >= 4) {
-              console.timeEnd(this + ": " + label);
+              console.timeEnd(this + ": " + label); // eslint-disable-line no-console
           }
       }
       /** Log to console if opts.debugLevel >= 2 */
       logWarn(...args) {
           if (this.options.debugLevel >= 2) {
-              Array.prototype.unshift.call(args, this.toString());
-              console.warn.apply(console, args);
+              console.warn(this.toString(), ...args); // eslint-disable-line no-console
           }
       }
       /**
@@ -6656,18 +6717,18 @@
           this.activeColIdx = colIdx;
           // Update `wb-active` class for all headers
           if (this.hasHeader()) {
-              for (let rowDiv of this.headerElement.children) {
+              for (const rowDiv of this.headerElement.children) {
                   let i = 0;
-                  for (let colDiv of rowDiv.children) {
+                  for (const colDiv of rowDiv.children) {
                       colDiv.classList.toggle("wb-active", i++ === colIdx);
                   }
               }
           }
           (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.update(ChangeType.status);
           // Update `wb-active` class for all cell spans
-          for (let rowDiv of this.nodeListElement.children) {
+          for (const rowDiv of this.nodeListElement.children) {
               let i = 0;
-              for (let colDiv of rowDiv.children) {
+              for (const colDiv of rowDiv.children) {
                   colDiv.classList.toggle("wb-active", i++ === colIdx);
               }
           }
@@ -6689,15 +6750,6 @@
           else {
               this.element.blur();
           }
-      }
-      /**
-       * @deprecated since v0.3.6: use `update()` instead.
-       */
-      setModified(change, ...args) {
-          this.logWarn("setModified() is deprecated: use update() instead.");
-          // @ts-ignore
-          // (!) TS2556: A spread argument must either have a tuple type or be passed to a rest parameter.
-          return this.update.call(this, change, ...args);
       }
       update(change, node, options) {
           if (this._disableUpdateCount) {
@@ -6844,7 +6896,7 @@
               extend(this.types, types);
           }
           // Convert `TYPE.classes` to a Set
-          for (let t of Object.values(this.types)) {
+          for (const t of Object.values(this.types)) {
               if (t.classes) {
                   t.classes = toSet(t.classes);
               }
@@ -6882,7 +6934,7 @@
           const defaultMinWidth = 4;
           const vpWidth = this.element.clientWidth;
           // Shorten last column width to avoid h-scrollbar
-          const FIX_ADJUST_LAST_COL = 2;
+          const FIX_ADJUST_LAST_COL = 0; // 2;
           const columns = this.columns;
           const col0 = columns[0];
           let totalWidth = 0;
@@ -6899,9 +6951,9 @@
           }
           // Gather width definitions
           this._columnsById = {};
-          for (let col of columns) {
+          for (const col of columns) {
               this._columnsById[col.id] = col;
-              let cw = col.width;
+              const cw = col.width;
               if (col.id === "*" && col !== col0) {
                   throw new Error(`Column id '*' must be defined only once: '${col.title}'.`);
               }
@@ -6915,7 +6967,7 @@
               }
               else if (typeof cw === "string" && cw.endsWith("px")) {
                   col._weight = 0;
-                  let px = parseFloat(cw.slice(0, -2));
+                  const px = parseFloat(cw.slice(0, -2));
                   if (col._widthPx != px) {
                       modified = true;
                       col._widthPx = px;
@@ -6929,7 +6981,7 @@
           // Share remaining space between non-fixed columns
           const restPx = Math.max(0, vpWidth - fixedWidth);
           let ofsPx = 0;
-          for (let col of columns) {
+          for (const col of columns) {
               let minWidth;
               if (col._weight) {
                   const cmw = col.minWidth;
@@ -7242,7 +7294,9 @@
               return this._visitRowsUp(callback, options);
           }
           options = options || {};
-          let i, nextIdx, parent, res, siblings, stopNode, siblingOfs = 0, skipFirstNode = options.includeSelf === false, includeHidden = !!options.includeHidden, checkFilter = !includeHidden && this.filterMode === "hide", node = options.start || this.root.children[0];
+          let i, nextIdx, parent, res, siblings, stopNode, siblingOfs = 0, skipFirstNode = options.includeSelf === false, node = options.start || this.root.children[0];
+          const includeHidden = !!options.includeHidden;
+          const checkFilter = !includeHidden && this.filterMode === "hide";
           parent = node.parent;
           while (parent) {
               // visit siblings
@@ -7307,7 +7361,8 @@
        * @internal
        */
       _visitRowsUp(callback, options) {
-          let children, idx, parent, includeHidden = !!options.includeHidden, node = options.start || this.root.children[0];
+          let children, idx, parent, node = options.start || this.root.children[0];
+          const includeHidden = !!options.includeHidden;
           if (options.includeSelf !== false) {
               if (callback(node) === false) {
                   return false;
@@ -7442,7 +7497,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.5.2"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.5.3"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 
