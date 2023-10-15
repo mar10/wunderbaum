@@ -3,6 +3,9 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10, addCssImport */
+/* eslint-env browser */
+/* eslint-disable no-console */
 
 document.getElementById("demo-info").innerHTML = `
 Hierarchical selection demo (<code>selectMode: 'hier'</code>) .

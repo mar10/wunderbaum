@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.getElementById("demo-info").innerHTML = `
  A treegrid with embedded input controls (also renaming nodes, but no filter or d'n'd).
  Navigation mode: 'startRow'.
@@ -19,66 +23,66 @@ new mar10.Wunderbaum({
   navigationModeOption: "startRow",
   // navigationModeOption: "cell",
 
-  // The JSON only contains a list of nested node dicts, but no types or 
+  // The JSON only contains a list of nested node dicts, but no types or
   // column definitions:
   // source: "../assets/fixture_department_1k_3_6_p.json",
   source:
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
-    "department": { "icon": "bi bi-diagram-3", "colspan": true },
-    "role": { "icon": "bi bi-microsoft-teams", "colspan": true },
-    "person": { "icon": "bi bi-person" },
+    department: { icon: "bi bi-diagram-3", colspan: true },
+    role: { icon: "bi bi-microsoft-teams", colspan: true },
+    person: { icon: "bi bi-person" },
   },
-  // The `html` properties are shown as comments. 
+  // The `html` properties are shown as comments.
   // If enabled, it would be used as markup, so `if (e.isNew) {...}` could be
   // omitted in the `render` callback:
   columns: [
     {
-      "title": "Title",
-      "id": "*",
-      "width": "250px",
+      title: "Title",
+      id: "*",
+      width: "250px",
     },
     {
-      "title": "Age",
-      "id": "age",
-      "width": "50px",
-      "classes": "wb-helper-end",
+      title: "Age",
+      id: "age",
+      width: "50px",
+      classes: "wb-helper-end",
       // "html": "<input type=number min=0 tabindex='-1'>",
     },
     {
-      "title": "Date",
-      "id": "date",
-      "width": "100px",
-      "classes": "wb-helper-end",
+      title: "Date",
+      id: "date",
+      width: "100px",
+      classes: "wb-helper-end",
       // "html": '<input type=date tabindex="-1">',
-    }, 
+    },
     {
-      "title": "Status",
-      "id": "state",
-      "width": "70px",
-      "classes": "wb-helper-center",
+      title: "Status",
+      id: "state",
+      width: "70px",
+      classes: "wb-helper-center",
       // "html": `<select tabindex="-1">
       //     <option value="h">Happy</option>
       //     <option value="s">Sad</option>
       //     </select>`
     },
     {
-      "title": "Avail.",
-      "id": "avail",
-      "width": "70px",
-      "classes": "wb-helper-center",
+      title: "Avail.",
+      id: "avail",
+      width: "70px",
+      classes: "wb-helper-center",
       // "html": '<input type=checkbox tabindex="-1">',
     },
     {
-      "title": "Remarks",
-      "id": "remarks",
-      "width": "*",
+      title: "Remarks",
+      id: "remarks",
+      width: "*",
       // "html": "<input type=text tabindex='-1'>",
     },
   ],
 
   edit: {
-    trigger: ["clickActive", "F2"],// "macEnter"],
+    trigger: ["clickActive", "F2"], // "macEnter"],
     select: true,
     beforeEdit: function (e) {
       // console.log(e.type, e);
@@ -102,8 +106,7 @@ new mar10.Wunderbaum({
   filter: {
     connectInput: "input#filterQuery",
   },
-  init: (e) => {
-  },
+  init: (e) => {},
   // load: function (e) {
   // },
   change: function (e) {
@@ -135,7 +138,6 @@ new mar10.Wunderbaum({
 
       // ... but this helper should work in most cases:
       node.data[colId] = util.getValueFromElem(e.inputElem, true);
-
     }, 500);
   },
   render: function (e) {
@@ -178,7 +180,7 @@ new mar10.Wunderbaum({
             col.elem.innerHTML = '<input type="number" min="0" tabindex="-1">';
           }
           util.setValueToElem(col.elem, val);
-          break
+          break;
         case "state":
           if (e.isNew) {
             col.elem.innerHTML = `<select tabindex="-1">
