@@ -40,7 +40,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
       multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
       effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
-      dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
+      dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (override in drag, dragOver).
       guessDropEffect: true, // Calculate from `effectAllowed` and modifier keys)
       preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
       preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes

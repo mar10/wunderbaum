@@ -904,7 +904,11 @@ export type DndOptionsType = {
    * Callback(targetNode, data), return true, to enable dnd drop
    * @default null
    */
-  dragEnter?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
+  dragEnter?:
+    | null
+    | ((
+        e: WbNodeEventType & { event: DragEvent }
+      ) => DropRegionTypeSet | boolean);
   /**
    * Callback(targetNode, data)
    * @default null
