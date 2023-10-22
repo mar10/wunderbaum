@@ -743,6 +743,18 @@ export type InsertNodeType =
   | "prependChild"
   | "appendChild";
 // export type DndModeType = "before" | "after" | "over";
+
+export type DropEffectType = "none" | "copy" | "link" | "move";
+export type DropEffectAllowedType =
+  | "none"
+  | "copy"
+  | "copyLink"
+  | "copyMove"
+  | "link"
+  | "linkMove"
+  | "move"
+  | "all";
+
 export type DropRegionType = "over" | "before" | "after";
 export type DropRegionTypeSet = Set<DropRegionType>;
 // type AllowedDropRegionType =
@@ -784,20 +796,26 @@ export type DndOptionsType = {
    */
   multiSource?: false;
   /**
-   * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+   * Restrict the possible cursor shapes and modifier operations
+   * (can also be set in the dragStart event)
    * @default "all"
    */
-  effectAllowed?: "all";
-  // /**
-  //  * 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
-  //  * @default
-  //  */
-  // dropEffect: "auto";
+  effectAllowed?: DropEffectAllowedType;
   /**
-   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
+   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed.
+   * Overidable in the dragEnter or dragOver event.
    * @default "move"
    */
-  dropEffectDefault?: string;
+  dropEffectDefault?: DropEffectType;
+  /**
+   * Use opinionated heuristics to determine the dropEffect ('copy', 'link', or 'move')
+   * based on `effectAllowed`, `dropEffectDefault`, and modifier keys.
+   * This is recalculated before each dragEnter and dragOver event and can be
+   * overridden there.
+   *
+   * @default true
+   */
+  guessDropEffect: boolean;
   /**
    * Prevent dropping nodes from different Wunderbaum trees
    * @default false
@@ -832,7 +850,9 @@ export type DndOptionsType = {
    * Serialize Node Data to datatransfer object
    * @default true
    */
-  serializeClipboardData?: boolean | ((nodeData: WbNodeData) => string);
+  serializeClipboardData?:
+    | boolean
+    | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
   /**
    * Enable auto-scrolling while dragging
    * @default true
@@ -905,8 +925,10 @@ export type DndOptionsType = {
         e: WbNodeEventType & {
           event: DragEvent;
           region: DropRegionType;
-          defaultDropMode: string;
+          suggestedDropMode: InsertNodeType;
+          suggestedDropEffect: DropEffectType;
           sourceNode: WunderbaumNode;
+          sourceNodeData: WbNodeData | null;
         }
       ) => void);
   /**

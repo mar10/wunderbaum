@@ -977,7 +977,10 @@ export class WunderbaumNode {
     if (util.isArray(source)) {
       source = { children: source };
     }
-    util.assert(util.isPlainObject(source));
+    util.assert(
+      util.isPlainObject(source),
+      `Invalid source format: ${typeof source}`
+    );
 
     const format: string = source.format ?? "nested";
     util.assert(format === "nested" || format === "flat");

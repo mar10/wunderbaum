@@ -27,7 +27,7 @@ const tree = new Wunderbaum({
     },
     drop: (e) => {
       console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode)
+      e.sourceNode.moveTo(e.node, e.suggestedDropMode)
     },
   },
 });
@@ -40,10 +40,12 @@ const tree = new Wunderbaum({
 ### Related CSS Rules
 
 ```css
-div.wb-row.wb-drop-target.wb-drop-before .wb-node .wb-icon::after {}
+div.wb-row.wb-drop-target.wb-drop-before .wb-node .wb-icon::after {
+}
 ```
 
 ### Code Hacks
 
 ```js
+
 ```

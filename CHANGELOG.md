@@ -7,8 +7,11 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.5.3: Use eslint
-- v0.5.3: Removed deprecated `setModified()`
+- v0.5.5: Rename `defaultDropMode` -> `suggestedDropMode`; implement `suggestedDropEffect`
+- v0.5.5: Work on drag'n'drop (dropEffects, cross-window, ...)
+
+- v0.5.4: Use eslint
+- v0.5.4: Removed deprecated `setModified()`
 
 - v0.5.2: Improved typing and drag'n'drop behavior (@jogibear9988)
 - v0.5.2: Add `tree.options.adjustHeight` (default: `true`)
