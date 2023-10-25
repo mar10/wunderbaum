@@ -73,13 +73,13 @@ or `node.findAll()` may not work as expected.
 
 Some API functions are potentially **asynchronous**. For example `node.setExpanded()`
 on a lazy node may have to issue an Ajax request, wait for its response and then
-scrolls and render new nodes.
+scroll and render new nodes.
 These functions generally return a
 [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise),
 so handling deferred responses is easy:
 
 ```js
-node.setExpanded().done(() => {
+node.setExpanded().then(() => {
   alert("expand has finished");
 });
 ```
