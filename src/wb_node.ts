@@ -143,8 +143,8 @@ export class WunderbaumNode {
   _rowElem: HTMLDivElement | undefined = undefined;
 
   constructor(tree: Wunderbaum, parent: WunderbaumNode, data: any) {
-    util.assert(!parent || parent.tree === tree);
-    util.assert(!data.children);
+    util.assert(!parent || parent.tree === tree, `Invalid parent: ${parent}`);
+    util.assert(!data.children, "'children' not allowed here");
 
     this.tree = tree;
     this.parent = parent;
@@ -360,7 +360,7 @@ export class WunderbaumNode {
       case "appendChild":
         return this.addChildren(nodeData);
     }
-    util.assert(false, "Invalid mode: " + mode);
+    util.assert(false, `Invalid mode: ${mode}`);
     return (<unknown>undefined) as WunderbaumNode;
   }
 
@@ -979,11 +979,14 @@ export class WunderbaumNode {
     }
     util.assert(
       util.isPlainObject(source),
-      `Invalid source format: ${typeof source}`
+      `Expected an array or plain object: ${source}`
     );
 
     const format: string = source.format ?? "nested";
-    util.assert(format === "nested" || format === "flat");
+    util.assert(
+      format === "nested" || format === "flat",
+      `Expected source.format = 'nested' or 'flat': ${format}`
+    );
 
     // Pre-rocess for 'nested' or 'flat' format
     inflateSourceData(source);
@@ -1136,8 +1139,7 @@ export class WunderbaumNode {
       elap = Date.now() - start;
       if (tree.options.debugLevel! >= 3) {
         tree.logInfo(
-          `Load source took ${elap / 1000} seconds (transfer: ${
-            elapLoad / 1000
+          `Load source took ${elap / 1000} seconds (transfer: ${elapLoad / 1000
           }s, processing: ${elapProcess / 1000}s)`
         );
       }
@@ -1457,8 +1459,8 @@ export class WunderbaumNode {
 
     const colElems = this._rowElem
       ? ((<unknown>(
-          this._rowElem.querySelectorAll("span.wb-col")
-        )) as HTMLSpanElement[])
+        this._rowElem.querySelectorAll("span.wb-col")
+      )) as HTMLSpanElement[])
       : null;
 
     let idx = 0;
@@ -1587,12 +1589,12 @@ export class WunderbaumNode {
     let expanderSpan: HTMLElement | null = null;
 
     const isNew = !rowDiv;
-    util.assert(isNew);
+    util.assert(isNew, "Expected unrendered node");
     util.assert(
       !isNew || (opts && opts.after),
       "opts.after expected, unless updating"
     );
-    util.assert(!this.isRootNode());
+    util.assert(!this.isRootNode(), "Root node not allowed");
 
     rowDiv = document.createElement("div");
     rowDiv.classList.add("wb-row");
@@ -1715,7 +1717,7 @@ export class WunderbaumNode {
    * @see {@link WunderbaumNode._render}
    */
   protected _render_data(opts: RenderOptions) {
-    util.assert(this._rowElem);
+    util.assert(this._rowElem, "No _rowElem");
 
     const tree = this.tree;
     const treeOptions = tree.options;
@@ -2205,7 +2207,10 @@ export class WunderbaumNode {
    * {@link Wunderbaum.update()} API.
    */
   update(change: ChangeType = ChangeType.data) {
-    util.assert(change === ChangeType.status || change === ChangeType.data);
+    util.assert(
+      change === ChangeType.status || change === ChangeType.data,
+      `Invalid change type ${change}`
+    );
     this.tree.update(change, this);
   }
 
@@ -2467,8 +2472,11 @@ export class WunderbaumNode {
       const children = this.children;
       const firstChild = children ? children[0] : null;
 
-      util.assert(data.statusNodeType);
-      util.assert(!firstChild || !firstChild.isStatusNode());
+      util.assert(data.statusNodeType, "Not a status node");
+      util.assert(
+        !firstChild || !firstChild.isStatusNode(),
+        "Child must not be a status node"
+      );
 
       statusNode = this.addNode(data, "prependChild");
       statusNode.match = true;

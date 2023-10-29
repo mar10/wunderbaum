@@ -538,7 +538,7 @@ export class Wunderbaum {
     } else if ((<Event>el).target) {
       el = (<Event>el).target as Element;
     }
-    util.assert(el instanceof Element);
+    util.assert(el instanceof Element, `Invalid el type: ${el}`);
     if (!(<HTMLElement>el).matches(".wunderbaum")) {
       el = (<HTMLElement>el).closest(".wunderbaum")!;
     }
@@ -843,7 +843,7 @@ export class Wunderbaum {
       node = nodeOrOpts;
     } else {
       node = this.getActiveNode()!;
-      util.assert(options === undefined);
+      util.assert(options === undefined, `Unexpected options: ${options}`);
       options = nodeOrOpts;
     }
     // clipboard = options.clipboard;
@@ -1066,7 +1066,10 @@ export class Wunderbaum {
     try {
       this.enableUpdate(false);
       const res = func();
-      util.assert(!(res instanceof Promise));
+      util.assert(
+        !(res instanceof Promise),
+        `Promise return not allowed: ${res}`
+      );
       return res;
     } finally {
       this.enableUpdate(true);
@@ -1547,7 +1550,7 @@ export class Wunderbaum {
       options = nodeOrOpts;
       node = options.node;
     }
-    util.assert(node && node._rowIdx != null);
+    util.assert(node && node._rowIdx != null, `Invalid node: ${node}`);
 
     const scrollParent = this.element;
     const headerHeight = this.headerElement.clientHeight; // May be 0
@@ -1623,8 +1626,11 @@ export class Wunderbaum {
    * Available in cell-nav mode only.
    */
   setColumn(colIdx: number) {
-    util.assert(this.isCellNav());
-    util.assert(0 <= colIdx && colIdx < this.columns.length);
+    util.assert(this.isCellNav(), "Exected cellNav mode");
+    util.assert(
+      0 <= colIdx && colIdx < this.columns.length,
+      `Invalid colIdx: ${colIdx}`
+    );
     this.activeColIdx = colIdx;
 
     // Update `wb-active` class for all headers
@@ -1776,11 +1782,11 @@ export class Wunderbaum {
     return this.columns && this.columns.length > 1;
   }
 
-  /** Return true if cell-navigation mode is acive. */
+  /** Return true if cell-navigation mode is active. */
   isCellNav(): boolean {
     return !!this._cellNavMode;
   }
-  /** Return true if row-navigation mode is acive. */
+  /** Return true if row-navigation mode is active. */
   isRowNav(): boolean {
     return !this._cellNavMode;
   }
@@ -1840,7 +1846,7 @@ export class Wunderbaum {
 
   /** Add or redefine node type definitions. */
   setTypes(types: any, replace = true) {
-    util.assert(util.isPlainObject(types));
+    util.assert(util.isPlainObject(types), `Expected plain objext: ${types}`);
     if (replace) {
       this.types = types;
     } else {
@@ -1991,7 +1997,7 @@ export class Wunderbaum {
    * @internal
    */
   protected _renderHeaderMarkup() {
-    util.assert(this.headerElement);
+    util.assert(this.headerElement, "Expected a headerElement");
     const wantHeader = this.hasHeader();
     util.setElemDisplay(this.headerElement, wantHeader);
     if (!wantHeader) {
@@ -1999,7 +2005,7 @@ export class Wunderbaum {
     }
     const colCount = this.columns.length;
     const headerRow = this.headerElement.querySelector(".wb-row")!;
-    util.assert(headerRow);
+    util.assert(headerRow, "Expected a row in header element");
     headerRow.innerHTML = "<span class='wb-col'></span>".repeat(colCount);
 
     for (let i = 0; i < colCount; i++) {

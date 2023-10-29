@@ -154,7 +154,10 @@ export function makeNodeTitleMatcher(match: string | RegExp): MatcherCallback {
       return (<RegExp>match).test(node.title);
     };
   }
-  util.assert(typeof match === "string");
+  util.assert(
+    typeof match === "string",
+    `Expected a string or RegExp: ${match}`
+  );
 
   // s = escapeRegex(s.toLowerCase());
   return function (node: WunderbaumNode) {

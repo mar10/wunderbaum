@@ -325,7 +325,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
     } else if (typeof init === "string") {
       init = { title: init };
     } else {
-      assert(isPlainObject(init));
+      assert(isPlainObject(init), `Expected a plain object: ${init}`);
     }
     // Make sure node is expanded (and loaded) in 'child' mode
     if (
