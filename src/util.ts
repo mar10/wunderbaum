@@ -89,7 +89,7 @@ export class Deferred {
 }
 
 /**Throw an `Error` if `cond` is falsey. */
-export function assert(cond: any, msg?: string) {
+export function assert(cond: any, msg: string) {
   if (!cond) {
     msg = msg || "Assertion failed.";
     throw new Error(msg);
@@ -678,7 +678,7 @@ export function toggleCheckbox(
   tristate?: boolean
 ): void {
   const input = elemFromSelector(element) as HTMLInputElement;
-  assert(input.type === "checkbox");
+  assert(input.type === "checkbox", `Expected a checkbox: ${input.type}`);
   tristate ??= input.classList.contains("wb-tristate") || input.indeterminate;
 
   if (value === undefined) {
