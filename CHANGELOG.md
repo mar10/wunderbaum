@@ -7,7 +7,7 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.5.5: Rename `defaultDropMode` -> `suggestedDropMode`; implement `suggestedDropEffect`
+- v0.5.5: Rename `defaultDropMode` -> `suggestedDropMode`; add `suggestedDropEffect`
 - v0.5.5: Work on drag'n'drop (dropEffects, cross-window, ...)
 
 - v0.5.4: Use eslint

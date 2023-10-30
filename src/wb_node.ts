@@ -1139,8 +1139,9 @@ export class WunderbaumNode {
       elap = Date.now() - start;
       if (tree.options.debugLevel! >= 3) {
         tree.logInfo(
-          `Load source took ${elap / 1000} seconds (transfer: ${elapLoad / 1000
-          }s, processing: ${elapProcess / 1000}s)`
+          `Load source took ${elap / 1000} seconds ` +
+            `(transfer: ${elapLoad / 1000}s, ` +
+            `processing: ${elapProcess / 1000}s)`
         );
       }
     }
@@ -1456,11 +1457,10 @@ export class WunderbaumNode {
     const allColInfosById: ColumnEventInfoMap = {};
     const renderColInfosById: ColumnEventInfoMap = {};
     const isColspan = this.isColspan();
-
     const colElems = this._rowElem
       ? ((<unknown>(
-        this._rowElem.querySelectorAll("span.wb-col")
-      )) as HTMLSpanElement[])
+          this._rowElem.querySelectorAll("span.wb-col")
+        )) as HTMLSpanElement[])
       : null;
 
     let idx = 0;
