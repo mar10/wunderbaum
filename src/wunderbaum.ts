@@ -1895,8 +1895,9 @@ export class Wunderbaum {
     // options = Object.assign({ updateRows: true, renderMarkup: false }, options);
     const defaultMinWidth = 4;
     const vpWidth = this.element.clientWidth;
-    // Shorten last column width to avoid h-scrollbar
-    const FIX_ADJUST_LAST_COL = 0; // 2;
+    // Shorten last column width to avoid h-scrollbar 
+    // (otherwise resizbing the demo would display a void scrollbar?)
+    const FIX_ADJUST_LAST_COL = 1;
     const columns = this.columns;
     const col0 = columns[0];
 
