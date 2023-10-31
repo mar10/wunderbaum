@@ -34,7 +34,7 @@ declare module "util" {
         };
     }
     /**Throw an `Error` if `cond` is falsey. */
-    export function assert(cond: any, msg?: string): void;
+    export function assert(cond: any, msg: string): void;
     /** Run `callback` when document was loaded. */
     export function documentReady(callback: () => void): void;
     /** Resolve when document was loaded. */
@@ -1790,6 +1790,8 @@ declare module "types" {
     };
     export type GridOptionsType = object;
     export type InsertNodeType = "before" | "after" | "prependChild" | "appendChild";
+    export type DropEffectType = "none" | "copy" | "link" | "move";
+    export type DropEffectAllowedType = "none" | "copy" | "copyLink" | "copyMove" | "link" | "linkMove" | "move" | "all";
     export type DropRegionType = "over" | "before" | "after";
     export type DropRegionTypeSet = Set<DropRegionType>;
     export type DndOptionsType = {
@@ -1804,15 +1806,26 @@ declare module "types" {
          */
         multiSource?: false;
         /**
-         * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+         * Restrict the possible cursor shapes and modifier operations
+         * (can also be set in the dragStart event)
          * @default "all"
          */
-        effectAllowed?: "all";
+        effectAllowed?: DropEffectAllowedType;
         /**
-         * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in drag, dragOver).
+         * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed.
+         * Overidable in the dragEnter or dragOver event.
          * @default "move"
          */
-        dropEffectDefault?: string;
+        dropEffectDefault?: DropEffectType;
+        /**
+         * Use opinionated heuristics to determine the dropEffect ('copy', 'link', or 'move')
+         * based on `effectAllowed`, `dropEffectDefault`, and modifier keys.
+         * This is recalculated before each dragEnter and dragOver event and can be
+         * overridden there.
+         *
+         * @default true
+         */
+        guessDropEffect: boolean;
         /**
          * Prevent dropping nodes from different Wunderbaum trees
          * @default false
@@ -1847,7 +1860,7 @@ declare module "types" {
          * Serialize Node Data to datatransfer object
          * @default true
          */
-        serializeClipboardData?: boolean | ((nodeData: WbNodeData) => string);
+        serializeClipboardData?: boolean | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
         /**
          * Enable auto-scrolling while dragging
          * @default true
@@ -1895,7 +1908,7 @@ declare module "types" {
          */
         dragEnter?: null | ((e: WbNodeEventType & {
             event: DragEvent;
-        }) => boolean);
+        }) => DropRegionTypeSet | boolean);
         /**
          * Callback(targetNode, data)
          * @default null
@@ -1917,8 +1930,10 @@ declare module "types" {
         drop?: null | ((e: WbNodeEventType & {
             event: DragEvent;
             region: DropRegionType;
-            defaultDropMode: string;
+            suggestedDropMode: InsertNodeType;
+            suggestedDropEffect: DropEffectType;
             sourceNode: WunderbaumNode;
+            sourceNodeData: WbNodeData | null;
         }) => void);
         /**
          * Callback(targetNode, data)
@@ -2137,14 +2152,14 @@ declare module "wb_ext_dnd" {
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
     import { WunderbaumNode } from "wb_node";
-    import { DndOptionsType, DropRegionType, DropRegionTypeSet } from "types";
+    import { DndOptionsType, DropEffectType, DropRegionType, DropRegionTypeSet } from "types";
     import { DebouncedFunction } from "debounce";
     export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         protected srcNode: WunderbaumNode | null;
         protected lastTargetNode: WunderbaumNode | null;
         protected lastEnterStamp: number;
         protected lastAllowedDropRegions: DropRegionTypeSet | null;
-        protected lastDropEffect: string | null;
+        protected lastDropEffect: DropEffectType | null;
         protected lastDropRegion: DropRegionType | false;
         protected currentScrollDir: number;
         protected applyScrollDirThrottled: DebouncedFunction<() => void>;
@@ -2158,12 +2173,25 @@ declare module "wb_ext_dnd" {
          * Calculates the drop region based on the drag event and the allowed drop regions.
          */
         protected _calcDropRegion(e: DragEvent, allowed: DropRegionTypeSet | null): DropRegionType | false;
-        protected applyScrollDir(): void;
-        protected autoScroll(viewportY: number): number;
+        /**
+         * Guess drop effect (copy/link/move) using opinionated conventions.
+         *
+         * Default: dnd.dropEffectDefault
+         */
+        protected _guessDropEffect(e: DragEvent): DropEffectType;
+        /** Don't allow void operation ('drop on self').*/
+        protected _isVoidDrop(targetNode: WunderbaumNode, srcNode: WunderbaumNode | null, dropRegion: DropRegionType | false): boolean;
+        protected _applyScrollDir(): void;
+        protected _autoScroll(viewportY: number): number;
         /** Return true if a drag operation currently in progress. */
         isDragging(): boolean;
+        /**
+         * Handle dragstart, drag and dragend events for the source node.
+         */
         protected onDragEvent(e: DragEvent): boolean;
-        private _isVoidDrop;
+        /**
+         * Handle dragenter, dragover, dragleave, drop events.
+         */
         protected onDropEvent(e: DragEvent): boolean;
     }
 }
@@ -2670,9 +2698,9 @@ declare module "wunderbaum" {
         isEnabled(): boolean;
         /** Return true if tree has more than one column, i.e. has additional data columns. */
         isGrid(): boolean;
-        /** Return true if cell-navigation mode is acive. */
+        /** Return true if cell-navigation mode is active. */
         isCellNav(): boolean;
-        /** Return true if row-navigation mode is acive. */
+        /** Return true if row-navigation mode is active. */
         isRowNav(): boolean;
         /** Set the tree's navigation mode. */
         setCellNav(flag?: boolean): void;

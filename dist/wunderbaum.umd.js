@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -586,7 +586,7 @@
    */
   function toggleCheckbox(element, value, tristate) {
       const input = elemFromSelector(element);
-      assert(input.type === "checkbox");
+      assert(input.type === "checkbox", `Expected a checkbox: ${input.type}`);
       tristate !== null && tristate !== void 0 ? tristate : (tristate = input.classList.contains("wb-tristate") || input.indeterminate);
       if (value === undefined) {
           const curValue = input.indeterminate ? null : input.checked;
@@ -771,7 +771,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -835,7 +835,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1191,7 +1191,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1491,7 +1491,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1837,7 +1837,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1879,7 +1879,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
   /**
@@ -2005,7 +2005,7 @@
               return match.test(node.title);
           };
       }
-      assert(typeof match === "string");
+      assert(typeof match === "string", `Expected a string or RegExp: ${match}`);
       // s = escapeRegex(s.toLowerCase());
       return function (node) {
           return node.title === match;
@@ -2145,7 +2145,7 @@
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2158,8 +2158,8 @@
               // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
               multiSource: false,
               effectAllowed: "all",
-              // dropEffect: "auto", // 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
               dropEffectDefault: "move",
+              guessDropEffect: true,
               preventForeignNodes: false,
               preventLazyParents: true,
               preventNonNodes: false,
@@ -2169,7 +2169,7 @@
               serializeClipboardData: true,
               scroll: true,
               scrollSensitivity: 20,
-              // scrollnterval: 50, // Generste event every 50 ms
+              // scrollnterval: 50, // Generate event every 50 ms
               scrollSpeed: 5,
               // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
               sourceCopyHook: null,
@@ -2192,7 +2192,7 @@
           this.lastDropEffect = null;
           this.lastDropRegion = false;
           this.currentScrollDir = 0;
-          this.applyScrollDirThrottled = throttle(this.applyScrollDir, 50);
+          this.applyScrollDirThrottled = throttle(this._applyScrollDir, 50);
       }
       init() {
           super.init();
@@ -2264,8 +2264,68 @@
           }
           // return "over";
       }
+      /**
+       * Guess drop effect (copy/link/move) using opinionated conventions.
+       *
+       * Default: dnd.dropEffectDefault
+       */
+      _guessDropEffect(e) {
+          // const nativeDropEffect = e.dataTransfer?.dropEffect;
+          var _a;
+          // if (nativeDropEffect && nativeDropEffect !== "none") {
+          //   return nativeDropEffect;
+          // }
+          const dndOpts = this.treeOpts.dnd;
+          const ea = (_a = dndOpts.effectAllowed) !== null && _a !== void 0 ? _a : "all";
+          const canCopy = ["all", "copy", "copyLink", "copyMove"].includes(ea);
+          const canLink = ["all", "link", "copyLink", "linkMove"].includes(ea);
+          const canMove = ["all", "move", "copyMove", "linkMove"].includes(ea);
+          let res = dndOpts.dropEffectDefault;
+          if (dndOpts.guessDropEffect) {
+              if (isMac) {
+                  if (e.altKey && canCopy) {
+                      res = "copy";
+                  }
+                  if (e.metaKey && canMove) {
+                      res = "move"; // command key
+                  }
+                  if (e.altKey && e.metaKey && canLink) {
+                      res = "link";
+                  }
+              }
+              else {
+                  if (e.ctrlKey && canCopy) {
+                      res = "copy";
+                  }
+                  if (e.shiftKey && canMove) {
+                      res = "move";
+                  }
+                  if (e.altKey && canLink) {
+                      res = "link";
+                  }
+              }
+          }
+          return res;
+      }
+      /** Don't allow void operation ('drop on self').*/
+      _isVoidDrop(targetNode, srcNode, dropRegion) {
+          // this.tree.logDebug(
+          //   `_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`
+          // );
+          // TODO: should be checked on  move only
+          if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
+              return false;
+          }
+          if ((dropRegion === "before" && targetNode === srcNode.getNextSibling()) ||
+              (dropRegion === "after" && targetNode === srcNode.getPrevSibling())) {
+              // this.tree.logDebug("Prevented before/after self");
+              return true;
+          }
+          // Don't allow dropping nodes on own parent (or self)
+          return srcNode === targetNode || srcNode.parent === targetNode;
+      }
       /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
-      applyScrollDir() {
+      _applyScrollDir() {
           if (this.isDragging() && this.currentScrollDir) {
               const dndOpts = this.tree.options.dnd;
               const sp = this.tree.element; // scroll parent
@@ -2279,7 +2339,7 @@
           }
       }
       /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
-      autoScroll(viewportY) {
+      _autoScroll(viewportY) {
           const tree = this.tree;
           const dndOpts = tree.options.dnd;
           const sensitivity = dndOpts.scrollSensitivity;
@@ -2315,15 +2375,19 @@
       isDragging() {
           return !!this.srcNode;
       }
+      /**
+       * Handle dragstart, drag and dragend events for the source node.
+       */
       onDragEvent(e) {
           // const tree = this.tree;
           const dndOpts = this.treeOpts.dnd;
           const srcNode = Wunderbaum.getNode(e);
           if (!srcNode) {
+              this.tree.logWarn(`onDragEvent.${e.type} no node`);
               return;
           }
-          if (e.type !== "drag") {
-              this.tree.logDebug("onDragEvent." + e.type + ", srcNode: " + srcNode, e);
+          if (["dragstart", "dragend"].includes(e.type)) {
+              this.tree.logDebug(`onDragEvent.${e.type} srcNode: ${srcNode}`, e);
           }
           // --- dragstart ---
           if (e.type === "dragstart") {
@@ -2342,13 +2406,13 @@
               }
               const nodeData = srcNode.toDict(true, (n) => {
                   // We don't want to re-use the key on drop:
-                  n._org_key = n.key;
+                  n._orgKey = n.key;
                   delete n.key;
               });
               nodeData._treeId = srcNode.tree.id;
               if (dndOpts.serializeClipboardData) {
                   if (typeof dndOpts.serializeClipboardData === "function") {
-                      e.dataTransfer.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData));
+                      e.dataTransfer.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData, srcNode));
                   }
                   else {
                       e.dataTransfer.setData(nodeMimeType, JSON.stringify(nodeData));
@@ -2376,28 +2440,15 @@
               if (this.lastTargetNode) {
                   this._leaveNode();
               }
-              if (dndOpts.dragEnd) {
-                  srcNode._callEvent("dnd.dragEnd", { event: e });
-              }
+              srcNode._callEvent("dnd.dragEnd", { event: e });
           }
           return true;
       }
-      /* Don't allow void operation ('drop on self').*/
-      _isVoidDrop(targetNode, srcNode, dropRegion) {
-          this.tree.logDebug(`_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`);
-          // TODO: should be checked on  move only
-          if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
-              return false;
-          }
-          if ((dropRegion === "before" && targetNode === srcNode.getNextSibling()) ||
-              (dropRegion === "after" && targetNode === srcNode.getPrevSibling())) {
-              this.tree.logDebug("Prevented before/after self");
-              return true;
-          }
-          // Don't allow dropping nodes on own parent (or self)
-          return srcNode === targetNode || srcNode.parent === targetNode;
-      }
+      /**
+       * Handle dragenter, dragover, dragleave, drop events.
+       */
       onDropEvent(e) {
+          var _a;
           // const isLink = event.dataTransfer.types.includes("text/uri-list");
           const srcNode = this.srcNode;
           const srcTree = srcNode ? srcNode.tree : null;
@@ -2409,15 +2460,9 @@
               this._leaveNode();
               return;
           }
-          if (!["dragenter", "dragover", "dragleave"].includes(e.type)) {
-              this.tree.logDebug("onDropEvent." +
-                  e.type +
-                  " targetNode: " +
-                  targetNode +
-                  ", ea: " +
-                  (dt === null || dt === void 0 ? void 0 : dt.effectAllowed) +
-                  ", de: " +
-                  (dt === null || dt === void 0 ? void 0 : dt.dropEffect), ", cy: " + e.offsetY, ", r: " + dropRegion, ", srcNode: " + srcNode, e);
+          if (["drop"].includes(e.type)) {
+              this.tree.logDebug(`onDropEvent.${e.type} targetNode: ${targetNode}, ea: ${dt === null || dt === void 0 ? void 0 : dt.effectAllowed}, ` +
+                  `de: ${dt === null || dt === void 0 ? void 0 : dt.dropEffect}, cy: ${e.offsetY}, r: ${dropRegion}, srcNode: ${srcNode}`, e);
           }
           // --- dragenter ---
           if (e.type === "dragenter") {
@@ -2451,6 +2496,8 @@
                   return true; // Prevent drop operation
               }
               // User may return a set of regions (or `false` to prevent drop)
+              // Figure out a drop effect (copy/link/move) using opinated conventions.
+              dt.dropEffect = this._guessDropEffect(e) || "none";
               let regionSet = targetNode._callEvent("dnd.dragEnter", { event: e });
               //
               regionSet = this.unifyDragover(regionSet);
@@ -2467,12 +2514,12 @@
           }
           else if (e.type === "dragover") {
               const viewportY = e.clientY - this.tree.element.offsetTop;
-              this.autoScroll(viewportY);
-              if (dndOpts.dragOver) {
-                  targetNode._callEvent("dnd.dragOver", { event: e });
-              }
+              this._autoScroll(viewportY);
+              dt.dropEffect = this._guessDropEffect(e) || "none";
+              targetNode._callEvent("dnd.dragOver", { event: e });
               const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
               this.lastDropRegion = region;
+              this.lastDropEffect = dt.dropEffect;
               if (dndOpts.autoExpandMS > 0 &&
                   targetNode.isExpandable(true) &&
                   !targetNode._isLoading &&
@@ -2486,8 +2533,6 @@
               targetNode.setClass("wb-drop-over", region === "over");
               targetNode.setClass("wb-drop-before", region === "before");
               targetNode.setClass("wb-drop-after", region === "after");
-              // console.log("dragover", e);
-              // dt.dropEffect = this.lastDropEffect!;
               e.preventDefault(); // Allow drop (Drop operation is denied by default)
               return false;
               // --- dragleave ---
@@ -2495,21 +2540,30 @@
           else if (e.type === "dragleave") {
               // NOTE: we cannot trust this event, since it is always fired,
               // Instead we remove the marker on dragenter
-              if (dndOpts.dragLeave) {
-                  targetNode._callEvent("dnd.dragLeave", { event: e });
-              }
+              targetNode._callEvent("dnd.dragLeave", { event: e });
               // --- drop ---
           }
           else if (e.type === "drop") {
               e.stopPropagation(); // prevent browser from opening links?
               this._leaveNode();
               const region = this.lastDropRegion;
-              targetNode._callEvent("dnd.drop", {
-                  event: e,
-                  region: region,
-                  defaultDropMode: region === "over" ? "appendChild" : region,
-                  sourceNode: this.srcNode,
-              });
+              let nodeData = (_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData(nodeMimeType);
+              nodeData = nodeData ? JSON.parse(nodeData) : null;
+              const srcNode = this.srcNode;
+              const lastDropEffect = this.lastDropEffect;
+              setTimeout(() => {
+                  // Decouple this call, because drop actions may prevent the dragend event
+                  // from being fired on some browsers
+                  targetNode._callEvent("dnd.drop", {
+                      event: e,
+                      region: region,
+                      suggestedDropMode: region === "over" ? "appendChild" : region,
+                      suggestedDropEffect: lastDropEffect,
+                      // suggestedDropEffect: e.dataTransfer?.dropEffect,
+                      sourceNode: srcNode,
+                      sourceNodeData: nodeData,
+                  });
+              }, 10);
           }
       }
   }
@@ -2517,7 +2571,7 @@
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2653,7 +2707,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2690,7 +2744,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2743,7 +2797,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   /** WunderbaumNode properties that can be passed with source data.
    * (Any other source properties will be stored as `node.data.PROP`.)
@@ -2800,8 +2854,8 @@
           this.subMatchCount = 0;
           this._rowIdx = 0;
           this._rowElem = undefined;
-          assert(!parent || parent.tree === tree);
-          assert(!data.children);
+          assert(!parent || parent.tree === tree, `Invalid parent: ${parent}`);
+          assert(!data.children, "'children' not allowed here");
           this.tree = tree;
           this.parent = parent;
           this.key = "" + ((_a = data.key) !== null && _a !== void 0 ? _a : ++WunderbaumNode.sequence);
@@ -2988,7 +3042,7 @@
               case "appendChild":
                   return this.addChildren(nodeData);
           }
-          assert(false, "Invalid mode: " + mode);
+          assert(false, `Invalid mode: ${mode}`);
           return undefined;
       }
       /**
@@ -3534,9 +3588,9 @@
           if (isArray(source)) {
               source = { children: source };
           }
-          assert(isPlainObject(source));
+          assert(isPlainObject(source), `Expected an array or plain object: ${source}`);
           const format = (_a = source.format) !== null && _a !== void 0 ? _a : "nested";
-          assert(format === "nested" || format === "flat");
+          assert(format === "nested" || format === "flat", `Expected source.format = 'nested' or 'flat': ${format}`);
           // Pre-rocess for 'nested' or 'flat' format
           inflateSourceData(source);
           assert(source.children, "If `source` is an object, it must have a `children` property");
@@ -3664,7 +3718,9 @@
               this._requestId = 0;
               elap = Date.now() - start;
               if (tree.options.debugLevel >= 3) {
-                  tree.logInfo(`Load source took ${elap / 1000} seconds (transfer: ${elapLoad / 1000}s, processing: ${elapProcess / 1000}s)`);
+                  tree.logInfo(`Load source took ${elap / 1000} seconds ` +
+                      `(transfer: ${elapLoad / 1000}s, ` +
+                      `processing: ${elapProcess / 1000}s)`);
               }
           }
       }
@@ -4079,9 +4135,9 @@
           let checkboxSpan = null;
           let expanderSpan = null;
           const isNew = !rowDiv;
-          assert(isNew);
+          assert(isNew, "Expected unrendered node");
           assert(!isNew || (opts && opts.after), "opts.after expected, unless updating");
-          assert(!this.isRootNode());
+          assert(!this.isRootNode(), "Root node not allowed");
           rowDiv = document.createElement("div");
           rowDiv.classList.add("wb-row");
           rowDiv.style.top = this._rowIdx * ROW_HEIGHT + "px";
@@ -4181,7 +4237,7 @@
        * @see {@link WunderbaumNode._render}
        */
       _render_data(opts) {
-          assert(this._rowElem);
+          assert(this._rowElem, "No _rowElem");
           const tree = this.tree;
           const treeOptions = tree.options;
           const rowDiv = this._rowElem;
@@ -4640,7 +4696,7 @@
        * {@link Wunderbaum.update()} API.
        */
       update(change = ChangeType.data) {
-          assert(change === ChangeType.status || change === ChangeType.data);
+          assert(change === ChangeType.status || change === ChangeType.data, `Invalid change type ${change}`);
           this.tree.update(change, this);
       }
       /**
@@ -4868,8 +4924,8 @@
               // system root)
               const children = this.children;
               const firstChild = children ? children[0] : null;
-              assert(data.statusNodeType);
-              assert(!firstChild || !firstChild.isStatusNode());
+              assert(data.statusNodeType, "Not a status node");
+              assert(!firstChild || !firstChild.isStatusNode(), "Child must not be a status node");
               statusNode = this.addNode(data, "prependChild");
               statusNode.match = true;
               tree.update(ChangeType.structure);
@@ -5068,7 +5124,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.5.4, Sun, 15 Oct 2023 16:43:28 GMT (https://github.com/mar10/wunderbaum)
+   * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -5334,7 +5390,7 @@
               init = { title: init };
           }
           else {
-              assert(isPlainObject(init));
+              assert(isPlainObject(init), `Expected a plain object: ${init}`);
           }
           // Make sure node is expanded (and loaded) in 'child' mode
           if ((mode === "prependChild" || mode === "appendChild") &&
@@ -5364,8 +5420,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.5.4
-   * @date Sun, 15 Oct 2023 16:43:28 GMT
+   * @version v0.5.5
+   * @date Tue, 31 Oct 2023 14:26:34 GMT
    */
   // import "./wunderbaum.scss";
   class WbSystemRoot extends WunderbaumNode {
@@ -5746,7 +5802,7 @@
           else if (el.target) {
               el = el.target;
           }
-          assert(el instanceof Element);
+          assert(el instanceof Element, `Invalid el type: ${el}`);
           if (!el.matches(".wunderbaum")) {
               el = el.closest(".wunderbaum");
           }
@@ -5998,7 +6054,7 @@
           }
           else {
               node = this.getActiveNode();
-              assert(options === undefined);
+              assert(options === undefined, `Unexpected options: ${options}`);
               options = nodeOrOpts;
           }
           // clipboard = options.clipboard;
@@ -6206,7 +6262,7 @@
           try {
               this.enableUpdate(false);
               const res = func();
-              assert(!(res instanceof Promise));
+              assert(!(res instanceof Promise), `Promise return not allowed: ${res}`);
               return res;
           }
           finally {
@@ -6642,7 +6698,7 @@
               options = nodeOrOpts;
               node = options.node;
           }
-          assert(node && node._rowIdx != null);
+          assert(node && node._rowIdx != null, `Invalid node: ${node}`);
           const scrollParent = this.element;
           const headerHeight = this.headerElement.clientHeight; // May be 0
           const scrollTop = scrollParent.scrollTop;
@@ -6712,8 +6768,8 @@
        */
       setColumn(colIdx) {
           var _a;
-          assert(this.isCellNav());
-          assert(0 <= colIdx && colIdx < this.columns.length);
+          assert(this.isCellNav(), "Exected cellNav mode");
+          assert(0 <= colIdx && colIdx < this.columns.length, `Invalid colIdx: ${colIdx}`);
           this.activeColIdx = colIdx;
           // Update `wb-active` class for all headers
           if (this.hasHeader()) {
@@ -6831,11 +6887,11 @@
       isGrid() {
           return this.columns && this.columns.length > 1;
       }
-      /** Return true if cell-navigation mode is acive. */
+      /** Return true if cell-navigation mode is active. */
       isCellNav() {
           return !!this._cellNavMode;
       }
-      /** Return true if row-navigation mode is acive. */
+      /** Return true if row-navigation mode is active. */
       isRowNav() {
           return !this._cellNavMode;
       }
@@ -6888,7 +6944,7 @@
       }
       /** Add or redefine node type definitions. */
       setTypes(types, replace = true) {
-          assert(isPlainObject(types));
+          assert(isPlainObject(types), `Expected plain objext: ${types}`);
           if (replace) {
               this.types = types;
           }
@@ -6934,7 +6990,8 @@
           const defaultMinWidth = 4;
           const vpWidth = this.element.clientWidth;
           // Shorten last column width to avoid h-scrollbar
-          const FIX_ADJUST_LAST_COL = 0; // 2;
+          // (otherwise resizbing the demo would display a void scrollbar?)
+          const FIX_ADJUST_LAST_COL = 1;
           const columns = this.columns;
           const col0 = columns[0];
           let totalWidth = 0;
@@ -7027,7 +7084,7 @@
        * @internal
        */
       _renderHeaderMarkup() {
-          assert(this.headerElement);
+          assert(this.headerElement, "Expected a headerElement");
           const wantHeader = this.hasHeader();
           setElemDisplay(this.headerElement, wantHeader);
           if (!wantHeader) {
@@ -7035,7 +7092,7 @@
           }
           const colCount = this.columns.length;
           const headerRow = this.headerElement.querySelector(".wb-row");
-          assert(headerRow);
+          assert(headerRow, "Expected a row in header element");
           headerRow.innerHTML = "<span class='wb-col'></span>".repeat(colCount);
           for (let i = 0; i < colCount; i++) {
               const col = this.columns[i];
@@ -7497,7 +7554,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.5.4"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.5.5"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 
