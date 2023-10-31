@@ -4,7 +4,8 @@
  */
 /* eslint-env browser */
 /* eslint-disable no-console */
-import { Wunderbaum } from "../build/wunderbaum.esm.min.js";
+import { Wunderbaum } from "../build/wunderbaum.esm.js";
+// import { Wunderbaum } from "../build/wunderbaum.esm.min.js";
 
 const util = Wunderbaum.util;
 // const ModeElemTemplate = `<select tabindex='-1'>
@@ -65,18 +66,12 @@ const tree = new Wunderbaum({
   // source: "generator/ajax_1k_3_54 t_c.json",
   // source: "generator/fixture_department_1k_3_6_flat_comp.json",
   // source: "generator/fixture_department_1k_3_6_comp.json",
-  // source: "../docs/assets/ajax-tree-products.json",
-  source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+  source: "../docs/assets/ajax-tree-products.json",
+  // source:
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
   // source:
   //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "generator/fixture.json",
-  // source: (e)=>{
-  //   console.info("SOURCE", e.type, e)
-  //   return util.setTimeoutPromise(() => {
-  //     return {url: "../docs/assets/ajax-tree-products.json"};
-  //   }, 5000);
-  // },
   // source: {
   //   children: [
   //     { title: "a", type: "book", details: "A book", children: [] },
@@ -95,16 +90,21 @@ const tree = new Wunderbaum({
   // },
 
   dnd: {
+    effectAllowed: "all",
+    dropEffectDefault: "move",
+    guessDropEffect: true,
     dragStart: (e) => {
-      if (e.node.type === "folder") {
-        return false;
-      }
-      e.event.dataTransfer.effectAllowed = "all";
+      // if (e.node.type === "folder") {
+      //   return false;
+      // }
       return true;
     },
     dragEnter: (e) => {
+      // console.log(`DragEnter ${e.event.dataTransfer.dropEffect} ${e.node}`, e);
+      // We can only drop 'over' a folder, so the source node becomes a child.
+      // We can drop 'before' or 'after' a non-folder, so the source node becomes a sibling.
       if (e.node.type === "folder") {
-        // e.event.dataTransfer.dropEffect = "copy";
+        // e.event.dataTransfer.dropEffect = "link";
         return "over";
       }
       return ["before", "after"];
@@ -113,8 +113,26 @@ const tree = new Wunderbaum({
       // e.tree.log(e.type, e);
     },
     drop: (e) => {
-      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode);
+      console.log(
+        `Drop ${e.sourceNode} => ${e.suggestedDropEffect} ${e.suggestedDropMode} ${e.node}`,
+        e
+      );
+      switch (e.suggestedDropEffect) {
+        case "copy":
+          e.node.addNode(
+            { title: `Copy of ${e.sourceNodeData.title}` },
+            e.suggestedDropMode
+          );
+          break;
+        case "link":
+          e.node.addNode(
+            { title: `Link to ${e.sourceNodeData.title}` },
+            e.suggestedDropMode
+          );
+          break;
+        default:
+          e.sourceNode.moveTo(e.node, e.suggestedDropMode);
+      }
     },
   },
   // edit: {
@@ -129,24 +147,10 @@ const tree = new Wunderbaum({
     }, 1000);
   },
   activate: (e) => {
-    tree.log(
-      e.type,
-      e,
-      e.node.toDict(false, (d) => {
-        d._org_key = d.key;
-        delete d.key;
-      })
-    );
+    tree.log(e.type, e);
   },
   click: (e) => {
-    tree.log(
-      e.type,
-      e,
-      e.node.toDict(false, (d) => {
-        d._org_key = d.key;
-        delete d.key;
-      })
-    );
+    tree.log(e.type, e);
   },
   deactivate: (e) => {},
   discard: (e) => {},
