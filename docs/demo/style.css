@@ -44,7 +44,9 @@ img.logo {
 div.grid-wrapper {
   display: grid;
   width: 100vw;
+  width: 100dvw; /* 100vw minus width of scrollbar */
   height: 100vh;
+  height: 100dvh; /* 100vh minus height of address bar */
   grid-template-columns: 1fr 4fr;
   grid-template-rows: 3em 6em auto 5em 1em;
   padding: 5px;
