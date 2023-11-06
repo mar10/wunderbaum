@@ -329,7 +329,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         }
       }
       // e.dataTransfer!.setData("text/html", $(node.span).html());
-      e.dataTransfer!.setData("text/plain", srcNode.title);
+      if (!e.dataTransfer?.types.includes("text/plain")) {
+        e.dataTransfer!.setData("text/plain", srcNode.title);
+      }
       this.srcNode = srcNode;
       setTimeout(() => {
         // Decouple this call, so the CSS is applied to the node, but not to
