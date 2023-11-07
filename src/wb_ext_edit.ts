@@ -117,9 +117,12 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       this.tree.element,
       "change", //"change input",
       ".contenteditable,input,textarea,select",
-      (e) => {
-        this.debouncedOnChange(e);
-      }
+      // #61: we must not debounce the `change`, event.target may be reset to null
+      // when the debounced handler is called.
+      // (e) => {
+      //   this.debouncedOnChange(e);
+      // }
+      this._onChange
     );
   }
 
