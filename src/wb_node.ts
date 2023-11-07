@@ -1095,6 +1095,11 @@ export class WunderbaumNode {
       if (!url) {
         // An array or a plain object (that does NOT contain a `.url` property)
         // will be treated as native Wunderbaum data
+        if (typeof (<any>source).then === "function") {
+          const msg = tree.logTime(`Resolve thenable ${source}`);
+          source = await Promise.resolve(source);
+          tree.logTimeEnd(msg);
+        }
         this._loadSourceObject(source);
         elapProcess = Date.now() - start;
       } else {
