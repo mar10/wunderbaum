@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -765,7 +765,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -829,7 +829,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1185,7 +1185,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1485,7 +1485,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1831,7 +1831,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1873,7 +1873,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -2139,7 +2139,7 @@ function inflateSourceData(source) {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2373,6 +2373,7 @@ class DndExtension extends WunderbaumExtension {
      * Handle dragstart, drag and dragend events for the source node.
      */
     onDragEvent(e) {
+        var _a;
         // const tree = this.tree;
         const dndOpts = this.treeOpts.dnd;
         const srcNode = Wunderbaum.getNode(e);
@@ -2413,7 +2414,9 @@ class DndExtension extends WunderbaumExtension {
                 }
             }
             // e.dataTransfer!.setData("text/html", $(node.span).html());
-            e.dataTransfer.setData("text/plain", srcNode.title);
+            if (!((_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.types.includes("text/plain"))) {
+                e.dataTransfer.setData("text/plain", srcNode.title);
+            }
             this.srcNode = srcNode;
             setTimeout(() => {
                 // Decouple this call, so the CSS is applied to the node, but not to
@@ -2565,7 +2568,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2701,7 +2704,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2738,7 +2741,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2791,7 +2794,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3671,6 +3674,11 @@ class WunderbaumNode {
             if (!url) {
                 // An array or a plain object (that does NOT contain a `.url` property)
                 // will be treated as native Wunderbaum data
+                if (typeof source.then === "function") {
+                    const msg = tree.logTime(`Resolve thenable ${source}`);
+                    source = await Promise.resolve(source);
+                    tree.logTimeEnd(msg);
+                }
                 this._loadSourceObject(source);
                 elapProcess = Date.now() - start;
             }
@@ -5118,7 +5126,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.5.5, Tue, 31 Oct 2023 14:26:34 GMT (https://github.com/mar10/wunderbaum)
+ * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5197,9 +5205,13 @@ class EditExtension extends WunderbaumExtension {
     init() {
         super.init();
         onEvent(this.tree.element, "change", //"change input",
-        ".contenteditable,input,textarea,select", (e) => {
-            this.debouncedOnChange(e);
-        });
+        ".contenteditable,input,textarea,select", 
+        // #61: we must not debounce the `change`, event.target may be reset to null
+        // when the debounced handler is called.
+        // (e) => {
+        //   this.debouncedOnChange(e);
+        // }
+        (e) => this._onChange(e));
     }
     /* Called by ext_keynav to pre-process input. */
     _preprocessKeyEvent(data) {
@@ -5414,8 +5426,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.5.5
- * @date Tue, 31 Oct 2023 14:26:34 GMT
+ * @version v0.6.0
+ * @date Wed, 08 Nov 2023 19:58:55 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -7548,7 +7560,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.5.5"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.6.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 
