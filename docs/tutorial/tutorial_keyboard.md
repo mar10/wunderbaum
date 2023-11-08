@@ -1,9 +1,10 @@
 # Keyboard Navigation
 
-?> See also the [General Overview](/tutorial/overview.md).
-
 The option `keyboard: true` should be used to control if standard keyboard
 navigation is enabled.
+
+?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable)
+and use the keyboard to navigate, expand, and edit grid cells.
 
 ## General Keyboard Navigation
 
@@ -14,19 +15,18 @@ A node becomes 'selected', when the checkbox is checked.
 
 A tree can have one of two navigation modes. We can toggle using the keyboard:
 
-*Row Mode* &harr; *Cell-Nav Mode*
+_Row Mode_ &harr; _Cell-Nav Mode_
 
-The initial mode, and if modes can be switched, is controlled by the 
+The initial mode, and if modes can be switched, is controlled by the
 `navigationModeOption` option:<br>
-If the tree has only one column, or if *navigationModeOption* is `"row"`, 
+If the tree has only one column, or if _navigationModeOption_ is `"row"`,
 Row Mode is obligatory.
 If the value is `"cell"`, Cell-Nav Mode is obligatory.<br>
 A value of `"startCell"` or `"startRow"` allows switching.
 
-
 ### Navigation in **Row Mode**
 
-In *row mode*, Wunderbaum behaves like a simple tree. Even if multiple columns 
+In _row mode_, Wunderbaum behaves like a simple tree. Even if multiple columns
 are present, always the whole row is highlighted.
 
 <table>
@@ -149,12 +149,11 @@ are present, always the whole row is highlighted.
 </tbody>
 </table>
 
-
 ### Navigation in **Cell-Nav Mode**
 
-*Cell-Nav mode* is only available, when multiple columns are defined.
+_Cell-Nav mode_ is only available, when multiple columns are defined.
 In this mode we navigate the single grid cells in read-only mode mostly. <br>
-However, if the cell contains an embedded <code>&lt;input&gt;</code> element, 
+However, if the cell contains an embedded <code>&lt;input&gt;</code> element,
 we can focus that control and edit its content.
 
 <table>
@@ -270,7 +269,6 @@ we can focus that control and edit its content.
 </tbody>
 </table>
 
-
 ## Configuration and Customization
 
 ### Related Tree Options
@@ -313,4 +311,5 @@ div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
 ### Code Hacks
 
 ```js
+
 ```

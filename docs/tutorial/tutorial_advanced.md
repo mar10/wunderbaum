@@ -1,7 +1,5 @@
 # Advanced Topics
 
-?> See also the [General Overview](/tutorial/overview.md).
-
 ## Iteration
 
 There are two ways to traverse the tree _depth-first, pre-order_
@@ -24,7 +22,47 @@ Both are 'fast enough' for most use cases, but the latter is slightly faster.
 {@link Wunderbaum.visit} also allows to break or skip nodes by returning a
 special value.
 
-## User Input
+## Custom Icon Fonts
+
+This example uses [Font Awesome Icons](https://fontawesome.com/icons) instead
+of the default [Bootstrap Icons](https://icons.getbootstrap.com/) icon font:
+
+```html
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    ...
+  </head>
+</html>
+```
+
+```js
+const tree = new mar10.Wunderbaum({
+  element: document.getElementById("demo-tree"),
+  source: "get/root/nodes",
+  iconMap: "fontawesome6",  // <-- use Font Awesome Icons
+  ...
+});
+```
+
+`iconMap` can also be a custom map of icon names, e.g.
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: {
+    folder: "bi bi-folder",
+    file: "bi bi-file-earmark",
+    ...
+  },
+  ...
+});
+```
+
+<!-- ## User Input -->
 
 ## Markup and CSS Styles
 
@@ -58,8 +96,8 @@ For example
 
 ### Custom Styles
 
-These classes are automatically set the tree's `<div>` container, depending on
-the current mode, allowing for custom CSS rules:
+These classes are automatically set on the tree's `<div>` container, depending
+on the current mode, allowing for custom CSS rules:
 
 - `wb-grid`
 - `wb-fixed-col`

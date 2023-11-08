@@ -1,92 +1,5 @@
 # Loading and Initialization
 
-## General Setup
-
-A Wunderbaum control is added to a web page by defining a `<div>` tag and
-then create a new `Wunderbaum` class instance, passing the tag and configuration
-options.
-
-For example
-
-```html {16-19}
-<!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" media="screen" href="../wunderbaum.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
-    />
-
-    <script defer src="../wunderbaum.umd.js"></script>
-    <script defer src="main.js"></script>
-  </head>
-
-  <body>
-    ...
-    <div
-      id="demo-tree"
-      class="wb-skeleton wb-initializing wb-fade-expander"
-    ></div>
-    ...
-  </body>
-</html>
-```
-
-Once the page is loaded, initialize the tree control:
-
-```js
-document.addEventListener("DOMContentLoaded", (event) => {
-  const tree = new mar10.Wunderbaum({
-    element: document.getElementById("demo-tree"),
-    source: "get/root/nodes",
-    init: (e) => {
-      e.tree.setFocus();
-    },
-  });
-});
-```
-
-### Custom Icon Fonts
-
-This example uses [Font Awesome Icons](https://fontawesome.com/icons) instead of the
-[Bootstrap Icons](https://icons.getbootstrap.com/) icon font above:
-
-```html
-<html>
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-    ...
-  </head>
-</html>
-```
-
-```js
-const tree = new mar10.Wunderbaum({
-  element: document.getElementById("demo-tree"),
-  source: "get/root/nodes",
-  iconMap: "fontawesome6",
-  ...
-});
-```
-
-`iconMap` can also be a map of icon names, e.g.
-
-```js
-const tree = new mar10.Wunderbaum({
-  ...
-  iconMap: {
-    folder: "bi bi-folder",
-    file: "bi bi-file-earmark",
-    ...
-  },
-  ...
-});
-```
-
 ## Passing Options
 
 There are many more options and callbacks available. Here are some of the
@@ -202,13 +115,13 @@ Currently the following options are evaluated as dynamic options:
 
 See method `node.getOption()` for details.
 
-### Event Handlers
+## Event Handlers
 
 Event handlers can be used to control tree behavior and react on status changes.
 Common event handlers include: `init(e)`, `lazyLoad(e)`, `receive(e)`, `render(e)`,
 and more.
 
-?> Event Handlers are describe in detail in the "Events" chapter.
+?> Event Handlers are described in detail in the [Events chapter](/tutorial/tutorial_events.md).
 
 ## Source Format and API
 
@@ -356,7 +269,7 @@ data model more concise:
 }
 ```
 
-?> Type definitions can also be passed to the tree constructor directly:
+Type definitions can also be passed directly to the tree constructor:
 
 ```js
 const tree = new mar10.Wunderbaum({

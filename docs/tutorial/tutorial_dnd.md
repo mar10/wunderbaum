@@ -7,24 +7,24 @@ The implementation is purely based on the native
 [HTML Drag and Drop API](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API).
 
 Note that there is no automatic modification of nodes. Instead, the
-`drop` event is fired on the target tree and it is up to the application to 
+`drop` event is fired on the target tree and it is up to the application to
 modify the tree accordingly.
 
 ## Drag and Drop Events
 
 The following events are fired on the tree during drag and drop.
 
->! Note that the `dragStart`, `drag`, and `dragEnd` events are fired on the 
-   tree that contains the dragged node. <br>
-   The other events are fired on the tree that contains the drop target.
+?> Note that the `dragStart`, `drag`, and `dragEnd` events are fired on the
+tree that contains the dragged node. <br>
+The other events are fired on the tree that contains the drop target.
 
-The events are named after the corresponding 
+The events are named after the corresponding
 [HTML Drag and Drop events](https://developer.mozilla.org/en-US/docs/Web/API/DragEvent).
 However, the event handlers are passed an object with the following properties:
 
 ```js
 e = {
-  type: "dnd.EVENTNAME",  
+  type: "dnd.EVENTNAME",
   node: // the source or target node, depending on the event type
   event: // <the original HTML DragEvent>
 }
@@ -38,7 +38,7 @@ These are events are sent in a typical drag and drop operation:
   The handler can return `false` to prevent dragging the source node.<br>
   The handler can set the `e.event.dataTransfer.effectAllowed` property in order
   to adjust copy/move/link behavior. <br>
-  The handler can set the `e.event.dataTransfer.dropEffect` property in order to 
+  The handler can set the `e.event.dataTransfer.dropEffect` property in order to
   adjust copy/move/link behavior.
 
 - `drag(e)`: Fired repeadedly during a drag operation.<br>
@@ -48,12 +48,12 @@ These are events are sent in a typical drag and drop operation:
   This event handler MUST be implemented by the application in order to enable
   dropping in general. <br>
   The handler can return `false` to prevent the drop operation or return a set of drop regions to indicate which drop regions are allowed. <br>
-  The handler can set the `e.event.dataTransfer.dropEffect` property in order to 
+  The handler can set the `e.event.dataTransfer.dropEffect` property in order to
   adjust copy/move/link behavior.
 
 - `dragOver(e)`: Fired continuously when a dragged item is moved over a drop target. <br>
   We will hardly ever have to implement this handler. <br>
-  The handler can set the `e.event.dataTransfer.dropEffect` property in order to 
+  The handler can set the `e.event.dataTransfer.dropEffect` property in order to
   adjust copy/move/link behavior.
 
 - `dragLeave(e)`: Fired when a dragged node leaves a drop target. <br>
@@ -62,6 +62,7 @@ These are events are sent in a typical drag and drop operation:
 - `drop(e)`: Fired when a dragged node is dropped on a drop target. <br>
   This is the most important event handler. It is responsible for modifying the
   tree according to the drop operation. <br>
+
   ```js
   e = {
     type: "dnd.drop",
@@ -75,22 +76,22 @@ These are events are sent in a typical drag and drop operation:
     sourceNodeData: // the serialized data of the source node if any
   }
   ```
+
   Foreign source data can be retreived from the `e.event.dataTransfer` object.
 
 - `dragEnd(e)`: Fired when a drag operation is ended.<br>
   We will hardly ever have to implement this handler.
 
-
 ## Related Tree Options
 
-See also the 
-[API Documentaion for DnD options](https://mar10.github.io/wunderbaum/api/types/types.DndOptionsType.html).
+?> See also the [API Documentation for DnD options](https://mar10.github.io/wunderbaum/api/types/types.DndOptionsType.html) and the [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain).
 
 ## Examples
 
 ### Basic Drag and Drop
 
 Allow sorting of plain nodes:
+
 ```js
 const tree = new Wunderbaum({
   // --- Common Options ---

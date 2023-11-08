@@ -1,5 +1,9 @@
 # Grid
 
+!> This chapter is still under construction.
+
+?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
+
 ## Column Definitions
 
 ```js
@@ -28,14 +32,13 @@ const tree = new Wunderbaum({
 });
 ```
 
-
 ## Editing
 
-> TODO
+!> TODO
 
 ## Rendering
 
-> TODO
+!> TODO
 
 ## Configuration and Customization
 
@@ -64,10 +67,10 @@ const tree = new Wunderbaum({
 - `tree.setNavigationOption(mode: NavModeEnum)`
 - `tree.setColumn(colIdx: number)`
 
-
 ### Related CSS Rules
 
 ```css
+
 ```
 
 ### Code Hacks
@@ -75,8 +78,10 @@ const tree = new Wunderbaum({
 #### Redefine columns:
 
 ```js
-tree.columns.push(
-  { title: "New Col", id: "col_" + sequence++, width: "100px" }
-)
-tree.update("colStructure")
+tree.columns.push({
+  title: "New Col",
+  id: "col_" + sequence++,
+  width: "100px",
+});
+tree.update("colStructure");
 ```

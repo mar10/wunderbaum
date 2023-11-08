@@ -1,16 +1,15 @@
 # Custom Rendering
 
-?> See also the [General Overview](/tutorial/overview.md).
-
-A tree ...
+!> This chapter is still under construction.
 
 ## Configuration and Customization
 
 ### Related Tree Options
 
-**Note:**
-See also the [Edit Tutorial](tutorial_edit.md) for specific rendering
+?> See also the [Edit Tutorial](/tutorial/tutorial_edit.md) for specific rendering
 of embedded input controls.
+
+?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
 
 ```js
 const tree = new Wunderbaum({
@@ -52,7 +51,7 @@ const tree = new Wunderbaum({
 
 ### Performance Tips
 
-Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many 
+Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many
 nodes at once.
 
 ```js
@@ -74,4 +73,5 @@ div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
 ### Code Hacks
 
 ```js
+
 ```

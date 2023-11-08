@@ -1,20 +1,18 @@
 # Edit Nodes and Columns
 
-?> See also the [General Overview](/tutorial/overview.md).
-
 Editing is supported in two different ways:
 
-  1. There is direct support for renaming nodes, i.e. editing the node title.
-     Use the `edit.trigger` option and implement the `edit.apply()` callback
-     to enable this.
+1. There is direct support for renaming nodes, i.e. editing the node title.
+   Use the `edit.trigger` option and implement the `edit.apply()` callback
+   to enable this.
 
-  2. In a treegrid, there is also general support for embedded input elements
-     in column cells, like checkboxes, text fields, etc.<br>
-     Note that *Wunderbaum* does **not** implement fancy input controls though.
-     Rather think of it as a framework that makes it easy to use standard or
-     custom HTML controls: <br>
-     Create HTML controls in the  `tree.render()` callback and implement the
-     `tree.change()` event to enable this.
+2. In a treegrid, there is also general support for embedded input elements
+   in column cells, like checkboxes, text fields, etc.<br>
+   Note that _Wunderbaum_ does **not** implement fancy input controls though.
+   Rather think of it as a framework that makes it easy to use standard or
+   custom HTML controls: <br>
+   Create HTML controls in the `tree.render()` callback and implement the
+   `tree.change()` event to enable this.
 
 ## 1. Rename Nodes
 
@@ -80,6 +78,9 @@ const tree = new Wunderbaum({
 });
 ```
 
+?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain),
+activate a node, and hit <code>F2</code>.
+
 ### Related Methods
 
 - `tree.isEditingTitle()`
@@ -100,15 +101,12 @@ wb-tristate
 ### Code Hacks
 
 ```js
+
 ```
 
 ## 2. Edit Cell Content
 
 ### Related Tree Options
-
-**Note:**
-See also the [Render Tutorial](tutorial_render.md) for a general rendering
-description.
 
 ```js
 const tree = new Wunderbaum({
@@ -142,6 +140,12 @@ const tree = new Wunderbaum({
 });
 ```
 
+?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable),
+expand some nodes and enter values into the input controls.
+
+?> See also the [Render Tutorial](/tutorial/tutorial_render.md) for a general rendering
+description.
+
 ### Related Methods
 
 - `util.getValueFromElem()`
@@ -151,7 +155,10 @@ const tree = new Wunderbaum({
 ### Related CSS Rules
 
 ```css
-span.wb-col.wb-busy {}
-span.wb-col.wb-error {}
-span.wb-col input:invalid {}
+span.wb-col.wb-busy {
+}
+span.wb-col.wb-error {
+}
+span.wb-col input:invalid {
+}
 ```

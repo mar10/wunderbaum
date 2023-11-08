@@ -54,6 +54,7 @@
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",
     "concurrently": "^8.1.0",
+    "docsify-cli": "^4.4.4",
     "eslint": "^8.51.0",
     "eslint-config-jquery": "^3.0.0",
     "eslint-config-prettier": "^8.8.0",
@@ -114,6 +115,7 @@
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
+    "docsify": "docsify serve docs -o",
     "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\""
   },
   "npmName": "wunderbaum",

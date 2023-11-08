@@ -9,31 +9,21 @@
 
 <!-- [![Build Status](https://travis-ci.com/mar10/wunderbaum.svg?branch=main)](https://travis-ci.com/github/mar10/wunderbaum) -->
 
-> Potential successor of [Fancytree](https://github.com/mar10/fancytree).<br> > **NOTE: Status _beta_. Do not use in production!**
+> Potential successor of [Fancytree](https://github.com/mar10/fancytree).
+
+**NOTE: Status _beta_. Do not use in production!**
 
 [![Demo](docs/assets/teaser_2.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
 
-Wunderbaum is a rewrite of the [Fancytree](https://github.com/mar10/fancytree)
-library. Major features include
-
-- **Treegrid** control with emphasis on "tree".<br>
-  Depending on the number of columns and nesting depth, Wunderbaum can also be
-  used as a **plain tree**, **plain grid**, or a **simple list** control.
-- **Performant** and efficient handling of **big data structures**.
-- Use modern technologies with **zero dependencies** (except for icon fonts you
-  may want to use).<br>
-  Drop legacy support (IE, jQuery, ...).
-- Built-in support for
-  <!-- [aria](https://www.w3.org/TR/wai-aria-1.1/), -->
-  [drag and drop](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_dnd),
-  [editing](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_edit),
-  [filtering](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_filter),
-  [multi-selection](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_select).
-- Fully [controllable using the keyboard](https://mar10.github.io/wunderbaum/#/tutorial/tutorial_keyboard).
-- Framework agnostic.
-- Written in TypeScript, transpiled to JavaScript ES6 with type hints (.esm & .umd).
-  <!-- - Good documentation. -->
-  <!-- - Decent test coverage. -->
+<center>
+Supports drag and drop,, editing, filtering, and multi-selection.<br>
+Written in TypeScript, transpiled to ES6 (esm & umd).<br>
+Performant handling of big data structures.<br>
+Provide an object oriented API.<br>
+Framework agnostic.<br>
+Zero dependencies.<br>
+Keyboard support.
+</center>
 
 ### Details
 
