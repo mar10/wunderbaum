@@ -122,7 +122,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       // (e) => {
       //   this.debouncedOnChange(e);
       // }
-      this._onChange
+      (e) => this._onChange(e)
     );
   }
 
