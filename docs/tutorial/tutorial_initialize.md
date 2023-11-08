@@ -79,12 +79,12 @@ const tree = new mar10.Wunderbaum({
 This global setting may be overridden per node by the concrete source data,
 if a property of the same name is present:
 
-```json
+```js
 [
-  { "title": "Node 1" },
-  { "title": "Node 2", "checkbox": false },
-  { "title": "Node 3", "checkbox": "radio" }
-]
+  { title: "Node 1" },
+  { title: "Node 2", checkbox: false },
+  { title: "Node 3", checkbox: "radio" },
+];
 ```
 
 If the global setting is a callback, it will be called for every node, thus
@@ -173,32 +173,32 @@ Note that
 All node are transferred as a list of top-level nodes, with optional nested
 lists of child nodes.
 
-```json
+```js
 [
   {
-    "title": "Books",
-    "expanded": true,
-    "children": [
+    title: "Books",
+    expanded: true,
+    children: [
       {
-        "title": "Art of War",
-        "author": "Sun Tzu"
+        title: "Art of War",
+        author: "Sun Tzu",
       },
       {
-        "title": "The Hobbit",
-        "author": "J.R.R. Tolkien"
-      }
-    ]
+        title: "The Hobbit",
+        author: "J.R.R. Tolkien",
+      },
+    ],
   },
   {
-    "title": "Music",
-    "children": [
+    title: "Music",
+    children: [
       {
-        "title": "Nevermind",
-        "author": "Nirvana"
-      }
-    ]
-  }
-]
+        title: "Nevermind",
+        author: "Nirvana",
+      },
+    ],
+  },
+];
 ```
 
 ### Object Format
@@ -206,7 +206,7 @@ lists of child nodes.
 This is the most commonly used format. Here we pass an object that contains
 one `children` element, but also additional information.
 
-```json
+```js
 {
   "types": {...},
   "columns": [...],
@@ -233,7 +233,7 @@ A tree often contains multiple nodes that share attributes.
 We can extract type information to a separate block, in order to make the
 data model more concise:
 
-```json
+```js
 {
   "types": {
     "folder": { "icon": "bi bi-folder", "classes": "bold-style" },
@@ -291,7 +291,7 @@ reduce the size of the JSON data by eliminating redundancy.
 
 This example can be optimized:
 
-```json
+```js
 {
   "_format": "nested",
   "types": {"person": {...}, ...},
@@ -314,7 +314,7 @@ This example can be optimized:
   name strings.
 - Use the _flat_ format described below, which is a even few percent smaller.
 
-```json
+```js
 {
   "_format": "nested",  // Optional
   "types": {"person": {...}, ...},
@@ -336,11 +336,13 @@ This example can be optimized:
 
 ### Flat, Parent-Referencing List
 
+!> This format is still subject to change!
+
 Here all nodes are passed as a flat list, without nesting.
 Chid nodes reference the parent by
 NOTE: This also works when `node.key`'s are not provided.
 
-```json
+```js
 {
   "_format": "flat",
   "types": {...},       // Optional, but likely if `_typeList` is used
@@ -365,7 +367,8 @@ NOTE: This also works when `node.key`'s are not provided.
 
 ### Handling External Data Formats
 
-See also [Example with source](http://127.0.0.1:8080/docs/demo/#demo-custom).
+?> See also [Example with source](https://mar10.github.io/wunderbaum/demo/#demo-custom)
+that queries the [Fake Store API](https://fakestoreapi.com).
 
 ```js
 const tree = new Wunderbaum({
