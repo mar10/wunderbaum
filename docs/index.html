@@ -40,12 +40,19 @@
   </nav> -->
   <div id="app"></div>
   <script>
+    /*
+    TODO: enable search engine support.
+    Seems difficult with GH Pages, since we need server side support?
+    
+    - https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#routermode
+    - https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#basepath
+    - https://github.com/docsifyjs/docsify/blob/develop/docs/deploy.md#github-pages
+    */
     window.$docsify = {
       name: 'Wunderbaum',
       repo: 'mar10/wunderbaum',
-      basePath: '/wunderbaum/',
-      // https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#routermode
-      routerMode: "history", // Allow google indexing(?). Default: hash 
+      // basePath: '/wunderbaum/',
+      // routerMode: "history", // Allow google indexing(?). Default: hash 
       loadSidebar: true,
       auto2top: true,
       // homepage: 'home.md', // Default: 'README.md'

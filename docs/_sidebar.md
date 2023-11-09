@@ -16,7 +16,7 @@
   - [Select](tutorial/tutorial_select)
   - [Advanced](tutorial/tutorial_advanced)
   - [Concepts](tutorial/concepts)
-  - [Migration](tutorial/migrate ":ignore)
+  - [Migration](tutorial/migrate)
   - [Contribute](tutorial/contribute)
 
 - [API Reference](https://mar10.github.io/wunderbaum/api/index.html ":ignore")
