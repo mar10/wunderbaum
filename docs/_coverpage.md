@@ -1,14 +1,10 @@
 <!-- _coverpage.md -->
 
-<!-- ![color](#f0f0f0) -->
-
 ![logo](assets/teaser_1.png)
 
-<!-- ![logo](_media/icon.svg) -->
-
-<p style="color: salmon;"> Wunderbaum has still beta status:<br>
-API, Markup, Stylesheet, etc. are still subject to change.<br>
-<b>Do not use it in production!</b>
+<p style="color: salmon;">
+    Wunderbaum has still beta status:<br>
+    API, Markup, Stylesheet, etc. are still subject to change.
 </p>
 
 # Wunderbaum <small>@VERSION</small>
