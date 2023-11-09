@@ -17,9 +17,9 @@
   - [Advanced](tutorial/tutorial_advanced)
   - [Concepts](tutorial/concepts)
   - [Migration](tutorial/migrate)
-  - [Contribute](tutorial/contribute)
 
 - [API Reference](https://mar10.github.io/wunderbaum/api/index.html ":ignore")
 - [Changelog](https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md)
+- [Contribute](tutorial/contribute)
 
 <!-- - [GitHub Project](https://github.com/mar10/wunderbaum) -->
