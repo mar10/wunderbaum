@@ -1,6 +1,5 @@
-!> Wunderbaum has still beta status:<br>
-API, Markup, Stylesheet, etc. are subject to change.<br>
-**Do not use it in production!**
+!> Wunderbaum has beta status:<br>
+API, Markup, Stylesheet, etc. are still subject to change.
 
 # Quick Start
 

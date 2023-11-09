@@ -9,24 +9,24 @@
 
 <!-- [![Build Status](https://travis-ci.com/mar10/wunderbaum.svg?branch=main)](https://travis-ci.com/github/mar10/wunderbaum) -->
 
+> A modern tree/treegrid control for the web. <br>
 > Potential successor of [Fancytree](https://github.com/mar10/fancytree).
 
-**NOTE: Status _beta_. Do not use in production!**
+**Status _beta_:<br>API, Markup, Stylesheet, etc. are still subject to change.**
 
 [![Demo](docs/assets/teaser_2.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
 
-<center>
-Supports drag and drop,, editing, filtering, and multi-selection.<br>
-Written in TypeScript, transpiled to ES6 (esm & umd).<br>
-Performant handling of big data structures.<br>
-Provide an object oriented API.<br>
-Framework agnostic.<br>
-Zero dependencies.<br>
-Keyboard support.
-</center>
+- Supports drag and drop,, editing, filtering, and multi-selection.
+- Written in TypeScript, transpiled to ES6 (esm & umd).
+- Performant handling of big data structures.
+- Provide an object oriented API.
+- Framework agnostic.
+- Zero dependencies.
+- Keyboard support.
 
 ### Details
 
 - [Online Demo](https://mar10.github.io/wunderbaum/demo/)
-- [User Guide](https://mar10.github.io/wunderbaum/)
+- [Documentation](https://mar10.github.io/wunderbaum/)
 - [API Reference](https://mar10.github.io/wunderbaum/api/index.html)
+- [Quick Start](https://mar10.github.io/wunderbaum/#/tutorial/quick_start)

@@ -2,10 +2,12 @@
 
 ![logo](assets/teaser_1.png)
 
+<!--
 <p style="color: salmon;">
     Wunderbaum has still beta status:<br>
     API, Markup, Stylesheet, etc. are still subject to change.
 </p>
+-->
 
 # Wunderbaum <small>@VERSION</small>
 

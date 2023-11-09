@@ -1,7 +1,7 @@
 # ![logo](/assets/tree_logo_32.png ":ignore") Wunderbaum
 
-!> Wunderbaum has still beta status:<br>
-API, Markup, Stylesheet, etc. are subject to change.
+!> Wunderbaum has beta status:<br>
+API, Markup, Stylesheet, etc. are still subject to change.
 
 - [Quick Start](/tutorial/quick_start.md)
 - [API Reference](https://mar10.github.io/wunderbaum/api/index.html)
