@@ -1,7 +1,7 @@
+# Quick Start
+
 !> Wunderbaum has beta status:<br>
 API, Markup, Stylesheet, etc. are still subject to change.
-
-# Quick Start
 
 A Wunderbaum control is added to a web page by defining a `<div>` tag and
 then create a new _Wunderbaum_ class instance, passing the tag and configuration

@@ -9,7 +9,9 @@
 </p>
 -->
 
-# Wunderbaum <small>@VERSION</small>
+<!-- # Wunderbaum <small>@VERSION</small> -->
+
+# Wunderbaum
 
 > A modern JavaScript tree/treegrid control.
 

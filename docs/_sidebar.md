@@ -1,6 +1,6 @@
 <!-- - [Project Home](https://mar10.github.io/wunderbaum/) -->
 
-- [![GitHub version](https://img.shields.io/github/v/release/mar10/wunderbaum?display_name=tag&sort=semver)](https://github.com/mar10/wunderbaum/releases/latest)
+[![GitHub version](https://img.shields.io/github/v/release/mar10/wunderbaum?display_name=tag&sort=semver)](https://github.com/mar10/wunderbaum/releases/latest)
 
 - User Guide
   - [Quick start](tutorial/quick_start)
