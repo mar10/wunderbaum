@@ -118,7 +118,8 @@
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
     "docsify": "docsify serve docs -o",
-    "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\""
+    "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\"",
+    "dev:playwright": "concurrently \"http-server . -p 3000 \" \"nodemon\""
   },
   "npmName": "wunderbaum",
   "npmFileMap": [
