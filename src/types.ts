@@ -37,7 +37,8 @@ export interface SourceObjectType {
   columns?: ColumnDefinitionList;
   children: SourceListType;
   _keyMap?: { [key: string]: string };
-  _typeList?: Array<string>;
+  // _typeList?: Array<string>;
+  _valueMap?: { [key: string]: Array<string> };
   _positional?: Array<string>;
 }
 

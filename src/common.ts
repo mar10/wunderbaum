@@ -103,7 +103,8 @@ export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
   "_format", // reserved for future use
   "_keyMap", // reserved for future use
   "_positional", // reserved for future use
-  "_typeList", // reserved for future use
+  "_typeList", // reserved for future use @deprecated
+  "_valueMap", // reserved for future use
   "_version", // reserved for future use
   "children",
   "columns",
@@ -268,7 +269,18 @@ function unflattenSource(source: any): void {
 }
 
 export function inflateSourceData(source: any): void {
-  const { _format, _keyMap, _typeList } = source;
+  let { _format, _keyMap, _valueMap } = source;
+
+  if (source._typeList != null) {
+    const msg = `source._typeList is deprecated: use source._valueMap: {"type": [...]} instead.`;
+    if (_valueMap != null) {
+      throw new Error(msg);
+    } else {
+      console.warn(msg); // eslint-disable-line no-console
+      _valueMap = { type: source._typeList };
+      delete source._typeList;
+    }
+  }
 
   if (_format === "flat") {
     unflattenSource(source);
@@ -277,6 +289,7 @@ export function inflateSourceData(source: any): void {
   delete source._version;
   delete source._keyMap;
   delete source._typeList;
+  delete source._valueMap;
   delete source._positional;
 
   function _iter(childList: any[]) {
@@ -295,13 +308,19 @@ export function inflateSourceData(source: any): void {
       // `node` now has long attribute names
 
       // Resolve node type indexes
-      const type = node.type;
-      if (_typeList && type != null && typeof type === "number") {
-        const newType = _typeList[type];
-        if (newType == null) {
-          throw new Error(`Expected typeList[${type}] entry in [${_typeList}]`);
-        }
-        node.type = newType;
+      if (_valueMap) {
+        Object.entries(_valueMap).forEach(([propName, valueList]) => {
+          const oldValue = node[propName];
+          if (typeof oldValue === "number") {
+            const newValue = (valueList as Array<string>)[oldValue];
+            if (newValue == null) {
+              throw new Error(
+                `Expected valueMap[${propName}][${oldValue}] entry in [${valueList}]`
+              );
+            }
+            node[propName] = newValue;
+          }
+        });
       }
 
       // Recursion
