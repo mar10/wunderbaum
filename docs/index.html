@@ -72,7 +72,14 @@
       repo: 'mar10/wunderbaum',
       // basePath: '/wunderbaum/',
       // https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#routermode
-      // routerMode: "history", // Allow google indexing(?). Default: hash 
+      routerMode: "history", // Allow google indexing(?). Default: hash 
+      alias: {
+        '/.*/_sidebar.md': '/_sidebar.md',
+        '/.*/_navbar.md': '/_navbar.md',
+        '/.*/_coverpage.md': '/_coverpage.md',
+        '/.*/_footer.md': '/_footer.md',
+        '/.*/_404.md': '/_404.md',
+      },
       loadSidebar: true,
       // autoHeader: true,
       formatUpdated: '{YYYY}-{MM}-{DD} {HH}:{mm}', // for `{docsify-updated}` tag
