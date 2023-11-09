@@ -644,6 +644,13 @@
     "@nodelib/fs.scandir" "2.1.5"
     "fastq" "^1.6.0"
 
+"@playwright/test@^1.39.0":
+  "integrity" "sha512-3u1iFqgzl7zr004bGPYiN/5EZpRUSFddQBra8Rqll5N0/vfpqlP9I9EXqAoGacuAbX6c9Ulg/Cjqglp5VkK6UQ=="
+  "resolved" "https://registry.npmjs.org/@playwright/test/-/test-1.39.0.tgz"
+  "version" "1.39.0"
+  dependencies:
+    "playwright" "1.39.0"
+
 "@puppeteer/browsers@0.5.0":
   "integrity" "sha512-Uw6oB7VvmPRLE4iKsjuOh8zgDabhNX67dzo8U/BB0f9527qx+4eeUs+korU98OhG5C4ubg7ufBgVi63XYwS6TQ=="
   "resolved" "https://registry.npmjs.org/@puppeteer/browsers/-/browsers-0.5.0.tgz"
@@ -843,12 +850,12 @@
   "resolved" "https://registry.npmjs.org/@types/minimatch/-/minimatch-3.0.5.tgz"
   "version" "3.0.5"
 
-"@types/node@*":
-  "integrity" "sha512-ZVPnqU58giiCjSxjVUESDtdPk4QR5WQhhINbc9UBrKLU68MX5BF6kbQzTrkwbolyr0X8ChBpXfavr5mZFKZQ5A=="
-  "resolved" "https://registry.npmjs.org/@types/node/-/node-20.8.4.tgz"
-  "version" "20.8.4"
+"@types/node@*", "@types/node@^20.9.0":
+  "integrity" "sha512-nekiGu2NDb1BcVofVcEKMIwzlx4NjHlcjhoxxKBNLtz15Y1z7MYf549DFvkHSId02Ax6kGwWntIBPC3l/JZcmw=="
+  "resolved" "https://registry.npmjs.org/@types/node/-/node-20.9.0.tgz"
+  "version" "20.9.0"
   dependencies:
-    "undici-types" "~5.25.1"
+    "undici-types" "~5.26.4"
 
 "@types/semver@^7.5.0":
   "integrity" "sha512-OxepLK9EuNEIPxWNME+C6WwbRAOOI2o2BaQEGzz5Lu2e4Z5eDnEo+/aVEDMIXywoJitJ7xWd641wrGLZdtwRyw=="
@@ -2525,6 +2532,11 @@
   "integrity" "sha512-5xoDfX+fL7faATnagmWPpbFtwh/R77WmMMqqHGS65C3vvB0YHrgF+B1YmZ3441tMj5n63k0212XNoJwzlhffQw=="
   "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.3.tgz"
   "version" "2.3.3"
+
+"fsevents@2.3.2":
+  "integrity" "sha512-xiqMQR4xAeHTuB9uWm+fFRcIOgKBMiOBP+eXiyT7jsgVCq1bkVygt00oASowB7EdtpOHaaPgKt812P9ab+DDKA=="
+  "resolved" "https://registry.npmjs.org/fsevents/-/fsevents-2.3.2.tgz"
+  "version" "2.3.2"
 
 "function-bind@^1.1.1":
   "integrity" "sha512-yIovAzMX49sF8Yl58fSCWJ5svSLuaibPxXQJFLmBObTuCr0Mf1KiPopGM9NiFjiYBCbfaa2Fh6breQ6ANVTI0A=="
@@ -4589,6 +4601,20 @@
   dependencies:
     "find-up" "^4.0.0"
 
+"playwright-core@1.39.0":
+  "integrity" "sha512-+k4pdZgs1qiM+OUkSjx96YiKsXsmb59evFoqv8SKO067qBA+Z2s/dCzJij/ZhdQcs2zlTAgRKfeiiLm8PQ2qvw=="
+  "resolved" "https://registry.npmjs.org/playwright-core/-/playwright-core-1.39.0.tgz"
+  "version" "1.39.0"
+
+"playwright@1.39.0":
+  "integrity" "sha512-naE5QT11uC/Oiq0BwZ50gDmy8c8WLPRTEWuSSFVG2egBka/1qMoSqYQcROMT9zLwJ86oPofcTH2jBY/5wWOgIw=="
+  "resolved" "https://registry.npmjs.org/playwright/-/playwright-1.39.0.tgz"
+  "version" "1.39.0"
+  dependencies:
+    "playwright-core" "1.39.0"
+  optionalDependencies:
+    "fsevents" "2.3.2"
+
 "portfinder@^1.0.28":
   "integrity" "sha512-on2ZJVVDXRADWE6jnQaX0ioEylzgBpQk8r55NE4wjXW1ZxO+BgDlY6DXwj20i0V8eB4SenDQ00WEaxfiIQPcxg=="
   "resolved" "https://registry.npmjs.org/portfinder/-/portfinder-1.0.32.tgz"
@@ -5773,10 +5799,10 @@
     "sprintf-js" "^1.1.1"
     "util-deprecate" "^1.0.2"
 
-"undici-types@~5.25.1":
-  "integrity" "sha512-Ga1jfYwRn7+cP9v8auvEXN1rX3sWqlayd4HP7OKk4mZWylEmu3KzXDUGrQUN6Ol7qo1gPvB2e5gX6udnyEPgdA=="
-  "resolved" "https://registry.npmjs.org/undici-types/-/undici-types-5.25.3.tgz"
-  "version" "5.25.3"
+"undici-types@~5.26.4":
+  "integrity" "sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA=="
+  "resolved" "https://registry.npmjs.org/undici-types/-/undici-types-5.26.5.tgz"
+  "version" "5.26.5"
 
 "union@~0.5.0":
   "integrity" "sha512-N6uOhuW6zO95P3Mel2I2zMsbsanvvtgn6jVqJv4vbVcz/JN0OkL9suomjQGmWtxJQXOCqUJvquc1sMeNz/IwlA=="

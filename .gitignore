@@ -13,3 +13,7 @@ test/generator/fixture.json
 test/generator/fixture*.json
 test/issue_*.*
 docs/assets/ajax_1M_3_6.json
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
