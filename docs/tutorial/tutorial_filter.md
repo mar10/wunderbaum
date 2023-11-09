@@ -5,6 +5,8 @@
 ?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
 and enter some text in the _Filter_ control at the top.
 
+?> See also [FilterOptionsType](https://mar10.github.io/wunderbaum/api/types/types.FilterOptionsType.html).
+
 ### Related Methods
 
 - `util.foo()`

@@ -29,8 +29,9 @@ Depending on the event type, the event handler functions can return a value,
 that is used by the tree to control the default behavior. For example, the
 `beforeActivate` event handler can return `false` to prevent activation of a node.
 
-The event handler functions are called with a single argument, the
-[Tree Event](https://mar10.github.io/wunderbaum/api/interfaces/types.WbTreeEventType.html).
+The event handler functions are called with a single argument, of type
+[WbTreeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbTreeEventType.html).
+
 The event object contains the following properties:
 
 ```js

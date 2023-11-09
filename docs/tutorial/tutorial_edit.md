@@ -81,6 +81,8 @@ const tree = new Wunderbaum({
 ?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain),
 activate a node, and hit <code>F2</code>.
 
+?> See also [EditOptionsType](https://mar10.github.io/wunderbaum/api/types/types.EditOptionsType.html).
+
 ### Related Methods
 
 - `tree.isEditingTitle()`

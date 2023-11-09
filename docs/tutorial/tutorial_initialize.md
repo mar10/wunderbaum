@@ -61,6 +61,9 @@ Common options include:
 </dd>
 </dl>
 
+?> See [WunderbaumOptions](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html)
+for a complete list of options.
+
 ### Dynamic Options
 
 Some node options can be defined in a flexible way, using a dynamic pattern.
