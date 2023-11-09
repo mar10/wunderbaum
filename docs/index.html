@@ -8,7 +8,7 @@
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
 
-  <link rel="shortcut icon" type="image/x-icon" href="wunderbaum/favicon.ico">
+  <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
 
   <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css"> -->
   <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify/themes/dark.css"> -->
@@ -40,31 +40,28 @@
     <a href="#/">EN</a>
     <a href="#/zh-cn/">简体中文</a>
   </nav> -->
-  <div id="app"></div>
-  <script>
-    /*
-    TODO: enable search engine support.
-    Seems difficult with GH Pages, since we need server side support?
 
-    - https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#routermode
-    - https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#basepath
-    - https://github.com/docsifyjs/docsify/blob/develop/docs/deploy.md#github-pages
-    */
+  <div id="app"></div>
+
+  <script>
     window.$docsify = {
+      el: '#app',
       name: 'Wunderbaum',
+      nameLink: '/#/',
       repo: 'mar10/wunderbaum',
       // basePath: '/wunderbaum/',
+      // https://github.com/docsifyjs/docsify/blob/develop/docs/configuration.md#routermode
       // routerMode: "history", // Allow google indexing(?). Default: hash 
       loadSidebar: true,
+      // autoHeader: true,
+      formatUpdated: '{YYYY}-{MM}-{DD} {HH}:{mm}', // for `{docsify-updated}` tag
+      subMaxLevel: 2,
       auto2top: true,
-      // homepage: 'home.md', // Default: 'README.md'
-      // // Or use the readme in your repo
-      // homepage:
-      //   'https://raw.githubusercontent.com/docsifyjs/docsify/master/README.md',
-
+      homepage: 'welcome.md', // Default: 'README.md'
       // loadNavbar: true,
       logo: '/assets/tree_logo_32.png',
       coverpage: true,
+      onlyCover: true,
     }
   </script>
 </body>

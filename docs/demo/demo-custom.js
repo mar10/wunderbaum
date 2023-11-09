@@ -9,7 +9,8 @@
 /* eslint-disable no-console */
 
 document.getElementById("demo-info").innerHTML = `
-Convert and consume data from a custom endpoint (<a href="https://fakestoreapi.com/">Fake Store API</a>).
+Convert and consume data from a custom endpoint 
+(<a href="https://fakestoreapi.com/" target="_blank">Fake Store API</a>).
 `;
 
 new mar10.Wunderbaum({

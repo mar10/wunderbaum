@@ -19,6 +19,6 @@
 - Zero dependencies.
 - Keyboard support.
 
+[Documentation](/welcome.md)
+[Online Demo](https://mar10.github.io/wunderbaum/demo/)
 [GitHub](https://github.com/mar10/wunderbaum/)
-[Demo](https://mar10.github.io/wunderbaum/demo/)
-[Get Started](/tutorial/quick_start.md)
