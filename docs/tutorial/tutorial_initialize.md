@@ -289,10 +289,13 @@ const tree = new mar10.Wunderbaum({
 
 ### Compact Formats
 
-Load time of data is an important aspect of the user experience. We can
-reduce the size of the JSON data by eliminating redundancy.
+Load time of data is an important aspect of the user experience. <br>
+We can reduce the size of the JSON data by eliminating redundancy:
 
-This example can be optimized:
+- Remove whitespace from the JSON (the listings in this chapter are formatted
+  for readability).
+- Don't pass default values, e.g. `expanded: false` is not required.
+- Use `node.type` declarations, to extract shared properties (see above).
 
 ```js
 {
@@ -307,15 +310,16 @@ This example can be optimized:
 }
 ```
 
-- Remove whitespace from the JSON.
-- Don't pass default values, e.g. `expanded: false` is not required.
-- Pass `1` instead of `true` and `0` instead of `false` (or don't pass it at all if it is the default).
-- Use `node.type` declarations, to extract shared properties (see above).
-- Use `_keyMap` and shorten the key names, e.g. send `{"t": "foo"}` instead of `{"title": "foo"}`
-  (see below).
-- Use a `_typeList` and pass numeric indexes into this list instead of sending type
-  name strings.
-- Use the _flat_ format described below, which is a even few percent smaller.
+The example above can still be optimized:
+
+- Pass `1` instead of `true` and `0` instead of `false`
+  (or don't pass it at all if it is the default).
+- Use `_keyMap` and shorten the key names, e.g. send `{"t": "foo"}` instead of
+  `{"title": "foo"}` (see below).
+- Use a `_valueMap` and pass numeric indexes into this list instead of sending
+  type name strings.
+
+!> The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
 
 ```js
 {
@@ -324,12 +328,14 @@ This example can be optimized:
   "columns": [...],
   // Map from short key to final key (if a key is not found here it will
   // be used literally):
-  "_keyMap": {"t": "title", "k": "key", "y": "type", "c": "children", "e": "expanded"},
-  // Optional: if type is numeric, use it as index into this list, otherwise
-  // use the string literally:
-  "_typeList": ["folder", "person"],
+  "_keyMap": {"title": "t", "key": "k", "type": "y", "children": "c", "expanded": "e"},
+  // Optional: if a 'type' entry has a numeric value, use it as index into this
+  // list (string values are still used literally):
+  "_valueMap": {
+    "type": ["folder", "person"]
+  },
   "children": [
-    {"t": "Node 1", "k": "id123", "y": 0, "e": true, "c": [
+    {"t": "Node 1", "k": "id123", "y": 0, "e": 1, "c": [
       {"t": "Node 1.1", "k": "id234", "y": 1},
       {"t": "Node 1.2", "k": "id345", "y": 1, "age": 32}
     ]}
@@ -339,7 +345,11 @@ This example can be optimized:
 
 ### Flat, Parent-Referencing List
 
-!> This format is still subject to change!
+The flat format is a even few percent smaller than the nested format.
+It is also easier to process, because it does not require recursion
+and it is more apropropriate for sending pathches for existing trees.
+
+!> The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
 
 Here all nodes are passed as a flat list, without nesting.
 Chid nodes reference the parent by
@@ -348,16 +358,19 @@ NOTE: This also works when `node.key`'s are not provided.
 ```js
 {
   "_format": "flat",
-  "types": {...},       // Optional, but likely if `_typeList` is used
+  "types": {...},       // Optional, but likely if `_valueMap` is used
   "columns": [...],     // Optional
   // Map from short key to final key (if a key is not found here it will
   // be used literally):
-  "_keyMap": {"e": "expanded"},
+  "_keyMap": {"expanded": "e"},
   // Values for these keys are appended as list items.
   // Other items - if any - are collected into one dict that is also appended:
   "_positional": ["title", "key", "type"],
-  // Optional: if type is numeric, use it as index into this list:
-  "_typeList": ["folder", "person"],
+  // Optional: if a 'type' entry has a numeric value, use it as index into this
+  // list (string values are still used literally):
+  "_valueMap": {
+    "type": ["folder", "person"]
+  },
   // List index is 0-based, parent index null means 'top-node'.
   // If parent index is a string, parent is searched by `node.key` (slower)
   "children": [

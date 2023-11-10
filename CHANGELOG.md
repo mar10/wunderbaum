@@ -7,8 +7,15 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.5.6: #61 Avoid race conditions in debounced 'change' event handler.
-- v0.5.6: #64 Accept Promise in `tree.load()`.
+- v0.7.0: BREAKING CHANGE:
+  Changed syntax format for compressed formats:
+
+  - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`
+  - `_typeList: [...]` -> `_valueMap: {"type": [...]}`
+
+- v0.6.0: #61 Avoid race conditions in debounced 'change' event handler.
+- v0.6.0: #63 Don't overwrite dataTransfer 'text/plain' on drag'n'drop.
+- v0.6.0: #64 Accept Promise in `tree.load()`.
 
 - v0.5.5: Rename `defaultDropMode` -> `suggestedDropMode`; add `suggestedDropEffect`
 - v0.5.5: Work on drag'n'drop (dropEffects, cross-window, ...)

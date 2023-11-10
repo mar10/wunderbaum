@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { MatcherCallback } from "./types";
+import { MatcherCallback, SourceListType, SourceObjectType } from "./types";
 import * as util from "./util";
 import { WunderbaumNode } from "./wb_node";
 
@@ -101,9 +101,10 @@ export const INPUT_KEYS: { [key: string]: Array<string> } = {
 /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
 export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
   "_format", // reserved for future use
-  "_keyMap", // reserved for future use
-  "_positional", // reserved for future use
-  "_typeList", // reserved for future use
+  "_keyMap", // Used for compressed data format
+  "_positional", // Used for compressed data format
+  "_typeList", // Used for compressed data format @deprecated
+  "_valueMap", // Used for compressed data format
   "_version", // reserved for future use
   "children",
   "columns",
@@ -184,8 +185,20 @@ export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
   return x === y ? 0 : x > y ? 1 : -1;
 }
 
-function unflattenSource(source: any): void {
-  const { _format, _keyMap, _positional, children } = source;
+/**
+ * Convert 'flat' to 'nested' format.
+ *
+ *  Flat node entry format:
+ *    [PARENT_ID, [POSITIONAL_ARGS]]
+ *  or
+ *    [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
+ *
+ * 1. Parent-referencing list is converted to a list of nested dicts with
+ *    optional `children` properties.
+ * 2. `[POSITIONAL_ARGS]` are added as dict attributes.
+ */
+function unflattenSource(source: SourceObjectType): void {
+  const { _format, _keyMap = {}, _positional = [], children } = source;
 
   if (_format !== "flat") {
     throw new Error(`Expected source._format: "flat", but got ${_format}`);
@@ -195,31 +208,35 @@ function unflattenSource(source: any): void {
       `source._positional must not include "children": ${_positional}`
     );
   }
-  // Inverse keyMap:
-  const longToShort: any = {};
-  if (_keyMap) {
+  let longToShort = _keyMap;
+  if (_keyMap.t) {
+    // Inverse keyMap was used (pre 0.7.0)
+    // TODO: raise Error on final 1.x release
+    const msg = `source._keyMap maps from long to short since v0.7.0. Flip key/value!`;
+    console.warn(msg); // eslint-disable-line no-console
+    longToShort = {};
     for (const [key, value] of Object.entries(_keyMap)) {
-      longToShort[<string>value] = key;
+      longToShort[value] = key;
     }
   }
   const positionalShort = _positional.map((e: string) => longToShort[e]);
-  const newChildren: any[] = [];
+  const newChildren: SourceListType = [];
   const keyToNodeMap: { [key: string]: number } = {};
   const indexToNodeMap: { [key: number]: any } = {};
   const keyAttrName = longToShort["key"] ?? "key";
   const childrenAttrName = longToShort["children"] ?? "children";
 
-  for (const [index, node] of children.entries()) {
+  for (const [index, nodeTuple] of children.entries()) {
     // Node entry format:
     //   [PARENT_ID, [POSITIONAL_ARGS]]
     // or
     //   [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
-    const [parentId, args, kwargs = {}] = node;
+    const [parentId, args, kwargs = {}] = <any>nodeTuple;
 
     // Free up some memory as we go
-    node[1] = null;
-    if (node[2] != null) {
-      node[2] = null;
+    nodeTuple[1] = null;
+    if (nodeTuple[2] != null) {
+      nodeTuple[2] = null;
     }
     // console.log("flatten", parentId, args, kwargs)
 
@@ -262,13 +279,46 @@ function unflattenSource(source: any): void {
       newChildren.push(kwargs);
     }
   }
-
-  delete source.children;
   source.children = newChildren;
 }
 
-export function inflateSourceData(source: any): void {
-  const { _format, _keyMap, _typeList } = source;
+/**
+ * Inflates the source data by expanding short alias names, resolving node type indexes, and performing recursion.
+ *
+ * @param source - The source object to be inflated.
+ * @returns void
+ */
+export function inflateSourceData(source: SourceObjectType): void {
+  let { _format, _version = 1, _keyMap = {}, _valueMap } = source;
+
+  util.assert(_version === 1, `Expected file version 1 instead of ${_version}`);
+
+  let longToShort = _keyMap;
+  let shortToLong: { [key: string]: string } = {};
+  for (const [key, value] of Object.entries(longToShort)) {
+    shortToLong[value] = key;
+  }
+
+  if (_keyMap.t) {
+    // Inverse keyMap was used (pre 0.7.0)
+    // TODO: raise Error on final 1.x release
+    const msg = `source._keyMap maps from long to short since v0.7.0. Flip key/value!`;
+    console.warn(msg); // eslint-disable-line no-console
+    [longToShort, shortToLong] = [shortToLong, longToShort];
+  }
+
+  if ((<any>source)._typeList != null) {
+    // _typeList was used (pre 0.7.0)
+    // TODO: raise Error on final 1.x release
+    const msg = `source._typeList is deprecated since v0.7.0: use source._valueMap: {"type": [...]} instead.`;
+    if (_valueMap != null) {
+      throw new Error(msg);
+    } else {
+      console.warn(msg); // eslint-disable-line no-console
+      _valueMap = { type: (<any>source)._typeList };
+      delete (<any>source)._typeList;
+    }
+  }
 
   if (_format === "flat") {
     unflattenSource(source);
@@ -276,16 +326,16 @@ export function inflateSourceData(source: any): void {
   delete source._format;
   delete source._version;
   delete source._keyMap;
-  delete source._typeList;
+  delete source._valueMap;
   delete source._positional;
 
-  function _iter(childList: any[]) {
+  function _iter(childList: SourceListType) {
     for (const node of childList) {
-      // Expand short alias names
-      if (_keyMap) {
+      // Expand short alias names, e.g. `node.t` -> `node.title`
+      if (shortToLong) {
         // Iterate over a list of names, because we modify inside the loop:
         Object.getOwnPropertyNames(node).forEach((propName) => {
-          const long = _keyMap[propName] ?? propName;
+          const long = shortToLong![propName] ?? propName;
           if (long !== propName) {
             node[long] = node[propName];
             delete node[propName];
@@ -295,13 +345,19 @@ export function inflateSourceData(source: any): void {
       // `node` now has long attribute names
 
       // Resolve node type indexes
-      const type = node.type;
-      if (_typeList && type != null && typeof type === "number") {
-        const newType = _typeList[type];
-        if (newType == null) {
-          throw new Error(`Expected typeList[${type}] entry in [${_typeList}]`);
-        }
-        node.type = newType;
+      if (_valueMap) {
+        Object.entries(_valueMap).forEach(([propName, valueList]) => {
+          const oldValue = node[propName];
+          if (typeof oldValue === "number") {
+            const newValue = (valueList as Array<string>)[oldValue];
+            if (newValue == null) {
+              throw new Error(
+                `Expected valueMap[${propName}][${oldValue}] entry in [${valueList}]`
+              );
+            }
+            node[propName] = newValue;
+          }
+        });
       }
 
       // Recursion

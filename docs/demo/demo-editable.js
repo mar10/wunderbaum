@@ -27,7 +27,8 @@ new mar10.Wunderbaum({
   // column definitions:
   // source: "../assets/fixture_department_1k_3_6_p.json",
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_flat_comp.json",
+  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
     department: { icon: "bi bi-diagram-3", colspan: true },
     role: { icon: "bi bi-microsoft-teams", colspan: true },
