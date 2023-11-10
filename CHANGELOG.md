@@ -12,9 +12,9 @@ First release.
 
   - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`
   - `_typeList: [...]` -> `_valueMap: {"type": [...]}`
-  <!-- - `_positional: [...]` -> `$positional: [...]` -->
 
 - v0.6.0: #61 Avoid race conditions in debounced 'change' event handler.
+- v0.6.0: #63 Don't overwrite dataTransfer 'text/plain' on drag'n'drop.
 - v0.6.0: #64 Accept Promise in `tree.load()`.
 
 - v0.5.5: Rename `defaultDropMode` -> `suggestedDropMode`; add `suggestedDropEffect`
