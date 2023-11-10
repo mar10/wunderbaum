@@ -33,13 +33,14 @@ export interface SourceAjaxType {
 export type SourceListType = Array<WbNodeData>;
 export interface SourceObjectType {
   _format?: "nested" | "flat";
+  _version?: number;
   types?: NodeTypeDefinitionMap;
   columns?: ColumnDefinitionList;
   children: SourceListType;
   _keyMap?: { [key: string]: string };
+  _positional?: Array<string>;
   // _typeList?: Array<string>;
   _valueMap?: { [key: string]: Array<string> };
-  _positional?: Array<string>;
 }
 
 /** Possible initilization for tree nodes. */

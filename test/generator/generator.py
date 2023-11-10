@@ -324,7 +324,7 @@ def compress_child_list(
     # Remove used short names from list of available abbreviations
     for short in key_map.keys():
         if len(short) == 1:
-            # Raises error if key_map contains a reserved abbrev.
+            # Raises ValueError if key_map contains a reserved abbrev.
             avail_short_names.remove(short)
 
     if auto_compress and positional is Automatic:
@@ -373,7 +373,6 @@ def compress_child_list(
     # Pass 2: collect used attribute and type names
 
     for parent_idx, node in _iter_dict_pre_order(child_list):
-
         # Replace `"type": "TYPE_NAME"` with `"type": INDEX`
         node_type = node.get("type")
         if node_type:
@@ -421,7 +420,8 @@ def compress_child_list(
         # "_version": 1,
         "types": types,
         "columns": columns,
-        "_typeList": type_list,
+        "_valueMap": {"type": type_list},
+        # "_typeList": type_list,
         "_keyMap": key_map,
         "_positional": positional,
         "children": children,
