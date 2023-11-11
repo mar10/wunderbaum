@@ -10,8 +10,9 @@ First release.
 - v0.7.0: BREAKING CHANGE:
   Changed syntax format for compressed formats:
 
-  - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`
-  - `_typeList: [...]` -> `_valueMap: {"type": [...]}`
+  - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`.
+  - `_typeList: [...]` -> `_valueMap: {"type": [...]}`.
+    This allows to compress values of other properties than `type`.
 
 - v0.6.0: #61 Avoid race conditions in debounced 'change' event handler.
 - v0.6.0: #63 Don't overwrite dataTransfer 'text/plain' on drag'n'drop.

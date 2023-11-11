@@ -8,11 +8,11 @@ frequently used ones:
 ```js
 document.addEventListener("DOMContentLoaded", (event) => {
   const tree = new mar10.Wunderbaum({
-    id: "demo",
     element: document.getElementById("demo-tree"),
-    source: "get/root/nodes",
+    id: "demo",
     types: {},
     columns: [{ id: "*", title: "Product", width: "250px" }],
+    source: "get/root/nodes",
     // Event handlers:
     init: (e) => {
       e.tree.setFocus();
@@ -22,6 +22,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     lazyLoad: function (e) {
       return { url: 'get/child/nodes', params: { parentKey: e.node.key } };
     },
+    activate: function (e) {},
     render: function (e) {},
     ...
   });
@@ -46,7 +47,7 @@ Common options include:
 </dd>
 <dt>types</dt>
 <dd>
-    Define shared attributes for multiple nodes of the same type.
+    Define shared attributes for multiple nodes of the same `node.type`.
     This allows for more compact data models.
     Type definitions can be passed as tree option, or be part of a
     `source` response.
@@ -316,8 +317,7 @@ The example above can still be optimized:
   (or don't pass it at all if it is the default).
 - Use `_keyMap` and shorten the key names, e.g. send `{"t": "foo"}` instead of
   `{"title": "foo"}` (see below).
-- Use a `_valueMap` and pass numeric indexes into this list instead of sending
-  type name strings.
+- Use a `_valueMap` to define a global list of potential string values for a distinct property type. Nodes can then pass a numeric index instead of the string, which will save space.
 
 !> The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
 
@@ -345,15 +345,23 @@ The example above can still be optimized:
 
 ### Flat, Parent-Referencing List
 
-The flat format is a even few percent smaller than the nested format.
-It is also easier to process, because it does not require recursion
-and it is more apropropriate for sending pathches for existing trees.
+The flat format is even a few percent smaller than the nested format.
+It may also be more apropropriate for sending patches for existing trees, since
+parent keys can be passed.
 
-!> The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
+Here all nodes are passed as a flat list, without nesting. <br>
+A node entry has the following structure:
 
-Here all nodes are passed as a flat list, without nesting.
-Chid nodes reference the parent by
-NOTE: This also works when `node.key`'s are not provided.
+`[PARENT_ID, [POSITIONAL_ARGS]]`<br>
+or <br>
+`[PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]`
+
+`PARENT_ID` is either a string that references an existing `node.key`
+or the numeric the index of a node that appeared before in the list.
+
+`POSITIONAL_ARGS` define property values in the order defined by `_positional`.
+
+`KEY_VALUE_ARGS` define other properties as key/value pairs (optional).
 
 ```js
 {

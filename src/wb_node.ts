@@ -46,7 +46,7 @@ import {
   TITLE_SPAN_PAD_Y,
   ROW_HEIGHT,
   TEST_IMG,
-  inflateSourceData,
+  decompressSourceData,
   nodeTitleSorter,
 } from "./common";
 import { Deferred } from "./deferred";
@@ -989,7 +989,7 @@ export class WunderbaumNode {
     );
 
     // Pre-rocess for 'nested' or 'flat' format
-    inflateSourceData(source);
+    decompressSourceData(source);
 
     util.assert(
       source.children,

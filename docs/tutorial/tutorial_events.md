@@ -29,6 +29,10 @@ Depending on the event type, the event handler functions can return a value,
 that is used by the tree to control the default behavior. For example, the
 `beforeActivate` event handler can return `false` to prevent activation of a node.
 
+Some events are sent by the tree, others by a distinct node.
+A <code>node event</code> always passes a reference to the node object.
+A <code>tree event</code> does not always pass a node reference.
+
 The event handler functions are called with a single argument, of type
 [WbTreeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbTreeEventType.html).
 
@@ -58,6 +62,55 @@ e = {
 Common event handlers include:
 
 <dl>
+
+<dt>activate(e) <small>- <code>node event</code></small></dt>
+<dd>
+  `e.node` was activated. 
+</dd>
+
+<dt>beforeActivate(e) <small>- <code>node event</code></small></dt>
+<dd>
+  Return `false` to prevent activation of `e.node`.
+</dd>
+
+<dt>beforeSelect(e) <small>- <code>node event</code></small></dt>
+<dd>
+  Return `false` to prevent (de)selection.
+</dd>
+
+<dt>click(e) <small>- <code>node event</code></small></dt>
+<dd>
+  `e.node` was clicked. <br>
+  Return `false` to prevent default behavior, e.g. expand/collapse, 
+  (de)selection, or activation.
+</dd>
+
+<dt>dblclick(e) <small>- <code>node event</code></small></dt>
+<dd>
+  `e.node` was clicked. <br>
+  Return `false` to prevent default behavior, e.g. expand/collapse.
+</dd>
+
+<dt>deactivate(e) <small>- <code>node event</code></small></dt>
+<dd>
+  `e.node` was deactivated.
+</dd>
+
+<dt>error(e) <small>- <code>node event</code></small></dt>
+<dd>
+  An error occurred, e.g. during initialization or lazy loading.
+</dd>
+
+<dt>focus(e) <small>- <code>tree event</code></small></dt>
+<dd>
+  The tree received or lost focus. Check `e.flag`.
+</dd>
+
+<dt>iconBadge(e) <small>- <code>node event</code></small></dt>
+<dd>
+  `e.node` is about to be rendered. We can add a badge to the icon cell here.
+</dd>
+  
 <dt>init(e) <small>- <code>tree event</code></small></dt>
 <dd>
   Fires when the tree markup was created and the initial source data was loaded.
@@ -66,30 +119,9 @@ Common event handlers include:
   Also sent if an error occured during initialization (check for `e.error` property).
 </dd>
 
-<dt>focus(e) <small>- <code>tree event</code></small></dt>
+<dt>discard(e) <small>- <code>node event</code></small></dt>
 <dd>
-  The tree received or lost focus. Check `e.flag`.
-</dd>
-
-<dt>lazyLoad(e) <small>- <code>node event</code></small></dt>
-<dd>
-  Fires when a node that was marked 'lazy', is expanded for the first time.
-  Typically we return an endpoint URL or the Promise of a fetch request that
-  provides a (potentially nested) list of child nodes.
-</dd>
-
-<dt>receive(e) <small>- <code>node event</code></small></dt>
-<dd>
-  Fires when data was fetched (initial request, reload, or lazy loading),
-  but before the data is applied and rendered.
-  Here we can modify and adjust the received data, for example to convert an
-  external response to native Wunderbaum syntax.
-</dd>
-
-<dt>load(e) <small>- <code>node event</code></small></dt>
-<dd>
-  Fires when data was loaded (initial request, reload, or lazy loading),
-  after the data is applied and rendered.
+  `e.node` was discarded from the viewport and its HTML markup removed.
 </dd>
 
 <dt>keydown(e) <small>- <code>tree event</code></small></dt>
@@ -99,9 +131,25 @@ Common event handlers include:
   Return `false` to prevent default navigation.
 </dd>
 
-<dt>update(e) <small>- <code>tree event</code></small></dt>
+<dt>lazyLoad(e) <small>- <code>node event</code></small></dt>
 <dd>
-  Fires when the viewport was updated, after scroling, expanding etc.
+  Fires when a node that was marked 'lazy', is expanded for the first time.
+  Typically we return an endpoint URL or the Promise of a fetch request that
+  provides a (potentially nested) list of child nodes.
+</dd>
+
+<dt>load(e) <small>- <code>node event</code></small></dt>
+<dd>
+  Fires when data was loaded (initial request, reload, or lazy loading),
+  after the data is applied and rendered.
+</dd>
+
+<dt>receive(e) <small>- <code>node event</code></small></dt>
+<dd>
+  Fires when data was fetched (initial request, reload, or lazy loading),
+  but before the data is uncompressed, applied, and rendered.
+  Here we can modify and adjust the received data, for example to convert an
+  external response to native Wunderbaum syntax.
 </dd>
 
 <dt>render(e) <small>- <code>node event</code></small></dt>
@@ -118,56 +166,14 @@ Common event handlers include:
   Same as `render(e)`, but for the status nodes, i.e. `e.node.statusNodeType`.
 </dd>
 
-<dt>discard(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was discarded from the viewport and its HTML markup removed.
-</dd>
-
-<dt>beforeActivate(e) <small>- <code>node event</code></small></dt>
-<dd>
-  Return `false` to prevent activation of `e.node`.
-</dd>
-
-<dt>activate(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was activated. 
-</dd>
-
-<dt>deactivate(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was deactivated.
-</dd>
-
-<dt>beforeSelect(e) <small>- <code>node event</code></small></dt>
-<dd>
-  Return `false` to prevent (de)selection.
-</dd>
-
 <dt>select(e) <small>- <code>node event</code></small></dt>
 <dd>
   `e.node` was selected (`e.flag === true`) or deselected (`e.flag === false`)
 </dd>
 
-<dt>error(e) <small>- <code>node event</code></small></dt>
+<dt>update(e) <small>- <code>tree event</code></small></dt>
 <dd>
-  An error occurred, e.g. during initialization or lazy loading.
-</dd>
-
-<dt>iconBadge(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` is about to be rendered. We can add a badge to the icon cell here.
-</dd>
-  
-<dt>click(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was clicked. <br>
-  Return `false` to prevent default behavior, e.g. expand/collapse, 
-  (de)selection, or activation.
-</dd>
-<dt>dblclick(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was clicked. <br>
-  Return `false` to prevent default behavior, e.g. expand/collapse.
+  Fires when the viewport was updated, after scroling, expanding etc.
 </dd>
 
 </dl>

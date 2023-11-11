@@ -283,33 +283,39 @@ function unflattenSource(source: SourceObjectType): void {
 }
 
 /**
- * Inflates the source data by expanding short alias names, resolving node type indexes, and performing recursion.
+ * Decompresses the source data by
+ * - converting from 'flat' to 'nested' format
+ * - expanding short alias names to long names (if defined in _keyMap)
+ * - resolving value indexes to value strings (if defined in _valueMap)
  *
- * @param source - The source object to be inflated.
+ * @param source - The source object to be decompressed.
  * @returns void
  */
-export function inflateSourceData(source: SourceObjectType): void {
-  let { _format, _version = 1, _keyMap = {}, _valueMap } = source;
+export function decompressSourceData(source: SourceObjectType): void {
+  let { _format, _version = 1, _keyMap, _valueMap } = source;
 
   util.assert(_version === 1, `Expected file version 1 instead of ${_version}`);
 
   let longToShort = _keyMap;
   let shortToLong: { [key: string]: string } = {};
-  for (const [key, value] of Object.entries(longToShort)) {
-    shortToLong[value] = key;
+
+  if (longToShort) {
+    for (const [key, value] of Object.entries(longToShort)) {
+      shortToLong[value] = key;
+    }
   }
 
-  if (_keyMap.t) {
-    // Inverse keyMap was used (pre 0.7.0)
-    // TODO: raise Error on final 1.x release
+  // Fallback for old format (pre 0.7.0, using _keyMap in reverse direction)
+  // TODO: raise Error on final 1.x release
+  if (longToShort && longToShort.t) {
     const msg = `source._keyMap maps from long to short since v0.7.0. Flip key/value!`;
     console.warn(msg); // eslint-disable-line no-console
     [longToShort, shortToLong] = [shortToLong, longToShort];
   }
 
+  // Fallback for old format (pre 0.7.0, using _typeList instead of _valueMap)
+  // TODO: raise Error on final 1.x release
   if ((<any>source)._typeList != null) {
-    // _typeList was used (pre 0.7.0)
-    // TODO: raise Error on final 1.x release
     const msg = `source._typeList is deprecated since v0.7.0: use source._valueMap: {"type": [...]} instead.`;
     if (_valueMap != null) {
       throw new Error(msg);
@@ -331,34 +337,35 @@ export function inflateSourceData(source: SourceObjectType): void {
 
   function _iter(childList: SourceListType) {
     for (const node of childList) {
-      // Expand short alias names, e.g. `node.t` -> `node.title`
-      if (shortToLong) {
-        // Iterate over a list of names, because we modify inside the loop:
-        Object.getOwnPropertyNames(node).forEach((propName) => {
-          const long = shortToLong![propName] ?? propName;
-          if (long !== propName) {
-            node[long] = node[propName];
+      // Iterate over a list of names, because we modify inside the loop
+      // (for ... of ... does not allow this)
+      Object.getOwnPropertyNames(node).forEach((propName) => {
+        const value: any = node[propName];
+
+        // Replace short names with long names if defined in _keyMap
+        let longName = propName;
+        if (_keyMap && shortToLong[propName] != null) {
+          longName = shortToLong[propName];
+          if (longName !== propName) {
+            node[longName] = value;
             delete node[propName];
           }
-        });
-      }
-      // `node` now has long attribute names
-
-      // Resolve node type indexes
-      if (_valueMap) {
-        Object.entries(_valueMap).forEach(([propName, valueList]) => {
-          const oldValue = node[propName];
-          if (typeof oldValue === "number") {
-            const newValue = (valueList as Array<string>)[oldValue];
-            if (newValue == null) {
-              throw new Error(
-                `Expected valueMap[${propName}][${oldValue}] entry in [${valueList}]`
-              );
-            }
-            node[propName] = newValue;
+        }
+        // Replace type index with type name if defined in _valueMap
+        if (
+          _valueMap &&
+          typeof value === "number" &&
+          _valueMap[longName] != null
+        ) {
+          const newValue = _valueMap[longName][value];
+          if (newValue == null) {
+            throw new Error(
+              `Expected valueMap[${longName}][${value}] entry in [${_valueMap[longName]}]`
+            );
           }
-        });
-      }
+          node[longName] = newValue;
+        }
+      });
 
       // Recursion
       if (node.children) {
@@ -366,5 +373,7 @@ export function inflateSourceData(source: SourceObjectType): void {
       }
     }
   }
-  _iter(source.children);
+  if (_keyMap || _valueMap) {
+    _iter(source.children);
+  }
 }
