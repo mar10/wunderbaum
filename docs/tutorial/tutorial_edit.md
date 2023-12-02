@@ -86,6 +86,7 @@ activate a node, and hit <code>F2</code>.
 ### Related Methods
 
 - `tree.isEditingTitle()`
+- `util.setValueToElem()`
 - `tree.startEditTitle(node)`
 - `tree.stopEditTitle(apply: boolean)`
 

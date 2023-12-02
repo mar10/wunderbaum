@@ -9,6 +9,7 @@
   - [Render](tutorial/tutorial_render)
   - [Grid](tutorial/tutorial_grid)
   - [Edit](tutorial/tutorial_edit)
+  - [API](tutorial/tutorial_api)
   - [Drag'n'Drop](tutorial/tutorial_dnd)
   - [Filter](tutorial/tutorial_filter)
   - [Keyboard](tutorial/tutorial_keyboard)

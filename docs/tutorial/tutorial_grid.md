@@ -6,9 +6,14 @@
 
 ## Column Definitions
 
+Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
+
+?> See `Grid` for details.
+
 ```js
 const tree = new Wunderbaum({
   ...
+  types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },
     { id: "author", title: "Author", width: "200px" },
@@ -24,6 +29,12 @@ const tree = new Wunderbaum({
   ],
   ...
   // --- Events ---
+  /**
+   * Called when a node is rendered.
+   *
+   * We can do many things here, but related to editing, a typical aspect is
+   * rendering `<input>` elements in column cells.
+   */
   render: function (e) {
     const node = e.node;
     const util = e.util;

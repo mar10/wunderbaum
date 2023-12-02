@@ -2,12 +2,63 @@
 
 !> This chapter is still under construction.
 
-## Configuration and Customization
+This chapter describes different ways to customize the appearance of the tree.
 
-### Related Tree Options
+?> See also the [Grid Tutorial](/tutorial/tutorial_grid.md) for specific
+rendering of grid cells and the [Edit Tutorial](/tutorial/tutorial_edit.md) for
+rendering of embedded input controls in grids.
 
-?> See also the [Edit Tutorial](/tutorial/tutorial_edit.md) for specific rendering
-of embedded input controls.
+## Custom Icons
+
+This example uses [Font Awesome Icons](https://fontawesome.com/icons) instead
+of the default [Bootstrap Icons](https://icons.getbootstrap.com/) icon font:
+
+```html
+<html>
+  <head>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+    />
+    ...
+  </head>
+</html>
+```
+
+```js
+const tree = new mar10.Wunderbaum({
+  element: document.getElementById("demo-tree"),
+  source: "get/root/nodes",
+  iconMap: "fontawesome6",  // <-- use Font Awesome Icons
+  ...
+});
+```
+
+`iconMap` can also be a custom map of icon names, e.g.
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: {
+    folder: "bi bi-folder",
+    file: "bi bi-file-earmark",
+    ...
+  },
+  ...
+});
+```
+
+## Custom Style Sheets
+
+```css
+div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
+  /* Highlighted cell in cell-nav mode */
+}
+```
+
+## Custom Markup
+
+### Using the `render` Event
 
 ?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
 
@@ -15,19 +66,6 @@ of embedded input controls.
 const tree = new Wunderbaum({
   ...
   types: {},
-  columns: [
-    { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: "200px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
-    {
-      id: "price",
-      title: "Price ($)",
-      width: "80px",
-      classes: "wb-helper-end",
-    },
-    { id: "details", title: "Details", width: "*" },
-  ],
   ...
   // --- Events ---
   /**
@@ -44,31 +82,36 @@ const tree = new Wunderbaum({
 });
 ```
 
-### Related Methods
+### Badges
 
-- `util.setValueToElem()`
-- `util.toggleCheckbox()`
-
-### Performance Tips
-
-Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many
-nodes at once.
+Example: Display the number of selected subnodes in the badge of collapsed parent:
 
 ```js
-tree.runWithDeferredUpdate(() => {
-  tree.visit((node) => {
-    node.setSelected(true);
-  });
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    const node = e.node;
+    if (node.expanded || !node.children) {
+      return;
+    }
+    const count = node.children && node.getSelectedNodes()?.length;
+    return {
+      badge: count,
+      badgeTooltip: `${count} selected`,
+      badgeClass: "selection-count",
+    };
+  },
+  ...
 });
 ```
 
-### Related CSS Rules
+### Related Tree Options
 
-```css
-div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
-  /* Highlighted cell in cell-nav mode */
-}
-```
+### Related Methods
+
+- `util.toggleCheckbox()`
+
+### Related CSS Rules
 
 ### Code Hacks
 
