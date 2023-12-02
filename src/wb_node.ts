@@ -1178,7 +1178,9 @@ export class WunderbaumNode {
         "The lazyLoad event must return a node list, `{url: ...}`, or false."
       );
 
-      await this.load(source); // also calls setStatus('ok')
+      await this.load(source);
+
+      this.setStatus(NodeStatusType.ok);
 
       if (wasExpanded) {
         this.expanded = true;
