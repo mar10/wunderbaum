@@ -474,6 +474,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       // --- drop ---
     } else if (e.type === "drop") {
       e.stopPropagation(); // prevent browser from opening links?
+      e.preventDefault(); // #69 prevent iOS browser from opening links
 
       this._leaveNode();
 
@@ -497,5 +498,6 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         });
       }, 10);
     }
+    return false;
   }
 }
