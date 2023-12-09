@@ -34,16 +34,29 @@ const tree = new mar10.Wunderbaum({
 });
 ```
 
-`iconMap` can also be a custom map of icon names, e.g.
+`iconMap` can also be a custom map of icon names, for example:
 
 ```js
 const tree = new mar10.Wunderbaum({
   ...
   iconMap: {
-    folder: "bi bi-folder",
-    file: "bi bi-file-earmark",
-    ...
-  },
+    error: "bi bi-exclamation-triangle",
+    loading: "bi bi-chevron-right wb-busy",
+    noData: "bi bi-question-circle",
+    expanderExpanded: "bi bi-chevron-down",
+    expanderCollapsed: "bi bi-chevron-right",
+    expanderLazy: "bi bi-chevron-right wb-helper-lazy-expander",
+    checkChecked: "bi bi-check-square",
+    checkUnchecked: "bi bi-square",
+    checkUnknown: "bi bi-dash-square-dotted",
+    radioChecked: "bi bi-circle-fill",
+    radioUnchecked: "bi bi-circle",
+    radioUnknown: "bi bi-record-circle",
+    folder: "bi bi-folder2",
+    folderOpen: "bi bi-folder2-open",
+    folderLazy: "bi bi-folder-symlink",
+    doc: "bi bi-file-earmark",
+   },
   ...
 });
 ```
