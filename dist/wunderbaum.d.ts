@@ -257,7 +257,7 @@ declare module "common" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { MatcherCallback } from "types";
+    import { MatcherCallback, SourceObjectType } from "types";
     import { WunderbaumNode } from "wb_node";
     export const DEFAULT_DEBUGLEVEL = 4;
     /**
@@ -312,7 +312,16 @@ declare module "common" {
     export function makeNodeTitleStartMatcher(s: string): MatcherCallback;
     /** Compare two nodes by title (case-insensitive). */
     export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number;
-    export function inflateSourceData(source: any): void;
+    /**
+     * Decompresses the source data by
+     * - converting from 'flat' to 'nested' format
+     * - expanding short alias names to long names (if defined in _keyMap)
+     * - resolving value indexes to value strings (if defined in _valueMap)
+     *
+     * @param source - The source object to be decompressed.
+     * @returns void
+     */
+    export function decompressSourceData(source: SourceObjectType): void;
 }
 declare module "deferred" {
     /*!
@@ -1201,14 +1210,17 @@ declare module "types" {
     export type SourceListType = Array<WbNodeData>;
     export interface SourceObjectType {
         _format?: "nested" | "flat";
+        _version?: number;
         types?: NodeTypeDefinitionMap;
         columns?: ColumnDefinitionList;
         children: SourceListType;
         _keyMap?: {
             [key: string]: string;
         };
-        _typeList?: Array<string>;
         _positional?: Array<string>;
+        _valueMap?: {
+            [key: string]: Array<string>;
+        };
     }
     /** Possible initilization for tree nodes. */
     export type SourceType = string | SourceListType | SourceAjaxType | SourceObjectType;

@@ -7,7 +7,7 @@
   /*!
    * Wunderbaum - util
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   /** @module util */
   /** Readable names for `MouseEvent.button` */
@@ -771,7 +771,7 @@
   /*!
    * Wunderbaum - types
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -835,7 +835,7 @@
   /*!
    * Wunderbaum - wb_extension_base
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   class WunderbaumExtension {
       constructor(tree, id, defaults) {
@@ -1191,7 +1191,7 @@
   /*!
    * Wunderbaum - ext-filter
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   const START_MARKER = "\uFFF7";
   const END_MARKER = "\uFFF8";
@@ -1491,7 +1491,7 @@
   /*!
    * Wunderbaum - ext-keynav
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   const QUICKSEARCH_DELAY = 500;
   class KeynavExtension extends WunderbaumExtension {
@@ -1837,7 +1837,7 @@
   /*!
    * Wunderbaum - ext-logger
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   class LoggerExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -1879,7 +1879,7 @@
   /*!
    * Wunderbaum - common
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
   /**
@@ -1958,6 +1958,7 @@
       "_keyMap",
       "_positional",
       "_typeList",
+      "_valueMap",
       "_version",
       "children",
       "columns",
@@ -2027,18 +2028,34 @@
       const y = b.title.toLowerCase();
       return x === y ? 0 : x > y ? 1 : -1;
   }
+  /**
+   * Convert 'flat' to 'nested' format.
+   *
+   *  Flat node entry format:
+   *    [PARENT_ID, [POSITIONAL_ARGS]]
+   *  or
+   *    [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
+   *
+   * 1. Parent-referencing list is converted to a list of nested dicts with
+   *    optional `children` properties.
+   * 2. `[POSITIONAL_ARGS]` are added as dict attributes.
+   */
   function unflattenSource(source) {
       var _a, _b, _c;
-      const { _format, _keyMap, _positional, children } = source;
+      const { _format, _keyMap = {}, _positional = [], children } = source;
       if (_format !== "flat") {
           throw new Error(`Expected source._format: "flat", but got ${_format}`);
       }
       if (_positional && _positional.includes("children")) {
           throw new Error(`source._positional must not include "children": ${_positional}`);
       }
-      // Inverse keyMap:
-      const longToShort = {};
-      if (_keyMap) {
+      let longToShort = _keyMap;
+      if (_keyMap.t) {
+          // Inverse keyMap was used (pre 0.7.0)
+          // TODO: raise Error on final 1.x release
+          const msg = `source._keyMap maps from long to short since v0.7.0. Flip key/value!`;
+          console.warn(msg); // eslint-disable-line no-console
+          longToShort = {};
           for (const [key, value] of Object.entries(_keyMap)) {
               longToShort[value] = key;
           }
@@ -2049,16 +2066,16 @@
       const indexToNodeMap = {};
       const keyAttrName = (_a = longToShort["key"]) !== null && _a !== void 0 ? _a : "key";
       const childrenAttrName = (_b = longToShort["children"]) !== null && _b !== void 0 ? _b : "children";
-      for (const [index, node] of children.entries()) {
+      for (const [index, nodeTuple] of children.entries()) {
           // Node entry format:
           //   [PARENT_ID, [POSITIONAL_ARGS]]
           // or
           //   [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
-          const [parentId, args, kwargs = {}] = node;
+          const [parentId, args, kwargs = {}] = nodeTuple;
           // Free up some memory as we go
-          node[1] = null;
-          if (node[2] != null) {
-              node[2] = null;
+          nodeTuple[1] = null;
+          if (nodeTuple[2] != null) {
+              nodeTuple[2] = null;
           }
           // console.log("flatten", parentId, args, kwargs)
           // We keep `kwargs` as our new node definition. Then we add all positional
@@ -2096,56 +2113,96 @@
               newChildren.push(kwargs);
           }
       }
-      delete source.children;
       source.children = newChildren;
   }
-  function inflateSourceData(source) {
-      const { _format, _keyMap, _typeList } = source;
+  /**
+   * Decompresses the source data by
+   * - converting from 'flat' to 'nested' format
+   * - expanding short alias names to long names (if defined in _keyMap)
+   * - resolving value indexes to value strings (if defined in _valueMap)
+   *
+   * @param source - The source object to be decompressed.
+   * @returns void
+   */
+  function decompressSourceData(source) {
+      let { _format, _version = 1, _keyMap, _valueMap } = source;
+      assert(_version === 1, `Expected file version 1 instead of ${_version}`);
+      let longToShort = _keyMap;
+      let shortToLong = {};
+      if (longToShort) {
+          for (const [key, value] of Object.entries(longToShort)) {
+              shortToLong[value] = key;
+          }
+      }
+      // Fallback for old format (pre 0.7.0, using _keyMap in reverse direction)
+      // TODO: raise Error on final 1.x release
+      if (longToShort && longToShort.t) {
+          const msg = `source._keyMap maps from long to short since v0.7.0. Flip key/value!`;
+          console.warn(msg); // eslint-disable-line no-console
+          [longToShort, shortToLong] = [shortToLong, longToShort];
+      }
+      // Fallback for old format (pre 0.7.0, using _typeList instead of _valueMap)
+      // TODO: raise Error on final 1.x release
+      if (source._typeList != null) {
+          const msg = `source._typeList is deprecated since v0.7.0: use source._valueMap: {"type": [...]} instead.`;
+          if (_valueMap != null) {
+              throw new Error(msg);
+          }
+          else {
+              console.warn(msg); // eslint-disable-line no-console
+              _valueMap = { type: source._typeList };
+              delete source._typeList;
+          }
+      }
       if (_format === "flat") {
           unflattenSource(source);
       }
       delete source._format;
       delete source._version;
       delete source._keyMap;
-      delete source._typeList;
+      delete source._valueMap;
       delete source._positional;
       function _iter(childList) {
           for (const node of childList) {
-              // Expand short alias names
-              if (_keyMap) {
-                  // Iterate over a list of names, because we modify inside the loop:
-                  Object.getOwnPropertyNames(node).forEach((propName) => {
-                      var _a;
-                      const long = (_a = _keyMap[propName]) !== null && _a !== void 0 ? _a : propName;
-                      if (long !== propName) {
-                          node[long] = node[propName];
+              // Iterate over a list of names, because we modify inside the loop
+              // (for ... of ... does not allow this)
+              Object.getOwnPropertyNames(node).forEach((propName) => {
+                  const value = node[propName];
+                  // Replace short names with long names if defined in _keyMap
+                  let longName = propName;
+                  if (_keyMap && shortToLong[propName] != null) {
+                      longName = shortToLong[propName];
+                      if (longName !== propName) {
+                          node[longName] = value;
                           delete node[propName];
                       }
-                  });
-              }
-              // `node` now has long attribute names
-              // Resolve node type indexes
-              const type = node.type;
-              if (_typeList && type != null && typeof type === "number") {
-                  const newType = _typeList[type];
-                  if (newType == null) {
-                      throw new Error(`Expected typeList[${type}] entry in [${_typeList}]`);
                   }
-                  node.type = newType;
-              }
+                  // Replace type index with type name if defined in _valueMap
+                  if (_valueMap &&
+                      typeof value === "number" &&
+                      _valueMap[longName] != null) {
+                      const newValue = _valueMap[longName][value];
+                      if (newValue == null) {
+                          throw new Error(`Expected valueMap[${longName}][${value}] entry in [${_valueMap[longName]}]`);
+                      }
+                      node[longName] = newValue;
+                  }
+              });
               // Recursion
               if (node.children) {
                   _iter(node.children);
               }
           }
       }
-      _iter(source.children);
+      if (_keyMap || _valueMap) {
+          _iter(source.children);
+      }
   }
 
   /*!
    * Wunderbaum - ext-dnd
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   const nodeMimeType = "application/x-wunderbaum-node";
   class DndExtension extends WunderbaumExtension {
@@ -2548,6 +2605,7 @@
           }
           else if (e.type === "drop") {
               e.stopPropagation(); // prevent browser from opening links?
+              e.preventDefault(); // #69 prevent iOS browser from opening links
               this._leaveNode();
               const region = this.lastDropRegion;
               let nodeData = (_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData(nodeMimeType);
@@ -2568,13 +2626,14 @@
                   });
               }, 10);
           }
+          return false;
       }
   }
 
   /*!
    * Wunderbaum - drag_observer
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2710,7 +2769,7 @@
   /*!
    * Wunderbaum - ext-grid
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   class GridExtension extends WunderbaumExtension {
       constructor(tree) {
@@ -2747,7 +2806,7 @@
   /*!
    * Wunderbaum - deferred
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   /**
    * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2800,7 +2859,7 @@
   /*!
    * Wunderbaum - wunderbaum_node
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   /** WunderbaumNode properties that can be passed with source data.
    * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3595,7 +3654,7 @@
           const format = (_a = source.format) !== null && _a !== void 0 ? _a : "nested";
           assert(format === "nested" || format === "flat", `Expected source.format = 'nested' or 'flat': ${format}`);
           // Pre-rocess for 'nested' or 'flat' format
-          inflateSourceData(source);
+          decompressSourceData(source);
           assert(source.children, "If `source` is an object, it must have a `children` property");
           if (source.types) {
               tree.logInfo("Redefine types", source.columns);
@@ -3753,7 +3812,8 @@
                   return;
               }
               assert(isArray(source) || (source && source.url), "The lazyLoad event must return a node list, `{url: ...}`, or false.");
-              await this.load(source); // also calls setStatus('ok')
+              await this.load(source);
+              this.setStatus(NodeStatusType.ok);
               if (wasExpanded) {
                   this.expanded = true;
                   this.tree.update(ChangeType.structure);
@@ -5132,7 +5192,7 @@
   /*!
    * Wunderbaum - ext-edit
    * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-   * v0.6.0, Wed, 08 Nov 2023 19:58:55 GMT (https://github.com/mar10/wunderbaum)
+   * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
    */
   // const START_MARKER = "\uFFF7";
   class EditExtension extends WunderbaumExtension {
@@ -5432,8 +5492,8 @@
    * https://github.com/mar10/wunderbaum
    *
    * Released under the MIT license.
-   * @version v0.6.0
-   * @date Wed, 08 Nov 2023 19:58:55 GMT
+   * @version v0.7.0
+   * @date Sat, 09 Dec 2023 13:47:27 GMT
    */
   // import "./wunderbaum.scss";
   class WbSystemRoot extends WunderbaumNode {
@@ -7566,7 +7626,7 @@
   }
   Wunderbaum.sequence = 0;
   /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-  Wunderbaum.version = "v0.6.0"; // Set to semver by 'grunt release'
+  Wunderbaum.version = "v0.7.0"; // Set to semver by 'grunt release'
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   Wunderbaum.util = util;
 
