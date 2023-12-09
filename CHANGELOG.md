@@ -7,9 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.7.1: #68 Always reset 'loading' status.
-- v0.7.1: #69 prevent iOS browser from opening links on drop.
-
+- v0.7.0: #68 Always reset 'loading' status.
+- v0.7.0: #69 prevent iOS browser from opening links on drop.
 - v0.7.0: BREAKING CHANGE:
   Changed syntax format for compressed formats:
 
