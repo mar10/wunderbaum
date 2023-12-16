@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.getElementById("demo-info").innerHTML = `
  A read-only treegrid (no d'n'd).
 Navigation mode: 'cell'.
@@ -21,23 +25,32 @@ new mar10.Wunderbaum({
   source:
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
-    "department": { "icon": "bi bi-diagram-3", "colspan": true },
-    "role": { "icon": "bi bi-microsoft-teams", "colspan": true },
-    "person": { "icon": "bi bi-person" },
+    department: { icon: "bi bi-diagram-3", colspan: true },
+    role: { icon: "bi bi-microsoft-teams", colspan: true },
+    person: { icon: "bi bi-person" },
   },
   columns: [
-    { "title": "Title", "id": "*", "width": "250px" },
-    { "title": "Age", "id": "age", "width": "40px", "classes": "wb-helper-end" },
-    { "title": "Date", "id": "date", "width": "90px", "classes": "wb-helper-end" },
-    { "title": "Status", "id": "state", "width": "70px", "classes": "wb-helper-center" },
-    { "title": "Avail.", "id": "avail", "width": "50px", "classes": "wb-helper-center" },
-    { "title": "Remarks", "id": "remarks", "width": "*" },
+    { title: "Title", id: "*", width: "250px" },
+    { title: "Age", id: "age", width: "40px", classes: "wb-helper-end" },
+    { title: "Date", id: "date", width: "90px", classes: "wb-helper-end" },
+    {
+      title: "Status",
+      id: "state",
+      width: "70px",
+      classes: "wb-helper-center",
+    },
+    {
+      title: "Avail.",
+      id: "avail",
+      width: "50px",
+      classes: "wb-helper-center",
+    },
+    { title: "Remarks", id: "remarks", width: "*" },
   ],
   filter: {
     connectInput: "input#filterQuery",
   },
-  init: (e) => {
-  },
+  init: (e) => {},
   render: function (e) {
     // console.log(e.type, e.isNew, e);
     const node = e.node;
@@ -51,19 +64,21 @@ new mar10.Wunderbaum({
       switch (col.id) {
         case "date":
           if (val) {
-            const dt = new Date(val)
+            const dt = new Date(val);
             col.elem.textContent = dt.toISOString().slice(0, 10);
           } else {
             col.elem.textContent = "n.a.";
           }
-          break
+          break;
         case "state":
-          const map = { "h": "Happy", "s": "Sad" }
-          col.elem.textContent = map[val] || "n.a.";
-          break
+          {
+            const map = { h: "Happy", s: "Sad" };
+            col.elem.textContent = map[val] || "n.a.";
+          }
+          break;
         case "avail":
           col.elem.textContent = val ? "Yes" : "No";
-          break
+          break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = val;

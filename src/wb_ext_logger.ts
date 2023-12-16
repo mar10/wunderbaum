@@ -8,7 +8,7 @@ import { overrideMethod } from "./util";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { Wunderbaum } from "./wunderbaum";
 
-export class LoggerExtension extends WunderbaumExtension {
+export class LoggerExtension extends WunderbaumExtension<any> {
   readonly prefix: string;
   protected ignoreEvents = new Set<string>([
     "iconBadge",
@@ -33,12 +33,13 @@ export class LoggerExtension extends WunderbaumExtension {
       const prefix = this.prefix;
 
       overrideMethod(tree, "callEvent", function (name, extra) {
+        /* eslint-disable prefer-rest-params */
         if (ignoreEvents.has(name)) {
           return (<any>tree)._superApply(arguments);
         }
         const start = Date.now();
         const res = (<any>tree)._superApply(arguments);
-        console.debug(
+        tree.logDebug(
           `${prefix}: callEvent('${name}') took ${Date.now() - start} ms.`,
           arguments[1]
         );
@@ -49,7 +50,7 @@ export class LoggerExtension extends WunderbaumExtension {
 
   onKeyEvent(data: any): boolean | undefined {
     // this.tree.logInfo("onKeyEvent", eventToString(data.event), data);
-    console.debug(`${this.prefix}: onKeyEvent()`, data);
+    this.tree.logDebug(`${this.prefix}: onKeyEvent()`, data);
     return;
   }
 }

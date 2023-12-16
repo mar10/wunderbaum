@@ -2,57 +2,34 @@
  * Note: This file must be import as module:
  *     `<script defer type="module" src="playground.js"></script>`
  */
-
-import { Wunderbaum } from "../build/wunderbaum.esm.min.js";
+/* eslint-env browser */
+/* eslint-disable no-console */
+import { Wunderbaum } from "../build/wunderbaum.esm.js";
+// import { Wunderbaum } from "../build/wunderbaum.esm.min.js";
 
 const util = Wunderbaum.util;
 // const ModeElemTemplate = `<select tabindex='-1'>
 //   <option value='1'>O1</option>
 //   <option value='2'>O2</option>
 // </select>`;
-let sequence = 1;
+// let sequence = 1;
 const tree = new Wunderbaum({
   element: "#tree",
-  checkbox: true,
+  // checkbox: (node) => "radio",
+  // checkbox: "radio",
+  // checkbox: true,
   id: "Playground",
   // enabled: false,
   fixedCol: true,
   debugLevel: 4,
   // minExpandLevel: 1,
   emptyChildListExpandable: true,
-  autoCollapse: true,
+  // autoCollapse: true,
   header: true, //"Playground",
   // navigationModeOption: "cell",
+  // scrollIntoViewOnExpandClick: false,
+  // showSpinner: true,
 
-  // source: "generator/ajax_1k_3_54 t_c.json",
-  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
-  // source: "generator/fixture_department_1k_3_6_comp.json",
-  // source: "../docs/assets/ajax-tree-products.json",
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // source: "generator/fixture.json",
-  // source: (e)=>{
-  //   console.info("SOURCE", e.type, e)
-  //   return util.setTimeoutPromise(() => {
-  //     return {url: "../docs/assets/ajax-tree-products.json"};
-  //   }, 5000);
-  // },
-  // source: {
-  //   children: [
-  //     { title: "a", type: "book", details: "A book", children: [] },
-  //     {
-  //       title: "b",
-  //       children: [
-  //         {
-  //           title: "ba",
-  //         },
-  //       ],
-  //     },
-  //     { title: "c", children: null },
-  //     { title: "d", children: false },
-  //     { title: "e" },
-  //   ],
-  // },
   columns: [
     { title: "test", id: "*", width: "200px" },
     // {
@@ -81,15 +58,81 @@ const tree = new Wunderbaum({
   ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
+    folder: {
+      // icon: "bi bi-folder",
+      // checkbox: "radio",
+    },
   },
-  // showSpinner: true,
+  // source: "generator/ajax_1k_3_54 t_c.json",
+  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
+  source: "generator/fixture_department_1k_3_6_comp.json",
+  // source: "../docs/assets/ajax-tree-products.json",
+  // source:
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+  // source:
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+  // source: "generator/fixture.json",
+  // source: {
+  //   children: [
+  //     { title: "a", type: "book", details: "A book", children: [] },
+  //     {
+  //       title: "b",
+  //       children: [
+  //         {
+  //           title: "ba",
+  //         },
+  //       ],
+  //     },
+  //     { title: "c", children: null },
+  //     { title: "d", children: false },
+  //     { title: "e" },
+  //   ],
+  // },
 
   dnd: {
+    effectAllowed: "all",
+    dropEffectDefault: "move",
+    guessDropEffect: true,
     dragStart: (e) => {
+      // if (e.node.type === "folder") {
+      //   return false;
+      // }
       return true;
     },
     dragEnter: (e) => {
-      return true;
+      // console.log(`DragEnter ${e.event.dataTransfer.dropEffect} ${e.node}`, e);
+      // We can only drop 'over' a folder, so the source node becomes a child.
+      // We can drop 'before' or 'after' a non-folder, so the source node becomes a sibling.
+      if (e.node.type === "folder") {
+        // e.event.dataTransfer.dropEffect = "link";
+        return "over";
+      }
+      return ["before", "after"];
+    },
+    drag: (e) => {
+      // e.tree.log(e.type, e);
+    },
+    drop: (e) => {
+      console.log(
+        `Drop ${e.sourceNode} => ${e.suggestedDropEffect} ${e.suggestedDropMode} ${e.node}`,
+        e
+      );
+      switch (e.suggestedDropEffect) {
+        case "copy":
+          e.node.addNode(
+            { title: `Copy of ${e.sourceNodeData.title}` },
+            e.suggestedDropMode
+          );
+          break;
+        case "link":
+          e.node.addNode(
+            { title: `Link to ${e.sourceNodeData.title}` },
+            e.suggestedDropMode
+          );
+          break;
+        default:
+          e.sourceNode.moveTo(e.node, e.suggestedDropMode);
+      }
     },
   },
   // edit: {
@@ -104,27 +147,13 @@ const tree = new Wunderbaum({
     }, 1000);
   },
   activate: (e) => {
-    tree.log(
-      e.type,
-      e,
-      e.node.toDict(false, (d) => {
-        d._org_key = d.key;
-        delete d.key;
-      })
-    );
+    tree.log(e.type, e);
   },
   click: (e) => {
-    tree.log(
-      e.type,
-      e,
-      e.node.toDict(false, (d) => {
-        d._org_key = d.key;
-        delete d.key;
-      })
-    );
+    tree.log(e.type, e);
   },
-  deactivate: (e) => { },
-  discard: (e) => { },
+  deactivate: (e) => {},
+  discard: (e) => {},
   change: (e) => {
     const node = e.node;
     const value = e.inputValue;
@@ -142,31 +171,36 @@ const tree = new Wunderbaum({
     }, 500);
   },
   render: (e) => {
-    // e.node.log(e.type, e, e.node.data);
+    const node = e.node;
+    // node.log(e.type, e, node, e.nodeElem.querySelector("span.wb-title"));
 
+    // e.nodeElem.querySelector( "span.wb-title" ).innerHTML = `<u>${node.title}</u>`;
     for (const col of Object.values(e.renderColInfosById)) {
       switch (col.id) {
         default:
           // Assumption: we named column.id === node.data.NAME
-          util.setValueToElem(col.elem, e.node.data[col.id]);
+          util.setValueToElem(col.elem, node.data[col.id]);
           break;
       }
     }
   },
-  iconBadge: (e) => {
-    const count = e.node.children?.length || 0;
-    if (count > 0 && !e.node.expanded) {
-      if (count > 99) {
-        return { badge: "99+", badgeTooltip: `${count} children` };
-      }
+  // iconBadge: (e) => {
+  //   const count = e.node.children?.length || 0;
+  //   const subMatch = e.node.subMatch || 0;
+  //   if (subMatch > 0) {
+  //     return { badge: subMatch, badgeTooltip: `${subMatch} matches` };
+  //   } else if (count > 0 && !e.node.expanded) {
+  //     if (count > 99) {
+  //       return { badge: "99+", badgeTooltip: `${count} children` };
+  //     }
 
-      // return { badge: count };
-      // return { badge: count, classes: "badge-primary" };
-      // return "" + count;
-      return count;
-      // return `<span class="badge badge-pill badge-primary">${count}</span>`;
-    }
-  },
+  //     // return { badge: count };
+  //     // return { badge: count, classes: "badge-primary" };
+  //     // return "" + count;
+  //     return count;
+  //     // return `<span class="badge badge-pill badge-primary">${count}</span>`;
+  //   }
+  // },
 });
 console.log(`Created  ${tree}`);
 
@@ -179,9 +213,6 @@ tree.ready
   });
 
 // document.body.style.setProperty("--wb-node-text-color", "#ff8080");
-document
-  .querySelector("div.wunderbaum")
-  .style.setProperty("--wb-font-stack", "monospace");
 // document.querySelector("div.wunderbaum").style.setProperty("--wb-font-stack", "monospace");
 
 document.querySelectorAll(".demo-btn").forEach((elem) => {
@@ -190,21 +221,23 @@ document.querySelectorAll(".demo-btn").forEach((elem) => {
 
     switch (action) {
       case "collapseAll":
-        tree.logTime("iter");
-        let count = 0;
-        // for (const node of tree) {
-        //   count++;
-        // }
-        tree.visit((node) => {
-          count++;
-        });
+        {
+          tree.logTime("iter");
+          let count = 0;
+          // for (const node of tree) {
+          //   count++;
+          // }
+          tree.visit((node) => {
+            count++;
+          });
 
-        tree.logTimeEnd("iter");
-        tree.log(`count: ${count}`);
-        tree.expandAll(false, {
-          // force: true,
-          depth: 2,
-        });
+          tree.logTimeEnd("iter");
+          tree.log(`count: ${count}`);
+          tree.expandAll(false, {
+            // force: true,
+            depth: 2,
+          });
+        }
         break;
       case "expandAll":
         tree.expandAll(true, {

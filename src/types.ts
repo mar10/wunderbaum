@@ -33,12 +33,14 @@ export interface SourceAjaxType {
 export type SourceListType = Array<WbNodeData>;
 export interface SourceObjectType {
   _format?: "nested" | "flat";
+  _version?: number;
   types?: NodeTypeDefinitionMap;
   columns?: ColumnDefinitionList;
   children: SourceListType;
   _keyMap?: { [key: string]: string };
-  _typeList?: Array<string>;
   _positional?: Array<string>;
+  // _typeList?: Array<string>;
+  _valueMap?: { [key: string]: Array<string> };
 }
 
 /** Possible initilization for tree nodes. */
@@ -471,6 +473,8 @@ export interface ExpandAllOptions {
   loadLazy?: boolean;
   /** Ignore `minExpandLevel` option @default false */
   force?: boolean;
+  /** Keep active node visible @default true */
+  keepActiveNodeVisible?: boolean;
 }
 
 /** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
@@ -613,6 +617,124 @@ export interface VisitRowsOptions {
   wrap?: boolean;
 }
 
+export type FilterOptionsType = {
+  /**
+   * Element or selector of an input control for filter query strings
+   * @default null
+   */
+  connectInput?: null | string | Element;
+  /**
+   * Re-apply last filter if lazy data is loaded
+   * @default true
+   */
+  autoApply?: boolean;
+  /**
+   * Expand all branches that contain matches while filtered
+   * @default false
+   */
+  autoExpand?: boolean;
+  /**
+   * Show a badge with number of matching child nodes near parent icons
+   * @default true
+   */
+  counter?: boolean;
+  /**
+   * Match single characters in order, e.g. 'fb' will match 'FooBar'
+   * @default false
+   */
+  fuzzy?: boolean;
+  /**
+   * Hide counter badge if parent is expanded
+   * @default true
+   */
+  hideExpandedCounter?: boolean;
+  /**
+   * Hide expanders if all child nodes are hidden by filter
+   * @default false;
+   */
+  hideExpanders?: boolean;
+  /**
+   * Highlight matches by wrapping inside <mark> tags
+   * @default true
+   */
+  highlight?: boolean;
+  /**
+   * Match end nodes only
+   * @default false
+   */
+  leavesOnly?: boolean;
+  /**
+   * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+   * @default 'dim'
+   */
+  mode?: "dim" | "hide";
+  /**
+   * Display a 'no data' status node if result is empty
+   * @default true
+   */
+  noData?: boolean;
+};
+
+export type EditOptionsType = {
+  /**
+   * @default 100
+   */
+  debounce?: number;
+  /**
+   * @default 1
+   */
+  minlength?: number;
+  /**
+   * @default null;
+   */
+  maxlength?: null | number;
+  /**
+   * ["clickActive", "F2", "macEnter"],
+   * @default []
+   */
+  trigger?: string[];
+  /**
+   * @default true
+   */
+  trim?: boolean;
+  /**
+   * @default true
+   */
+  select?: boolean;
+  /**
+   * Handle 'clickActive' only if last click is less than this old (0: always)
+   * @default 1000
+   */
+  slowClickDelay?: number;
+  /**
+   * Please enter a title",
+   * @default true
+   */
+  validity?: boolean;
+
+  // --- Events ---
+  // (note: there is also the `tree.change` event.)
+  /**
+   * `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+   */
+  beforeEdit?: null | ((e: WbNodeEventType) => boolean) | string;
+  /**
+   *
+   */
+  edit?:
+    | null
+    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
+  /**
+   *
+   */
+  apply?:
+    | null
+    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
+    | Promise<any>;
+};
+
+export type GridOptionsType = object;
+
 /* -----------------------------------------------------------------------------
  * wb_ext_dnd
  * ---------------------------------------------------------------------------*/
@@ -623,6 +745,18 @@ export type InsertNodeType =
   | "prependChild"
   | "appendChild";
 // export type DndModeType = "before" | "after" | "over";
+
+export type DropEffectType = "none" | "copy" | "link" | "move";
+export type DropEffectAllowedType =
+  | "none"
+  | "copy"
+  | "copyLink"
+  | "copyMove"
+  | "link"
+  | "linkMove"
+  | "move"
+  | "all";
+
 export type DropRegionType = "over" | "before" | "after";
 export type DropRegionTypeSet = Set<DropRegionType>;
 // type AllowedDropRegionType =
@@ -641,7 +775,7 @@ export type DndOptionsType = {
    * Expand nodes after n milliseconds of hovering
    * @default 1500
    */
-  autoExpandMS: 1500;
+  autoExpandMS?: 1500;
   // /**
   //  * Additional offset for drop-marker with hitMode = "before"/"after"
   //  * @default
@@ -662,62 +796,75 @@ export type DndOptionsType = {
    * true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
    * @default false
    */
-  multiSource: false;
+  multiSource?: false;
   /**
-   * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+   * Restrict the possible cursor shapes and modifier operations
+   * (can also be set in the dragStart event)
    * @default "all"
    */
-  effectAllowed: "all";
-  // /**
-  //  * 'copy'|'link'|'move'|'auto'(calculate from `effectAllowed`+modifier keys) or callback(node, data) that returns such string.
-  //  * @default
-  //  */
-  // dropEffect: "auto";
+  effectAllowed?: DropEffectAllowedType;
   /**
-   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
+   * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed.
+   * Overidable in the dragEnter or dragOver event.
    * @default "move"
    */
-  dropEffectDefault: string;
+  dropEffectDefault?: DropEffectType;
+  /**
+   * Use opinionated heuristics to determine the dropEffect ('copy', 'link', or 'move')
+   * based on `effectAllowed`, `dropEffectDefault`, and modifier keys.
+   * This is recalculated before each dragEnter and dragOver event and can be
+   * overridden there.
+   *
+   * @default true
+   */
+  guessDropEffect: boolean;
   /**
    * Prevent dropping nodes from different Wunderbaum trees
    * @default false
    */
-  preventForeignNodes: boolean;
+  preventForeignNodes?: boolean;
   /**
    * Prevent dropping items on unloaded lazy Wunderbaum tree nodes
    * @default true
    */
-  preventLazyParents: boolean;
+  preventLazyParents?: boolean;
   /**
    * Prevent dropping items other than Wunderbaum tree nodes
    * @default false
    */
-  preventNonNodes: boolean;
+  preventNonNodes?: boolean;
   /**
    * Prevent dropping nodes on own descendants
    * @default true
    */
-  preventRecursion: boolean;
+  preventRecursion?: boolean;
   /**
    * Prevent dropping nodes under same direct parent
    * @default false
    */
-  preventSameParent: false;
+  preventSameParent?: false;
   /**
    * Prevent dropping nodes 'before self', etc. (move only)
    * @default true
    */
-  preventVoidMoves: boolean;
+  preventVoidMoves?: boolean;
+  /**
+   * Serialize Node Data to datatransfer object
+   * @default true
+   */
+  serializeClipboardData?:
+    | boolean
+    | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
   /**
    * Enable auto-scrolling while dragging
    * @default true
    */
-  scroll: boolean;
+  scroll?: boolean;
   /**
    * Active top/bottom margin in pixel
    * @default 20
    */
-  scrollSensitivity: 20;
+  scrollSensitivity?: 20;
   // /**
   //  * Scroll events every N microseconds
   //  * @default 50
@@ -727,7 +874,7 @@ export type DndOptionsType = {
    * Pixel per event
    * @default 5
    */
-  scrollSpeed: 5;
+  scrollSpeed?: 5;
   // /**
   //  * Allow dragging of nodes to different IE windows
   //  * @default false
@@ -737,47 +884,62 @@ export type DndOptionsType = {
    * Optional callback passed to `toDict` on dragStart @since 2.38
    * @default null
    */
-  sourceCopyHook: null;
+  sourceCopyHook?: null;
   // Events (drag support)
   /**
    * Callback(sourceNode, data), return true, to enable dnd drag
    * @default null
    */
-  dragStart?: WbNodeEventType;
+  dragStart?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(sourceNode, data)
    * @default null
    */
-  dragDrag: null;
+  drag?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(sourceNode, data)
    * @default null
    */
-  dragEnd: null;
+  dragEnd?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
    * @default null
    */
-  dragEnter: null;
+  dragEnter?:
+    | null
+    | ((
+        e: WbNodeEventType & { event: DragEvent }
+      ) => DropRegionTypeSet | boolean);
   /**
    * Callback(targetNode, data)
    * @default null
    */
-  dragOver: null;
+  dragOver?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
    */
-  dragExpand: null;
+  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(targetNode, data)
    * @default null
    */
-  dragDrop: null;
+  drop?:
+    | null
+    | ((
+        e: WbNodeEventType & {
+          event: DragEvent;
+          region: DropRegionType;
+          suggestedDropMode: InsertNodeType;
+          suggestedDropEffect: DropEffectType;
+          sourceNode: WunderbaumNode;
+          sourceNodeData: WbNodeData | null;
+        }
+      ) => void);
   /**
    * Callback(targetNode, data)
    * @default null
    */
-  dragLeave: null;
+  dragLeave?: null;
 };

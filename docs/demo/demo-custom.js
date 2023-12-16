@@ -4,8 +4,13 @@
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
 
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.getElementById("demo-info").innerHTML = `
-Convert and consume data from a custom endpoint (<a href="https://fakestoreapi.com/">Fake Store API</a>).
+Convert and consume data from a custom endpoint 
+(<a href="https://fakestoreapi.com/" target="_blank">Fake Store API</a>).
 `;
 
 new mar10.Wunderbaum({
@@ -21,12 +26,11 @@ new mar10.Wunderbaum({
       classes: "wb-helper-end",
     },
     { id: "description", title: "Details", width: "*" },
-
   ],
   types: {
-    "category": { colspan: true },
-    "electronics": { icon: "bi bi-cpu" },
-    "jewelery": { icon: "bi bi-gem" },
+    category: { colspan: true },
+    electronics: { icon: "bi bi-cpu" },
+    jewelery: { icon: "bi bi-gem" },
     "men's clothing": { icon: "bi bi-gender-male" },
     "women's clothing": { icon: "bi bi-gender-female" },
   },
@@ -42,9 +46,9 @@ new mar10.Wunderbaum({
             title: elem,
             type: "category",
             refKey: elem,
-            lazy: true
-          }
-        })
+            lazy: true,
+          };
+        });
       case "category":
         // Lazy-load a category node:
         return e.response.map((elem) => {
@@ -53,12 +57,14 @@ new mar10.Wunderbaum({
             type: parent.refKey,
             price: elem.price,
             description: elem.description,
-          }
-        })
+          };
+        });
     }
   },
   lazyLoad: (e) => {
-    return { url: `https://fakestoreapi.com/products/category/${e.node.refKey}` }
+    return {
+      url: `https://fakestoreapi.com/products/category/${e.node.refKey}`,
+    };
   },
   render: function (e) {
     const node = e.node;

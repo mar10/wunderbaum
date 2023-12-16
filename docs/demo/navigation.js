@@ -1,3 +1,7 @@
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.addEventListener("DOMContentLoaded", (event) => {
   /* ---------------------------------------------------------------------------
    * Navigation
@@ -209,7 +213,7 @@ function loadScript(
       });
     }
     // const scriptElem = document.querySelector("#demo-tree-script");
-    let scriptElem = document.createElement("script");
+    const scriptElem = document.createElement("script");
     if (module) {
       scriptElem.setAttribute("type", "module");
     }

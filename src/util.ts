@@ -89,7 +89,7 @@ export class Deferred {
 }
 
 /**Throw an `Error` if `cond` is falsey. */
-export function assert(cond: any, msg?: string) {
+export function assert(cond: any, msg: string) {
   if (!cond) {
     msg = msg || "Assertion failed.";
     throw new Error(msg);
@@ -137,8 +137,8 @@ export function each(
     // accept `null` or `undefined`
     return obj;
   }
-  let length = obj.length,
-    i = 0;
+  const length = obj.length;
+  let i = 0;
 
   if (typeof length === "number") {
     for (; i < length; i++) {
@@ -147,7 +147,7 @@ export function each(
       }
     }
   } else {
-    for (let k in obj) {
+    for (const k in obj) {
       if (callback.call(obj[i], k, obj[k]) === false) {
         break;
       }
@@ -256,11 +256,13 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
         value = input.valueAsNumber;
         break;
       case "radio":
-        const name = input.name;
-        const checked = input.parentElement!.querySelector(
-          `input[name="${name}"]:checked`
-        );
-        value = checked ? (<HTMLInputElement>checked).value : undefined;
+        {
+          const name = input.name;
+          const checked = input.parentElement!.querySelector(
+            `input[name="${name}"]:checked`
+          );
+          value = checked ? (<HTMLInputElement>checked).value : undefined;
+        }
         break;
       case "text":
       default:
@@ -438,9 +440,9 @@ export function eventTargetFromSelector(
  * ```
  */
 export function eventToString(event: Event): string {
-  let key = (<KeyboardEvent>event).key,
-    et = event.type,
-    s = [];
+  const key = (<KeyboardEvent>event).key;
+  const et = event.type;
+  const s = [];
 
   if ((<KeyboardEvent>event).altKey) {
     s.push("Alt");
@@ -479,11 +481,11 @@ export function eventToString(event: Event): string {
 // TODO: support deep merge --> https://stackoverflow.com/a/42740894
 export function extend(...args: any[]) {
   for (let i = 1; i < args.length; i++) {
-    let arg = args[i];
+    const arg = args[i];
     if (arg == null) {
       continue;
     }
-    for (let key in arg) {
+    for (const key in arg) {
       if (Object.prototype.hasOwnProperty.call(arg, key)) {
         args[0][key] = arg[key];
       }
@@ -604,18 +606,17 @@ export function overrideMethod(
   handler: FunctionType,
   ctx?: any
 ) {
-  let prevSuper: FunctionType,
-    prevSuperApply: FunctionType,
-    self = ctx || instance,
-    prevFunc = instance[methodName],
-    _super = (...args: any[]) => {
-      return prevFunc.apply(self, args);
-    },
-    _superApply = (argsArray: any[]) => {
-      return prevFunc.apply(self, argsArray);
-    };
+  let prevSuper: FunctionType, prevSuperApply: FunctionType;
+  const self = ctx || instance;
+  const prevFunc = instance[methodName];
+  const _super = (...args: any[]) => {
+    return prevFunc.apply(self, args);
+  };
+  const _superApply = (argsArray: any[]) => {
+    return prevFunc.apply(self, argsArray);
+  };
 
-  let wrapper = (...args: any[]) => {
+  const wrapper = (...args: any[]) => {
     try {
       prevSuper = self._super;
       prevSuperApply = self._superApply;
@@ -677,7 +678,7 @@ export function toggleCheckbox(
   tristate?: boolean
 ): void {
   const input = elemFromSelector(element) as HTMLInputElement;
-  assert(input.type === "checkbox");
+  assert(input.type === "checkbox", `Expected a checkbox: ${input.type}`);
   tristate ??= input.classList.contains("wb-tristate") || input.indeterminate;
 
   if (value === undefined) {
@@ -717,7 +718,7 @@ export function getOption(
     [ext, name] = name.split(".");
     opts = opts[ext];
   }
-  let value = opts ? opts[name] : null;
+  const value = opts ? opts[name] : null;
   // Use value from value options dict, fallback do default
   return value ?? defaultValue;
 }
@@ -728,7 +729,7 @@ export function toSet(val: any): Set<string> {
     return val;
   }
   if (typeof val === "string") {
-    let set = new Set<string>();
+    const set = new Set<string>();
     for (const c of val.split(" ")) {
       set.add(c.trim());
     }
@@ -812,7 +813,7 @@ export function adaptiveThrottle(
       try {
         callback.apply(this, useArgs);
       } catch (error) {
-        console.error(error);
+        console.error(error); // eslint-disable-line no-console
       }
       const elap = Date.now() - start;
 

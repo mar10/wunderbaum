@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.getElementById("demo-info").innerHTML = `
  A readonly treegrid with renaming, 'checkbox: true', 'minExpandLevel: 1'.
  Navigation mode: 'row/cell'.
@@ -54,7 +58,7 @@ new mar10.Wunderbaum({
     },
     drop: (e) => {
       console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode);
+      e.sourceNode.moveTo(e.node, e.suggestedDropMode);
     },
   },
   edit: {

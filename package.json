@@ -1,6 +1,6 @@
 {
   "name": "wunderbaum",
-  "version": "0.5.2-0",
+  "version": "0.7.1-0",
   "title": "A treegrid control.",
   "description": "JavaScript tree/grid/treegrid control.",
   "homepage": "https://github.com/mar10/wunderbaum",
@@ -51,8 +51,11 @@
     "@rollup/plugin-terser": "^0.4.3",
     "@rollup/plugin-typescript": "^11.1.1",
     "@types/jest": "^29.5.2",
+    "@typescript-eslint/eslint-plugin": "^6.7.5",
+    "@typescript-eslint/parser": "^6.7.5",
     "concurrently": "^8.1.0",
-    "eslint": "^8.41.0",
+    "docsify-cli": "^4.4.4",
+    "eslint": "^8.51.0",
     "eslint-config-jquery": "^3.0.0",
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-prettier": "^4.2.1",
@@ -77,8 +80,8 @@
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
     "tslib": "^2.5.2",
-    "typedoc": "^0.24.7",
-    "typescript": "^5.0.0"
+    "typedoc": "^0.25.2",
+    "typescript": "^5.2.2"
   },
   "nodemonConfig": {
     "watch": [
@@ -99,8 +102,8 @@
   "scripts": {
     "test": "npm run lint && npm run build:js && grunt ci --verbose",
     "docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
-    "format": "prettier src -w && npm run lint",
-    "lint": "prettier src --check && tsc -t esnext --noEmit",
+    "format": "eslint src --fix && prettier src docs/demo -w && npm run lint",
+    "lint": "prettier src docs/demo --check && eslint src docs/demo && tsc -t esnext --noEmit",
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"base='build',url='wunderbaum.umd.min.js.map',filename='wunderbaum.umd.js'\" --output build/wunderbaum.umd.min.js",
     "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"base='build',url='wunderbaum.esm.min.js.map',filename='wunderbaum.esm.js'\" --output build/wunderbaum.esm.min.js",
     "build:minjs": "npm run build:minjs:esm -s && npm run build:minjs:umd -s",
@@ -112,6 +115,7 @@
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
+    "docsify": "docsify serve docs -o",
     "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\""
   },
   "npmName": "wunderbaum",

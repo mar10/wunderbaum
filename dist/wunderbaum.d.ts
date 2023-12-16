@@ -34,7 +34,7 @@ declare module "util" {
         };
     }
     /**Throw an `Error` if `cond` is falsey. */
-    export function assert(cond: any, msg?: string): void;
+    export function assert(cond: any, msg: string): void;
     /** Run `callback` when document was loaded. */
     export function documentReady(callback: () => void): void;
     /** Resolve when document was loaded. */
@@ -257,7 +257,7 @@ declare module "common" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { MatcherCallback } from "types";
+    import { MatcherCallback, SourceObjectType } from "types";
     import { WunderbaumNode } from "wb_node";
     export const DEFAULT_DEBUGLEVEL = 4;
     /**
@@ -312,7 +312,16 @@ declare module "common" {
     export function makeNodeTitleStartMatcher(s: string): MatcherCallback;
     /** Compare two nodes by title (case-insensitive). */
     export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number;
-    export function inflateSourceData(source: any): void;
+    /**
+     * Decompresses the source data by
+     * - converting from 'flat' to 'nested' format
+     * - expanding short alias names to long names (if defined in _keyMap)
+     * - resolving value indexes to value strings (if defined in _valueMap)
+     *
+     * @param source - The source object to be decompressed.
+     * @returns void
+     */
+    export function decompressSourceData(source: SourceObjectType): void;
 }
 declare module "deferred" {
     /*!
@@ -412,7 +421,6 @@ declare module "wb_node" {
         _partload: boolean;
         match?: boolean;
         subMatchCount?: number;
-        subMatchBadge?: HTMLElement;
         /** @internal */
         titleWithHighlight?: string;
         _filterAutoExpanded?: boolean;
@@ -765,10 +773,6 @@ declare module "wb_node" {
         /** Change node's {@link key} and/or {@link refKey}.  */
         setKey(key: string | null, refKey: string | null): void;
         /**
-         * @deprecated since v0.3.6: use `update()` instead.
-         */
-        setModified(change?: ChangeType): void;
-        /**
          * Trigger a repaint, typically after a status or data change.
          *
          * `change` defaults to 'data', which handles modifcations of title, icon,
@@ -868,7 +872,7 @@ declare module "wb_options" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
+    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
     /**
      * Available options for [[Wunderbaum]].
      *
@@ -982,6 +986,20 @@ declare module "wb_options" {
          */
         autoCollapse?: boolean;
         /**
+         * If true, the tree will automatically adjust its height to fit the parent
+         * container. This is useful when the tree is embedded in a container with
+         * a fixed or calculated sized.
+         * If the parent container is unsized (e.g. grows with its content, `height: auto`),
+         * then we can define a `height: ...` or `max_height: ...` style on the parent.
+         * To avoid a recursive resize-loop, it may be helpful to set `overflow: hidden`
+         * on the parent container.
+         *
+         * Set this option to `false` will disable auto-resizing.
+         *
+         * @default: true
+         */
+        adjustHeight?: boolean;
+        /**
          * HTMLElement that receives the top nodes breadcrumb.
          * Default: undefined
          */
@@ -1034,9 +1052,14 @@ declare module "wb_options" {
          * Default: true
          */
         quicksearch?: boolean;
+        /**
+         * Scroll Node into view on Expand Click
+         * @default true
+         */
+        scrollIntoViewOnExpandClick?: boolean;
         dnd?: DndOptionsType;
-        edit?: any;
-        filter?: any;
+        edit?: EditOptionsType;
+        filter?: FilterOptionsType;
         grid?: any;
         /**
          *
@@ -1187,14 +1210,17 @@ declare module "types" {
     export type SourceListType = Array<WbNodeData>;
     export interface SourceObjectType {
         _format?: "nested" | "flat";
+        _version?: number;
         types?: NodeTypeDefinitionMap;
         columns?: ColumnDefinitionList;
         children: SourceListType;
         _keyMap?: {
             [key: string]: string;
         };
-        _typeList?: Array<string>;
         _positional?: Array<string>;
+        _valueMap?: {
+            [key: string]: Array<string>;
+        };
     }
     /** Possible initilization for tree nodes. */
     export type SourceType = string | SourceListType | SourceAjaxType | SourceObjectType;
@@ -1307,7 +1333,7 @@ declare module "types" {
         badge: string | number | HTMLSpanElement | null | false;
         /** Additional class name(s), separate with space. */
         badgeClass?: string;
-        /** Additional class name(s), separate with space. */
+        /** Tooltip for the badge. */
         badgeTooltip?: string;
     }
     export interface WbFocusEventType extends WbTreeEventType {
@@ -1537,6 +1563,8 @@ declare module "types" {
         loadLazy?: boolean;
         /** Ignore `minExpandLevel` option @default false */
         force?: boolean;
+        /** Keep active node visible @default true */
+        keepActiveNodeVisible?: boolean;
     }
     /** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
     export interface FilterNodesOptions {
@@ -1662,7 +1690,120 @@ declare module "types" {
          * until the start node is reached again @default false */
         wrap?: boolean;
     }
+    export type FilterOptionsType = {
+        /**
+         * Element or selector of an input control for filter query strings
+         * @default null
+         */
+        connectInput?: null | string | Element;
+        /**
+         * Re-apply last filter if lazy data is loaded
+         * @default true
+         */
+        autoApply?: boolean;
+        /**
+         * Expand all branches that contain matches while filtered
+         * @default false
+         */
+        autoExpand?: boolean;
+        /**
+         * Show a badge with number of matching child nodes near parent icons
+         * @default true
+         */
+        counter?: boolean;
+        /**
+         * Match single characters in order, e.g. 'fb' will match 'FooBar'
+         * @default false
+         */
+        fuzzy?: boolean;
+        /**
+         * Hide counter badge if parent is expanded
+         * @default true
+         */
+        hideExpandedCounter?: boolean;
+        /**
+         * Hide expanders if all child nodes are hidden by filter
+         * @default false;
+         */
+        hideExpanders?: boolean;
+        /**
+         * Highlight matches by wrapping inside <mark> tags
+         * @default true
+         */
+        highlight?: boolean;
+        /**
+         * Match end nodes only
+         * @default false
+         */
+        leavesOnly?: boolean;
+        /**
+         * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+         * @default 'dim'
+         */
+        mode?: "dim" | "hide";
+        /**
+         * Display a 'no data' status node if result is empty
+         * @default true
+         */
+        noData?: boolean;
+    };
+    export type EditOptionsType = {
+        /**
+         * @default 100
+         */
+        debounce?: number;
+        /**
+         * @default 1
+         */
+        minlength?: number;
+        /**
+         * @default null;
+         */
+        maxlength?: null | number;
+        /**
+         * ["clickActive", "F2", "macEnter"],
+         * @default []
+         */
+        trigger?: string[];
+        /**
+         * @default true
+         */
+        trim?: boolean;
+        /**
+         * @default true
+         */
+        select?: boolean;
+        /**
+         * Handle 'clickActive' only if last click is less than this old (0: always)
+         * @default 1000
+         */
+        slowClickDelay?: number;
+        /**
+         * Please enter a title",
+         * @default true
+         */
+        validity?: boolean;
+        /**
+         * `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+         */
+        beforeEdit?: null | ((e: WbNodeEventType) => boolean) | string;
+        /**
+         *
+         */
+        edit?: null | ((e: WbNodeEventType & {
+            inputElem: HTMLInputElement;
+        }) => void);
+        /**
+         *
+         */
+        apply?: null | ((e: WbNodeEventType & {
+            inputElem: HTMLInputElement;
+        }) => any) | Promise<any>;
+    };
+    export type GridOptionsType = object;
     export type InsertNodeType = "before" | "after" | "prependChild" | "appendChild";
+    export type DropEffectType = "none" | "copy" | "link" | "move";
+    export type DropEffectAllowedType = "none" | "copy" | "copyLink" | "copyMove" | "link" | "linkMove" | "move" | "all";
     export type DropRegionType = "over" | "before" | "after";
     export type DropRegionTypeSet = Set<DropRegionType>;
     export type DndOptionsType = {
@@ -1670,126 +1811,161 @@ declare module "types" {
          * Expand nodes after n milliseconds of hovering
          * @default 1500
          */
-        autoExpandMS: 1500;
+        autoExpandMS?: 1500;
         /**
          * true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
          * @default false
          */
-        multiSource: false;
+        multiSource?: false;
         /**
-         * Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+         * Restrict the possible cursor shapes and modifier operations
+         * (can also be set in the dragStart event)
          * @default "all"
          */
-        effectAllowed: "all";
+        effectAllowed?: DropEffectAllowedType;
         /**
-         * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (overide in dragDrag, dragOver).
+         * Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed.
+         * Overidable in the dragEnter or dragOver event.
          * @default "move"
          */
-        dropEffectDefault: string;
+        dropEffectDefault?: DropEffectType;
+        /**
+         * Use opinionated heuristics to determine the dropEffect ('copy', 'link', or 'move')
+         * based on `effectAllowed`, `dropEffectDefault`, and modifier keys.
+         * This is recalculated before each dragEnter and dragOver event and can be
+         * overridden there.
+         *
+         * @default true
+         */
+        guessDropEffect: boolean;
         /**
          * Prevent dropping nodes from different Wunderbaum trees
          * @default false
          */
-        preventForeignNodes: boolean;
+        preventForeignNodes?: boolean;
         /**
          * Prevent dropping items on unloaded lazy Wunderbaum tree nodes
          * @default true
          */
-        preventLazyParents: boolean;
+        preventLazyParents?: boolean;
         /**
          * Prevent dropping items other than Wunderbaum tree nodes
          * @default false
          */
-        preventNonNodes: boolean;
+        preventNonNodes?: boolean;
         /**
          * Prevent dropping nodes on own descendants
          * @default true
          */
-        preventRecursion: boolean;
+        preventRecursion?: boolean;
         /**
          * Prevent dropping nodes under same direct parent
          * @default false
          */
-        preventSameParent: false;
+        preventSameParent?: false;
         /**
          * Prevent dropping nodes 'before self', etc. (move only)
          * @default true
          */
-        preventVoidMoves: boolean;
+        preventVoidMoves?: boolean;
+        /**
+         * Serialize Node Data to datatransfer object
+         * @default true
+         */
+        serializeClipboardData?: boolean | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
         /**
          * Enable auto-scrolling while dragging
          * @default true
          */
-        scroll: boolean;
+        scroll?: boolean;
         /**
          * Active top/bottom margin in pixel
          * @default 20
          */
-        scrollSensitivity: 20;
+        scrollSensitivity?: 20;
         /**
          * Pixel per event
          * @default 5
          */
-        scrollSpeed: 5;
+        scrollSpeed?: 5;
         /**
          * Optional callback passed to `toDict` on dragStart @since 2.38
          * @default null
          */
-        sourceCopyHook: null;
+        sourceCopyHook?: null;
         /**
          * Callback(sourceNode, data), return true, to enable dnd drag
          * @default null
          */
-        dragStart?: WbNodeEventType;
+        dragStart?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+        }) => boolean);
         /**
          * Callback(sourceNode, data)
          * @default null
          */
-        dragDrag: null;
+        drag?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+        }) => void);
         /**
          * Callback(sourceNode, data)
          * @default null
          */
-        dragEnd: null;
+        dragEnd?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+        }) => void);
         /**
          * Callback(targetNode, data), return true, to enable dnd drop
          * @default null
          */
-        dragEnter: null;
+        dragEnter?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+        }) => DropRegionTypeSet | boolean);
         /**
          * Callback(targetNode, data)
          * @default null
          */
-        dragOver: null;
+        dragOver?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+        }) => void);
         /**
          * Callback(targetNode, data), return false to prevent autoExpand
          * @default null
          */
-        dragExpand: null;
+        dragExpand?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+        }) => boolean);
         /**
          * Callback(targetNode, data)
          * @default null
          */
-        dragDrop: null;
+        drop?: null | ((e: WbNodeEventType & {
+            event: DragEvent;
+            region: DropRegionType;
+            suggestedDropMode: InsertNodeType;
+            suggestedDropEffect: DropEffectType;
+            sourceNode: WunderbaumNode;
+            sourceNodeData: WbNodeData | null;
+        }) => void);
         /**
          * Callback(targetNode, data)
          * @default null
          */
-        dragLeave: null;
+        dragLeave?: null;
     };
 }
 declare module "wb_extension_base" {
     import { Wunderbaum } from "wunderbaum";
     export type ExtensionsDict = {
-        [key: string]: WunderbaumExtension;
+        [key: string]: WunderbaumExtension<any>;
     };
-    export abstract class WunderbaumExtension {
+    export abstract class WunderbaumExtension<TOptions> {
         enabled: boolean;
         readonly id: string;
         readonly tree: Wunderbaum;
         readonly treeOpts: any;
         readonly extensionOpts: any;
-        constructor(tree: Wunderbaum, id: string, defaults: any);
+        constructor(tree: Wunderbaum, id: string, defaults: TOptions);
         /** Called on tree (re)init after all extensions are added, but before loading.*/
         init(): void;
         getPluginOption(name: string, defaultValue?: any): any;
@@ -1934,10 +2110,10 @@ declare module "debounce" {
     export function throttle<F extends Procedure>(func: F, wait?: number, options?: ThrottleOptions): DebouncedFunction<F>;
 }
 declare module "wb_ext_filter" {
-    import { FilterNodesOptions, NodeFilterCallback } from "types";
+    import { FilterNodesOptions, FilterOptionsType, NodeFilterCallback } from "types";
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
-    export class FilterExtension extends WunderbaumExtension {
+    export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
         queryInput?: HTMLInputElement;
         lastFilterArgs: IArguments | null;
         constructor(tree: Wunderbaum);
@@ -1966,7 +2142,7 @@ declare module "wb_ext_filter" {
 declare module "wb_ext_keynav" {
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
-    export class KeynavExtension extends WunderbaumExtension {
+    export class KeynavExtension extends WunderbaumExtension<any> {
         constructor(tree: Wunderbaum);
         protected _getEmbeddedInputElem(elem: any): HTMLInputElement | null;
         protected _isCurInputFocused(): boolean;
@@ -1976,7 +2152,7 @@ declare module "wb_ext_keynav" {
 declare module "wb_ext_logger" {
     import { WunderbaumExtension } from "wb_extension_base";
     import { Wunderbaum } from "wunderbaum";
-    export class LoggerExtension extends WunderbaumExtension {
+    export class LoggerExtension extends WunderbaumExtension<any> {
         readonly prefix: string;
         protected ignoreEvents: Set<string>;
         constructor(tree: Wunderbaum);
@@ -1988,14 +2164,14 @@ declare module "wb_ext_dnd" {
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
     import { WunderbaumNode } from "wb_node";
-    import { DropRegionType, DropRegionTypeSet } from "types";
+    import { DndOptionsType, DropEffectType, DropRegionType, DropRegionTypeSet } from "types";
     import { DebouncedFunction } from "debounce";
-    export class DndExtension extends WunderbaumExtension {
+    export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         protected srcNode: WunderbaumNode | null;
         protected lastTargetNode: WunderbaumNode | null;
         protected lastEnterStamp: number;
         protected lastAllowedDropRegions: DropRegionTypeSet | null;
-        protected lastDropEffect: string | null;
+        protected lastDropEffect: DropEffectType | null;
         protected lastDropRegion: DropRegionType | false;
         protected currentScrollDir: number;
         protected applyScrollDirThrottled: DebouncedFunction<() => void>;
@@ -2005,13 +2181,29 @@ declare module "wb_ext_dnd" {
         protected _leaveNode(): void;
         /** */
         protected unifyDragover(res: any): DropRegionTypeSet | false;
-        /** */
+        /**
+         * Calculates the drop region based on the drag event and the allowed drop regions.
+         */
         protected _calcDropRegion(e: DragEvent, allowed: DropRegionTypeSet | null): DropRegionType | false;
-        protected applyScrollDir(): void;
-        protected autoScroll(viewportY: number): number;
+        /**
+         * Guess drop effect (copy/link/move) using opinionated conventions.
+         *
+         * Default: dnd.dropEffectDefault
+         */
+        protected _guessDropEffect(e: DragEvent): DropEffectType;
+        /** Don't allow void operation ('drop on self').*/
+        protected _isVoidDrop(targetNode: WunderbaumNode, srcNode: WunderbaumNode | null, dropRegion: DropRegionType | false): boolean;
+        protected _applyScrollDir(): void;
+        protected _autoScroll(viewportY: number): number;
         /** Return true if a drag operation currently in progress. */
         isDragging(): boolean;
+        /**
+         * Handle dragstart, drag and dragend events for the source node.
+         */
         protected onDragEvent(e: DragEvent): boolean;
+        /**
+         * Handle dragenter, dragover, dragleave, drop events.
+         */
         protected onDropEvent(e: DragEvent): boolean;
     }
 }
@@ -2084,7 +2276,8 @@ declare module "wb_ext_grid" {
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
     import { DragCallbackArgType, DragObserver } from "drag_observer";
-    export class GridExtension extends WunderbaumExtension {
+    import { GridOptionsType } from "types";
+    export class GridExtension extends WunderbaumExtension<GridOptionsType> {
         protected observer: DragObserver;
         constructor(tree: Wunderbaum);
         init(): void;
@@ -2100,8 +2293,8 @@ declare module "wb_ext_edit" {
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
     import { WunderbaumNode } from "wb_node";
-    import { InsertNodeType, WbNodeData } from "types";
-    export class EditExtension extends WunderbaumExtension {
+    import { EditOptionsType, InsertNodeType, WbNodeData } from "types";
+    export class EditExtension extends WunderbaumExtension<EditOptionsType> {
         protected debouncedOnChange: (e: Event) => void;
         protected curEditNode: WunderbaumNode | null;
         protected relatedNode: WunderbaumNode | null;
@@ -2172,7 +2365,7 @@ declare module "wunderbaum" {
             [key: string]: any;
         };
         protected readonly _updateViewportThrottled: (...args: any) => void;
-        protected extensionList: WunderbaumExtension[];
+        protected extensionList: WunderbaumExtension<any>[];
         protected extensions: ExtensionsDict;
         /** Merged options from constructor args and tree- and extension defaults. */
         options: WunderbaumOptions;
@@ -2251,7 +2444,7 @@ declare module "wunderbaum" {
          */
         [Symbol.iterator](): IterableIterator<WunderbaumNode>;
         /** @internal */
-        protected _registerExtension(extension: WunderbaumExtension): void;
+        protected _registerExtension(extension: WunderbaumExtension<any>): void;
         /** Called on tree (re)init after markup is created, before loading. */
         protected _initExtensions(): void;
         /** Add node to tree's bookkeeping data structures. */
@@ -2259,7 +2452,7 @@ declare module "wunderbaum" {
         /** Remove node from tree's bookkeeping data structures. */
         _unregisterNode(node: WunderbaumNode): void;
         /** Call all hook methods of all registered extensions.*/
-        protected _callHook(hook: keyof WunderbaumExtension, data?: any): any;
+        protected _callHook(hook: keyof WunderbaumExtension<any>, data?: any): any;
         /**
          * Call tree method or extension method if defined.
          *
@@ -2498,10 +2691,6 @@ declare module "wunderbaum" {
         /** Set or remove keybaord focus to the tree container. */
         setFocus(flag?: boolean): void;
         /**
-         * @deprecated since v0.3.6: use `update()` instead.
-         */
-        setModified(change: ChangeType, ...args: any[]): void;
-        /**
          * Schedule an update request to reflect a tree change.
          * The render operation is async and debounced unless the `immediate` option
          * is set.
@@ -2521,9 +2710,9 @@ declare module "wunderbaum" {
         isEnabled(): boolean;
         /** Return true if tree has more than one column, i.e. has additional data columns. */
         isGrid(): boolean;
-        /** Return true if cell-navigation mode is acive. */
+        /** Return true if cell-navigation mode is active. */
         isCellNav(): boolean;
-        /** Return true if row-navigation mode is acive. */
+        /** Return true if row-navigation mode is active. */
         isRowNav(): boolean;
         /** Set the tree's navigation mode. */
         setCellNav(flag?: boolean): void;

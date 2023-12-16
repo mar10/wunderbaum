@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.getElementById("demo-info").innerHTML = `
  A treegrid with about 100,000 nodes.
  Navigation mode: 'row'.
@@ -19,15 +23,15 @@ new mar10.Wunderbaum({
   navigationModeOption: "row",
   source:
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-    // "../../test/generator/fixture_store_104k_3_7_flat_comp.json",
-  // source: "../assets/ajax_100k_3_1_6.json",  
+  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+  // "../../test/generator/fixture_store_104k_3_7_flat_comp.json",
+  // source: "../assets/ajax_100k_3_1_6.json",
   types: {
-    "folder": { "colspan": true, checkbox:false },
-    "book": { "icon": "bi bi-book" },
-    "computer": { "icon": "bi bi-laptop" },
-    "music": { "icon": "bi bi-disc" },
-    "phone": { "icon": "bi bi-phone" }
+    folder: { colspan: true, checkbox: false },
+    book: { icon: "bi bi-book" },
+    computer: { icon: "bi bi-laptop" },
+    music: { icon: "bi bi-disc" },
+    phone: { icon: "bi bi-phone" },
   },
   columns: [
     { id: "*", title: "Product", width: "250px" },
@@ -60,7 +64,7 @@ new mar10.Wunderbaum({
     },
     drop: (e) => {
       console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode)
+      e.sourceNode.moveTo(e.node, e.suggestedDropMode);
     },
   },
   edit: {
@@ -132,7 +136,7 @@ new mar10.Wunderbaum({
         case "price":
           col.elem.textContent = "$ " + node.data.price.toFixed(2);
           break;
-        case "year": // date stamp  
+        case "year": // date stamp
           col.elem.textContent = new Date(node.data.year).getFullYear();
           break;
         case "qty": // thousands separator

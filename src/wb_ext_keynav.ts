@@ -12,7 +12,7 @@ import { WunderbaumExtension } from "./wb_extension_base";
 
 const QUICKSEARCH_DELAY = 500;
 
-export class KeynavExtension extends WunderbaumExtension {
+export class KeynavExtension extends WunderbaumExtension<any> {
   constructor(tree: Wunderbaum) {
     super(tree, "keynav", {});
   }
@@ -41,13 +41,13 @@ export class KeynavExtension extends WunderbaumExtension {
   }
 
   onKeyEvent(data: any): boolean | undefined {
-    const event = data.event,
-      tree = this.tree,
-      opts = data.options,
-      activate = !event.ctrlKey || opts.autoActivate,
-      curInput = this._getEmbeddedInputElem(event.target),
-      inputHasFocus = curInput && this._isCurInputFocused(),
-      navModeOption = opts.navigationModeOption as NavModeEnum;
+    const event = data.event;
+    const tree = this.tree;
+    const opts = data.options;
+    const activate = !event.ctrlKey || opts.autoActivate;
+    const curInput = this._getEmbeddedInputElem(event.target);
+    const inputHasFocus = curInput && this._isCurInputFocused();
+    const navModeOption = opts.navigationModeOption as NavModeEnum;
     // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
 
     let focusNode,
@@ -125,7 +125,7 @@ export class KeynavExtension extends WunderbaumExtension {
         }
         tree.lastQuicksearchTime = stamp;
         tree.lastQuicksearchTerm += eventName;
-        let matchNode = tree.findNextNode(
+        const matchNode = tree.findNextNode(
           tree.lastQuicksearchTerm,
           tree.getActiveNode()
         );

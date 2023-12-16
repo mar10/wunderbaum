@@ -1,15 +1,10 @@
-# Overview
+# Concepts
 
-!> Wunderbaum has still beta status:<br>
-API, Markup, Stylesheet, etc. are subject to change.<br>
-**Do not use it in production!**
-
-?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
-Read [migrate](/tutorial/migrate.md) for details and migration hints.
+This document describes some general concepts of Wunderbaum.
 
 ## Design Goals
 
-- Create a **treegrid** control with emphasis on "tree".<br>
+- Implement a **treegrid** control with emphasis on "tree".<br>
   Depending on the number of columns and nesting depth, Wunderbaum can also be
   used as a **plain tree**, **plain grid**, or a **simple list** control.
 - **Performant** and efficient handling of **big data structures**.
@@ -26,7 +21,7 @@ Read [migrate](/tutorial/migrate.md) for details and migration hints.
 - Fully [controllable using the keyboard](/tutorial/tutorial_keyboard.md).
 - Framework agnostic.
 - Good documentation.
-- Decent test coverage.
+<!-- - Decent test coverage. -->
 - Written in TypeScript, transpiled to JavaScript ES6 with type hints (.esm & .umd).
 
 ## Main Concepts
@@ -73,13 +68,13 @@ or `node.findAll()` may not work as expected.
 
 Some API functions are potentially **asynchronous**. For example `node.setExpanded()`
 on a lazy node may have to issue an Ajax request, wait for its response and then
-scrolls and render new nodes.
+scroll and render new nodes.
 These functions generally return a
 [`Promise`](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise),
 so handling deferred responses is easy:
 
 ```js
-node.setExpanded().done(() => {
+node.setExpanded().then(() => {
   alert("expand has finished");
 });
 ```

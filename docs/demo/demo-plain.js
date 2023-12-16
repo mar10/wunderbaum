@@ -3,6 +3,9 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
 
 document.getElementById("demo-info").innerHTML = `
 A simple tree with filter, rename, drag'n'drop, lazy-loading. Auto-focus on init.<br>
@@ -36,8 +39,11 @@ new mar10.Wunderbaum({
       return ["before", "after"];
     },
     drop: (e) => {
-      console.log("Drop " + e.sourceNode + " => " + e.region + " " + e.node, e);
-      e.sourceNode.moveTo(e.node, e.defaultDropMode);
+      console.log(
+        `Drop ${e.sourceNode} => ${e.suggestedDropEffect} ${e.suggestedDropMode} ${e.node}`,
+        e
+      );
+      e.sourceNode.moveTo(e.node, e.suggestedDropMode);
     },
   },
   edit: {
@@ -76,6 +82,16 @@ new mar10.Wunderbaum({
   filter: {
     connectInput: "input#filterQuery",
     mode: "hide",
+  },
+  iconBadge: (e) => {
+    const node = e.node;
+    if (node.children?.length > 0 && !node.expanded && node.subMatchCount > 0) {
+      return {
+        badge: node.subMatchCount,
+        badgeTooltip: `${node.subMatchCount} matches`,
+        badgeClass: "match-count",
+      };
+    }
   },
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:

@@ -6,8 +6,9 @@
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { DragCallbackArgType, DragObserver } from "./drag_observer";
+import { GridOptionsType } from "./types";
 
-export class GridExtension extends WunderbaumExtension {
+export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   protected observer: DragObserver;
 
   constructor(tree: Wunderbaum) {

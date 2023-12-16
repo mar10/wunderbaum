@@ -17,11 +17,11 @@ import {
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { InsertNodeType, WbNodeData } from "./types";
+import { EditOptionsType, InsertNodeType, WbNodeData } from "./types";
 
 // const START_MARKER = "\uFFF7";
 
-export class EditExtension extends WunderbaumExtension {
+export class EditExtension extends WunderbaumExtension<EditOptionsType> {
   protected debouncedOnChange: (e: Event) => void;
   protected curEditNode: WunderbaumNode | null = null;
   protected relatedNode: WunderbaumNode | null = null;
@@ -117,9 +117,12 @@ export class EditExtension extends WunderbaumExtension {
       this.tree.element,
       "change", //"change input",
       ".contenteditable,input,textarea,select",
-      (e) => {
-        this.debouncedOnChange(e);
-      }
+      // #61: we must not debounce the `change`, event.target may be reset to null
+      // when the debounced handler is called.
+      // (e) => {
+      //   this.debouncedOnChange(e);
+      // }
+      (e) => this._onChange(e)
     );
   }
 
@@ -325,7 +328,7 @@ export class EditExtension extends WunderbaumExtension {
     } else if (typeof init === "string") {
       init = { title: init };
     } else {
-      assert(isPlainObject(init));
+      assert(isPlainObject(init), `Expected a plain object: ${init}`);
     }
     // Make sure node is expanded (and loaded) in 'child' mode
     if (

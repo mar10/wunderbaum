@@ -13,6 +13,7 @@ import {
 } from "./util";
 import {
   FilterNodesOptions,
+  FilterOptionsType,
   NodeFilterCallback,
   NodeStatusType,
 } from "./types";
@@ -26,7 +27,7 @@ const END_MARKER = "\uFFF8";
 const RE_START_MARKER = new RegExp(escapeRegex(START_MARKER), "g");
 const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
 
-export class FilterExtension extends WunderbaumExtension {
+export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   public queryInput?: HTMLInputElement;
   public lastFilterArgs: IArguments | null = null;
 
@@ -90,15 +91,15 @@ export class FilterExtension extends WunderbaumExtension {
   ) {
     let match,
       temp,
-      start = Date.now(),
-      count = 0,
-      tree = this.tree,
-      treeOpts = tree.options,
-      // escapeTitles = treeOpts.escapeTitles,
-      prevAutoCollapse = treeOpts.autoCollapse,
-      opts = extend({}, treeOpts.filter, _opts),
-      hideMode = opts.mode === "hide",
-      leavesOnly = !!opts.leavesOnly && !branchMode;
+      count = 0;
+    const start = Date.now();
+    const tree = this.tree;
+    const treeOpts = tree.options;
+    // escapeTitles = treeOpts.escapeTitles,
+    const prevAutoCollapse = treeOpts.autoCollapse;
+    const opts = extend({}, treeOpts.filter, _opts);
+    const hideMode = opts.mode === "hide";
+    const leavesOnly = !!opts.leavesOnly && !branchMode;
 
     // Default to 'match title substring (case insensitive)'
     if (typeof filter === "string") {
@@ -127,16 +128,16 @@ export class FilterExtension extends WunderbaumExtension {
       } else {
         match = escapeRegex(filter); // make sure a '.' is treated literally
       }
-      let re = new RegExp(match, "i");
-      let reHighlight = new RegExp(escapeRegex(filter), "gi");
+      const re = new RegExp(match, "i");
+      const reHighlight = new RegExp(escapeRegex(filter), "gi");
       filter = (node: WunderbaumNode) => {
         if (!node.title) {
           return false;
         }
         // let text = escapeTitles ? node.title : extractHtmlText(node.title);
-        let text = node.title;
+        const text = node.title;
         // `.match` instead of `.test` to get the capture groups
-        let res = text.match(re);
+        const res = text.match(re);
 
         if (res && opts.highlight) {
           // if (escapeTitles) {
@@ -170,6 +171,7 @@ export class FilterExtension extends WunderbaumExtension {
     }
 
     tree.filterMode = opts.mode;
+    // eslint-disable-next-line prefer-rest-params, prefer-spread
     this.lastFilterArgs = arguments;
 
     tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
@@ -225,7 +227,6 @@ export class FilterExtension extends WunderbaumExtension {
             p.setExpanded(true, {
               noAnimation: true,
               noEvents: true,
-              scrollIntoView: false,
             });
             p._filterAutoExpanded = true;
           }
@@ -268,12 +269,13 @@ export class FilterExtension extends WunderbaumExtension {
    * [ext-filter] Re-apply current filter.
    */
   updateFilter() {
-    let tree = this.tree;
+    const tree = this.tree;
     if (
       tree.filterMode &&
       this.lastFilterArgs &&
-      tree.options.filter.autoApply
+      tree.options.filter?.autoApply
     ) {
+      // eslint-disable-next-line prefer-spread
       this._applyFilterNoUpdate.apply(this, <any>this.lastFilterArgs);
     } else {
       tree.logWarn("updateFilter(): no filter active.");
@@ -284,7 +286,7 @@ export class FilterExtension extends WunderbaumExtension {
    * [ext-filter] Reset the filter.
    */
   clearFilter() {
-    let tree = this.tree;
+    const tree = this.tree;
     // statusNode = tree.root.findDirectChild(KEY_NODATA),
     // escapeTitles = tree.options.escapeTitles;
     tree.enableUpdate(false);
@@ -305,15 +307,14 @@ export class FilterExtension extends WunderbaumExtension {
       delete node.match;
       delete node.subMatchCount;
       delete node.titleWithHighlight;
-      if (node.subMatchBadge) {
-        node.subMatchBadge.remove();
-        delete node.subMatchBadge;
-      }
+      // if (node.subMatchBadge) {
+      //   node.subMatchBadge.remove();
+      //   delete node.subMatchBadge;
+      // }
       if (node._filterAutoExpanded && node.expanded) {
         node.setExpanded(false, {
           noAnimation: true,
           noEvents: true,
-          scrollIntoView: false,
         });
       }
       delete node._filterAutoExpanded;
@@ -342,14 +343,14 @@ function _markFuzzyMatchedChars(
   matches: RegExpMatchArray,
   escapeTitles = true
 ) {
-  let matchingIndices = [];
+  const matchingIndices = [];
   // get the indices of matched characters (Iterate through `RegExpMatchArray`)
   for (
     let _matchingArrIdx = 1;
     _matchingArrIdx < matches.length;
     _matchingArrIdx++
   ) {
-    let _mIdx: number =
+    const _mIdx: number =
       // get matching char index by cumulatively adding
       // the matched group length
       matches[_matchingArrIdx].length +
@@ -358,7 +359,7 @@ function _markFuzzyMatchedChars(
     matchingIndices.push(_mIdx);
   }
   // Map each `text` char to its position and store in `textPoses`.
-  let textPoses = text.split("");
+  const textPoses = text.split("");
   if (escapeTitles) {
     // If escaping the title, then wrap the matching char within exotic chars
     matchingIndices.forEach(function (v) {

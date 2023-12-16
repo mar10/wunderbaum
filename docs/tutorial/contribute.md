@@ -62,6 +62,7 @@ build, or compile a version using these commands:
 
 ```bash
 $ yarn format
+$ yarn docsify
 $ yarn docs
 $ yarn test
 $ yarn build

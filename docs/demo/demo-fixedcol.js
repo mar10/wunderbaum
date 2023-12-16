@@ -3,6 +3,10 @@
  *
  * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
  */
+/* global mar10 */
+/* eslint-env browser */
+/* eslint-disable no-console */
+
 document.getElementById("demo-info").innerHTML = `
  A treegrid with a fixed left column: Try horizontal scrolling...
  Navigation mode: 'cell'.
@@ -14,7 +18,8 @@ new mar10.Wunderbaum({
   // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // source: "../assets/ajax_1k_3_54.json",
   // Columns- and types-definition are part of the Ajax response:
-  source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
+  source:
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
   debugLevel: 5,
   // header: false,
   connectTopBreadcrumb: document.getElementById("parentPath"),
@@ -93,16 +98,18 @@ new mar10.Wunderbaum({
       switch (col.id) {
         case "date":
           if (val) {
-            const dt = new Date(val)
+            const dt = new Date(val);
             col.elem.textContent = dt.toISOString().slice(0, 10);
           } else {
             col.elem.textContent = "n.a.";
           }
-          break
+          break;
         case "mood":
-          const map = { "h": "Happy", "s": "Sad" }
-          col.elem.textContent = map[val] || "";
-          break
+          {
+            const map = { h: "Happy", s: "Sad" };
+            col.elem.textContent = map[val] || "";
+          }
+          break;
         case "price":
           col.elem.textContent = "$ " + val.toFixed(2);
           break;

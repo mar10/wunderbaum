@@ -1,92 +1,5 @@
 # Loading and Initialization
 
-## General Setup
-
-A Wunderbaum control is added to a web page by defining a `<div>` tag and
-then create a new `Wunderbaum` class instance, passing the tag and configuration
-options.
-
-For example
-
-```html {16-19}
-<!DOCTYPE html>
-<html>
-  <head>
-    <link rel="stylesheet" media="screen" href="../wunderbaum.css" />
-    <link
-      rel="stylesheet"
-      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
-    />
-
-    <script defer src="../wunderbaum.umd.js"></script>
-    <script defer src="main.js"></script>
-  </head>
-
-  <body>
-    ...
-    <div
-      id="demo-tree"
-      class="wb-skeleton wb-initializing wb-fade-expander"
-    ></div>
-    ...
-  </body>
-</html>
-```
-
-Once the page is loaded, initialize the tree control:
-
-```js
-document.addEventListener("DOMContentLoaded", (event) => {
-  const tree = new mar10.Wunderbaum({
-    element: document.getElementById("demo-tree"),
-    source: "get/root/nodes",
-    init: (e) => {
-      e.tree.setFocus();
-    },
-  });
-});
-```
-
-### Custom Icon Fonts
-
-This example uses [Font Awesome Icons](https://fontawesome.com/icons) instead of the
-[Bootstrap Icons](https://icons.getbootstrap.com/) icon font above:
-
-```html
-<html>
-  <head>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
-    />
-    ...
-  </head>
-</html>
-```
-
-```js
-const tree = new mar10.Wunderbaum({
-  element: document.getElementById("demo-tree"),
-  source: "get/root/nodes",
-  iconMap: "fontawesome6",
-  ...
-});
-```
-
-`iconMap` can also be a map of icon names, e.g.
-
-```js
-const tree = new mar10.Wunderbaum({
-  ...
-  iconMap: {
-    folder: "bi bi-folder",
-    file: "bi bi-file-earmark",
-    ...
-  },
-  ...
-});
-```
-
 ## Passing Options
 
 There are many more options and callbacks available. Here are some of the
@@ -95,11 +8,11 @@ frequently used ones:
 ```js
 document.addEventListener("DOMContentLoaded", (event) => {
   const tree = new mar10.Wunderbaum({
-    id: "demo",
     element: document.getElementById("demo-tree"),
-    source: "get/root/nodes",
+    id: "demo",
     types: {},
     columns: [{ id: "*", title: "Product", width: "250px" }],
+    source: "get/root/nodes",
     // Event handlers:
     init: (e) => {
       e.tree.setFocus();
@@ -109,6 +22,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     lazyLoad: function (e) {
       return { url: 'get/child/nodes', params: { parentKey: e.node.key } };
     },
+    activate: function (e) {},
     render: function (e) {},
     ...
   });
@@ -133,7 +47,7 @@ Common options include:
 </dd>
 <dt>types</dt>
 <dd>
-    Define shared attributes for multiple nodes of the same type.
+    Define shared attributes for multiple nodes of the same `node.type`.
     This allows for more compact data models.
     Type definitions can be passed as tree option, or be part of a
     `source` response.
@@ -147,6 +61,9 @@ Common options include:
     `source` response.
 </dd>
 </dl>
+
+?> See [WunderbaumOptions](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html)
+for a complete list of options.
 
 ### Dynamic Options
 
@@ -166,12 +83,12 @@ const tree = new mar10.Wunderbaum({
 This global setting may be overridden per node by the concrete source data,
 if a property of the same name is present:
 
-```json
+```js
 [
-  { "title": "Node 1" },
-  { "title": "Node 2", "checkbox": false },
-  { "title": "Node 3", "checkbox": "radio" }
-]
+  { title: "Node 1" },
+  { title: "Node 2", checkbox: false },
+  { title: "Node 3", checkbox: "radio" },
+];
 ```
 
 If the global setting is a callback, it will be called for every node, thus
@@ -202,13 +119,13 @@ Currently the following options are evaluated as dynamic options:
 
 See method `node.getOption()` for details.
 
-### Event Handlers
+## Event Handlers
 
 Event handlers can be used to control tree behavior and react on status changes.
 Common event handlers include: `init(e)`, `lazyLoad(e)`, `receive(e)`, `render(e)`,
 and more.
 
-?> Event Handlers are describe in detail in the "Events" chapter.
+?> Event Handlers are described in detail in the [Events chapter](/tutorial/tutorial_events.md).
 
 ## Source Format and API
 
@@ -260,32 +177,32 @@ Note that
 All node are transferred as a list of top-level nodes, with optional nested
 lists of child nodes.
 
-```json
+```js
 [
   {
-    "title": "Books",
-    "expanded": true,
-    "children": [
+    title: "Books",
+    expanded: true,
+    children: [
       {
-        "title": "Art of War",
-        "author": "Sun Tzu"
+        title: "Art of War",
+        author: "Sun Tzu",
       },
       {
-        "title": "The Hobbit",
-        "author": "J.R.R. Tolkien"
-      }
-    ]
+        title: "The Hobbit",
+        author: "J.R.R. Tolkien",
+      },
+    ],
   },
   {
-    "title": "Music",
-    "children": [
+    title: "Music",
+    children: [
       {
-        "title": "Nevermind",
-        "author": "Nirvana"
-      }
-    ]
-  }
-]
+        title: "Nevermind",
+        author: "Nirvana",
+      },
+    ],
+  },
+];
 ```
 
 ### Object Format
@@ -293,7 +210,7 @@ lists of child nodes.
 This is the most commonly used format. Here we pass an object that contains
 one `children` element, but also additional information.
 
-```json
+```js
 {
   "types": {...},
   "columns": [...],
@@ -320,7 +237,7 @@ A tree often contains multiple nodes that share attributes.
 We can extract type information to a separate block, in order to make the
 data model more concise:
 
-```json
+```js
 {
   "types": {
     "folder": { "icon": "bi bi-folder", "classes": "bold-style" },
@@ -356,7 +273,7 @@ data model more concise:
 }
 ```
 
-?> Type definitions can also be passed to the tree constructor directly:
+Type definitions can also be passed directly to the tree constructor:
 
 ```js
 const tree = new mar10.Wunderbaum({
@@ -373,12 +290,15 @@ const tree = new mar10.Wunderbaum({
 
 ### Compact Formats
 
-Load time of data is an important aspect of the user experience. We can
-reduce the size of the JSON data by eliminating redundancy.
+Load time of data is an important aspect of the user experience. <br>
+We can reduce the size of the JSON data by eliminating redundancy:
 
-This example can be optimized:
+- Remove whitespace from the JSON (the listings in this chapter are formatted
+  for readability).
+- Don't pass default values, e.g. `expanded: false` is not required.
+- Use `node.type` declarations, to extract shared properties (see above).
 
-```json
+```js
 {
   "_format": "nested",
   "types": {"person": {...}, ...},
@@ -391,29 +311,31 @@ This example can be optimized:
 }
 ```
 
-- Remove whitespace from the JSON.
-- Don't pass default values, e.g. `expanded: false` is not required.
-- Pass `1` instead of `true` and `0` instead of `false` (or don't pass it at all if it is the default).
-- Use `node.type` declarations, to extract shared properties (see above).
-- Use `_keyMap` and shorten the key names, e.g. send `{"t": "foo"}` instead of `{"title": "foo"}`
-  (see below).
-- Use a `_typeList` and pass numeric indexes into this list instead of sending type
-  name strings.
-- Use the _flat_ format described below, which is a even few percent smaller.
+The example above can still be optimized:
 
-```json
+- Pass `1` instead of `true` and `0` instead of `false`
+  (or don't pass it at all if it is the default).
+- Use `_keyMap` and shorten the key names, e.g. send `{"t": "foo"}` instead of
+  `{"title": "foo"}` (see below).
+- Use a `_valueMap` to define a global list of potential string values for a distinct property type. Nodes can then pass a numeric index instead of the string, which will save space.
+
+!> The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
+
+```js
 {
   "_format": "nested",  // Optional
   "types": {"person": {...}, ...},
   "columns": [...],
   // Map from short key to final key (if a key is not found here it will
   // be used literally):
-  "_keyMap": {"t": "title", "k": "key", "y": "type", "c": "children", "e": "expanded"},
-  // Optional: if type is numeric, use it as index into this list, otherwise
-  // use the string literally:
-  "_typeList": ["folder", "person"],
+  "_keyMap": {"title": "t", "key": "k", "type": "y", "children": "c", "expanded": "e"},
+  // Optional: if a 'type' entry has a numeric value, use it as index into this
+  // list (string values are still used literally):
+  "_valueMap": {
+    "type": ["folder", "person"]
+  },
   "children": [
-    {"t": "Node 1", "k": "id123", "y": 0, "e": true, "c": [
+    {"t": "Node 1", "k": "id123", "y": 0, "e": 1, "c": [
       {"t": "Node 1.1", "k": "id234", "y": 1},
       {"t": "Node 1.2", "k": "id345", "y": 1, "age": 32}
     ]}
@@ -423,23 +345,40 @@ This example can be optimized:
 
 ### Flat, Parent-Referencing List
 
-Here all nodes are passed as a flat list, without nesting.
-Chid nodes reference the parent by
-NOTE: This also works when `node.key`'s are not provided.
+The flat format is even a few percent smaller than the nested format.
+It may also be more apropropriate for sending patches for existing trees, since
+parent keys can be passed.
 
-```json
+Here all nodes are passed as a flat list, without nesting. <br>
+A node entry has the following structure:
+
+`[PARENT_ID, [POSITIONAL_ARGS]]`<br>
+or <br>
+`[PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]`
+
+`PARENT_ID` is either a string that references an existing `node.key`
+or the numeric the index of a node that appeared before in the list.
+
+`POSITIONAL_ARGS` define property values in the order defined by `_positional`.
+
+`KEY_VALUE_ARGS` define other properties as key/value pairs (optional).
+
+```js
 {
   "_format": "flat",
-  "types": {...},       // Optional, but likely if `_typeList` is used
+  "types": {...},       // Optional, but likely if `_valueMap` is used
   "columns": [...],     // Optional
   // Map from short key to final key (if a key is not found here it will
   // be used literally):
-  "_keyMap": {"e": "expanded"},
+  "_keyMap": {"expanded": "e"},
   // Values for these keys are appended as list items.
   // Other items - if any - are collected into one dict that is also appended:
   "_positional": ["title", "key", "type"],
-  // Optional: if type is numeric, use it as index into this list:
-  "_typeList": ["folder", "person"],
+  // Optional: if a 'type' entry has a numeric value, use it as index into this
+  // list (string values are still used literally):
+  "_valueMap": {
+    "type": ["folder", "person"]
+  },
   // List index is 0-based, parent index null means 'top-node'.
   // If parent index is a string, parent is searched by `node.key` (slower)
   "children": [
@@ -452,7 +391,8 @@ NOTE: This also works when `node.key`'s are not provided.
 
 ### Handling External Data Formats
 
-See also [Example with source](http://127.0.0.1:8080/docs/demo/#demo-custom).
+?> See also [Example with source](https://mar10.github.io/wunderbaum/demo/#demo-custom)
+that queries the [Fake Store API](https://fakestoreapi.com).
 
 ```js
 const tree = new Wunderbaum({
@@ -468,45 +408,6 @@ const tree = new Wunderbaum({
         refKey: elem.id,
       }
     });
-  },
-});
-```
-
-### Column Definitions
-
-Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
-
-?> See `Grid` for details.
-
-```js
-const tree = new Wunderbaum({
-  ...
-  types: {},
-  columns: [
-    { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: "200px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
-    {
-      id: "price",
-      title: "Price ($)",
-      width: "80px",
-      classes: "wb-helper-end",
-    },
-    { id: "details", title: "Details", width: "*" },
-  ],
-  ...
-  // --- Events ---
-  /**
-   * Called when a node is rendered.
-   *
-   * We can do many things here, but related to editing, a typical aspect is
-   * rendering `<input>` elements in column cells.
-   */
-  render: function (e) {
-    const node = e.node;
-    const util = e.util;
-    // console.log(e.type, e.isNew, e);
   },
 });
 ```

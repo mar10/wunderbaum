@@ -7,6 +7,30 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.7.0: #68 Always reset 'loading' status.
+- v0.7.0: #69 prevent iOS browser from opening links on drop.
+- v0.7.0: BREAKING CHANGE:
+  Changed syntax format for compressed formats:
+
+  - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`.
+  - `_typeList: [...]` -> `_valueMap: {"type": [...]}`.
+    This allows to compress values of other properties than `type`.
+
+- v0.6.0: #61 Avoid race conditions in debounced 'change' event handler.
+- v0.6.0: #63 Don't overwrite dataTransfer 'text/plain' on drag'n'drop.
+- v0.6.0: #64 Accept Promise in `tree.load()`.
+
+- v0.5.5: Rename `defaultDropMode` -> `suggestedDropMode`; add `suggestedDropEffect`
+- v0.5.5: Work on drag'n'drop (dropEffects, cross-window, ...)
+
+- v0.5.4: Use eslint
+- v0.5.4: Removed deprecated `setModified()`
+
+- v0.5.2: Improved typing and drag'n'drop behavior (@jogibear9988)
+- v0.5.2: Add `tree.options.adjustHeight` (default: `true`)
+- v0.5.2: Add `tree.options.scrollIntoViewOnExpandClick` (default: `true`)
+- v0.5.2: Add `tree.options.dnd.serializeClipboardData` (default: `true`)
+
 - v0.5.1: Add EXPERIMENTAL support for `tree.iconBadge` (allows to implement counter badges, ...)
 
 - v0.5.0: Add support for Font Awesome icons (`options.iconMap: "fontawesome6"`)

@@ -11,6 +11,8 @@ import {
   DynamicBoolOrStringOption,
   DynamicCheckboxOption,
   DynamicIconOption,
+  EditOptionsType,
+  FilterOptionsType,
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
@@ -146,6 +148,20 @@ export interface WunderbaumOptions {
    */
   autoCollapse?: boolean;
   /**
+   * If true, the tree will automatically adjust its height to fit the parent
+   * container. This is useful when the tree is embedded in a container with
+   * a fixed or calculated sized.
+   * If the parent container is unsized (e.g. grows with its content, `height: auto`),
+   * then we can define a `height: ...` or `max_height: ...` style on the parent.
+   * To avoid a recursive resize-loop, it may be helpful to set `overflow: hidden`
+   * on the parent container.
+   *
+   * Set this option to `false` will disable auto-resizing.
+   *
+   * @default: true
+   */
+  adjustHeight?: boolean;
+  /**
    * HTMLElement that receives the top nodes breadcrumb.
    * Default: undefined
    */
@@ -207,10 +223,16 @@ export interface WunderbaumOptions {
    */
   quicksearch?: boolean;
 
+  /**
+   * Scroll Node into view on Expand Click
+   * @default true
+   */
+  scrollIntoViewOnExpandClick?: boolean;
+
   // --- Extensions ------------------------------------------------------------
   dnd?: DndOptionsType; // = {};
-  edit?: any; // = {};
-  filter?: any; // = {};
+  edit?: EditOptionsType; // = {};
+  filter?: FilterOptionsType; // = {};
   grid?: any; // = {};
 
   // --- Events ----------------------------------------------------------------
