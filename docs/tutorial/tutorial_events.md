@@ -30,8 +30,8 @@ that is used by the tree to control the default behavior. For example, the
 `beforeActivate` event handler can return `false` to prevent activation of a node.
 
 Some events are sent by the tree, others by a distinct node.
-A <code>node event</code> always passes a reference to the node object.
-A <code>tree event</code> does not always pass a node reference.
+A <i>node event</i> always passes a reference to the node object.
+A <i>tree event</i> does not always pass a node reference.
 
 The event handler functions are called with a single argument, of type
 [WbTreeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbTreeEventType.html).
@@ -51,6 +51,7 @@ e = {
 }
 ```
 
+<br>
 ?> See also the overview of available functions of the
 [utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).
 
@@ -63,116 +64,171 @@ Common event handlers include:
 
 <dl>
 
-<dt>activate(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was activated. 
+<dt>
+  <code>activate(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbActivateEventType.html">WbActivateEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` was activated.
 </dd>
 
-<dt>beforeActivate(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>beforeActivate(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbActivateEventType.html">WbActivateEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Return `false` to prevent activation of `e.node`.
 </dd>
 
-<dt>beforeSelect(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>beforeSelect(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbSelectEventType.html">WbSelectEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Return `false` to prevent (de)selection.
 </dd>
 
-<dt>click(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>change(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbChangeEventType.html">WbChangeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   `e.node` was clicked. <br>
   Return `false` to prevent default behavior, e.g. expand/collapse, 
   (de)selection, or activation.
 </dd>
 
-<dt>dblclick(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>click(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbClickEventType.html">WbClickEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` was clicked. <br>
+  Return `false` to prevent default behavior, e.g. expand/collapse, 
+  (de)selection, or activation.
+</dd>
+
+<dt>
+  <code>dblclick(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbClickEventType.html">WbClickEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   `e.node` was clicked. <br>
   Return `false` to prevent default behavior, e.g. expand/collapse.
 </dd>
 
-<dt>deactivate(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>deactivate(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbDeactivateEventType.html">WbDeactivateEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   `e.node` was deactivated.
 </dd>
 
-<dt>error(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>discard(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbNodeEventType.html">WbNodeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` was discarded from the viewport and its HTML markup removed.
+</dd>
+
+<dt>
+  <code>edit.apply(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbEditApplyEventType.html">WbEditApplyEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` title was changed.
+</dd>
+
+<dt>
+  <code>error(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbErrorEventType.html">WbErrorEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   An error occurred, e.g. during initialization or lazy loading.
 </dd>
 
-<dt>focus(e) <small>- <code>tree event</code></small></dt>
-<dd>
+<dt>
+  <code>focus(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbFocusEventType.html">WbFocusEventType</a>)</code>
+  <small>- <i>tree event</i></small>
+</dt> <dd>
   The tree received or lost focus. Check `e.flag`.
 </dd>
 
-<dt>iconBadge(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` is about to be rendered. We can add a badge to the icon cell here.
+<dt>
+  <code>iconBadge(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html) an">WbIconBadgeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` is about to be rendered. We can add a badge to the icon cell here. <br>
+  Returns <a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html">WbIconBadgeEventResultType</a>.
 </dd>
   
-<dt>init(e) <small>- <code>tree event</code></small></dt>
-<dd>
+<dt>
+  <code>init(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbInitEventType.html">WbInitEventType</a>)</code>
+  <small>- <i>tree event</i></small>
+</dt> <dd>
   Fires when the tree markup was created and the initial source data was loaded.
   Typical use cases would be activating a node, setting focus, enabling other
   controls on the page, etc.
   Also sent if an error occured during initialization (check for `e.error` property).
 </dd>
 
-<dt>discard(e) <small>- <code>node event</code></small></dt>
-<dd>
-  `e.node` was discarded from the viewport and its HTML markup removed.
-</dd>
-
-<dt>keydown(e) <small>- <code>tree event</code></small></dt>
-<dd>
+<dt>
+  <code>keydown(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbKeydownEventType.html">WbKeydownEventType</a>)</code>
+  <small>- <i>tree event</i></small>
+</dt> <dd>
   Fires when a key was pressed while the tree has focus. <br>
   `e.node` is set if a node is currently active. <br>
   Return `false` to prevent default navigation.
 </dd>
 
-<dt>lazyLoad(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>lazyLoad(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbNodeEventType.html">WbNodeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Fires when a node that was marked 'lazy', is expanded for the first time.
   Typically we return an endpoint URL or the Promise of a fetch request that
   provides a (potentially nested) list of child nodes.
 </dd>
 
-<dt>load(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>load(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbNodeEventType.html">WbNodeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Fires when data was loaded (initial request, reload, or lazy loading),
   after the data is applied and rendered.
 </dd>
 
-<dt>receive(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>receive(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbReceiveEventType.html">WbReceiveEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Fires when data was fetched (initial request, reload, or lazy loading),
   but before the data is uncompressed, applied, and rendered.
   Here we can modify and adjust the received data, for example to convert an
   external response to native Wunderbaum syntax.
 </dd>
 
-<dt>render(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>render(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbRenderEventType.html">WbRenderEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Fires when a node is about to be displayed.
   The default HTML markup is already created, but not yet added to the DOM.
   Now we can tweak the markup, create HTML elements in this node's column
-  cells, etc.
+  cells, etc. <br>
   See also `Custom Rendering` for details.
 </dd>
 
-<dt>renderStatusNode(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>renderStatusNode(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbRenderEventType.html">WbRenderEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   Same as `render(e)`, but for the status nodes, i.e. `e.node.statusNodeType`.
 </dd>
 
-<dt>select(e) <small>- <code>node event</code></small></dt>
-<dd>
+<dt>
+  <code>select(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbSelectEventType.html">WbSelectEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
   `e.node` was selected (`e.flag === true`) or deselected (`e.flag === false`)
 </dd>
 
-<dt>update(e) <small>- <code>tree event</code></small></dt>
-<dd>
+<dt>
+  <code>update(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbRenderEventType.html">WbRenderEventType</a>)</code>
+  <small>- <i>tree event</i></small>
+</dt> <dd>
   Fires when the viewport was updated, after scroling, expanding etc.
 </dd>
 

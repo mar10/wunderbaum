@@ -1613,7 +1613,7 @@ export class WunderbaumNode {
     // Attach a node reference to the DOM Element:
     (<any>rowDiv)._wb_node = this;
 
-    const nodeElem: HTMLElement = document.createElement("span");
+    const nodeElem: HTMLSpanElement = document.createElement("span");
     nodeElem.classList.add("wb-node", "wb-col");
     rowDiv.appendChild(nodeElem);
 

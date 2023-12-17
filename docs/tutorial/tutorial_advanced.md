@@ -25,6 +25,9 @@ custom behavior:
   Prevent text selection with the mouse (applies `user-select` CSS rule).
 - `wb-rainbow` <br>
   Colorize distinct indentation levels.
+- `wb-rtl` <br>
+  Render the tree in right-to-left mode by flipping the behavior of `wb-helper-end`
+  and `wb-helper-start` classes.
 
 For example
 
@@ -32,7 +35,7 @@ For example
 <div id="demo-tree" class="... wb-no-select wb-checkbox-auto-hide">...</div>
 ```
 
-### Custom Styles
+### Automatic Styles
 
 These classes are automatically set on the tree's `<div>` container, depending
 on the current mode, allowing for custom CSS rules:
@@ -57,6 +60,28 @@ These classes are automatically set for distinct rows, allowing custom CSS rules
 ```css
 todo: example;
 ```
+
+### Helper Classes
+
+This classes can be added to column definitions in order to enable custom
+formatting:
+
+- `wb-helper-center` <br>
+  Align cell content to the center.
+- `wb-helper-disabled` <br>
+  Apply disabled style to cell content, i.e. render in a dimmed color.
+- `wb-helper-end` <br>
+  Align cell content to the right (unless `wb-rtl` is set on the cntainer).
+- `wb-helper-hidden` <br>
+  Hide element content.
+- `wb-helper-invalid` <br>
+  Apply _invalid_ style to cell content, i.e. render in red.
+- `wb-helper-lazy-expander` <br>
+  Can be used in `iconMaps` .
+- `wb-helper-link` <br>
+  Apply link style to cell content.
+- `wb-helper-start` <br>
+  Align cell content to the left (unless `wb-rtl` is set on the cntainer).
 
 ### CSS Variables
 

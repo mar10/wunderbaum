@@ -104,50 +104,221 @@ wb-tristate
 ### Code Hacks
 
 ```js
-
+Todo;
 ```
 
 ## 2. Edit Cell Content
 
-### Related Tree Options
-
-```js
-const tree = new Wunderbaum({
-  // --- Common Options ---
-  ...
-  // --- Common Events ---
-  /**
-   * Called when a node is rendered.
-   *
-   * We can do many things here, but related to editing, a typical aspect is
-   * rendering `<input>` elements in column cells.
-   */
-  render: function (e) {
-    const node = e.node;
-    const util = e.util;
-    // console.log(e.type, e.isNew, e);
-  },
-  /**
-   * Called when an input control, that is embedded in a node's row, fires a
-   * `change` event.
-   *
-   * Return a string value or a Promise (e.g. from an Ajax request).
-   * In the latter case, the cell is marked 'busy' while updating.
-   */
-  change: function (e) {
-    const node = e.node;
-    const util = e.util;
-    // e.node.datasetTitle(e.inputValue)
-  },
-  ...
-});
-```
+?> See the [Grid Tutorial](/tutorial/tutorial_grid?id=editing) for general
+information about rendering grid cell content.
 
 ?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable),
 expand some nodes and enter values into the input controls.
 
-?> See also the [Render Tutorial](/tutorial/tutorial_render.md) for a general rendering
-description.
+Editing cells &mdash; other than the node title column &mdash; is not supported
+by default. Instead we have to
+
+1. Implement the `render(e)` callback to render the cell's content as an HTML
+   element that can be edited, like a text field, checkbox, etc.
+2. Implement the `change(e)` callback to update the node data when the user
+   has finished editing a cell.
+
+### 2.1. Render Input Elements
+
+Following an example implementation of the `render(e)` callback that renders
+embedded input controls for all data columns.
+
+The [util.setValueToElem()](https://mar10.github.io/wunderbaum/api/functions/util.setValueToElem.html)
+helper function can be used to update the embedded input element with the
+current node value.
+
+The `e.isNew` property is `true` if the node is new and has not been
+rendered before. This is useful to avoid overwriting user input when the
+user is editing a cell.
+
+We follow the convention to name the column id after the node data property
+that should be rendered in that column for simplicity.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    { title: "Title", id: "*", width: "250px" },
+    { title: "Age", id: "age", width: "50px", classes: "wb-helper-end" },
+    { title: "Date", id: "date", width: "100px", classes: "wb-helper-end" },
+    { title: "Status", id: "state", width: "70px", classes: "wb-helper-center" },
+    { title: "Avail.", id: "avail", width: "70px", classes: "wb-helper-center" },
+    { title: "Remarks", id: "remarks", width: "*" },
+  ],
+
+  render: function (e) {
+    const node = e.node;
+    const util = e.util;
+
+    // Render embedded input controls for all data columns
+    for (const col of Object.values(e.renderColInfosById)) {
+
+      const val = node.data[col.id];
+
+      switch (col.id) {
+        case "author":
+          if (e.isNew) {  // alternatively define a `html` property in the column definition.
+            col.elem.innerHTML = '<input type="text" tabindex="-1">';
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        case "remarks":
+          if (e.isNew) {
+            col.elem.innerHTML = '<input type="text" tabindex="-1">';
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        case "age": // numeric input (positive integers only)
+          if (e.isNew) {
+            col.elem.innerHTML = '<input type="number" min="0" tabindex="-1">';
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        case "state": // select box
+          if (e.isNew) {
+            col.elem.innerHTML = `<select tabindex="-1">
+                <option value="h">Happy</option>
+                <option value="s">Sad</option>
+                </select>`;
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        case "avail": // checkbox
+          if (e.isNew) {
+            col.elem.innerHTML = '<input type="checkbox" tabindex="-1">';
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        case "date": // date picker
+          if (e.isNew) {
+            col.elem.innerHTML = '<input type="date" tabindex="-1">';
+          }
+          util.setValueToElem(col.elem, val);
+          break;
+        default:
+          // Render all other node data cells as text (read-only)
+          // Assumption: we named column.id === node.data.NAME
+          col.elem.textContent = node.data[col.id];
+          break;
+      }
+    },
+});
+```
+
+#### Simplify the Pattern
+
+The pattern above can be simplified by defining the `html` property in the
+column definition, so the column cells are rendered by default and we can
+skip the `if (e.isNew) {...}` handling. <br>
+Note that we still have to update the embedded input elements with the current
+node value.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    { title: "Title", id: "*", width: "250px" },
+    { title: "Age", id: "age", width: "50px", classes: "wb-helper-end",
+      "html": "<input type=number min=0 tabindex='-1'>",
+    },
+    { title: "Date", id: "date", width: "100px", classes: "wb-helper-end",
+      "html": '<input type=date tabindex="-1">',
+    },
+    { title: "Status", id: "state", width: "70px", classes: "wb-helper-center",
+      "html": `<select tabindex="-1">
+          <option value="h">Happy</option>
+          <option value="s">Sad</option>
+          </select>`
+    },
+    { title: "Avail.", id: "avail", width: "70px", classes: "wb-helper-center",
+      "html": '<input type=checkbox tabindex="-1">',
+    },
+    { title: "Remarks", id: "remarks", width: "*",
+      "html": "<input type=text tabindex='-1'>",
+    },
+  ],
+
+  render: function (e) {
+    const node = e.node;
+    const util = e.util;
+
+    // Render embedded input controls for all data columns
+    for (const col of Object.values(e.renderColInfosById)) {
+
+      const val = node.data[col.id];
+
+      switch (col.id) {
+        default:
+          util.setValueToElem(col.elem, val);
+          break;
+      }
+    }
+  },
+});
+```
+
+### 2.2. Apply Modified Node Data
+
+The `change(e)` callback is called when the user has finished editing a cell.
+More precisely, it is called when the embedded _input_, _select_, or _textarea_
+element fired a _change_ event. <br>
+It receives a [WbChangeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbChangeEventType.html)
+object that contains useful properties for this purpose.
+
+The [util.getValueFromElem()](https://mar10.github.io/wunderbaum/api/functions/util.getValueFromElem.html)
+helper function can be used to read the current value from the embedded input
+element.
+
+> Again, we follow the convention to name the column id after the node data
+> property that appears in that column.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  change: function (e) {
+    const util = e.util;
+    const node = e.node;
+    const colId = e.info.colId;
+
+    this.logDebug(`change(${colId})`, util.getValueFromElem(e.inputElem, true));
+
+    // Assumption: we named column.id === node.data.NAME
+    node.data[colId] = util.getValueFromElem(e.inputElem, true);
+  },
+});
+```
+
+If we want to customize the `change(e)` callback, we can do so like this:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  change: function (e) {
+    const util = e.util;
+    const node = e.node;
+    const colId = e.info.colId;
+    let val;
+
+    switch (colId) {
+      case "year":
+        val = util.getValueFromElem(e.inputElem, true);
+        if (val && !/^\d{4}$/.test(val)) {
+          throw new Error("Invalid year");
+        }
+        e.node.data[colId] = val;
+        break;
+      default:
+        e.node.data[colId] = util.getValueFromElem(e.inputElem, true);
+        break;
+    }
+  },
+});
+```
 
 ### Related Methods
 

@@ -1,12 +1,22 @@
 # Custom Rendering
 
-!> This chapter is still under construction.
-
 This chapter describes different ways to customize the appearance of the tree.
 
-?> See also the [Grid Tutorial](/tutorial/tutorial_grid.md) for specific
-rendering of grid cells and the [Edit Tutorial](/tutorial/tutorial_edit.md) for
-rendering of embedded input controls in grids.
+?> See also the [Grid Tutorial](/tutorial/tutorial_grid.md) for rendering of
+grid cell content and [Edit Tutorial](/tutorial/tutorial_grid.md) for rendering
+embedded input controls in grid cells.
+
+## Custom Style Sheets
+
+It is possible to customize the appearance of the tree by adding specific CSS rules.
+
+For example, to change the background color of the active grid cell:
+
+```css
+div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
+  /* Highlighted cell in cell-nav mode */
+}
+```
 
 ## Custom Icons
 
@@ -61,42 +71,78 @@ const tree = new mar10.Wunderbaum({
 });
 ```
 
-## Custom Style Sheets
-
-```css
-div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
-  /* Highlighted cell in cell-nav mode */
-}
-```
-
 ## Custom Markup
 
 ### Using the `render` Event
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
+The `render(e)` event is called for each node that needs to be rendered, i.e. that
+is materialized in the viewport.
+It is called after the node's row markup has been created, for example:
+
+```html
+<div class="wb-row" style="top: 22px;">
+  <span class="wb-node wb-col wb-active" style="left: 0px; width: 1368px;">
+    <i class="wb-indent"></i>
+    <i class="wb-expander wb-indent"></i>
+    <i class="wb-icon bi bi-file-earmark"></i>
+    <span class="wb-title" style="width: 1301px;">Node 1.1</span>
+  </span>
+</div>
+```
+
+For treegrids with multiple columns, the row markup looks like this:
+
+```html
+<div class="wb-row wb-active wb-focus" style="top: 66px;">
+  <span
+    class="wb-node wb-col wb-active"
+    draggable="true"
+    style="left: 0px; width: 250px;"
+  >
+    <i class="wb-checkbox bi bi-square"></i>
+    <i class="wb-indent"></i>
+    <i class="wb-expander wb-indent"></i>
+    <i class="wb-icon bi bi-file-earmark"></i>
+    <span class="wb-title" style="width: 163px;">The Little Prince</span>
+  </span>
+  <span class="wb-col" style="left: 250px; width: 234.75px;">
+    Antoine de Saint-Exupery
+  </span>
+  <span class="wb-col" style="left: 484.75px; width: 50px;">1943</span>
+  <span class="wb-col" style="left: 534.75px; width: 50px;">2946</span>
+  <span class="wb-col" style="left: 584.75px; width: 80px;">6.82</span>
+  <span class="wb-col" style="left: 664.75px; width: 703.25px;"></span>
+</div>
+```
+
+The `e.nodeElem` property contains the HTML span element that represents the
+node title, and prefix icons:
+`<span class="wb-node wb-col"> ... </span>`
+
+?> See [WbRenderEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbRenderEventType.html)
+for an overview of all event properties.
 
 ```js
 const tree = new Wunderbaum({
   ...
-  types: {},
-  ...
-  // --- Events ---
-  /**
-   * Called when a node is rendered.
-   *
-   * We can do many things here, but related to editing, a typical aspect is
-   * rendering `<input>` elements in column cells.
-   */
   render: function (e) {
     const node = e.node;
-    const util = e.util;
-    // console.log(e.type, e.isNew, e);
+    const nodeElement = e.nodeElement; // HTMLSpanElement
+
+    console.log(e.type, e.isNew, e);
+    nodeElement.innerText = `${node.title}!`;
   },
 });
 ```
 
+?> The render event is especially useful to render the content of grid cells
+in treegrids. See also the [Grid Tutorial](/tutorial/tutorial_grid.md)
+and the [Edit Tutorial](/tutorial/tutorial_edit.md) for rendering of embedded
+input controls in grids.
+
 ### Badges
 
+Badges are small icons that can be displayed near the node title. <br>
 Example: Display the number of selected subnodes in the badge of collapsed parent:
 
 ```js
@@ -107,7 +153,7 @@ const tree = new Wunderbaum({
     if (node.expanded || !node.children) {
       return;
     }
-    const count = node.children && node.getSelectedNodes()?.length;
+    const count = node.children && node.getSelectedNodes().length;
     return {
       badge: count,
       badgeTooltip: `${count} selected`,
@@ -118,7 +164,10 @@ const tree = new Wunderbaum({
 });
 ```
 
-### Related Tree Options
+?> See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
+and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html).
+
+<!-- ### Related Tree Options
 
 ### Related Methods
 
@@ -130,4 +179,4 @@ const tree = new Wunderbaum({
 
 ```js
 
-```
+``` -->

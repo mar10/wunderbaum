@@ -155,20 +155,21 @@ export interface WbActivateEventType extends WbNodeEventType {
 }
 
 export interface WbChangeEventType extends WbNodeEventType {
+  /** Additional information derived from the original change event. */
   info: WbEventInfo;
-  inputElem: HTMLInputElement;
+  /** The embedded element that fired the change event. */
+  inputElem: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+  /** The new value of the embedded element, depending on the input element type. */
   inputValue: any;
 }
 
 export interface WbClickEventType extends WbTreeEventType {
   /** The original event. */
   event: MouseEvent;
+  /** The clicked node if any. */
   node: WunderbaumNode;
+  /** Additional information derived from the original mouse event. */
   info: WbEventInfo;
-}
-
-export interface WbErrorEventType extends WbNodeEventType {
-  error: any;
 }
 
 export interface WbDeactivateEventType extends WbNodeEventType {
@@ -177,9 +178,31 @@ export interface WbDeactivateEventType extends WbNodeEventType {
   event: Event;
 }
 
+export interface WbEditApplyEventType extends WbNodeEventType {
+  /** Additional information derived from the original change event. */
+  info: WbEventInfo;
+  /** The input element of the node title that fired the change event. */
+  inputElem: HTMLInputElement;
+  /** The previous node title. */
+  oldValue: string;
+  /** The new node title. */
+  newValue: string;
+}
+
 // export interface WbEnhanceTitleEventType extends WbNodeEventType {
 //   titleSpan: HTMLSpanElement;
 // }
+
+export interface WbErrorEventType extends WbNodeEventType {
+  error: any;
+}
+
+export interface WbFocusEventType extends WbTreeEventType {
+  /** The original event. */
+  event: FocusEvent;
+  /** True if `focusin`, false if `focusout`. */
+  flag: boolean;
+}
 
 export interface WbIconBadgeEventType extends WbNodeEventType {
   iconSpan: HTMLElement;
@@ -193,22 +216,16 @@ export interface WbIconBadgeEventResultType {
   badgeTooltip?: string;
 }
 
-export interface WbFocusEventType extends WbTreeEventType {
-  /** The original event. */
-  event: FocusEvent;
-  /** True if `focusin`, false if `focusout`. */
-  flag: boolean;
+export interface WbInitEventType extends WbTreeEventType {
+  error?: any;
 }
 
 export interface WbKeydownEventType extends WbTreeEventType {
   /** The original event. */
   event: KeyboardEvent;
   node: WunderbaumNode;
+  /** Additional information derived from the original keyboard event. */
   info: WbEventInfo;
-}
-
-export interface WbInitEventType extends WbTreeEventType {
-  error?: any;
 }
 
 export interface WbReceiveEventType extends WbNodeEventType {
@@ -219,7 +236,9 @@ export interface WbRenderEventType extends WbNodeEventType {
   /**
    * True if the node's markup was not yet created. In this case the render
    * event should create embedded input controls (in addition to update the
-   * values according to to current node data).
+   * values according to to current node data). <br>
+   * False if the node's markup was already created. In this case the render
+   * event should only update the values according to to current node data.
    */
   isNew: boolean;
   /** The node's `<span class='wb-node'>` element. */
@@ -233,11 +252,26 @@ export interface WbRenderEventType extends WbNodeEventType {
    */
   allColInfosById: ColumnEventInfoMap;
   /**
-   * Array of node's `<span class='wb-node'>` elements, *that should be rendered*.
+   * Array of node's `<span class='wb-node'>` elements,
+   * *that should be rendered by the event handler*.
    * In contrast to `allColInfosById`, the node title is not part of this array.
    * If node.isColspan() is true, this array is empty (`[]`).
+   * This allows to iterate over all relevant in a simple loop:
+   * ```
+   * for (const col of Object.values(e.renderColInfosById)) {
+   *   switch (col.id) {
+   *     default:
+   *       // Assumption: we named column.id === node.data.NAME
+   *       col.elem.textContent = node.data[col.id];
+   *       break;
+   *   }
+   * }
    */
   renderColInfosById: ColumnEventInfoMap;
+}
+
+export interface WbSelectEventType extends WbNodeEventType {
+  flag: boolean;
 }
 
 /**
@@ -292,15 +326,17 @@ export interface ColumnDefinition {
    * elements of that column.
    */
   classes?: string;
-  /** If `headerClasses` is a string, it will be used for the header element,
-   * while `classes` is used for data elements.
+  /** If `headerClasses` is a set, it will be used for the header element only
+   * (unlike `classes`, which is used for body and header cells).
    */
   headerClasses?: string;
   /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
-  // Internal use:
+  /** @internal */
   _weight?: number;
+  /** @internal */
   _widthPx?: number;
+  /** @internal */
   _ofsPx?: number;
   // ... and more
   [key: string]: unknown;
@@ -325,7 +361,7 @@ export interface ColumnEventInfo {
 export type ColumnEventInfoMap = { [colId: string]: ColumnEventInfo };
 
 /**
- * Additional inforation derived from mouse or keyboard events.
+ * Additional information derived from mouse or keyboard events.
  * @see {@link Wunderbaum.getEventInfo}
  */
 export interface WbEventInfo {

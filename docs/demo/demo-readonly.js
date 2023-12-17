@@ -56,7 +56,7 @@ new mar10.Wunderbaum({
     const node = e.node;
     // const util = e.util;
 
-    // Render embedded input controls for all data columns
+    // Render formatted data values for all columns
     for (const col of Object.values(e.renderColInfosById)) {
       // Assumption: we named column.id === node.data.NAME
       const val = node.data[col.id];
