@@ -49,8 +49,8 @@ export class ValidationError extends Error {
 /**
  * A ES6 Promise, that exposes the resolve()/reject() methods.
  *
- * TODO: See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description
- * `Promise.withResolvers()` is a proposed standard, but not yet implemented in any browser.
+ * TODO: See [Promise.withResolvers()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description)
+ * , a proposed standard, but not yet implemented in any browser.
  */
 export class Deferred {
   private thens: PromiseCallbackType[] = [];
@@ -535,7 +535,7 @@ export function isPlainObject(obj: any) {
 export function noop(...args: any[]): any {}
 
 /**
- * Bind one or more event handlers directly to an [[EventTarget]].
+ * Bind one or more event handlers directly to an [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
  *
  * @param element EventTarget or selector
  * @param eventNames

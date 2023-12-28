@@ -724,31 +724,37 @@ export type FilterOptionsType = {
  */
 export type EditOptionsType = {
   /**
+   * Used to debounce the `change` event handler for grid cells [ms].
    * @default 100
    */
   debounce?: number;
   /**
+   * Minimum number of characters required for node title input field.
    * @default 1
    */
   minlength?: number;
   /**
+   * Maximum number of characters allowed for node title input field.
    * @default null;
    */
   maxlength?: null | number;
   /**
    * Array of strings to determine which user input should trigger edit mode.
-   * E.g. `["clickActive", "F2", "macEnter"]`
+   * E.g. `["clickActive", "F2", "macEnter"]`: <br>
+   * 'clickActive': single click on active node title <br>
+   * 'F2': press F2 key <br>
+   * 'macEnter': press Enter (on macOS only) <br>
    * Pass an empty array to disable edit mode.
    * @default []
    */
   trigger?: string[];
   /**
-   * Trim whitespace before saving.
+   * Trim whitespace before saving a node title.
    * @default true
    */
   trim?: boolean;
   /**
-   * Select the text, so it can be overwritten by typing.
+   * Select all text of a node title, so it can be overwritten by typing.
    * @default true
    */
   select?: boolean;
@@ -758,7 +764,7 @@ export type EditOptionsType = {
    */
   slowClickDelay?: number;
   /**
-   * Permanently apply input validations (CSS and tooltip) on keydown.
+   * Permanently apply node title input validations (CSS and tooltip) on keydown.
    * @default true
    */
   validity?: boolean;

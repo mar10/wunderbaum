@@ -22,38 +22,38 @@ type finallyCallbackType = () => void;
  * }
  * ```
  */
-export class Deferred {
-  private _promise: Promise<any>;
+export class Deferred<T> {
+  private _promise: Promise<T>;
   protected _resolve: any;
   protected _reject: any;
 
   constructor() {
-    this._promise = new Promise((resolve, reject) => {
+    this._promise = new Promise<T>((resolve, reject) => {
       this._resolve = resolve;
       this._reject = reject;
     });
   }
-  /** Resolve the [[Promise]]. */
+  /** Resolve the Promise. */
   resolve(value?: any) {
     this._resolve(value);
   }
-  /** Reject the [[Promise]]. */
+  /** Reject the Promise. */
   reject(reason?: any) {
     this._reject(reason);
   }
-  /** Return the native [[Promise]] instance.*/
+  /** Return the native Promise instance.*/
   promise() {
     return this._promise;
   }
-  /** Call [[Promise.then]] on the embedded promise instance.*/
+  /** Call Promise.then on the embedded promise instance.*/
   then(cb: PromiseCallbackType) {
     return this._promise.then(cb);
   }
-  /** Call [[Promise.catch]] on the embedded promise instance.*/
+  /** Call Promise.catch on the embedded promise instance.*/
   catch(cb: PromiseCallbackType) {
     return this._promise.catch(cb);
   }
-  /** Call [[Promise.finally]] on the embedded promise instance.*/
+  /** Call Promise.finally on the embedded promise instance.*/
   finally(cb: finallyCallbackType) {
     return this._promise.finally(cb);
   }

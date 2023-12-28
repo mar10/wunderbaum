@@ -771,14 +771,14 @@ export class WunderbaumNode {
   }
 
   /** Return true if this node is a direct or indirect parent of `other`.
-   * (See also [[isParentOf]].)
+   * @see {@link WunderbaumNode.isParentOf}
    */
   isAncestorOf(other: WunderbaumNode) {
     return other && other.isDescendantOf(this);
   }
 
   /** Return true if this node is a **direct** subnode of `other`.
-   * (See also [[isDescendantOf]].)
+   * @see {@link WunderbaumNode.isDescendantOf}
    */
   isChildOf(other: WunderbaumNode) {
     return other && this.parent === other;
@@ -792,7 +792,7 @@ export class WunderbaumNode {
   }
 
   /** Return true if this node is a direct or indirect subnode of `other`.
-   * (See also [[isChildOf]].)
+   * @see {@link WunderbaumNode.isChildOf}
    */
   isDescendantOf(other: WunderbaumNode) {
     if (!other || other.tree !== this.tree) {
@@ -872,7 +872,7 @@ export class WunderbaumNode {
   }
 
   /** Return true if this node is a **direct** parent of `other`.
-   * (See also [[isAncestorOf]].)
+   * @see {@link WunderbaumNode.isAncestorOf}
    */
   isParentOf(other: WunderbaumNode) {
     return other && other.parent === this;
@@ -899,7 +899,7 @@ export class WunderbaumNode {
   }
 
   /** Return true if this node is the (invisible) system root node.
-   * (See also [[isTopLevel()]].)
+   * @see {@link WunderbaumNode.isTopLevel}
    */
   isRootNode(): boolean {
     return this.tree.root === this;

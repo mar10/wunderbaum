@@ -32,7 +32,7 @@ import {
 } from "./types";
 
 /**
- * Available options for [[Wunderbaum]].
+ * Available options for {@link wunderbaum.Wunderbaum}.
  *
  * Options are passed to the constructor as plain object:
  *

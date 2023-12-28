@@ -119,7 +119,6 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
    * Called for when a control that is embedded in a cell fires a `change` event.
    */
   protected _onChange(e: Event) {
-    // let res;
     const info = Wunderbaum.getEventInfo(e);
     const node = info.node!;
     const colElem = <HTMLElement>info.colElem!;
@@ -134,10 +133,6 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
     });
   }
-
-  // handleKey(e:KeyboardEvent):boolean {
-  //   if(this.tree.cellNavMode )
-  // }
 
   init() {
     super.init();
@@ -207,14 +202,6 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
   isEditingTitle(node?: WunderbaumNode): boolean {
     return node ? this.curEditNode === node : !!this.curEditNode;
   }
-
-  // /** Return true if a node title or cell is currently being edited, but validation failed. */
-  // isInvalidInputFocused(): boolean {
-  //   if (!this.curEditNode) {
-  //     return false;
-  //   }
-  //   return !!this.curEditNode._rowElem?.querySelector(".wb-invalid");
-  // }
 
   /** Start renaming, i.e. replace the title with an embedded `<input>`. */
   startEditTitle(node?: WunderbaumNode | null) {

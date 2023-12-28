@@ -80,7 +80,7 @@ class WbSystemRoot extends WunderbaumNode {
 /**
  * A persistent plain object or array.
  *
- * See also [[WunderbaumOptions]].
+ * See also {@link WunderbaumOptions}.
  */
 export class Wunderbaum {
   protected static sequence = 0;
@@ -2513,7 +2513,7 @@ export class Wunderbaum {
   /**
    * [ext-filter] Reset the filter.
    *
-   * @requires [[FilterExtension]]
+   * @requires See also {@link FilterExtension}
    */
   clearFilter() {
     return (this.extensions.filter as FilterExtension).clearFilter();
@@ -2521,7 +2521,7 @@ export class Wunderbaum {
   /**
    * [ext-filter] Return true if a filter is currently applied.
    *
-   * @requires [[FilterExtension]]
+   * @requires See also {@link FilterExtension}
    */
   isFilterActive() {
     return !!this.filterMode;
@@ -2529,7 +2529,7 @@ export class Wunderbaum {
   /**
    * [ext-filter] Re-apply current filter.
    *
-   * @requires [[FilterExtension]]
+   * @requires See also {@link FilterExtension}
    */
   updateFilter() {
     return (this.extensions.filter as FilterExtension).updateFilter();
