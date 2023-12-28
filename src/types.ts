@@ -189,6 +189,11 @@ export interface WbEditApplyEventType extends WbNodeEventType {
   newValue: string;
 }
 
+export interface WbEditEditEventType extends WbNodeEventType {
+  /** The input element of the node title that was just created. */
+  inputElem: HTMLInputElement;
+}
+
 // export interface WbEnhanceTitleEventType extends WbNodeEventType {
 //   titleSpan: HTMLSpanElement;
 // }
@@ -711,6 +716,12 @@ export type FilterOptionsType = {
   noData?: boolean;
 };
 
+/**
+ * Note: <br>
+ * This options are used for renaming node titles. <br>
+ * There is also the `tree.change` event to handle modifying node data from
+ * input controls that are embedded in grid cells.
+ */
 export type EditOptionsType = {
   /**
    * @default 100
@@ -725,31 +736,35 @@ export type EditOptionsType = {
    */
   maxlength?: null | number;
   /**
-   * ["clickActive", "F2", "macEnter"],
+   * Array of strings to determine which user input should trigger edit mode.
+   * E.g. `["clickActive", "F2", "macEnter"]`
+   * Pass an empty array to disable edit mode.
    * @default []
    */
   trigger?: string[];
   /**
+   * Trim whitespace before saving.
    * @default true
    */
   trim?: boolean;
   /**
+   * Select the text, so it can be overwritten by typing.
    * @default true
    */
   select?: boolean;
   /**
-   * Handle 'clickActive' only if last click is less than this old (0: always)
+   * Handle 'clickActive' only if last click is less than this ms old (0: always)
    * @default 1000
    */
   slowClickDelay?: number;
   /**
-   * Please enter a title",
+   * Permanently apply input validations (CSS and tooltip) on keydown.
    * @default true
    */
   validity?: boolean;
 
   // --- Events ---
-  // (note: there is also the `tree.change` event.)
+
   /**
    * `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
    */

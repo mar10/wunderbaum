@@ -35,8 +35,22 @@ export type FunctionType = (...args: any[]) => any;
 export type EventCallbackType = (e: Event) => boolean | void;
 type PromiseCallbackType = (val: any) => void;
 
+/** A generic error that can be thrown to indicate a validation error when
+ * handling the `apply` event for a node title or the `change` event for a
+ * grid cell.
+ */
+export class ValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "ValidationError";
+  }
+}
+
 /**
  * A ES6 Promise, that exposes the resolve()/reject() methods.
+ *
+ * TODO: See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description
+ * `Promise.withResolvers()` is a proposed standard, but not yet implemented in any browser.
  */
 export class Deferred {
   private thens: PromiseCallbackType[] = [];
@@ -224,10 +238,10 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
 
   if (tag === "SPAN" && elem.classList.contains("wb-col")) {
     const span = <HTMLSpanElement>elem;
-    const embeddedInput = span.querySelector("input,select");
+    const embeddedInput = span.querySelector<HTMLElement>("input,select");
 
     if (embeddedInput) {
-      return getValueFromElem(<HTMLElement>embeddedInput, coerce);
+      return getValueFromElem(embeddedInput, coerce);
     }
     span.innerText = "" + value;
   } else if (tag === "INPUT") {
@@ -258,10 +272,10 @@ export function getValueFromElem(elem: HTMLElement, coerce = false): any {
       case "radio":
         {
           const name = input.name;
-          const checked = input.parentElement!.querySelector(
+          const checked = input.parentElement!.querySelector<HTMLInputElement>(
             `input[name="${name}"]:checked`
           );
-          value = checked ? (<HTMLInputElement>checked).value : undefined;
+          value = checked ? checked.value : undefined;
         }
         break;
       case "text":
@@ -371,7 +385,10 @@ export function setValueToElem(elem: HTMLElement, value: any): void {
 }
 
 /** Show/hide element by setting the `display` style to 'none'. */
-export function setElemDisplay(elem: string | Element, flag: boolean): void {
+export function setElemDisplay(
+  elem: string | HTMLElement,
+  flag: boolean
+): void {
   const style = (<HTMLElement>elemFromSelector(elem)).style;
   if (flag) {
     if (style.display === "none") {
@@ -383,37 +400,37 @@ export function setElemDisplay(elem: string | Element, flag: boolean): void {
 }
 
 /** Create and return an unconnected `HTMLElement` from a HTML string. */
-export function elemFromHtml(html: string): HTMLElement {
+export function elemFromHtml<T = HTMLElement>(html: string): T {
   const t = document.createElement("template");
   t.innerHTML = html.trim();
-  return t.content.firstElementChild as HTMLElement;
+  return t.content.firstElementChild as T;
 }
 
 const _IGNORE_KEYS = new Set(["Alt", "Control", "Meta", "Shift"]);
 
 /** Return a HtmlElement from selector or cast an existing element. */
-export function elemFromSelector(obj: string | Element): HTMLElement | null {
+export function elemFromSelector<T = HTMLElement>(obj: string | T): T | null {
   if (!obj) {
     return null; //(null as unknown) as HTMLElement;
   }
   if (typeof obj === "string") {
-    return document.querySelector(obj) as HTMLElement;
+    return document.querySelector(obj) as T;
   }
-  return obj as HTMLElement;
+  return obj as T;
 }
 
-/** Return a EventTarget from selector or cast an existing element. */
-export function eventTargetFromSelector(
-  obj: string | EventTarget
-): EventTarget | null {
-  if (!obj) {
-    return null;
-  }
-  if (typeof obj === "string") {
-    return document.querySelector(obj) as EventTarget;
-  }
-  return obj as EventTarget;
-}
+// /** Return a EventTarget from selector or cast an existing element. */
+// export function eventTargetFromSelector(
+//   obj: string | EventTarget
+// ): EventTarget | null {
+//   if (!obj) {
+//     return null;
+//   }
+//   if (typeof obj === "string") {
+//     return document.querySelector(obj) as EventTarget;
+//   }
+//   return obj as EventTarget;
+// }
 
 /**
  * Return a canonical descriptive string for a keyboard or mouse event.
@@ -560,7 +577,8 @@ export function onEvent(
   handlerOrNone?: EventCallbackType
 ): void {
   let selector: string | null, handler: EventCallbackType;
-  rootTarget = eventTargetFromSelector(rootTarget)!;
+  rootTarget = elemFromSelector<EventTarget>(rootTarget)!;
+  // rootTarget = eventTargetFromSelector<EventTarget>(rootTarget)!;
 
   if (handlerOrNone) {
     selector = selectorOrHandler as string;
@@ -632,12 +650,12 @@ export function overrideMethod(
 }
 
 /** Run function after ms milliseconds and return a promise that resolves when done. */
-export function setTimeoutPromise(
+export function setTimeoutPromise<T = unknown>(
   this: unknown,
-  callback: (...args: any[]) => void,
+  callback: (...args: any[]) => T,
   ms: number
 ) {
-  return new Promise((resolve, reject) => {
+  return new Promise<T>((resolve, reject) => {
     setTimeout(() => {
       try {
         resolve(callback.apply(this));

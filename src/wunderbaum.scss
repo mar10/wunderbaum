@@ -830,8 +830,14 @@ i.wb-icon {
 
 .wb-col input:invalid {
   // border-color: var(--wb-error-color);
-  color: var(--wb-error-color);
+  // color: var(--wb-error-color);
   background-color: var(--wb-error-background-color);
+}
+
+.wb-col.wb-invalid {
+  border: 1px dotted var(--wb-error-color);
+  // color: var(--wb-error-color);
+  // background-color: var(--wb-error-background-color);
 }
 
 @keyframes wb-spin-animation {

@@ -133,6 +133,20 @@ Common event handlers include:
 </dd>
 
 <dt>
+  <code>edit.beforeEdit(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbNodeEventType.html">WbNodeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` title is about to renamend. Return `false` to prevent renaming.
+</dd>
+
+<dt>
+  <code>edit.edit(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbEditEditEventType.html">WbEditEditEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` just switched to edit mode, an input element was created and populated with the current title.
+</dd>
+
+<dt>
   <code>error(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbErrorEventType.html">WbErrorEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>

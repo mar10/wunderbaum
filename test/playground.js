@@ -43,7 +43,7 @@ const tree = new Wunderbaum({
       title: "Details",
       id: "details",
       width: "100px",
-      html: "<input type=text tabindex='-1'>",
+      html: "<input type=text tabindex='-1' autocomplete=off>",
       headerClasses: "wb-helper-center",
       // headerClasses: "",
       classes: "wb-helper-end",
@@ -135,11 +135,20 @@ const tree = new Wunderbaum({
       }
     },
   },
-  // edit: {
-  //   validate: (e) => {
-  //     e.node.log(`${e.type}`);
-  //   },
-  // },
+  edit: {
+    trigger: ["F2", "macEnter"],
+    minlength: 2,
+    maxlength: 10,
+    edit: (e) => {
+      e.node.log(`${e.type}`);
+    },
+    apply: (e) => {
+      e.node.log(`${e.type}`);
+      if (e.newValue.indexOf("x") >= 0) {
+        throw new util.ValidationError("No 'x' please");
+      }
+    },
+  },
   lazyLoad: (e) => {
     // return {url: "../docs/assets/ajax-lazy-products.json"};
     return util.setTimeoutPromise(() => {
@@ -160,11 +169,29 @@ const tree = new Wunderbaum({
 
     node.log(e.type, e, value, node.data);
 
+    // Simulate a validation error from the client:
+    switch (e.info.colId) {
+      case "age":
+        if (e.inputValue > 20) {
+          throw new util.ValidationError("Age must be <= 20");
+        }
+        break;
+      case "date":
+        if (e.inputElem.valueAsDate > new Date()) {
+          // throw new util.ValidationError("Date must be in the past");
+          e.inputElem.setCustomValidity("Date must be in the past");
+        }
+        break;
+    }
+
     // Simulate a async/delayed behavior:
     return util.setTimeoutPromise(() => {
-      // Simulate a validation error
-      if (value === "x") {
-        throw new Error("No 'x' please");
+      node.log(
+        `Change '${e.info.colId}': '${node.data[e.info.colId]}' -> '${value}'`
+      );
+      // Simulate a validation error from the server:
+      if (("" + value).indexOf("x") >= 0) {
+        throw new util.ValidationError("No 'x' please");
       }
       // Read the value from the input control that triggered the change event:
       node.data[e.info.colId] = value;
@@ -201,6 +228,9 @@ const tree = new Wunderbaum({
   //     // return `<span class="badge badge-pill badge-primary">${count}</span>`;
   //   }
   // },
+  init: (e) => {
+    e.tree.findFirst("Anthony Ross")?.setActive();
+  },
 });
 console.log(`Created  ${tree}`);
 

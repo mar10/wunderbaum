@@ -149,7 +149,6 @@ embedded controls.
 
 ## Editing
 
-Renaming nodes
 Editing cells &mdash; other than the node title column &mdash; is not supported
 by default. Instead we have to
 

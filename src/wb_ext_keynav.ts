@@ -32,6 +32,14 @@ export class KeynavExtension extends WunderbaumExtension<any> {
     return input;
   }
 
+  // /* Return the current cell's embedded input that has keyboard focus. */
+  // protected _getFocusedInputElem(): HTMLInputElement | null {
+  //   const ace = this.tree
+  //     .getActiveColElem()
+  //     ?.querySelector<HTMLInputElement>("input:focus,select:focus");
+  //   return ace || null;
+  // }
+
   /* Return true if the current cell's embedded input has keyboard focus. */
   protected _isCurInputFocused(): boolean {
     const ace = this.tree
@@ -215,23 +223,28 @@ export class KeynavExtension extends WunderbaumExtension<any> {
       // // Standard navigation (cell mode)
       // if (isCellEditMode && INPUT_BREAKOUT_KEYS.has(eventName)) {
       // }
-      const ENTER_EDITS = false;
-      const curInput = this._getEmbeddedInputElem(null);
+      // const curInput = this._getEmbeddedInputElem(null);
       const curInputType = curInput ? curInput.type || curInput.tagName : "";
-      const inputHasFocus = curInput && this._isCurInputFocused();
+      // const inputHasFocus = curInput && this._isCurInputFocused();
       const inputCanFocus = curInput && curInputType !== "checkbox";
 
       if (inputHasFocus) {
         if (eventName === "Escape") {
-          // Discard changes
+          node.logDebug(`Reset focused input on Escape`);
+          // Discard changes and reset input validation state
+          curInput.setCustomValidity("");
           node._render();
           // Keep cell-nav mode
-          node.logDebug(`Reset focused input`);
           tree.setFocus();
           tree.setColumn(tree.activeColIdx);
           return;
           // } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
         } else if (eventName !== "Enter") {
+          if (curInput && curInput.checkValidity && !curInput.checkValidity()) {
+            // Invalid input: ignore all keys except Enter and Escape
+            node.logDebug(`Ignored ${eventName} inside invalid input`);
+            return false;
+          }
           // Let current `<input>` handle it
           node.logDebug(`Ignored ${eventName} inside focused input`);
           return;
@@ -247,7 +260,7 @@ export class KeynavExtension extends WunderbaumExtension<any> {
         if (eventName.length === 1 && inputCanFocus) {
           curInput.focus();
           curInput.value = "";
-          node.logDebug(`Focus imput: ${eventName}`);
+          node.logDebug(`Focus input: ${eventName}`);
           return false;
         }
       }
@@ -257,8 +270,6 @@ export class KeynavExtension extends WunderbaumExtension<any> {
       } else if (eventName === "Shift+Tab") {
         eventName = tree.activeColIdx > 0 ? "ArrowLeft" : "";
         handled = true;
-      } else if (ENTER_EDITS && eventName === "Enter") {
-        eventName = "F2";
       }
 
       switch (eventName) {

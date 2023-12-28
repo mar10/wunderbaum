@@ -14,6 +14,7 @@ import {
   isMac,
   isPlainObject,
   onEvent,
+  ValidationError,
 } from "./util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
@@ -50,40 +51,68 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
   }
 
   /*
-   * Call an event handler, while marking the current node cell 'dirty'.
+   * Call an event handler, while marking the current node cell 'busy'.
+   * Deal with returned promises and ValidationError.
+   * Convert a ValidationError into a input.setCustomValidity() call and vice versa.
    */
-  protected _applyChange(
+  protected async _applyChange(
     eventName: string,
     node: WunderbaumNode,
     colElem: HTMLElement,
+    inputElem: HTMLInputElement,
     extra: any
   ): Promise<any> {
-    let res;
-
     node.log(`_applyChange(${eventName})`, extra);
 
     colElem.classList.add("wb-busy");
-    colElem.classList.remove("wb-error");
-    try {
-      res = node._callEvent(eventName, extra);
-    } catch (err) {
-      node.logError(`Error in ${eventName} event handler`, err);
-      colElem.classList.add("wb-error");
-      colElem.classList.remove("wb-busy");
-    }
-    // Convert scalar return value to a resolved promise
-    if (!(res instanceof Promise)) {
-      res = Promise.resolve(res);
-    }
-    res
+    colElem.classList.remove("wb-error", "wb-invalid");
+
+    inputElem.setCustomValidity("");
+
+    // Call event handler either ('change' or 'edit.appy'), which may return a
+    // promise or a scalar value or throw a ValidationError.
+    return new Promise((resolve, reject) => {
+      const res = node._callEvent(eventName, extra);
+      // normalize to promise, even if a scalar value was returned and await it
+      Promise.resolve(res)
+        .then((res) => {
+          resolve(res);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    })
+      .then((res) => {
+        if (!inputElem.checkValidity()) {
+          // Native validation failed or handler called 'inputElem.setCustomValidity()'
+          node.logWarn("inputElem.checkValidity() failed: throwing....");
+          throw new ValidationError(inputElem.validationMessage);
+        }
+        return res;
+      })
       .catch((err) => {
-        node.logError(`Error in ${eventName} event promise`, err);
-        colElem.classList.add("wb-error");
+        if (err instanceof ValidationError) {
+          node.logWarn("catched ", err);
+          colElem.classList.add("wb-invalid");
+          if (inputElem.setCustomValidity && !inputElem.validationMessage) {
+            inputElem.setCustomValidity(err.message);
+          }
+          if (inputElem.validationMessage) {
+            inputElem.reportValidity();
+          }
+          // throw err;
+        } else {
+          node.logError(
+            `Error in ${eventName} event handler (throw e.util.ValidationError instead if this was intended)`,
+            err
+          );
+          colElem.classList.add("wb-error");
+          throw err;
+        }
       })
       .finally(() => {
         colElem.classList.remove("wb-busy");
       });
-    return res;
   }
 
   /*
@@ -98,7 +127,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       this.tree.log("Ignored change event for removed element or node title");
       return;
     }
-    this._applyChange("change", node, colElem, {
+    this._applyChange("change", node, colElem, e.target as HTMLInputElement, {
       info: info,
       event: e,
       inputElem: e.target,
@@ -179,6 +208,14 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
     return node ? this.curEditNode === node : !!this.curEditNode;
   }
 
+  // /** Return true if a node title or cell is currently being edited, but validation failed. */
+  // isInvalidInputFocused(): boolean {
+  //   if (!this.curEditNode) {
+  //     return false;
+  //   }
+  //   return !!this.curEditNode._rowElem?.querySelector(".wb-invalid");
+  // }
+
   /** Start renaming, i.e. replace the title with an embedded `<input>`. */
   startEditTitle(node?: WunderbaumNode | null) {
     node = node ?? this.tree.getActiveNode();
@@ -191,14 +228,21 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
     this.tree.logDebug(`startEditTitle(node=${node})`);
     let inputHtml = node._callEvent("edit.beforeEdit");
     if (inputHtml === false) {
-      node.logInfo("beforeEdit canceled operation.");
+      node.logDebug("beforeEdit canceled operation.");
       return;
     }
-    // `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+    // `beforeEdit(e)` may return an input HTML string. Otherwise use a default
     // (we also treat a `true` return value as 'use default'):
     if (inputHtml === true || !inputHtml) {
       const title = escapeHtml(node.title);
-      inputHtml = `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" required autocorrect=off>`;
+      let opt = this.getPluginOption("maxlength");
+      const maxlength = opt ? ` maxlength="${opt}"` : "";
+      opt = this.getPluginOption("minlength");
+      const minlength = opt ? ` minlength="${opt}"` : "";
+      const required = opt > 0 ? " required" : "";
+      inputHtml =
+        `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" ` +
+        `autocorrect="off"${required}${minlength}${maxlength} >`;
     }
     const titleSpan = node
       .getColElem(0)!
@@ -211,7 +255,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       inputElem.addEventListener("keydown", (e) => {
         inputElem.setCustomValidity("");
         if (!inputElem.reportValidity()) {
-          // node?.logInfo(`Invalid input: '${inputElem.value}'`);
+          node!.logWarn(`Invalid input: '${inputElem.value}'`);
         }
       });
     }
@@ -266,36 +310,35 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
 
       const colElem = node.getColElem(0)!;
 
-      this._applyChange("edit.apply", node, colElem, {
+      this._applyChange("edit.apply", node, colElem, focusElem, {
         oldValue: node.title,
         newValue: newValue,
         inputElem: focusElem,
-      })
-        .then((value) => {
-          const errMsg = focusElem.validationMessage;
-          if (validity && errMsg && value !== false) {
-            // Handler called 'inputElem.setCustomValidity()' to signal error
-            throw new Error(
-              `Edit apply validation failed for "${newValue}": ${errMsg}.`
-            );
-          }
-          // Discard the embedded `<input>`
-          // node.logDebug("applyChange:", value, forceClose)
-          if (!forceClose && value === false) {
-            // Keep open
-            return;
-          }
-          node?.setTitle(newValue);
-          // NOTE: At least on Safari, this render call triggers a scroll event
-          // probably because the focused input is replaced.
-          this.curEditNode!._render({ preventScroll: true });
-          this.curEditNode = null;
-          this.relatedNode = null;
-          this.tree.setFocus(); // restore focus that was in the input element
-        })
-        .catch((err) => {
-          node.logError(err);
-        });
+      }).then((value) => {
+        const errMsg = focusElem.validationMessage;
+        if (validity && errMsg && value !== false) {
+          // Handler called 'inputElem.setCustomValidity()' to signal error
+          throw new Error(
+            `Edit apply validation failed for "${newValue}": ${errMsg}.`
+          );
+        }
+        // Discard the embedded `<input>`
+        // node.logDebug("applyChange:", value, forceClose)
+        if (!forceClose && value === false) {
+          // Keep open
+          return;
+        }
+        node?.setTitle(newValue);
+        // NOTE: At least on Safari, this render call triggers a scroll event
+        // probably because the focused input is replaced.
+        this.curEditNode!._render({ preventScroll: true });
+        this.curEditNode = null;
+        this.relatedNode = null;
+        this.tree.setFocus(); // restore focus that was in the input element
+      });
+      // .catch((err) => {
+      //   node.logError(err);
+      // });
       // Trigger 'change' event for embedded `<input>`
       // focusElem.blur();
     } else {

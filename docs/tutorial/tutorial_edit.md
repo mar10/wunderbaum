@@ -16,6 +16,8 @@ Editing is supported in two different ways:
 
 ## 1. Rename Nodes
 
+Here is an example implementation of the edit title feature (i.e. rename):
+
 ```js
 const tree = new Wunderbaum({
   // --- Common Options ---
@@ -56,7 +58,7 @@ const tree = new Wunderbaum({
      * Return `false` to keep the input control open (not always possible).
      *
      * We can also return a `Promise` (e.g. from an Ajax request).
-     * In this case, the cell is marked 'busy' while updating.
+     * In this case, the cell is marked 'busy' while the request is pending.
      *
      * Implementing this event is optional. By default, `node.setTitle()` is
      * called with the new text.
@@ -66,11 +68,37 @@ const tree = new Wunderbaum({
       const oldValue = e.oldValue;
       const newValue = e.newValue;
       const inputElem = e.inputElem;
-      // An async storage call that handles validation
+      // For example:
+      // call an async storage function and  handle validation.
+      //
       return storeMyStuff(node.refKey, newValue).then(() => {
         if( ...) {
-          e.inputElem.setCustomValidity("Invalid for *reasons*: " + e.newValue)
+          inputElem.setCustomValidity(`Invalid for *reasons*: ${newValue`})
           return false;
+        }
+      };
+    },
+  },
+});
+```
+
+Input validation can be implemented by using the `inputElem.setCustomValidity()`
+method as in the example above, or by raising a
+[util.ValidationError](https://mar10.github.io/wunderbaum/api/classes/ValidationError.html):
+
+```js
+const tree = new Wunderbaum({
+  ...
+  edit: {
+    ...
+    apply: (e) => {
+      const util = e.util;
+      const node = e.node;
+      const newValue = e.newValue;
+
+      return storeMyStuff(node.refKey, newValue).then(() => {
+        if( ...) {
+          throw new util.ValidationError(`Invalid for *reasons*: ${newValue`});
         }
       };
     },
@@ -162,7 +190,7 @@ const tree = new Wunderbaum({
 
       switch (col.id) {
         case "author":
-          if (e.isNew) {  // alternatively define a `html` property in the column definition.
+          if (e.isNew) {
             col.elem.innerHTML = '<input type="text" tabindex="-1">';
           }
           util.setValueToElem(col.elem, val);
@@ -262,7 +290,7 @@ const tree = new Wunderbaum({
 });
 ```
 
-### 2.2. Apply Modified Node Data
+### 2.2. Validate and Apply Modified Cell Data
 
 The `change(e)` callback is called when the user has finished editing a cell.
 More precisely, it is called when the embedded _input_, _select_, or _textarea_
@@ -272,7 +300,8 @@ object that contains useful properties for this purpose.
 
 The [util.getValueFromElem()](https://mar10.github.io/wunderbaum/api/functions/util.getValueFromElem.html)
 helper function can be used to read the current value from the embedded input
-element.
+element. This value is also avalable as `e.inputValue`, however without coercing
+date inputs to _Date_ instances.
 
 > Again, we follow the convention to name the column id after the node data
 > property that appears in that column.
@@ -307,8 +336,12 @@ const tree = new Wunderbaum({
     switch (colId) {
       case "year":
         val = util.getValueFromElem(e.inputElem, true);
+
+        if(val && new Date(val) > new Date()) {
+          throw new util.ValidationError("Invalid year (must not be in the past)");
+        }
         if (val && !/^\d{4}$/.test(val)) {
-          throw new Error("Invalid year");
+          throw new util.ValidationError("Invalid year (yyyy)");
         }
         e.node.data[colId] = val;
         break;

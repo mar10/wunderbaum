@@ -1658,12 +1658,12 @@ export class Wunderbaum {
     // }
   }
 
-  /** Set or remove keybaord focus to the tree container. */
+  /** Set or remove keyboard focus to the tree container. */
   setActiveNode(key: string, flag: boolean = true, options?: SetActiveOptions) {
     this.findKey(key)?.setActive(flag, options);
   }
 
-  /** Set or remove keybaord focus to the tree container. */
+  /** Set or remove keyboard focus to the tree container. */
   setFocus(flag = true) {
     if (flag) {
       this.element.focus();

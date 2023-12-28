@@ -47,15 +47,26 @@ on the current mode, allowing for custom CSS rules:
 These classes are automatically set for distinct rows, allowing custom CSS rules:
 
 - `wb-active`
-- `wb-selected`
 - `wb-busy`
 - `wb-error`
+- `wb-invalid`
 - `wb-loading`
+- `wb-match`
+- `wb-selected`
 - `wb-skeleton` <br>
   Added to rows, when the _skeleton_ tree option is true.
   Applies CSS styles that render titles as glowing placeholders.
   (Typically combined with `wb-initializing`.)
 - `wb-status-STATUS`, e.g. `wb-status-error`
+- `wb-submatch`
+
+These classes are automatically set for distinct column spans,
+allowing custom CSS rules:
+
+- `wb-active`
+- `wb-busy`
+- `wb-error`
+- `wb-invalid`
 
 ```css
 todo: example;

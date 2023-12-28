@@ -1891,6 +1891,7 @@ export class WunderbaumNode {
       let i = 0;
       for (const colSpan of rowDiv.children) {
         colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
+        colSpan.classList.remove("wb-error", "wb-invalid");
       }
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
       const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
