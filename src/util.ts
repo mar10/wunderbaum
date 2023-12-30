@@ -3,6 +3,9 @@
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
+
+import { DebouncedFunction } from "./debounce";
+
 /** @module util */
 
 /** Readable names for `MouseEvent.button` */
@@ -799,10 +802,8 @@ export function type(obj: any): string {
 export function adaptiveThrottle(
   this: unknown,
   callback: (...args: any[]) => void,
-  options: any
-) {
-  let waiting = 0; // Initially, we're not waiting
-  let pendingArgs: any = null;
+  options: object
+): DebouncedFunction<(...args: any[]) => void> {
   const opts = Object.assign(
     {
       minDelay: 16,
@@ -814,6 +815,10 @@ export function adaptiveThrottle(
   );
   const minDelay = Math.max(16, +opts.minDelay);
   const maxDelay = +opts.maxDelay;
+
+  let waiting = 0; // Initially, we're not waiting
+  let pendingArgs: any[] | null = null;
+  let pendingTimer: number | null = null;
 
   const throttledFn = (...args: any[]) => {
     if (waiting) {
@@ -844,9 +849,10 @@ export function adaptiveThrottle(
       //   `adaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
       //   pendingArgs
       // );
-      setTimeout(() => {
+      pendingTimer = <number>(<unknown>setTimeout(() => {
         // Unblock, and trigger pending requests if any
         // const skipped = waiting - 1;
+        pendingTimer = null;
         waiting = 0; // And allow future invocations
         if (pendingArgs != null) {
           // There was another request while running or waiting
@@ -856,8 +862,21 @@ export function adaptiveThrottle(
           // );
           throttledFn.apply(this, pendingArgs);
         }
-      }, useDelay);
+      }, useDelay));
     }
+  };
+  throttledFn.cancel = () => {
+    if (pendingTimer) {
+      clearTimeout(pendingTimer);
+      pendingTimer = null;
+    }
+    pendingArgs = null;
+  };
+  throttledFn.pending = () => {
+    return !!pendingTimer;
+  };
+  throttledFn.flush = () => {
+    throw new Error("Not implemented");
   };
   return throttledFn;
 }
