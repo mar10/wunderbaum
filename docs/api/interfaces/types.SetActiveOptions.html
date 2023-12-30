@@ -17,7 +17,7 @@
 <li><a href="types.SetActiveOptions.html">SetActiveOptions</a></li></ul>
 <h1>Interface SetActiveOptions</h1></div>
 <section class="tsd-panel tsd-comment">
-<div class="tsd-comment tsd-typography"><p>Possible values for <a href="../classes/wb_node.WunderbaumNode.html#setActive" class="tsd-kind-method">()</a> <code>options</code> argument.</p>
+<div class="tsd-comment tsd-typography"><p>Possible values for <a href="../classes/wb_node.WunderbaumNode.html#setActive" class="tsd-kind-method">WunderbaumNode.setActive</a> <code>options</code> argument.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-hierarchy">
@@ -25,7 +25,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">SetActiveOptions</span></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L582">types.ts:582</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L587">src/types.ts:587</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -34,8 +34,8 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="types.SetActiveOptions.html#colIdx" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>col<wbr/>Idx?</span></a>
+<a href="types.SetActiveOptions.html#edit" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>edit?</span></a>
 <a href="types.SetActiveOptions.html#event" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>event?</span></a>
-<a href="types.SetActiveOptions.html#focusNode" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>focus<wbr/>Node?</span></a>
 <a href="types.SetActiveOptions.html#focusTree" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>focus<wbr/>Tree?</span></a>
 <a href="types.SetActiveOptions.html#noEvents" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>no<wbr/>Events?</span></a>
 <a href="types.SetActiveOptions.html#retrigger" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>retrigger?</span></a>
@@ -44,12 +44,22 @@
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="colIdx" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>col<wbr/>Idx</span><a href="#colIdx" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">col<wbr/>Idx</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">number</span></div>
-<div class="tsd-comment tsd-typography"><p>Call <a href="../classes/wunderbaum.Wunderbaum.html#setColumn" class="tsd-kind-method">Wunderbaum.setColumn</a>.</p>
+<div class="tsd-signature"><span class="tsd-kind-property">col<wbr/>Idx</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">number</span></div>
+<div class="tsd-comment tsd-typography"><p>Also call <a href="../classes/wunderbaum.Wunderbaum.html#setColumn" class="tsd-kind-method">()</a>.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L594">types.ts:594</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L601">src/types.ts:601</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member"><a id="edit" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>edit</span><a href="#edit" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">edit</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Focus embedded input control of the grid cell if any (requires colIdx &gt;= 0).
+If colIdx is 0 or &#39;*&#39;, the node title is put into edit mode.
+Implies <code>focusTree: true</code>, requires <code>colIdx</code>.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L607">src/types.ts:607</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="event" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>event</span><a href="#event" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">event</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">Event</span></div>
@@ -57,39 +67,31 @@
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L592">types.ts:592</a></li></ul></aside></section>
-<section class="tsd-panel tsd-member"><a id="focusNode" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>focus<wbr/>Node</span><a href="#focusNode" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">focus<wbr/>Node</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
-<div class="tsd-comment tsd-typography"><p>Set node as focused node (default: true).</p>
-</div>
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L588">types.ts:588</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L599">src/types.ts:599</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="focusTree" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>focus<wbr/>Tree</span><a href="#focusTree" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">focus<wbr/>Tree</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
-<div class="tsd-comment tsd-typography"><p>Set node as focused node (default: false).</p>
+<div class="tsd-comment tsd-typography"><p>Call <code>tree.setFocus()</code> to acquire keyboard focus (@default: false).</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L590">types.ts:590</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L597">src/types.ts:597</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="noEvents" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>no<wbr/>Events</span><a href="#noEvents" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">no<wbr/>Events</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
-<div class="tsd-comment tsd-typography"><p>Do not generate (de)activate event  (default: false).</p>
+<div class="tsd-comment tsd-typography"><p>Do not generate (de)activate event  (@default: false).</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L586">types.ts:586</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L591">src/types.ts:591</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member"><a id="retrigger" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>retrigger</span><a href="#retrigger" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">retrigger</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
-<div class="tsd-comment tsd-typography"><p>Generate (de)activate event, even if node already has this status (default: false).</p>
+<div class="tsd-comment tsd-typography"><p>Generate (de)activate event, even if node already has this status (@default: false).</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/8eccae9/src/types.ts#L584">types.ts:584</a></li></ul></aside></section></section></div>
+<li>Defined in <a href="https://github.com/mar10/wunderbaum/blob/6c729a8/src/types.ts#L589">src/types.ts:589</a></li></ul></aside></section></section></div>
 <div class="col-sidebar">
 <div class="page-menu">
 <div class="tsd-navigation settings">
@@ -108,8 +110,8 @@
 <div class="tsd-accordion-details">
 <ul>
 <li><a href="#colIdx" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>col<wbr/>Idx</span></a></li>
+<li><a href="#edit" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>edit</span></a></li>
 <li><a href="#event" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>event</span></a></li>
-<li><a href="#focusNode" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>focus<wbr/>Node</span></a></li>
 <li><a href="#focusTree" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>focus<wbr/>Tree</span></a></li>
 <li><a href="#noEvents" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>no<wbr/>Events</span></a></li>
 <li><a href="#retrigger" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>retrigger</span></a></li></ul></div></details></div>
