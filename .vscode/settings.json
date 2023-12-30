@@ -1,3 +1,9 @@
 {
-    "python.formatting.provider": "black"
+  "python.formatting.provider": "black",
+  "files.exclude": {
+    "**/build": true,
+    "**/dist": true,
+    "**/docs/api": true
+  },
+  "explorer.excludeGitIgnore": false
 }
