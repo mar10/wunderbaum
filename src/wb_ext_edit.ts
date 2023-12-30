@@ -187,7 +187,6 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
           break;
         case "F2":
           if (trigger.indexOf("F2") >= 0) {
-            // tree.setNavigationMode(NavigationMode.cellEdit);
             this.startEditTitle();
             return false;
           }

@@ -583,20 +583,40 @@ export interface ScrollToOptions extends ScrollIntoViewOptions {
   node: WunderbaumNode;
 }
 
-/** Possible values for {@link WunderbaumNode.setActive()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setActive} `options` argument. */
 export interface SetActiveOptions {
-  /** Generate (de)activate event, even if node already has this status (default: false). */
+  /** Generate (de)activate event, even if node already has this status (@default: false). */
   retrigger?: boolean;
-  /** Do not generate (de)activate event  (default: false). */
+  /** Do not generate (de)activate event  (@default: false). */
   noEvents?: boolean;
-  /** Set node as focused node (default: true). */
-  focusNode?: boolean;
-  /** Set node as focused node (default: false). */
+  // /** Mark node as focused node (default: true).
+  //  * Combine with `focusTree: true` to set keyboard focus to tree container.
+  //  */
+  // focusNode?: boolean;
+  /** Call `tree.setFocus()` to acquire keyboard focus (@default: false). */
   focusTree?: boolean;
   /** Optional original event that will be passed to the (de)activate handler. */
   event?: Event;
-  /** Call {@link Wunderbaum.setColumn}. */
-  colIdx?: number;
+  /** Also call {@link Wunderbaum.setColumn()}. */
+  colIdx?: number | string;
+  /**
+   * Focus embedded input control of the grid cell if any (requires colIdx >= 0).
+   * If colIdx is 0 or '*', the node title is put into edit mode.
+   * Implies `focusTree: true`, requires `colIdx`.
+   */
+  edit?: boolean;
+}
+
+/** Possible values for {@link WunderbaumNode.setColumn()} `options` argument. */
+export interface SetColumnOptions {
+  /**
+   * Focus embedded input control of the grid cell if any .
+   * If colIdx is 0 or '*', the node title is put into edit mode.
+   * @default false
+   */
+  edit?: boolean;
+  /** Horizontically scroll into view. @default: true */
+  scrollIntoView?: boolean;
 }
 
 /** Possible values for {@link WunderbaumNode.setExpanded()} `options` argument. */

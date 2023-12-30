@@ -15,7 +15,12 @@ document.addEventListener("DOMContentLoaded", (event) => {
     source: "get/root/nodes",
     // Event handlers:
     init: (e) => {
-      e.tree.setFocus();
+      // e.tree.setFocus();
+      e.tree.findFirst("Foo")?.setActive(true, {
+        colIdx: "*",
+        edit: true,
+        focusTree: true,
+      });
     },
     receive: function (e) {},
     load: function (e) {},

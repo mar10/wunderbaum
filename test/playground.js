@@ -30,32 +30,32 @@ const tree = new Wunderbaum({
   // scrollIntoViewOnExpandClick: false,
   // showSpinner: true,
 
-  columns: [
-    { title: "test", id: "*", width: "200px" },
-    // {
-    //   title: "Fav",
-    //   id: "favorite",
-    //   width: "30px",
-    //   classes: "wb-helper-center",
-    //   html: "<input type=checkbox tabindex='-1'>",
-    // },
-    {
-      title: "Details",
-      id: "details",
-      width: "100px",
-      html: "<input type=text tabindex='-1' autocomplete=off>",
-      headerClasses: "wb-helper-center",
-      // headerClasses: "",
-      classes: "wb-helper-end",
-    },
-    // { title: "Mode", id: "mode", width: "100px" },
-    {
-      title: "Date",
-      id: "date",
-      width: "100px",
-      html: "<input type=date tabindex='-1'>",
-    },
-  ],
+  // columns: [
+  //   { title: "test", id: "*", width: "200px" },
+  //   // {
+  //   //   title: "Fav",
+  //   //   id: "favorite",
+  //   //   width: "30px",
+  //   //   classes: "wb-helper-center",
+  //   //   html: "<input type=checkbox tabindex='-1'>",
+  //   // },
+  //   {
+  //     title: "Details",
+  //     id: "details",
+  //     width: "100px",
+  //     html: "<input type=text tabindex='-1' autocomplete=off>",
+  //     headerClasses: "wb-helper-center",
+  //     // headerClasses: "",
+  //     classes: "wb-helper-end",
+  //   },
+  //   // { title: "Mode", id: "mode", width: "100px" },
+  //   {
+  //     title: "Date",
+  //     id: "date",
+  //     width: "100px",
+  //     html: "<input type=date tabindex='-1'>",
+  //   },
+  // ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
     folder: {
@@ -229,7 +229,11 @@ const tree = new Wunderbaum({
   //   }
   // },
   init: (e) => {
-    e.tree.findFirst("Anthony Ross")?.setActive();
+    e.tree.findFirst("Anthony Ross")?.setActive(true, {
+      colIdx: "*",
+      edit: true,
+      focusTree: true,
+    });
   },
 });
 console.log(`Created  ${tree}`);

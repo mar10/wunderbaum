@@ -2082,16 +2082,22 @@ export class WunderbaumNode {
   }
 
   /**
-   * Activate this node, deactivate previous, send events, activate column and scroll int viewport.
+   * Activate this node, deactivate previous, send events, activate column and
+   * scroll into viewport.
    */
   async setActive(flag: boolean = true, options?: SetActiveOptions) {
     const tree = this.tree;
     const prev = tree.activeNode;
     const retrigger = options?.retrigger; // Default: false
     const focusTree = options?.focusTree; // Default: false
-    const focusNode = options?.focusNode !== false; // Default: true
+    // const focusNode = options?.focusNode !== false; // Default: true
     const noEvents = options?.noEvents; // Default: false
-    const orgEvent = options?.event; // Default: false
+    const orgEvent = options?.event; // Default: null
+    const colIdx = options?.colIdx; // Default: null
+    const edit = options?.edit; // Default: false
+
+    util.assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
+    util.assert(!edit || colIdx != null, "edit requires colIdx");
 
     if (!noEvents) {
       if (flag) {
@@ -2119,28 +2125,29 @@ export class WunderbaumNode {
     if (prev !== this) {
       if (flag) {
         tree.activeNode = this;
-        if (focusNode || focusTree) {
-          tree.focusNode = this;
-        }
-        if (focusTree) {
-          tree.setFocus();
-        }
       }
       prev?.update(ChangeType.status);
       this.update(ChangeType.status);
     }
-    if (
-      options &&
-      options.colIdx != null &&
-      options.colIdx !== tree.activeColIdx &&
-      tree.isCellNav()
-    ) {
-      tree.setColumn(options.colIdx);
-    }
-    if (flag && !noEvents) {
-      this._callEvent("activate", { prevNode: prev, event: orgEvent });
-    }
-    return this.makeVisible();
+    return this.makeVisible().then(() => {
+      if (flag) {
+        if (focusTree || edit) {
+          tree.setFocus();
+          tree.focusNode = this;
+          tree.focusNode.setFocus();
+        }
+        // if (focusNode || edit) {
+        //   tree.focusNode = this;
+        //   tree.focusNode.setFocus();
+        // }
+        if (colIdx != null && tree.isCellNav()) {
+          tree.setColumn(colIdx, { edit: edit });
+        }
+        if (!noEvents) {
+          this._callEvent("activate", { prevNode: prev, event: orgEvent });
+        }
+      }
+    });
   }
 
   /**
@@ -2185,7 +2192,7 @@ export class WunderbaumNode {
    * @see {@link setActive}
    */
   setFocus(flag: boolean = true) {
-    util.assert(!!flag, "blur is not yet implemented");
+    util.assert(!!flag, "Blur is not yet implemented");
     const prev = this.tree.focusNode;
     this.tree.focusNode = this;
     prev?.update();

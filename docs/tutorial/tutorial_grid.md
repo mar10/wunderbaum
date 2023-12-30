@@ -194,7 +194,7 @@ const tree = new Wunderbaum({
 ### Related Methods
 
 - `tree.setNavigationOption(mode: NavModeEnum)`
-- `tree.setColumn(colIdx: number)`
+- `tree.setColumn(colIdx: number|string,  options?: SetColumnOptions)`
 
 ### Related CSS Rules
 

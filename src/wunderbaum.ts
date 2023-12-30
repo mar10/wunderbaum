@@ -51,6 +51,7 @@ import {
   DynamicIconOption,
   DynamicStringOption,
   DynamicBoolOption,
+  SetColumnOptions,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -64,6 +65,7 @@ import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
 import { EditExtension } from "./wb_ext_edit";
 import { WunderbaumOptions } from "./wb_options";
+import { DebouncedFunction } from "./debounce";
 
 class WbSystemRoot extends WunderbaumNode {
   constructor(tree: Wunderbaum) {
@@ -104,7 +106,7 @@ export class Wunderbaum {
   /** Contains additional data that was sent as response to an Ajax source load request. */
   public readonly data: { [key: string]: any } = {};
 
-  protected readonly _updateViewportThrottled: (...args: any) => void;
+  protected readonly _updateViewportThrottled: DebouncedFunction<() => void>;
   protected extensionList: WunderbaumExtension<any>[] = [];
   protected extensions: ExtensionsDict = {};
 
@@ -153,7 +155,7 @@ export class Wunderbaum {
   public filterMode: FilterModeType = null;
 
   // --- KEYNAV ---
-  /** @internal Use `setColumn()`/`getActiveColElem()`*/
+  /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
   public activeColIdx = 0;
   /** @internal */
   public _cellNavMode = false;
@@ -366,6 +368,7 @@ export class Wunderbaum {
           } else {
             this.setNavigationOption(opts.navigationModeOption);
           }
+          this.update(ChangeType.structure, { immediate: true });
           readyDeferred.resolve();
         })
         .catch((error) => {
@@ -1372,6 +1375,9 @@ export class Wunderbaum {
 
   /**
    * Return the currently active node or null.
+   * @see {@link WunderbaumNode.setActive}
+   * @see {@link WunderbaumNode.isActive}
+   * @see {@link WunderbaumNode.getFocusNode}
    */
   getActiveNode() {
     return this.activeNode;
@@ -1385,7 +1391,8 @@ export class Wunderbaum {
   }
 
   /**
-   * Return the currently active node or null.
+   * Return the node that currently has keyboard focus or null.
+   * @see {@link WunderbaumNode.getActiveNode}
    */
   getFocusNode() {
     return this.focusNode;
@@ -1622,11 +1629,24 @@ export class Wunderbaum {
   /**
    * Set column #colIdx to 'active'.
    *
-   * This higlights the column header and -cells by adding the `wb-active` class.
+   * This higlights the column header and -cells by adding the `wb-active`
+   * class to all grid cells of the active column. <br>
    * Available in cell-nav mode only.
+   *
+   * If _options.edit_ is true, the embedded input element is focused, or if
+   * colIdx is 0, the node title is put into edit mode.
    */
-  setColumn(colIdx: number) {
-    util.assert(this.isCellNav(), "Exected cellNav mode");
+  setColumn(colIdx: number | string, options?: SetColumnOptions) {
+    const edit = options?.edit;
+    const scroll = options?.scrollIntoView !== false;
+
+    util.assert(this.isCellNav(), "Expected cellNav mode");
+
+    if (typeof colIdx === "string") {
+      const cid = colIdx;
+      colIdx = this.columns.findIndex((c) => c.id === colIdx);
+      util.assert(colIdx >= 0, `Invalid colId: ${cid}`);
+    }
     util.assert(
       0 <= colIdx && colIdx < this.columns.length,
       `Invalid colIdx: ${colIdx}`
@@ -1652,10 +1672,21 @@ export class Wunderbaum {
         (colDiv as HTMLElement).classList.toggle("wb-active", i++ === colIdx);
       }
     }
-    // Vertical scroll into view
-    // if (this.options.fixedCol) {
-    this.scrollToHorz();
-    // }
+    // Horizontically scroll into view
+    if (scroll || edit) {
+      this.scrollToHorz();
+    }
+
+    if (edit && this.activeNode) {
+      // this.activeNode.setFocus(); // Blur prev. input if any
+      if (colIdx === 0) {
+        this._callMethod("edit.startEditTitle");
+      } else {
+        this.getActiveColElem()
+          ?.querySelector<HTMLInputElement>("input,select")
+          ?.focus();
+      }
+    }
   }
 
   /** Set or remove keyboard focus to the tree container. */
@@ -1676,6 +1707,7 @@ export class Wunderbaum {
    * Schedule an update request to reflect a tree change.
    * The render operation is async and debounced unless the `immediate` option
    * is set.
+   *
    * Use {@link WunderbaumNode.update()} if only a single node has changed,
    * or {@link WunderbaumNode._render()}) to pass special options.
    */
@@ -1694,9 +1726,19 @@ export class Wunderbaum {
 
   update(
     change: ChangeType,
-    node?: WunderbaumNode | any,
+    node?: WunderbaumNode | UpdateOptions,
     options?: UpdateOptions
   ): void {
+    // this.log(`update(${change}) node=${node}`);
+    if (!(node instanceof WunderbaumNode)) {
+      options = node;
+      node = undefined;
+    }
+
+    const immediate = !!util.getOption(options, "immediate");
+    const RF = RenderFlag;
+    const pending = this.pendingChangeTypes;
+
     if (this._disableUpdateCount) {
       // Assuming that we redraw all when enableUpdate() is re-enabled.
       // this.log(
@@ -1705,15 +1747,6 @@ export class Wunderbaum {
       this._disableUpdateIgnoreCount++;
       return;
     }
-    // this.log(`update(${change}) node=${node}`);
-    if (!(node instanceof WunderbaumNode)) {
-      options = node;
-      node = null;
-    }
-    const immediate = !!util.getOption(options, "immediate");
-    const RF = RenderFlag;
-    const pending = this.pendingChangeTypes;
-
     switch (change) {
       case ChangeType.any:
       case ChangeType.colStructure:
@@ -1739,8 +1772,8 @@ export class Wunderbaum {
         util.assert(node, `Option '${change}' requires a node.`);
         // Single nodes are immediately updated if already inside the viewport
         // (otherwise we can ignore)
-        if (node._rowElem) {
-          node._render({ change: change });
+        if (node!._rowElem) {
+          node!._render({ change: change });
         }
         break;
       default:
@@ -2069,12 +2102,15 @@ export class Wunderbaum {
   protected _updateViewportImmediately() {
     if (this._disableUpdateCount) {
       this.log(
-        `_updateViewportImmediately() IGNORED (disable level: ${this._disableUpdateCount})`
+        `_updateViewportImmediately() IGNORED (disable level: ${this._disableUpdateCount}).`
       );
       this._disableUpdateIgnoreCount++;
       return;
     }
-
+    if (this._updateViewportThrottled.pending()) {
+      this.logWarn(`_updateViewportImmediately() cancel pending timer.`);
+      this._updateViewportThrottled.cancel();
+    }
     // Shorten container height to avoid v-scrollbar
     const FIX_ADJUST_HEIGHT = 1;
     const RF = RenderFlag;

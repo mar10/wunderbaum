@@ -56,7 +56,6 @@ export class KeynavExtension extends WunderbaumExtension<any> {
     const curInput = this._getEmbeddedInputElem(event.target);
     const inputHasFocus = curInput && this._isCurInputFocused();
     const navModeOption = opts.navigationModeOption as NavModeEnum;
-    // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
 
     let focusNode,
       eventName = eventToString(event),
@@ -258,6 +257,7 @@ export class KeynavExtension extends WunderbaumExtension<any> {
       } else if (curInput) {
         // On a cell that has an embedded, unfocused <input>
         if (eventName.length === 1 && inputCanFocus) {
+          // Typing a single char
           curInput.focus();
           curInput.value = "";
           node.logDebug(`Focus input: ${eventName}`);
