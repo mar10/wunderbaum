@@ -1469,9 +1469,20 @@ export class Wunderbaum {
     return `Wunderbaum<'${this.id}'>`;
   }
 
+  /** Return true if any node title or grid cell is currently beeing edited.
+   *
+   * See also {@link Wunderbaum.isEditingTitle}.
+   */
+  isEditing(): boolean {
+    const focusElem = this.nodeListElement.querySelector(
+      "input:focus,select:focus"
+    );
+    return !!focusElem;
+  }
+
   /** Return true if any node is currently in edit-title mode.
    *
-   * See also {@link WunderbaumNode.isEditingTitle}.
+   * See also {@link WunderbaumNode.isEditingTitle} and {@link Wunderbaum.isEditing}.
    */
   isEditingTitle(): boolean {
     return this._callMethod("edit.isEditingTitle");
