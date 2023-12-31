@@ -871,6 +871,7 @@ export function adaptiveThrottle(
       pendingTimer = null;
     }
     pendingArgs = null;
+    waiting = 0;
   };
   throttledFn.pending = () => {
     return !!pendingTimer;

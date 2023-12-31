@@ -8,6 +8,7 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.8.0: Allow to `throw new ValidationError()` in `tree.change(e)` event.
+- v0.8.0: `node.setActive()` allows to focus or edit a cell.
 
 - v0.7.0: #68 Always reset 'loading' status.
 - v0.7.0: #69 prevent iOS browser from opening links on drop.
