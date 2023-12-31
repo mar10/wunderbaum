@@ -429,7 +429,7 @@ export class Wunderbaum {
           node.isActive() &&
           (!slowClickDelay || Date.now() - this.lastClickTime < slowClickDelay)
         ) {
-          this._callMethod("edit.startEditTitle", node);
+          node.startEditTitle();
         }
 
         if (info.colIdx >= 0) {
@@ -485,7 +485,7 @@ export class Wunderbaum {
 
       this._callEvent("focus", { flag: flag, event: e });
 
-      if (flag && this.isRowNav() && !this.isEditing()) {
+      if (flag && this.isRowNav() && !this.isEditingTitle()) {
         if ((opts.navigationModeOption as NavModeEnum) === NavModeEnum.row) {
           targetNode?.setActive();
         } else {
@@ -897,7 +897,7 @@ export class Wunderbaum {
         this._callMethod("edit.createNode", "after");
         break;
       case "rename":
-        this._callMethod("edit.startEditTitle");
+        node.startEditTitle();
         break;
       // Simple clipboard simulation:
       // case "cut":
@@ -1469,8 +1469,11 @@ export class Wunderbaum {
     return `Wunderbaum<'${this.id}'>`;
   }
 
-  /** Return true if any node is currently in edit-title mode. */
-  isEditing(): boolean {
+  /** Return true if any node is currently in edit-title mode.
+   *
+   * See also {@link WunderbaumNode.isEditingTitle}.
+   */
+  isEditingTitle(): boolean {
     return this._callMethod("edit.isEditingTitle");
   }
 
@@ -1680,7 +1683,7 @@ export class Wunderbaum {
     if (edit && this.activeNode) {
       // this.activeNode.setFocus(); // Blur prev. input if any
       if (colIdx === 0) {
-        this._callMethod("edit.startEditTitle");
+        this.activeNode.startEditTitle();
       } else {
         this.getActiveColElem()
           ?.querySelector<HTMLInputElement>("input,select")

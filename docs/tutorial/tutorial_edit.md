@@ -113,10 +113,12 @@ activate a node, and hit <code>F2</code>.
 
 ### Related Methods
 
+- `node.setActive(true, {colIdx: 0, edit: true})`
+- `node.startEditTitle()`
 - `tree.isEditingTitle()`
-- `util.setValueToElem()`
 - `tree.startEditTitle(node)`
 - `tree.stopEditTitle(apply: boolean)`
+- `util.setValueToElem()`
 
 ### Style Hacks
 
@@ -124,9 +126,9 @@ activate a node, and hit <code>F2</code>.
 input.wb-input-edit {}
 span.wb-col.wb-busy {}
 span.wb-col.wb-error {}
+span.wb-col.wb-invalid {}
 span.wb-col input:invalid {}
 wb-tristate
-
 ```
 
 ### Code Hacks
@@ -355,6 +357,7 @@ const tree = new Wunderbaum({
 
 ### Related Methods
 
+- `node.setActive(true, {colIdx: 2, edit: true})`
 - `util.getValueFromElem()`
 - `util.setValueToElem()`
 - `util.toggleCheckbox()`

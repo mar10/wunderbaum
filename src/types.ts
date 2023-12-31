@@ -161,6 +161,8 @@ export interface WbChangeEventType extends WbNodeEventType {
   inputElem: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
   /** The new value of the embedded element, depending on the input element type. */
   inputValue: any;
+  /** Result of `inputElem.checkValidity()`. */
+  inputValid: boolean;
 }
 
 export interface WbClickEventType extends WbTreeEventType {
@@ -187,6 +189,8 @@ export interface WbEditApplyEventType extends WbNodeEventType {
   oldValue: string;
   /** The new node title. */
   newValue: string;
+  /** Result of `inputElem.checkValidity()`. */
+  inputValid: boolean;
 }
 
 export interface WbEditEditEventType extends WbNodeEventType {

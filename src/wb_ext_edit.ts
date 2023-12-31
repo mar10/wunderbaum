@@ -126,11 +126,13 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       this.tree.log("Ignored change event for removed element or node title");
       return;
     }
+    // See also WbChangeEventType
     this._applyChange("change", node, colElem, e.target as HTMLInputElement, {
       info: info,
       event: e,
       inputElem: e.target,
       inputValue: Wunderbaum.util.getValueFromElem(e.target as HTMLElement),
+      inputValid: (e.target as HTMLInputElement).checkValidity(),
     });
   }
 
@@ -300,6 +302,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
         oldValue: node.title,
         newValue: newValue,
         inputElem: focusElem,
+        inputValid: focusElem.checkValidity(),
       }).then((value) => {
         const errMsg = focusElem.validationMessage;
         if (validity && errMsg && value !== false) {

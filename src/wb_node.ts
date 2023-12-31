@@ -420,6 +420,11 @@ export class WunderbaumNode {
     }
   }
 
+  /** Start editing this node's title. */
+  startEditTitle(): void {
+    this.tree._callMethod("edit.startEditTitle", this);
+  }
+
   /** Call `setExpanded()` on all descendant nodes. */
   async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
     const tree = this.tree;
@@ -829,8 +834,11 @@ export class WunderbaumNode {
     return true;
   }
 
-  /** Return true if this node is currently in edit-title mode. */
-  isEditing(): boolean {
+  /** Return true if _this_ node is currently in edit-title mode.
+   *
+   * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+   */
+  isEditingTitle(): boolean {
     return this.tree._callMethod("edit.isEditingTitle", this);
   }
 
