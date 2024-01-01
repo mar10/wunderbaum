@@ -18,6 +18,8 @@ div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
 }
 ```
 
+?> See the [Styling Tutorial](/tutorial/tutorial_styling.md) for details.
+
 ## Custom Icons
 
 This example uses [Font Awesome Icons](https://fontawesome.com/icons) instead

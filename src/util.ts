@@ -4,9 +4,11 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { DebouncedFunction } from "./debounce";
-
 /** @module util */
+
+import { DebouncedFunction, debounce, throttle } from "./debounce";
+
+export { debounce, throttle };
 
 /** Readable names for `MouseEvent.button` */
 export const MOUSE_BUTTONS: { [key: number]: string } = {

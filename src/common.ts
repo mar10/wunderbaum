@@ -147,7 +147,7 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
 
 /** Return a callback that returns true if the node title matches the string
  * or regular expression.
- * @see {@link WunderbaumNode.findAll}
+ * @see {@link WunderbaumNode.findAll()}
  */
 export function makeNodeTitleMatcher(match: string | RegExp): MatcherCallback {
   if (match instanceof RegExp) {

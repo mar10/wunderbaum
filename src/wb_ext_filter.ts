@@ -236,7 +236,11 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     treeOpts.autoCollapse = prevAutoCollapse;
 
     if (count === 0 && opts.noData && hideMode) {
-      tree.root.setStatus(NodeStatusType.noData);
+      if (typeof opts.noData === "string") {
+        tree.root.setStatus(NodeStatusType.noData, { message: opts.noData });
+      } else {
+        tree.root.setStatus(NodeStatusType.noData);
+      }
     }
     // Redraw whole tree
     tree.logInfo(

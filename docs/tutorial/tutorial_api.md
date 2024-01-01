@@ -5,13 +5,11 @@
 This chapter describes different ways to modify the tree model using
 the API.
 
-<!-- ?> See also the [Grid Tutorial](/tutorial/tutorial_grid.md) for specific
-rendering of grid cells and the [Edit Tutorial](/tutorial/tutorial_edit.md) for
-rendering of embedded input controls in grids. -->
-
 ## Iteration
 
-There are two ways to traverse the tree _depth-first, pre-order_
+- [tree.visit()](https://mar10.github.io/wunderbaum/api/classes/wunderbaum.Wunderbaum.html#visit)
+
+There are two ways to traverse the tree _depth-first, pre-order_:
 
 ```js
 for (const node of tree) {
@@ -52,14 +50,57 @@ parentNode.visit((node) => {
 });
 ```
 
-### Related Methods
+**Related Methods**
+
+- [tree.visit()](https://mar10.github.io/wunderbaum/api/classes/wunderbaum.Wunderbaum.html#visit)
+
+## Searching
+
+See [Search](/tutorial/tutorial_search.md)
+
+## Selection
+
+See ...
+
+## Mutation
+
+### Adding Nodes
+
+### Removing Nodes
+
+### Moving Nodes
+
+### Changing Node Properties
+
+### Changing Node State
+
+### Changing Node Data
+
+### Changing Node Style
+
+### Changing Node Class
+
+### Changing Node Attributes
+
+### Changing Node Icons
+
+### Changing Node Badge
+
+### Changing Node Badge Colors
+
+## Related Methods
 
 - `node.moveTo()`
 - `node.setExpanded()`
 - `node.setSelected()`
 - `tree.applyCommand()`
 
-### Performance Tips
+## Utility Methods
+
+The [Module util](https://mar10.github.io/wunderbaum/api/modules/util.html)
+provides a number of utility methods that are useful when working with trees.
+
+## Performance Tips
 
 Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many
 nodes at once.

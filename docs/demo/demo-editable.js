@@ -106,6 +106,7 @@ new mar10.Wunderbaum({
   },
   filter: {
     connectInput: "input#filterQuery",
+    // noData: "No matching nodes",
   },
   init: (e) => {},
   // load: function (e) {

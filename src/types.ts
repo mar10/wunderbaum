@@ -732,12 +732,13 @@ export type FilterOptionsType = {
    * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
    * @default 'dim'
    */
-  mode?: "dim" | "hide";
+  mode?: FilterModeType;
   /**
-   * Display a 'no data' status node if result is empty
+   * Display a 'no data' status node if result is empty (hide-mode only).
+   * Pass false to simply show an empy pane, or pass a string to customize the message.
    * @default true
    */
-  noData?: boolean;
+  noData?: boolean | string;
 };
 
 /**

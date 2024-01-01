@@ -17,9 +17,7 @@ Create HTML controls in the `render(e)` callback and implement the
 
 ## Column Definitions
 
-?> Column definitions are required to turn a plain Wunderbaum tree into a treegrid. <br>
-See [ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
-for details.
+?> Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
 
 A list of column definitions is specified in the `columns` option.
 `title` and `id` are required. `width` is optional, but recommended.
@@ -57,6 +55,10 @@ const tree = new Wunderbaum({
   ...
 });
 ```
+
+?> See also
+[ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
+for details.
 
 ## Rendering
 

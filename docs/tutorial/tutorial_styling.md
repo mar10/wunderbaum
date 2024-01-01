@@ -1,10 +1,6 @@
-# Advanced Topics
+# Styling
 
-<!-- ## User Input -->
-
-## Markup and CSS Styles
-
-### Feature Classes
+## Feature Classes
 
 We can add special classes to the tree's `<div>` container in order to enable
 custom behavior:
@@ -35,7 +31,7 @@ For example
 <div id="demo-tree" class="... wb-no-select wb-checkbox-auto-hide">...</div>
 ```
 
-### Automatic Styles
+## Automatic Styles
 
 These classes are automatically set on the tree's `<div>` container, depending
 on the current mode, allowing for custom CSS rules:
@@ -72,7 +68,7 @@ allowing custom CSS rules:
 todo: example;
 ```
 
-### Helper Classes
+## Helper Classes
 
 This classes can be added to column definitions in order to enable custom
 formatting:
@@ -94,7 +90,7 @@ formatting:
 - `wb-helper-start` <br>
   Align cell content to the left (unless `wb-rtl` is set on the cntainer).
 
-### CSS Variables
+## CSS Variables
 
 Many CSS styles can be accessed and modified using JavaScript like so:
 
@@ -108,7 +104,10 @@ document
 See [`wunderbaum.scss`](https://github.com/mar10/wunderbaum/blob/main/src/wunderbaum.scss)
 for a complete list of all availabe CSS variables.
 
-### CSS Hacks
+## CSS Hacks
+
+?> See also the [Render Tutorial](/tutorial/tutorial_render?id=custom-markup)
+for details on the markup structure and used class names.
 
 ```css
 div.wunderbaum {
@@ -139,17 +138,4 @@ div.wunderbaum:focus-visible {
   /* Suppress system focus outline. */
   outline-style: none;
 }
-```
-
-### Performance Tips
-
-Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many
-nodes at once.
-
-```js
-tree.runWithDeferredUpdate(() => {
-  tree.visit((node) => {
-    node.setSelected(true);
-  });
-});
 ```
