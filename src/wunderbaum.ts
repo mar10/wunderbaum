@@ -509,7 +509,7 @@ export class Wunderbaum {
    * getTree(1);        // Get second Wunderbaum instance on page
    * getTree(event);    // Get tree for this mouse- or keyboard event
    * getTree("foo");    // Get tree for this `tree.options.id`
-   * getTree("#tree");  // Get tree for this matching element
+   * getTree("#tree");  // Get tree for first matching element selector
    * ```
    */
   public static getTree(
@@ -623,12 +623,12 @@ export class Wunderbaum {
     );
     this.keyMap.set(key, node);
     const rk = node.refKey;
-    if (rk) {
+    if (rk != null) {
       const rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
       if (rks) {
         rks.add(node);
       } else {
-        this.refKeyMap.set(rk, new Set());
+        this.refKeyMap.set(rk, new Set([node]));
       }
     }
   }
@@ -636,7 +636,7 @@ export class Wunderbaum {
   /** Remove node from tree's bookkeeping data structures. */
   _unregisterNode(node: WunderbaumNode): void {
     const rk = node.refKey;
-    if (rk) {
+    if (rk != null) {
       const rks = this.refKeyMap.get(rk);
       if (rks && rks.delete(node) && !rks.size) {
         // We just removed the last element
@@ -647,7 +647,6 @@ export class Wunderbaum {
     (node.tree as any) = null;
     (node.parent as any) = null;
     // node.title = "DISPOSED: " + node.title
-    // this.viewNodes.delete(node);
     node.removeMarkup();
   }
 
@@ -945,7 +944,6 @@ export class Wunderbaum {
     this.root.children = null;
     this.keyMap.clear();
     this.refKeyMap.clear();
-    // this.viewNodes.clear();
     this.treeRowCount = 0;
     this.activeNode = null;
     this.focusNode = null;
@@ -1162,6 +1160,8 @@ export class Wunderbaum {
   /**
    * Find all nodes that match condition.
    *
+   * @param match title string to search for, or a
+   *     callback function that returns `true` if a node is matched.
    * @see {@link WunderbaumNode.findAll}
    */
   findAll(match: string | RegExp | MatcherCallback) {
@@ -1169,8 +1169,24 @@ export class Wunderbaum {
   }
 
   /**
+   * Find all nodes with a given _refKey_ (aka a list of clones).
+   *
+   * @param refKey a `node.refKey` value to search for.
+   * @returns an array of matching nodes with at least two element or `[]`
+   * if nothing found.
+   *
+   * @see {@link WunderbaumNode.getCloneList}
+   */
+  findByRefKey(refKey: string): WunderbaumNode[] {
+    const clones = this.refKeyMap.get(refKey);
+    return clones ? Array.from(clones) : [];
+  }
+
+  /**
    * Find first node that matches condition.
    *
+   * @param match title string to search for, or a
+   *     callback function that returns `true` if a node is matched.
    * @see {@link WunderbaumNode.findFirst}
    */
   findFirst(match: string | RegExp | MatcherCallback) {
@@ -1180,8 +1196,6 @@ export class Wunderbaum {
   /**
    * Find first node that matches condition.
    *
-   * @param match title string to search for, or a
-   *     callback function that returns `true` if a node is matched.
    * @see {@link WunderbaumNode.findFirst}
    *
    */
@@ -1192,6 +1206,7 @@ export class Wunderbaum {
   /**
    * Find the next visible node that starts with `match`, starting at `startNode`
    * and wrap-around at the end.
+   * Used by quicksearch and keyboard navigation.
    */
   findNextNode(
     match: string | MatcherCallback,
@@ -2122,7 +2137,7 @@ export class Wunderbaum {
       return;
     }
     if (this._updateViewportThrottled.pending()) {
-      this.logWarn(`_updateViewportImmediately() cancel pending timer.`);
+      // this.logWarn(`_updateViewportImmediately() cancel pending timer.`);
       this._updateViewportThrottled.cancel();
     }
     // Shorten container height to avoid v-scrollbar
@@ -2239,9 +2254,6 @@ export class Wunderbaum {
     let endIdx = Math.max(0, (ofs + vp_height) / row_height + prefetch);
     endIdx = Math.ceil(endIdx);
 
-    // const obsoleteViewNodes = this.viewNodes;
-    // this.viewNodes = new Set();
-    // const viewNodes = this.viewNodes;
     // this.debug("render", opts);
     const obsoleteNodes = new Set<WunderbaumNode>();
     this.nodeListElement.childNodes.forEach((elem) => {
@@ -2535,7 +2547,7 @@ export class Wunderbaum {
    * FILTER
    * -------------------------------------------------------------------------*/
   /**
-   * [ext-filter] Dim or hide nodes.
+   * Dim or hide nodes.
    */
   filterNodes(
     filter: string | NodeFilterCallback,
@@ -2548,7 +2560,7 @@ export class Wunderbaum {
   }
 
   /**
-   * [ext-filter] Dim or hide whole branches.
+   * Dim or hide whole branches.
    */
   filterBranches(
     filter: string | NodeFilterCallback,
@@ -2561,25 +2573,19 @@ export class Wunderbaum {
   }
 
   /**
-   * [ext-filter] Reset the filter.
-   *
-   * @requires See also {@link FilterExtension}
+   * Reset the filter.
    */
   clearFilter() {
     return (this.extensions.filter as FilterExtension).clearFilter();
   }
   /**
-   * [ext-filter] Return true if a filter is currently applied.
-   *
-   * @requires See also {@link FilterExtension}
+   * Return true if a filter is currently applied.
    */
   isFilterActive() {
     return !!this.filterMode;
   }
   /**
-   * [ext-filter] Re-apply current filter.
-   *
-   * @requires See also {@link FilterExtension}
+   * Re-apply current filter.
    */
   updateFilter() {
     return (this.extensions.filter as FilterExtension).updateFilter();

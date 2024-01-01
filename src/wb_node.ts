@@ -653,6 +653,22 @@ export class WunderbaumNode {
     const colElems = this._rowElem?.querySelectorAll("span.wb-col");
     return colElems ? (colElems[colIdx] as HTMLSpanElement) : null;
   }
+  /**
+   * Return all nodes with the same refKey.
+   *
+   * @param includeSelf Include this node itself.
+   * @see {@link Wunderbaum.findByRefKey}
+   */
+  getCloneList(includeSelf = false): WunderbaumNode[] {
+    if (!this.refKey) {
+      return [];
+    }
+    const clones = this.tree.findByRefKey(this.refKey);
+    if (includeSelf) {
+      return clones;
+    }
+    return [...clones].filter((n) => n !== this);
+  }
 
   /** Return the first child node or null.
    * @returns {WunderbaumNode | null}
@@ -789,6 +805,11 @@ export class WunderbaumNode {
     return other && this.parent === other;
   }
 
+  /** Return true if this node's refKey is used by at least one other node.
+   */
+  isClone() {
+    return !!this.refKey && this.tree.findByRefKey(this.refKey).length > 1;
+  }
   /** Return true if this node's title spans all columns, i.e. the node has no
    * grid cells.
    */
