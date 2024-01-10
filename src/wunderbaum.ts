@@ -635,6 +635,7 @@ export class Wunderbaum {
 
   /** Remove node from tree's bookkeeping data structures. */
   _unregisterNode(node: WunderbaumNode): void {
+    // Remove refKey reference from map (if any)
     const rk = node.refKey;
     if (rk != null) {
       const rks = this.refKeyMap.get(rk);
@@ -643,10 +644,12 @@ export class Wunderbaum {
         this.refKeyMap.delete(rk);
       }
     }
-    // mark as disposed
+    // Remove key reference from map
+    this.keyMap.delete(node.key);
+    // Mark as disposed
     (node.tree as any) = null;
     (node.parent as any) = null;
-    // node.title = "DISPOSED: " + node.title
+    // Remove HTML markup
     node.removeMarkup();
   }
 
