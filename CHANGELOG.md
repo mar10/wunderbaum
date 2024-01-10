@@ -7,9 +7,10 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.8.0: Allow to `throw new ValidationError()` in `tree.change(e)` event.
+- v0.8.0: Add `expand(e)` and `beforeExpand(e)` events.
 - v0.8.0: Add `tree.findByRefKey()`, `node.getCloneList()`, and `node.isClone()`.
 - v0.8.0: Add `node.startEditTitle()`.
+- v0.8.0: Allow to `throw new ValidationError()` in `tree.change(e)` event.
 - v0.8.0: `node.setActive()` allows to focus or edit a cell.
 - v0.8.0: Rename `tree.isEditing()` to `.isEditingTitle()`
   and add `tree.isEditing()` to check for title _and_ grid cell editing.

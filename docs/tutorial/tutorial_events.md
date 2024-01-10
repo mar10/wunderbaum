@@ -79,6 +79,13 @@ Common event handlers include:
 </dd>
 
 <dt>
+  <code>beforeExpand(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbExpandEventType.html">WbExpandEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  Return `false` to prevent expansion of `e.node`.
+</dd>
+
+<dt>
   <code>beforeSelect(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbSelectEventType.html">WbSelectEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>
@@ -89,9 +96,9 @@ Common event handlers include:
   <code>change(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbChangeEventType.html">WbChangeEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>
-  `e.node` was clicked. <br>
-  Return `false` to prevent default behavior, e.g. expand/collapse, 
-  (de)selection, or activation.
+  The `change(e)` callback is called when the user has finished editing a cell.
+  More precisely, it is called when the embedded <i>input</i>, <i>select</i>, 
+  or <i>textarea</i> element fired a <i>change</i> event.
 </dd>
 
 <dt>
@@ -107,7 +114,7 @@ Common event handlers include:
   <code>dblclick(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbClickEventType.html">WbClickEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>
-  `e.node` was clicked. <br>
+  `e.node` was double-clicked. <br>
   Return `false` to prevent default behavior, e.g. expand/collapse.
 </dd>
 
@@ -151,6 +158,13 @@ Common event handlers include:
   <small>- <i>node event</i></small>
 </dt> <dd>
   An error occurred, e.g. during initialization or lazy loading.
+</dd>
+
+<dt>
+  <code>expand(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbExpandEventType.html">WbExpandEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  `e.node` was expanded (`e.flag === true`) or collapsed (`e.flag === false`)
 </dd>
 
 <dt>

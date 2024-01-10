@@ -205,6 +205,9 @@ export interface WbEditEditEventType extends WbNodeEventType {
 export interface WbErrorEventType extends WbNodeEventType {
   error: any;
 }
+export interface WbExpandEventType extends WbNodeEventType {
+  flag: boolean;
+}
 
 export interface WbFocusEventType extends WbTreeEventType {
   /** The original event. */
@@ -239,6 +242,9 @@ export interface WbKeydownEventType extends WbTreeEventType {
 
 export interface WbReceiveEventType extends WbNodeEventType {
   response: any;
+}
+export interface WbSelectEventType extends WbNodeEventType {
+  flag: boolean;
 }
 
 export interface WbRenderEventType extends WbNodeEventType {
@@ -277,10 +283,6 @@ export interface WbRenderEventType extends WbNodeEventType {
    * }
    */
   renderColInfosById: ColumnEventInfoMap;
-}
-
-export interface WbSelectEventType extends WbNodeEventType {
-  flag: boolean;
 }
 
 /**
@@ -623,7 +625,7 @@ export interface SetColumnOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setExpanded()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setExpanded} `options` argument. */
 export interface SetExpandedOptions {
   /** Ignore {@link WunderbaumOptions.minExpandLevel}. @default false */
   force?: boolean;

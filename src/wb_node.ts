@@ -2184,6 +2184,7 @@ export class WunderbaumNode {
    */
   async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
     const { force, scrollIntoView, immediate } = options ?? {};
+    const sendEvents = !options?.noEvents; // Default: send events
     if (
       !flag &&
       this.isExpanded() &&
@@ -2196,6 +2197,13 @@ export class WunderbaumNode {
     if (!flag === !this.expanded) {
       return; // Nothing to do
     }
+    if (
+      sendEvents &&
+      this._callEvent("beforeExpand", { flag: flag }) === false
+    ) {
+      return;
+    }
+
     // this.log("setExpanded()");
     if (flag && this.getOption("autoCollapse")) {
       this.collapseSiblings(options);
@@ -2213,6 +2221,9 @@ export class WunderbaumNode {
         this.tree.updatePendingModifications();
         lastChild.scrollIntoView({ topNode: this });
       }
+    }
+    if (sendEvents) {
+      this._callEvent("expand", { flag: flag });
     }
   }
 
