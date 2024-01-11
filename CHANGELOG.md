@@ -10,6 +10,8 @@ First release.
 - v0.8.0: Add `expand(e)` and `beforeExpand(e)` events.
 - v0.8.0: Add `tree.findByRefKey()`, `node.getCloneList()`, and `node.isClone()`.
 - v0.8.0: Add `node.startEditTitle()`.
+- v0.8.0: Fix #70: resetLazy does not remove sub childrens "key"s, so error
+  occurs when re-adding.
 - v0.8.0: Allow to `throw new ValidationError()` in `tree.change(e)` event.
 - v0.8.0: `node.setActive()` allows to focus or edit a cell.
 - v0.8.0: Rename `tree.isEditing()` to `.isEditingTitle()`
