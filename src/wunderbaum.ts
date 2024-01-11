@@ -1804,8 +1804,8 @@ export class Wunderbaum {
         util.assert(node, `Option '${change}' requires a node.`);
         // Single nodes are immediately updated if already inside the viewport
         // (otherwise we can ignore)
-        if (node!._rowElem) {
-          node!._render({ change: change });
+        if ((<WunderbaumNode>node)!._rowElem) {
+          (<WunderbaumNode>node)!._render({ change: change });
         }
         break;
       default:
