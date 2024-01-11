@@ -4,11 +4,12 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
+import { LoggerOptionsType } from "./types";
 import { overrideMethod } from "./util";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { Wunderbaum } from "./wunderbaum";
 
-export class LoggerExtension extends WunderbaumExtension<any> {
+export class LoggerExtension extends WunderbaumExtension<LoggerOptionsType> {
   readonly prefix: string;
   protected ignoreEvents = new Set<string>([
     "iconBadge",

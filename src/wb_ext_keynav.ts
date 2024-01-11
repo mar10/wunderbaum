@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { NavModeEnum } from "./types";
+import { KeynavOptionsType, NavModeEnum } from "./types";
 import { eventToString } from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
@@ -12,7 +12,7 @@ import { WunderbaumExtension } from "./wb_extension_base";
 
 const QUICKSEARCH_DELAY = 500;
 
-export class KeynavExtension extends WunderbaumExtension<any> {
+export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
   constructor(tree: Wunderbaum) {
     super(tree, "keynav", {});
   }

@@ -124,6 +124,9 @@ export interface WbNodeData {
  * EVENT CALLBACK TYPES
  * ---------------------------------------------------------------------------*/
 
+/** A callback that receives a node instance and returns a string value. */
+export type WbCancelableEventResultType = false | void;
+
 export interface WbTreeEventType {
   /** Name of the event. */
   type: string;
@@ -205,6 +208,7 @@ export interface WbEditEditEventType extends WbNodeEventType {
 export interface WbErrorEventType extends WbNodeEventType {
   error: any;
 }
+
 export interface WbExpandEventType extends WbNodeEventType {
   flag: boolean;
 }
@@ -219,6 +223,7 @@ export interface WbFocusEventType extends WbTreeEventType {
 export interface WbIconBadgeEventType extends WbNodeEventType {
   iconSpan: HTMLElement;
 }
+
 export interface WbIconBadgeEventResultType {
   /** Content of the badge `<span class='wb-badge'>` if any. */
   badge: string | number | HTMLSpanElement | null | false;
@@ -243,6 +248,7 @@ export interface WbKeydownEventType extends WbTreeEventType {
 export interface WbReceiveEventType extends WbNodeEventType {
   response: any;
 }
+
 export interface WbSelectEventType extends WbNodeEventType {
   flag: boolean;
 }
@@ -684,6 +690,9 @@ export interface VisitRowsOptions {
   wrap?: boolean;
 }
 
+/* -----------------------------------------------------------------------------
+ * wb_ext_filter
+ * ---------------------------------------------------------------------------*/
 export type FilterOptionsType = {
   /**
    * Element or selector of an input control for filter query strings
@@ -743,6 +752,9 @@ export type FilterOptionsType = {
   noData?: boolean | string;
 };
 
+/* -----------------------------------------------------------------------------
+ * wb_ext_edit
+ * ---------------------------------------------------------------------------*/
 /**
  * Note: <br>
  * This options are used for renaming node titles. <br>
@@ -800,24 +812,25 @@ export type EditOptionsType = {
 
   /**
    * `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+   * @category Callback
    */
   beforeEdit?: null | ((e: WbNodeEventType) => boolean) | string;
   /**
    *
+   * @category Callback
    */
   edit?:
     | null
     | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
   /**
    *
+   * @category Callback
    */
   apply?:
     | null
     | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
     | Promise<any>;
 };
-
-export type GridOptionsType = object;
 
 /* -----------------------------------------------------------------------------
  * wb_ext_dnd
@@ -967,28 +980,33 @@ export type DndOptionsType = {
   /**
    * Optional callback passed to `toDict` on dragStart @since 2.38
    * @default null
+   * @category Callback
    */
   sourceCopyHook?: null;
   // Events (drag support)
   /**
    * Callback(sourceNode, data), return true, to enable dnd drag
    * @default null
+   * @category Callback
    */
   dragStart?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(sourceNode, data)
    * @default null
+   * @category Callback
    */
   drag?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(sourceNode, data)
    * @default null
+   * @category Callback
    */
   dragEnd?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
    * @default null
+   * @category Callback
    */
   dragEnter?:
     | null
@@ -998,16 +1016,19 @@ export type DndOptionsType = {
   /**
    * Callback(targetNode, data)
    * @default null
+   * @category Callback
    */
   dragOver?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
+   * @category Callback
    */
   dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
   /**
    * Callback(targetNode, data)
    * @default null
+   * @category Callback
    */
   drop?:
     | null
@@ -1024,6 +1045,22 @@ export type DndOptionsType = {
   /**
    * Callback(targetNode, data)
    * @default null
+   * @category Callback
    */
   dragLeave?: null;
 };
+
+/* -----------------------------------------------------------------------------
+ * wb_ext_grid
+ * ---------------------------------------------------------------------------*/
+export type GridOptionsType = object;
+
+/* -----------------------------------------------------------------------------
+ * wb_ext_keynav
+ * ---------------------------------------------------------------------------*/
+export type KeynavOptionsType = object;
+
+/* -----------------------------------------------------------------------------
+ * wb_ext_loger
+ * ---------------------------------------------------------------------------*/
+export type LoggerOptionsType = object;

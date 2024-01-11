@@ -5,6 +5,7 @@
  */
 
 import {
+  WbCancelableEventResultType,
   ColumnDefinitionList,
   DndOptionsType,
   DynamicBoolOption,
@@ -13,6 +14,9 @@ import {
   DynamicIconOption,
   EditOptionsType,
   FilterOptionsType,
+  GridOptionsType,
+  KeynavOptionsType,
+  LoggerOptionsType,
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
@@ -21,6 +25,7 @@ import {
   WbClickEventType,
   WbDeactivateEventType,
   WbErrorEventType,
+  WbExpandEventType,
   WbIconBadgeCallback,
   WbInitEventType,
   WbKeydownEventType,
@@ -28,7 +33,9 @@ import {
   WbNodeEventType,
   WbReceiveEventType,
   WbRenderEventType,
+  WbSelectEventType,
   WbTreeEventType,
+  WbIconBadgeEventResultType,
 } from "./types";
 
 /**
@@ -230,24 +237,40 @@ export interface WunderbaumOptions {
   scrollIntoViewOnExpandClick?: boolean;
 
   // --- Extensions ------------------------------------------------------------
-  dnd?: DndOptionsType; // = {};
-  edit?: EditOptionsType; // = {};
-  filter?: FilterOptionsType; // = {};
-  grid?: any; // = {};
+
+  dnd?: DndOptionsType;
+  edit?: EditOptionsType;
+  filter?: FilterOptionsType;
+  // grid?: GridOptionsType;
+  // keynav?: KeynavOptionsType;
+  // logger?: LoggerOptionsType;
 
   // --- Events ----------------------------------------------------------------
 
   /**
-   *
+   * `e.node` was activated.
    * @category Callback
    */
   activate?: (e: WbActivateEventType) => void;
   /**
-   *
-   * Return `false` to prevent default handling, e.g. activating the node.
+   * `e.node` is about to be activated.
+   * Return `false` to prevent default handling, i.e. activating the node.
+   * See also `deactivate` event.
    * @category Callback
    */
-  beforeActivate?: (e: WbActivateEventType) => void;
+  beforeActivate?: (e: WbActivateEventType) => WbCancelableEventResultType;
+  /**
+   * `e.node` is about to be expanded/collapsed.
+   * Return `false` to prevent default handling, i.e. expanding/collapsing the node.
+   * @category Callback
+   */
+  beforeExpand?: (e: WbExpandEventType) => WbCancelableEventResultType;
+  /**
+   *
+   * Return `false` to prevent default handling, i.e. (de)selecting the node.
+   * @category Callback
+   */
+  beforeSelect?: (e: WbSelectEventType) => WbCancelableEventResultType;
   /**
    *
    * @category Callback
@@ -255,44 +278,46 @@ export interface WunderbaumOptions {
   change?: (e: WbChangeEventType) => void;
   /**
    *
-   * Return `false` to prevent default handling, e.g. activating the node.
+   * Return `false` to prevent default behavior, e.g. expand/collapse, (de)selection, or activation.
    * @category Callback
    */
-  click?: (e: WbClickEventType) => void;
+  click?: (e: WbClickEventType) => WbCancelableEventResultType;
   /**
-   *
+   * Return `false` to prevent default behavior, e.g. expand/collapse.
    * @category Callback
    */
-  dblclick?: (e: WbClickEventType) => void;
+  dblclick?: (e: WbClickEventType) => WbCancelableEventResultType;
   /**
+   * `e.node` was deactivated.
    *
    * Return `false` to prevent default handling, e.g. deactivating the node
    * and activating the next.
+   * See also `activate` event.
    * @category Callback
    */
-  deactivate?: (e: WbDeactivateEventType) => void;
+  deactivate?: (e: WbDeactivateEventType) => WbCancelableEventResultType;
   /**
-   *
+   * `e.node` was discarded from the viewport and its HTML markup removed.
    * @category Callback
    */
   discard?: (e: WbNodeEventType) => void;
   /**
-   *
+   * `e.node` is about to be rendered. We can add a badge to the icon cell here.
    * @category Callback
    */
-  iconBadge?: WbIconBadgeCallback;
-  // /**
-  //  *
-  //  * @category Callback
-  //  */
-  // enhanceTitle?: (e: WbEnhanceTitleEventType) => void;
+  iconBadge?: (e: WbIconBadgeCallback) => WbIconBadgeEventResultType;
   /**
-   *
+   * An error occurred, e.g. during initialization or lazy loading.
    * @category Callback
    */
   error?: (e: WbErrorEventType) => void;
   /**
-   *
+   * `e.node` was expanded (`e.flag === true`) or collapsed (`e.flag === false`)
+   * @category Callback
+   */
+  expand?: (e: WbTreeEventType) => void;
+  /**
+   * The tree received or lost focus.
    * Check `e.flag` for status.
    * @category Callback
    */
@@ -301,15 +326,17 @@ export interface WunderbaumOptions {
    * Fires when the tree markup was created and the initial source data was loaded.
    * Typical use cases would be activating a node, setting focus, enabling other
    * controls on the page, etc.<br>
-   * Check `e.error` for status.
+   *  Also sent if an error occured during initialization (check `e.error` for status).
    * @category Callback
    */
   init?: (e: WbInitEventType) => void;
   /**
-   *
+   * Fires when a key was pressed while the tree has focus.
+   * `e.node` is set if a node is currently active.
+   * Return `false` to prevent default navigation.
    * @category Callback
    */
-  keydown?: (e: WbKeydownEventType) => void;
+  keydown?: (e: WbKeydownEventType) => WbCancelableEventResultType;
   /**
    * Fires when a node that was marked 'lazy', is expanded for the first time.
    * Typically we return an endpoint URL or the Promise of a fetch request that
@@ -345,13 +372,12 @@ export interface WunderbaumOptions {
    */
   render?: (e: WbRenderEventType) => void;
   /**
-   *
+   * Same as `render(e)`, but for the status nodes, i.e. `e.node.statusNodeType`.
    * @category Callback
    */
   renderStatusNode?: (e: WbRenderEventType) => void;
   /**
-   *
-   * Check `e.flag` for status.
+   *`e.node` was selected (`e.flag === true`) or deselected (`e.flag === false`)
    * @category Callback
    */
   select?: (e: WbNodeEventType) => void;
