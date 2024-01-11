@@ -1,3 +1,137 @@
+declare module "debounce" {
+    /*!
+     * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
+     * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
+     * Modified for TypeScript type annotations.
+     */
+    type Procedure = (...args: any[]) => any;
+    type DebounceOptions = {
+        leading?: boolean;
+        maxWait?: number;
+        trailing?: boolean;
+    };
+    type ThrottleOptions = {
+        leading?: boolean;
+        trailing?: boolean;
+    };
+    export interface DebouncedFunction<F extends Procedure> {
+        (this: ThisParameterType<F>, ...args: Parameters<F>): ReturnType<F>;
+        cancel: () => void;
+        flush: () => any;
+        pending: () => boolean;
+    }
+    /**
+     * Creates a debounced function that delays invoking `func` until after `wait`
+     * milliseconds have elapsed since the last time the debounced function was
+     * invoked, or until the next browser frame is drawn. The debounced function
+     * comes with a `cancel` method to cancel delayed `func` invocations and a
+     * `flush` method to immediately invoke them. Provide `options` to indicate
+     * whether `func` should be invoked on the leading and/or trailing edge of the
+     * `wait` timeout. The `func` is invoked with the last arguments provided to the
+     * debounced function. Subsequent calls to the debounced function return the
+     * result of the last `func` invocation.
+     *
+     * **Note:** If `leading` and `trailing` options are `true`, `func` is
+     * invoked on the trailing edge of the timeout only if the debounced function
+     * is invoked more than once during the `wait` timeout.
+     *
+     * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+     * until the next tick, similar to `setTimeout` with a timeout of `0`.
+     *
+     * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
+     * invocation will be deferred until the next frame is drawn (typically about
+     * 16ms).
+     *
+     * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+     * for details over the differences between `debounce` and `throttle`.
+     *
+     * @since 0.1.0
+     * @category Function
+     * @param {Function} func The function to debounce.
+     * @param {number} [wait=0]
+     *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
+     *  used (if available).
+     * @param {Object} [options={}] The options object.
+     * @param {boolean} [options.leading=false]
+     *  Specify invoking on the leading edge of the timeout.
+     * @param {number} [options.maxWait]
+     *  The maximum time `func` is allowed to be delayed before it's invoked.
+     * @param {boolean} [options.trailing=true]
+     *  Specify invoking on the trailing edge of the timeout.
+     * @returns {Function} Returns the new debounced function.
+     * @example
+     *
+     * // Avoid costly calculations while the window size is in flux.
+     * jQuery(window).on('resize', debounce(calculateLayout, 150))
+     *
+     * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+     * jQuery(element).on('click', debounce(sendMail, 300, {
+     *   'leading': true,
+     *   'trailing': false
+     * }))
+     *
+     * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+     * const debounced = debounce(batchLog, 250, { 'maxWait': 1000 })
+     * const source = new EventSource('/stream')
+     * jQuery(source).on('message', debounced)
+     *
+     * // Cancel the trailing debounced invocation.
+     * jQuery(window).on('popstate', debounced.cancel)
+     *
+     * // Check for pending invocations.
+     * const status = debounced.pending() ? "Pending..." : "Ready"
+     */
+    export function debounce<F extends Procedure>(func: F, wait?: number, options?: DebounceOptions): DebouncedFunction<F>;
+    /**
+     * Creates a throttled function that only invokes `func` at most once per
+     * every `wait` milliseconds (or once per browser frame). The throttled function
+     * comes with a `cancel` method to cancel delayed `func` invocations and a
+     * `flush` method to immediately invoke them. Provide `options` to indicate
+     * whether `func` should be invoked on the leading and/or trailing edge of the
+     * `wait` timeout. The `func` is invoked with the last arguments provided to the
+     * throttled function. Subsequent calls to the throttled function return the
+     * result of the last `func` invocation.
+     *
+     * **Note:** If `leading` and `trailing` options are `true`, `func` is
+     * invoked on the trailing edge of the timeout only if the throttled function
+     * is invoked more than once during the `wait` timeout.
+     *
+     * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+     * until the next tick, similar to `setTimeout` with a timeout of `0`.
+     *
+     * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
+     * invocation will be deferred until the next frame is drawn (typically about
+     * 16ms).
+     *
+     * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+     * for details over the differences between `throttle` and `debounce`.
+     *
+     * @since 0.1.0
+     * @category Function
+     * @param {Function} func The function to throttle.
+     * @param {number} [wait=0]
+     *  The number of milliseconds to throttle invocations to; if omitted,
+     *  `requestAnimationFrame` is used (if available).
+     * @param {Object} [options={}] The options object.
+     * @param {boolean} [options.leading=true]
+     *  Specify invoking on the leading edge of the timeout.
+     * @param {boolean} [options.trailing=true]
+     *  Specify invoking on the trailing edge of the timeout.
+     * @returns {Function} Returns the new throttled function.
+     * @example
+     *
+     * // Avoid excessively updating the position while scrolling.
+     * jQuery(window).on('scroll', throttle(updatePosition, 100))
+     *
+     * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
+     * const throttled = throttle(renewToken, 300000, { 'trailing': false })
+     * jQuery(element).on('click', throttled)
+     *
+     * // Cancel the trailing throttled invocation.
+     * jQuery(window).on('popstate', throttled.cancel)
+     */
+    export function throttle<F extends Procedure>(func: F, wait?: number, options?: ThrottleOptions): DebouncedFunction<F>;
+}
 declare module "util" {
     /*!
      * Wunderbaum - util
@@ -5,6 +139,8 @@ declare module "util" {
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     /** @module util */
+    import { DebouncedFunction, debounce, throttle } from "debounce";
+    export { debounce, throttle };
     /** Readable names for `MouseEvent.button` */
     export const MOUSE_BUTTONS: {
         [key: number]: string;
@@ -14,8 +150,18 @@ declare module "util" {
     export const isMac: boolean;
     export type FunctionType = (...args: any[]) => any;
     export type EventCallbackType = (e: Event) => boolean | void;
+    /** A generic error that can be thrown to indicate a validation error when
+     * handling the `apply` event for a node title or the `change` event for a
+     * grid cell.
+     */
+    export class ValidationError extends Error {
+        constructor(message: string);
+    }
     /**
      * A ES6 Promise, that exposes the resolve()/reject() methods.
+     *
+     * TODO: See [Promise.withResolvers()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description)
+     * , a proposed standard, but not yet implemented in any browser.
      */
     export class Deferred {
         private thens;
@@ -115,13 +261,11 @@ declare module "util" {
      */
     export function setValueToElem(elem: HTMLElement, value: any): void;
     /** Show/hide element by setting the `display` style to 'none'. */
-    export function setElemDisplay(elem: string | Element, flag: boolean): void;
+    export function setElemDisplay(elem: string | HTMLElement, flag: boolean): void;
     /** Create and return an unconnected `HTMLElement` from a HTML string. */
-    export function elemFromHtml(html: string): HTMLElement;
+    export function elemFromHtml<T = HTMLElement>(html: string): T;
     /** Return a HtmlElement from selector or cast an existing element. */
-    export function elemFromSelector(obj: string | Element): HTMLElement | null;
-    /** Return a EventTarget from selector or cast an existing element. */
-    export function eventTargetFromSelector(obj: string | EventTarget): EventTarget | null;
+    export function elemFromSelector<T = HTMLElement>(obj: string | T): T | null;
     /**
      * Return a canonical descriptive string for a keyboard or mouse event.
      *
@@ -164,7 +308,7 @@ declare module "util" {
     /** A dummy function that does nothing ('no operation'). */
     export function noop(...args: any[]): any;
     /**
-     * Bind one or more event handlers directly to an [[EventTarget]].
+     * Bind one or more event handlers directly to an [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
      *
      * @param element EventTarget or selector
      * @param eventNames
@@ -202,7 +346,7 @@ declare module "util" {
       */
     export function overrideMethod(instance: any, methodName: string, handler: FunctionType, ctx?: any): void;
     /** Run function after ms milliseconds and return a promise that resolves when done. */
-    export function setTimeoutPromise(this: unknown, callback: (...args: any[]) => void, ms: number): Promise<unknown>;
+    export function setTimeoutPromise<T = unknown>(this: unknown, callback: (...args: any[]) => T, ms: number): Promise<T>;
     /**
      * Wait `ms` microseconds.
      *
@@ -249,7 +393,7 @@ declare module "util" {
      * throttledFoo();
      * ```
      */
-    export function adaptiveThrottle(this: unknown, callback: (...args: any[]) => void, options: any): (...args: any[]) => void;
+    export function adaptiveThrottle(this: unknown, callback: (...args: any[]) => void, options: object): DebouncedFunction<(...args: any[]) => void>;
 }
 declare module "common" {
     /*!
@@ -305,7 +449,7 @@ declare module "common" {
     };
     /** Return a callback that returns true if the node title matches the string
      * or regular expression.
-     * @see {@link WunderbaumNode.findAll}
+     * @see {@link WunderbaumNode.findAll()}
      */
     export function makeNodeTitleMatcher(match: string | RegExp): MatcherCallback;
     /** Return a callback that returns true if the node title starts with a string (case-insensitive). */
@@ -346,23 +490,23 @@ declare module "deferred" {
      * }
      * ```
      */
-    export class Deferred {
+    export class Deferred<T> {
         private _promise;
         protected _resolve: any;
         protected _reject: any;
         constructor();
-        /** Resolve the [[Promise]]. */
+        /** Resolve the Promise. */
         resolve(value?: any): void;
-        /** Reject the [[Promise]]. */
+        /** Reject the Promise. */
         reject(reason?: any): void;
-        /** Return the native [[Promise]] instance.*/
-        promise(): Promise<any>;
-        /** Call [[Promise.then]] on the embedded promise instance.*/
+        /** Return the native Promise instance.*/
+        promise(): Promise<T>;
+        /** Call Promise.then on the embedded promise instance.*/
         then(cb: PromiseCallbackType): Promise<void>;
-        /** Call [[Promise.catch]] on the embedded promise instance.*/
-        catch(cb: PromiseCallbackType): Promise<any>;
-        /** Call [[Promise.finally]] on the embedded promise instance.*/
-        finally(cb: finallyCallbackType): Promise<any>;
+        /** Call Promise.catch on the embedded promise instance.*/
+        catch(cb: PromiseCallbackType): Promise<void | T>;
+        /** Call Promise.finally on the embedded promise instance.*/
+        finally(cb: finallyCallbackType): Promise<T>;
     }
 }
 declare module "wb_node" {
@@ -489,6 +633,8 @@ declare module "wb_node" {
          *     as space-separated string, array of strings, or set of strings.
          */
         setClass(className: string | string[] | Set<string>, flag?: boolean): void;
+        /** Start editing this node's title. */
+        startEditTitle(): void;
         /** Call `setExpanded()` on all descendant nodes. */
         expandAll(flag?: boolean, options?: ExpandAllOptions): Promise<void>;
         /**
@@ -554,6 +700,13 @@ declare module "wb_node" {
          * @returns {WunderbaumNode | null}
          */
         getColElem(colIdx: number | string): HTMLSpanElement;
+        /**
+         * Return all nodes with the same refKey.
+         *
+         * @param includeSelf Include this node itself.
+         * @see {@link Wunderbaum.findByRefKey}
+         */
+        getCloneList(includeSelf?: boolean): WunderbaumNode[];
         /** Return the first child node or null.
          * @returns {WunderbaumNode | null}
          */
@@ -590,19 +743,22 @@ declare module "wb_node" {
         /** Return true if this node is the currently active tree node. */
         isActive(): boolean;
         /** Return true if this node is a direct or indirect parent of `other`.
-         * (See also [[isParentOf]].)
+         * @see {@link WunderbaumNode.isParentOf}
          */
         isAncestorOf(other: WunderbaumNode): boolean;
         /** Return true if this node is a **direct** subnode of `other`.
-         * (See also [[isDescendantOf]].)
+         * @see {@link WunderbaumNode.isDescendantOf}
          */
         isChildOf(other: WunderbaumNode): boolean;
+        /** Return true if this node's refKey is used by at least one other node.
+         */
+        isClone(): boolean;
         /** Return true if this node's title spans all columns, i.e. the node has no
          * grid cells.
          */
         isColspan(): boolean;
         /** Return true if this node is a direct or indirect subnode of `other`.
-         * (See also [[isChildOf]].)
+         * @see {@link WunderbaumNode.isChildOf}
          */
         isDescendantOf(other: WunderbaumNode): boolean;
         /** Return true if this node has children, i.e. the node is generally expandable.
@@ -610,8 +766,11 @@ declare module "wb_node" {
          * an expand operation is currently possible.
          */
         isExpandable(andCollapsed?: boolean): boolean;
-        /** Return true if this node is currently in edit-title mode. */
-        isEditing(): boolean;
+        /** Return true if _this_ node is currently in edit-title mode.
+         *
+         * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+         */
+        isEditingTitle(): boolean;
         /** Return true if this node is currently expanded. */
         isExpanded(): boolean;
         /** Return true if this node is the first node of its parent's children. */
@@ -627,7 +786,7 @@ declare module "wb_node" {
         /** Return true if this node is a temporarily generated status node of type 'paging'. */
         isPagingNode(): boolean;
         /** Return true if this node is a **direct** parent of `other`.
-         * (See also [[isAncestorOf]].)
+         * @see {@link WunderbaumNode.isAncestorOf}
          */
         isParentOf(other: WunderbaumNode): boolean;
         /** (experimental) Return true if this node is partially loaded. */
@@ -639,7 +798,7 @@ declare module "wb_node" {
         /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
         isRendered(): boolean;
         /** Return true if this node is the (invisible) system root node.
-         * (See also [[isTopLevel()]].)
+         * @see {@link WunderbaumNode.isTopLevel}
          */
         isRootNode(): boolean;
         /** Return true if this node is selected, i.e. the checkbox is set.
@@ -677,7 +836,7 @@ declare module "wb_node" {
          * @param {object} [options] passed to `setExpanded()`.
          *     Defaults to {noAnimation: false, noEvents: false, scrollIntoView: true}
          */
-        makeVisible(options?: MakeVisibleOptions): Promise<any>;
+        makeVisible(options?: MakeVisibleOptions): Promise<unknown>;
         /** Move this node to targetNode. */
         moveTo(targetNode: WunderbaumNode, mode?: InsertNodeType, map?: NodeAnyCallback): void;
         /** Set focus relative to this node and optionally activate.
@@ -756,9 +915,10 @@ declare module "wb_node" {
          */
         scrollIntoView(options?: ScrollIntoViewOptions): Promise<void>;
         /**
-         * Activate this node, deactivate previous, send events, activate column and scroll int viewport.
+         * Activate this node, deactivate previous, send events, activate column and
+         * scroll into viewport.
          */
-        setActive(flag?: boolean, options?: SetActiveOptions): Promise<any>;
+        setActive(flag?: boolean, options?: SetActiveOptions): Promise<void>;
         /**
          * Expand or collapse this node.
          */
@@ -874,7 +1034,7 @@ declare module "wb_options" {
      */
     import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
     /**
-     * Available options for [[Wunderbaum]].
+     * Available options for {@link wunderbaum.Wunderbaum}.
      *
      * Options are passed to the constructor as plain object:
      *
@@ -1307,23 +1467,55 @@ declare module "types" {
         event: Event;
     }
     export interface WbChangeEventType extends WbNodeEventType {
+        /** Additional information derived from the original change event. */
         info: WbEventInfo;
-        inputElem: HTMLInputElement;
+        /** The embedded element that fired the change event. */
+        inputElem: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement;
+        /** The new value of the embedded element, depending on the input element type. */
         inputValue: any;
+        /** Result of `inputElem.checkValidity()`. */
+        inputValid: boolean;
     }
     export interface WbClickEventType extends WbTreeEventType {
         /** The original event. */
         event: MouseEvent;
+        /** The clicked node if any. */
         node: WunderbaumNode;
+        /** Additional information derived from the original mouse event. */
         info: WbEventInfo;
-    }
-    export interface WbErrorEventType extends WbNodeEventType {
-        error: any;
     }
     export interface WbDeactivateEventType extends WbNodeEventType {
         nextNode: WunderbaumNode;
         /** The original event. */
         event: Event;
+    }
+    export interface WbEditApplyEventType extends WbNodeEventType {
+        /** Additional information derived from the original change event. */
+        info: WbEventInfo;
+        /** The input element of the node title that fired the change event. */
+        inputElem: HTMLInputElement;
+        /** The previous node title. */
+        oldValue: string;
+        /** The new node title. */
+        newValue: string;
+        /** Result of `inputElem.checkValidity()`. */
+        inputValid: boolean;
+    }
+    export interface WbEditEditEventType extends WbNodeEventType {
+        /** The input element of the node title that was just created. */
+        inputElem: HTMLInputElement;
+    }
+    export interface WbErrorEventType extends WbNodeEventType {
+        error: any;
+    }
+    export interface WbExpandEventType extends WbNodeEventType {
+        flag: boolean;
+    }
+    export interface WbFocusEventType extends WbTreeEventType {
+        /** The original event. */
+        event: FocusEvent;
+        /** True if `focusin`, false if `focusout`. */
+        flag: boolean;
     }
     export interface WbIconBadgeEventType extends WbNodeEventType {
         iconSpan: HTMLElement;
@@ -1336,29 +1528,29 @@ declare module "types" {
         /** Tooltip for the badge. */
         badgeTooltip?: string;
     }
-    export interface WbFocusEventType extends WbTreeEventType {
-        /** The original event. */
-        event: FocusEvent;
-        /** True if `focusin`, false if `focusout`. */
-        flag: boolean;
+    export interface WbInitEventType extends WbTreeEventType {
+        error?: any;
     }
     export interface WbKeydownEventType extends WbTreeEventType {
         /** The original event. */
         event: KeyboardEvent;
         node: WunderbaumNode;
+        /** Additional information derived from the original keyboard event. */
         info: WbEventInfo;
-    }
-    export interface WbInitEventType extends WbTreeEventType {
-        error?: any;
     }
     export interface WbReceiveEventType extends WbNodeEventType {
         response: any;
+    }
+    export interface WbSelectEventType extends WbNodeEventType {
+        flag: boolean;
     }
     export interface WbRenderEventType extends WbNodeEventType {
         /**
          * True if the node's markup was not yet created. In this case the render
          * event should create embedded input controls (in addition to update the
-         * values according to to current node data).
+         * values according to to current node data). <br>
+         * False if the node's markup was already created. In this case the render
+         * event should only update the values according to to current node data.
          */
         isNew: boolean;
         /** The node's `<span class='wb-node'>` element. */
@@ -1372,9 +1564,20 @@ declare module "types" {
          */
         allColInfosById: ColumnEventInfoMap;
         /**
-         * Array of node's `<span class='wb-node'>` elements, *that should be rendered*.
+         * Array of node's `<span class='wb-node'>` elements,
+         * *that should be rendered by the event handler*.
          * In contrast to `allColInfosById`, the node title is not part of this array.
          * If node.isColspan() is true, this array is empty (`[]`).
+         * This allows to iterate over all relevant in a simple loop:
+         * ```
+         * for (const col of Object.values(e.renderColInfosById)) {
+         *   switch (col.id) {
+         *     default:
+         *       // Assumption: we named column.id === node.data.NAME
+         *       col.elem.textContent = node.data[col.id];
+         *       break;
+         *   }
+         * }
          */
         renderColInfosById: ColumnEventInfoMap;
     }
@@ -1425,14 +1628,17 @@ declare module "types" {
          * elements of that column.
          */
         classes?: string;
-        /** If `headerClasses` is a string, it will be used for the header element,
-         * while `classes` is used for data elements.
+        /** If `headerClasses` is a set, it will be used for the header element only
+         * (unlike `classes`, which is used for body and header cells).
          */
         headerClasses?: string;
         /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
         html?: string;
+        /** @internal */
         _weight?: number;
+        /** @internal */
         _widthPx?: number;
+        /** @internal */
         _ofsPx?: number;
         [key: string]: unknown;
     }
@@ -1454,7 +1660,7 @@ declare module "types" {
         [colId: string]: ColumnEventInfo;
     };
     /**
-     * Additional inforation derived from mouse or keyboard events.
+     * Additional information derived from mouse or keyboard events.
      * @see {@link Wunderbaum.getEventInfo}
      */
     export interface WbEventInfo {
@@ -1625,22 +1831,37 @@ declare module "types" {
         /** Which node to scroll into the viewport.*/
         node: WunderbaumNode;
     }
-    /** Possible values for {@link WunderbaumNode.setActive()} `options` argument. */
+    /** Possible values for {@link WunderbaumNode.setActive} `options` argument. */
     export interface SetActiveOptions {
-        /** Generate (de)activate event, even if node already has this status (default: false). */
+        /** Generate (de)activate event, even if node already has this status (@default: false). */
         retrigger?: boolean;
-        /** Do not generate (de)activate event  (default: false). */
+        /** Do not generate (de)activate event  (@default: false). */
         noEvents?: boolean;
-        /** Set node as focused node (default: true). */
-        focusNode?: boolean;
-        /** Set node as focused node (default: false). */
+        /** Call `tree.setFocus()` to acquire keyboard focus (@default: false). */
         focusTree?: boolean;
         /** Optional original event that will be passed to the (de)activate handler. */
         event?: Event;
-        /** Call {@link Wunderbaum.setColumn}. */
-        colIdx?: number;
+        /** Also call {@link Wunderbaum.setColumn()}. */
+        colIdx?: number | string;
+        /**
+         * Focus embedded input control of the grid cell if any (requires colIdx >= 0).
+         * If colIdx is 0 or '*', the node title is put into edit mode.
+         * Implies `focusTree: true`, requires `colIdx`.
+         */
+        edit?: boolean;
     }
-    /** Possible values for {@link WunderbaumNode.setExpanded()} `options` argument. */
+    /** Possible values for {@link WunderbaumNode.setColumn()} `options` argument. */
+    export interface SetColumnOptions {
+        /**
+         * Focus embedded input control of the grid cell if any .
+         * If colIdx is 0 or '*', the node title is put into edit mode.
+         * @default false
+         */
+        edit?: boolean;
+        /** Horizontically scroll into view. @default: true */
+        scrollIntoView?: boolean;
+    }
+    /** Possible values for {@link WunderbaumNode.setExpanded} `options` argument. */
     export interface SetExpandedOptions {
         /** Ignore {@link WunderbaumOptions.minExpandLevel}. @default false */
         force?: boolean;
@@ -1740,46 +1961,63 @@ declare module "types" {
          * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
          * @default 'dim'
          */
-        mode?: "dim" | "hide";
+        mode?: FilterModeType;
         /**
-         * Display a 'no data' status node if result is empty
+         * Display a 'no data' status node if result is empty (hide-mode only).
+         * Pass false to simply show an empy pane, or pass a string to customize the message.
          * @default true
          */
-        noData?: boolean;
+        noData?: boolean | string;
     };
+    /**
+     * Note: <br>
+     * This options are used for renaming node titles. <br>
+     * There is also the `tree.change` event to handle modifying node data from
+     * input controls that are embedded in grid cells.
+     */
     export type EditOptionsType = {
         /**
+         * Used to debounce the `change` event handler for grid cells [ms].
          * @default 100
          */
         debounce?: number;
         /**
+         * Minimum number of characters required for node title input field.
          * @default 1
          */
         minlength?: number;
         /**
+         * Maximum number of characters allowed for node title input field.
          * @default null;
          */
         maxlength?: null | number;
         /**
-         * ["clickActive", "F2", "macEnter"],
+         * Array of strings to determine which user input should trigger edit mode.
+         * E.g. `["clickActive", "F2", "macEnter"]`: <br>
+         * 'clickActive': single click on active node title <br>
+         * 'F2': press F2 key <br>
+         * 'macEnter': press Enter (on macOS only) <br>
+         * Pass an empty array to disable edit mode.
          * @default []
          */
         trigger?: string[];
         /**
+         * Trim whitespace before saving a node title.
          * @default true
          */
         trim?: boolean;
         /**
+         * Select all text of a node title, so it can be overwritten by typing.
          * @default true
          */
         select?: boolean;
         /**
-         * Handle 'clickActive' only if last click is less than this old (0: always)
+         * Handle 'clickActive' only if last click is less than this ms old (0: always)
          * @default 1000
          */
         slowClickDelay?: number;
         /**
-         * Please enter a title",
+         * Permanently apply node title input validations (CSS and tooltip) on keydown.
          * @default true
          */
         validity?: boolean;
@@ -1975,140 +2213,6 @@ declare module "wb_extension_base" {
         onRender(data: any): boolean | undefined;
     }
 }
-declare module "debounce" {
-    /*!
-     * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
-     * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
-     * Modified for TypeScript type annotations.
-     */
-    type Procedure = (...args: any[]) => any;
-    type DebounceOptions = {
-        leading?: boolean;
-        maxWait?: number;
-        trailing?: boolean;
-    };
-    type ThrottleOptions = {
-        leading?: boolean;
-        trailing?: boolean;
-    };
-    export interface DebouncedFunction<F extends Procedure> {
-        (this: ThisParameterType<F>, ...args: Parameters<F>): ReturnType<F>;
-        cancel: () => void;
-        flush: () => any;
-        pending: () => boolean;
-    }
-    /**
-     * Creates a debounced function that delays invoking `func` until after `wait`
-     * milliseconds have elapsed since the last time the debounced function was
-     * invoked, or until the next browser frame is drawn. The debounced function
-     * comes with a `cancel` method to cancel delayed `func` invocations and a
-     * `flush` method to immediately invoke them. Provide `options` to indicate
-     * whether `func` should be invoked on the leading and/or trailing edge of the
-     * `wait` timeout. The `func` is invoked with the last arguments provided to the
-     * debounced function. Subsequent calls to the debounced function return the
-     * result of the last `func` invocation.
-     *
-     * **Note:** If `leading` and `trailing` options are `true`, `func` is
-     * invoked on the trailing edge of the timeout only if the debounced function
-     * is invoked more than once during the `wait` timeout.
-     *
-     * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-     * until the next tick, similar to `setTimeout` with a timeout of `0`.
-     *
-     * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
-     * invocation will be deferred until the next frame is drawn (typically about
-     * 16ms).
-     *
-     * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-     * for details over the differences between `debounce` and `throttle`.
-     *
-     * @since 0.1.0
-     * @category Function
-     * @param {Function} func The function to debounce.
-     * @param {number} [wait=0]
-     *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
-     *  used (if available).
-     * @param {Object} [options={}] The options object.
-     * @param {boolean} [options.leading=false]
-     *  Specify invoking on the leading edge of the timeout.
-     * @param {number} [options.maxWait]
-     *  The maximum time `func` is allowed to be delayed before it's invoked.
-     * @param {boolean} [options.trailing=true]
-     *  Specify invoking on the trailing edge of the timeout.
-     * @returns {Function} Returns the new debounced function.
-     * @example
-     *
-     * // Avoid costly calculations while the window size is in flux.
-     * jQuery(window).on('resize', debounce(calculateLayout, 150))
-     *
-     * // Invoke `sendMail` when clicked, debouncing subsequent calls.
-     * jQuery(element).on('click', debounce(sendMail, 300, {
-     *   'leading': true,
-     *   'trailing': false
-     * }))
-     *
-     * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
-     * const debounced = debounce(batchLog, 250, { 'maxWait': 1000 })
-     * const source = new EventSource('/stream')
-     * jQuery(source).on('message', debounced)
-     *
-     * // Cancel the trailing debounced invocation.
-     * jQuery(window).on('popstate', debounced.cancel)
-     *
-     * // Check for pending invocations.
-     * const status = debounced.pending() ? "Pending..." : "Ready"
-     */
-    export function debounce<F extends Procedure>(func: F, wait?: number, options?: DebounceOptions): DebouncedFunction<F>;
-    /**
-     * Creates a throttled function that only invokes `func` at most once per
-     * every `wait` milliseconds (or once per browser frame). The throttled function
-     * comes with a `cancel` method to cancel delayed `func` invocations and a
-     * `flush` method to immediately invoke them. Provide `options` to indicate
-     * whether `func` should be invoked on the leading and/or trailing edge of the
-     * `wait` timeout. The `func` is invoked with the last arguments provided to the
-     * throttled function. Subsequent calls to the throttled function return the
-     * result of the last `func` invocation.
-     *
-     * **Note:** If `leading` and `trailing` options are `true`, `func` is
-     * invoked on the trailing edge of the timeout only if the throttled function
-     * is invoked more than once during the `wait` timeout.
-     *
-     * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
-     * until the next tick, similar to `setTimeout` with a timeout of `0`.
-     *
-     * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
-     * invocation will be deferred until the next frame is drawn (typically about
-     * 16ms).
-     *
-     * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
-     * for details over the differences between `throttle` and `debounce`.
-     *
-     * @since 0.1.0
-     * @category Function
-     * @param {Function} func The function to throttle.
-     * @param {number} [wait=0]
-     *  The number of milliseconds to throttle invocations to; if omitted,
-     *  `requestAnimationFrame` is used (if available).
-     * @param {Object} [options={}] The options object.
-     * @param {boolean} [options.leading=true]
-     *  Specify invoking on the leading edge of the timeout.
-     * @param {boolean} [options.trailing=true]
-     *  Specify invoking on the trailing edge of the timeout.
-     * @returns {Function} Returns the new throttled function.
-     * @example
-     *
-     * // Avoid excessively updating the position while scrolling.
-     * jQuery(window).on('scroll', throttle(updatePosition, 100))
-     *
-     * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
-     * const throttled = throttle(renewToken, 300000, { 'trailing': false })
-     * jQuery(element).on('click', throttled)
-     *
-     * // Cancel the trailing throttled invocation.
-     * jQuery(window).on('popstate', throttled.cancel)
-     */
-    export function throttle<F extends Procedure>(func: F, wait?: number, options?: ThrottleOptions): DebouncedFunction<F>;
-}
 declare module "wb_ext_filter" {
     import { FilterNodesOptions, FilterOptionsType, NodeFilterCallback } from "types";
     import { Wunderbaum } from "wunderbaum";
@@ -2299,7 +2403,7 @@ declare module "wb_ext_edit" {
         protected curEditNode: WunderbaumNode | null;
         protected relatedNode: WunderbaumNode | null;
         constructor(tree: Wunderbaum);
-        protected _applyChange(eventName: string, node: WunderbaumNode, colElem: HTMLElement, extra: any): Promise<any>;
+        protected _applyChange(eventName: string, node: WunderbaumNode, colElem: HTMLElement, inputElem: HTMLInputElement, extra: any): Promise<any>;
         protected _onChange(e: Event): void;
         init(): void;
         _preprocessKeyEvent(data: any): boolean | undefined;
@@ -2335,13 +2439,14 @@ declare module "wunderbaum" {
      */
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, UpdateOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, VisitRowsOptions, NodeFilterCallback, FilterNodesOptions, RenderFlag, NodeVisitCallback, SortCallback, NodeToDictCallback, WbNodeData, DynamicCheckboxOption, SourceType, DynamicIconOption, DynamicStringOption, DynamicBoolOption } from "types";
+    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, UpdateOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, VisitRowsOptions, NodeFilterCallback, FilterNodesOptions, RenderFlag, NodeVisitCallback, SortCallback, NodeToDictCallback, WbNodeData, DynamicCheckboxOption, SourceType, DynamicIconOption, DynamicStringOption, DynamicBoolOption, SetColumnOptions } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
+    import { DebouncedFunction } from "debounce";
     /**
      * A persistent plain object or array.
      *
-     * See also [[WunderbaumOptions]].
+     * See also {@link WunderbaumOptions}.
      */
     export class Wunderbaum {
         protected static sequence: number;
@@ -2364,7 +2469,7 @@ declare module "wunderbaum" {
         readonly data: {
             [key: string]: any;
         };
-        protected readonly _updateViewportThrottled: (...args: any) => void;
+        protected readonly _updateViewportThrottled: DebouncedFunction<() => void>;
         protected extensionList: WunderbaumExtension<any>[];
         protected extensions: ExtensionsDict;
         /** Merged options from constructor args and tree- and extension defaults. */
@@ -2399,7 +2504,7 @@ declare module "wunderbaum" {
         /** Expose some useful methods of the util.ts module as `tree._util`. */
         _util: typeof util;
         filterMode: FilterModeType;
-        /** @internal Use `setColumn()`/`getActiveColElem()`*/
+        /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
         activeColIdx: number;
         /** @internal */
         _cellNavMode: boolean;
@@ -2417,7 +2522,7 @@ declare module "wunderbaum" {
          * getTree(1);        // Get second Wunderbaum instance on page
          * getTree(event);    // Get tree for this mouse- or keyboard event
          * getTree("foo");    // Get tree for this `tree.options.id`
-         * getTree("#tree");  // Get tree for this matching element
+         * getTree("#tree");  // Get tree for first matching element selector
          * ```
          */
         static getTree(el?: Element | Event | number | string | WunderbaumNode): Wunderbaum | null;
@@ -2559,20 +2664,32 @@ declare module "wunderbaum" {
         /**
          * Find all nodes that match condition.
          *
+         * @param match title string to search for, or a
+         *     callback function that returns `true` if a node is matched.
          * @see {@link WunderbaumNode.findAll}
          */
         findAll(match: string | RegExp | MatcherCallback): WunderbaumNode[];
         /**
+         * Find all nodes with a given _refKey_ (aka a list of clones).
+         *
+         * @param refKey a `node.refKey` value to search for.
+         * @returns an array of matching nodes with at least two element or `[]`
+         * if nothing found.
+         *
+         * @see {@link WunderbaumNode.getCloneList}
+         */
+        findByRefKey(refKey: string): WunderbaumNode[];
+        /**
          * Find first node that matches condition.
          *
+         * @param match title string to search for, or a
+         *     callback function that returns `true` if a node is matched.
          * @see {@link WunderbaumNode.findFirst}
          */
         findFirst(match: string | RegExp | MatcherCallback): WunderbaumNode;
         /**
          * Find first node that matches condition.
          *
-         * @param match title string to search for, or a
-         *     callback function that returns `true` if a node is matched.
          * @see {@link WunderbaumNode.findFirst}
          *
          */
@@ -2580,6 +2697,7 @@ declare module "wunderbaum" {
         /**
          * Find the next visible node that starts with `match`, starting at `startNode`
          * and wrap-around at the end.
+         * Used by quicksearch and keyboard navigation.
          */
         findNextNode(match: string | MatcherCallback, startNode?: WunderbaumNode | null): WunderbaumNode | null;
         /**
@@ -2623,6 +2741,9 @@ declare module "wunderbaum" {
         getActiveColElem(): HTMLSpanElement;
         /**
          * Return the currently active node or null.
+         * @see {@link WunderbaumNode.setActive}
+         * @see {@link WunderbaumNode.isActive}
+         * @see {@link WunderbaumNode.getFocusNode}
          */
         getActiveNode(): WunderbaumNode;
         /**
@@ -2630,7 +2751,8 @@ declare module "wunderbaum" {
          */
         getFirstChild(): WunderbaumNode;
         /**
-         * Return the currently active node or null.
+         * Return the node that currently has keyboard focus or null.
+         * @see {@link WunderbaumNode.getActiveNode}
          */
         getFocusNode(): WunderbaumNode;
         /** Return a {node: WunderbaumNode, region: TYPE} object for a mouse event.
@@ -2645,8 +2767,16 @@ declare module "wunderbaum" {
          * @internal
          */
         toString(): string;
-        /** Return true if any node is currently in edit-title mode. */
+        /** Return true if any node title or grid cell is currently beeing edited.
+         *
+         * See also {@link Wunderbaum.isEditingTitle}.
+         */
         isEditing(): boolean;
+        /** Return true if any node is currently in edit-title mode.
+         *
+         * See also {@link WunderbaumNode.isEditingTitle} and {@link Wunderbaum.isEditing}.
+         */
+        isEditingTitle(): boolean;
         /**
          * Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
          */
@@ -2682,18 +2812,23 @@ declare module "wunderbaum" {
         /**
          * Set column #colIdx to 'active'.
          *
-         * This higlights the column header and -cells by adding the `wb-active` class.
+         * This higlights the column header and -cells by adding the `wb-active`
+         * class to all grid cells of the active column. <br>
          * Available in cell-nav mode only.
+         *
+         * If _options.edit_ is true, the embedded input element is focused, or if
+         * colIdx is 0, the node title is put into edit mode.
          */
-        setColumn(colIdx: number): void;
-        /** Set or remove keybaord focus to the tree container. */
+        setColumn(colIdx: number | string, options?: SetColumnOptions): void;
+        /** Set or remove keyboard focus to the tree container. */
         setActiveNode(key: string, flag?: boolean, options?: SetActiveOptions): void;
-        /** Set or remove keybaord focus to the tree container. */
+        /** Set or remove keyboard focus to the tree container. */
         setFocus(flag?: boolean): void;
         /**
          * Schedule an update request to reflect a tree change.
          * The render operation is async and debounced unless the `immediate` option
          * is set.
+         *
          * Use {@link WunderbaumNode.update()} if only a single node has changed,
          * or {@link WunderbaumNode._render()}) to pass special options.
          */
@@ -2820,29 +2955,23 @@ declare module "wunderbaum" {
          */
         enableUpdate(flag: boolean): void;
         /**
-         * [ext-filter] Dim or hide nodes.
+         * Dim or hide nodes.
          */
         filterNodes(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
         /**
-         * [ext-filter] Dim or hide whole branches.
+         * Dim or hide whole branches.
          */
         filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
         /**
-         * [ext-filter] Reset the filter.
-         *
-         * @requires [[FilterExtension]]
+         * Reset the filter.
          */
         clearFilter(): void;
         /**
-         * [ext-filter] Return true if a filter is currently applied.
-         *
-         * @requires [[FilterExtension]]
+         * Return true if a filter is currently applied.
          */
         isFilterActive(): boolean;
         /**
-         * [ext-filter] Re-apply current filter.
-         *
-         * @requires [[FilterExtension]]
+         * Re-apply current filter.
          */
         updateFilter(): void;
     }

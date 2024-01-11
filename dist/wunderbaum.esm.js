@@ -1,7 +1,304 @@
 /*!
+ * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
+ * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
+ * Modified for TypeScript type annotations.
+ */
+/* --- */
+/** Detect free variable `global` from Node.js. */
+const freeGlobal = typeof global === "object" &&
+    global !== null &&
+    global.Object === Object &&
+    global;
+/** Detect free variable `globalThis` */
+const freeGlobalThis = typeof globalThis === "object" &&
+    globalThis !== null &&
+    globalThis.Object == Object &&
+    globalThis;
+/** Detect free variable `self`. */
+const freeSelf = typeof self === "object" && self !== null && self.Object === Object && self;
+/** Used as a reference to the global object. */
+const root = freeGlobalThis || freeGlobal || freeSelf || Function("return this")();
+/**
+ * Checks if `value` is the
+ * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
+ * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
+ *
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an object, else `false`.
+ * @example
+ *
+ * isObject({})
+ * // => true
+ *
+ * isObject([1, 2, 3])
+ * // => true
+ *
+ * isObject(Function)
+ * // => true
+ *
+ * isObject(null)
+ * // => false
+ */
+function isObject(value) {
+    const type = typeof value;
+    return value != null && (type === "object" || type === "function");
+}
+/**
+ * Creates a debounced function that delays invoking `func` until after `wait`
+ * milliseconds have elapsed since the last time the debounced function was
+ * invoked, or until the next browser frame is drawn. The debounced function
+ * comes with a `cancel` method to cancel delayed `func` invocations and a
+ * `flush` method to immediately invoke them. Provide `options` to indicate
+ * whether `func` should be invoked on the leading and/or trailing edge of the
+ * `wait` timeout. The `func` is invoked with the last arguments provided to the
+ * debounced function. Subsequent calls to the debounced function return the
+ * result of the last `func` invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the debounced function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
+ * invocation will be deferred until the next frame is drawn (typically about
+ * 16ms).
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `debounce` and `throttle`.
+ *
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to debounce.
+ * @param {number} [wait=0]
+ *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
+ *  used (if available).
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=false]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {number} [options.maxWait]
+ *  The maximum time `func` is allowed to be delayed before it's invoked.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new debounced function.
+ * @example
+ *
+ * // Avoid costly calculations while the window size is in flux.
+ * jQuery(window).on('resize', debounce(calculateLayout, 150))
+ *
+ * // Invoke `sendMail` when clicked, debouncing subsequent calls.
+ * jQuery(element).on('click', debounce(sendMail, 300, {
+ *   'leading': true,
+ *   'trailing': false
+ * }))
+ *
+ * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
+ * const debounced = debounce(batchLog, 250, { 'maxWait': 1000 })
+ * const source = new EventSource('/stream')
+ * jQuery(source).on('message', debounced)
+ *
+ * // Cancel the trailing debounced invocation.
+ * jQuery(window).on('popstate', debounced.cancel)
+ *
+ * // Check for pending invocations.
+ * const status = debounced.pending() ? "Pending..." : "Ready"
+ */
+function debounce(func, wait = 0, options = {}) {
+    let lastArgs, lastThis, maxWait, result, timerId, lastCallTime;
+    let lastInvokeTime = 0;
+    let leading = false;
+    let maxing = false;
+    let trailing = true;
+    // Bypass `requestAnimationFrame` by explicitly setting `wait=0`.
+    const useRAF = !wait && wait !== 0 && typeof root.requestAnimationFrame === "function";
+    if (typeof func !== "function") {
+        throw new TypeError("Expected a function");
+    }
+    wait = +wait || 0;
+    if (isObject(options)) {
+        leading = !!options.leading;
+        maxing = "maxWait" in options;
+        maxWait = maxing ? Math.max(+options.maxWait || 0, wait) : maxWait;
+        trailing = "trailing" in options ? !!options.trailing : trailing;
+    }
+    function invokeFunc(time) {
+        const args = lastArgs;
+        const thisArg = lastThis;
+        lastArgs = lastThis = undefined;
+        lastInvokeTime = time;
+        result = func.apply(thisArg, args);
+        return result;
+    }
+    function startTimer(pendingFunc, wait) {
+        if (useRAF) {
+            root.cancelAnimationFrame(timerId);
+            return root.requestAnimationFrame(pendingFunc);
+        }
+        return setTimeout(pendingFunc, wait);
+    }
+    function cancelTimer(id) {
+        if (useRAF) {
+            return root.cancelAnimationFrame(id);
+        }
+        clearTimeout(id);
+    }
+    function leadingEdge(time) {
+        // Reset any `maxWait` timer.
+        lastInvokeTime = time;
+        // Start the timer for the trailing edge.
+        timerId = startTimer(timerExpired, wait);
+        // Invoke the leading edge.
+        return leading ? invokeFunc(time) : result;
+    }
+    function remainingWait(time) {
+        const timeSinceLastCall = time - lastCallTime;
+        const timeSinceLastInvoke = time - lastInvokeTime;
+        const timeWaiting = wait - timeSinceLastCall;
+        return maxing
+            ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke)
+            : timeWaiting;
+    }
+    function shouldInvoke(time) {
+        const timeSinceLastCall = time - lastCallTime;
+        const timeSinceLastInvoke = time - lastInvokeTime;
+        // Either this is the first call, activity has stopped and we're at the
+        // trailing edge, the system time has gone backwards and we're treating
+        // it as the trailing edge, or we've hit the `maxWait` limit.
+        return (lastCallTime === undefined ||
+            timeSinceLastCall >= wait ||
+            timeSinceLastCall < 0 ||
+            (maxing && timeSinceLastInvoke >= maxWait));
+    }
+    function timerExpired() {
+        const time = Date.now();
+        if (shouldInvoke(time)) {
+            return trailingEdge(time);
+        }
+        // Restart the timer.
+        timerId = startTimer(timerExpired, remainingWait(time));
+    }
+    function trailingEdge(time) {
+        timerId = undefined;
+        // Only invoke if we have `lastArgs` which means `func` has been
+        // debounced at least once.
+        if (trailing && lastArgs) {
+            return invokeFunc(time);
+        }
+        lastArgs = lastThis = undefined;
+        return result;
+    }
+    function cancel() {
+        if (timerId !== undefined) {
+            cancelTimer(timerId);
+        }
+        lastInvokeTime = 0;
+        lastArgs = lastCallTime = lastThis = timerId = undefined;
+    }
+    function flush() {
+        return timerId === undefined ? result : trailingEdge(Date.now());
+    }
+    function pending() {
+        return timerId !== undefined;
+    }
+    function debounced(...args) {
+        const time = Date.now();
+        const isInvoking = shouldInvoke(time);
+        lastArgs = args;
+        // eslint-disable-next-line  @typescript-eslint/no-this-alias
+        lastThis = this;
+        lastCallTime = time;
+        if (isInvoking) {
+            if (timerId === undefined) {
+                return leadingEdge(lastCallTime);
+            }
+            if (maxing) {
+                // Handle invocations in a tight loop.
+                timerId = startTimer(timerExpired, wait);
+                return invokeFunc(lastCallTime);
+            }
+        }
+        if (timerId === undefined) {
+            timerId = startTimer(timerExpired, wait);
+        }
+        return result;
+    }
+    debounced.cancel = cancel;
+    debounced.flush = flush;
+    debounced.pending = pending;
+    return debounced;
+}
+/**
+ * Creates a throttled function that only invokes `func` at most once per
+ * every `wait` milliseconds (or once per browser frame). The throttled function
+ * comes with a `cancel` method to cancel delayed `func` invocations and a
+ * `flush` method to immediately invoke them. Provide `options` to indicate
+ * whether `func` should be invoked on the leading and/or trailing edge of the
+ * `wait` timeout. The `func` is invoked with the last arguments provided to the
+ * throttled function. Subsequent calls to the throttled function return the
+ * result of the last `func` invocation.
+ *
+ * **Note:** If `leading` and `trailing` options are `true`, `func` is
+ * invoked on the trailing edge of the timeout only if the throttled function
+ * is invoked more than once during the `wait` timeout.
+ *
+ * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
+ * until the next tick, similar to `setTimeout` with a timeout of `0`.
+ *
+ * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
+ * invocation will be deferred until the next frame is drawn (typically about
+ * 16ms).
+ *
+ * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
+ * for details over the differences between `throttle` and `debounce`.
+ *
+ * @since 0.1.0
+ * @category Function
+ * @param {Function} func The function to throttle.
+ * @param {number} [wait=0]
+ *  The number of milliseconds to throttle invocations to; if omitted,
+ *  `requestAnimationFrame` is used (if available).
+ * @param {Object} [options={}] The options object.
+ * @param {boolean} [options.leading=true]
+ *  Specify invoking on the leading edge of the timeout.
+ * @param {boolean} [options.trailing=true]
+ *  Specify invoking on the trailing edge of the timeout.
+ * @returns {Function} Returns the new throttled function.
+ * @example
+ *
+ * // Avoid excessively updating the position while scrolling.
+ * jQuery(window).on('scroll', throttle(updatePosition, 100))
+ *
+ * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
+ * const throttled = throttle(renewToken, 300000, { 'trailing': false })
+ * jQuery(element).on('click', throttled)
+ *
+ * // Cancel the trailing throttled invocation.
+ * jQuery(window).on('popstate', throttled.cancel)
+ */
+function throttle(func, wait = 0, options = {}) {
+    let leading = true;
+    let trailing = true;
+    if (typeof func !== "function") {
+        throw new TypeError("Expected a function");
+    }
+    if (isObject(options)) {
+        leading = "leading" in options ? !!options.leading : leading;
+        trailing = "trailing" in options ? !!options.trailing : trailing;
+    }
+    return debounce(func, wait, {
+        leading,
+        trailing,
+        maxWait: wait,
+    });
+}
+
+/*!
  * Wunderbaum - util
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -27,8 +324,21 @@ const ENTITY_MAP = {
     "'": "&#39;",
     "/": "&#x2F;",
 };
+/** A generic error that can be thrown to indicate a validation error when
+ * handling the `apply` event for a node title or the `change` event for a
+ * grid cell.
+ */
+class ValidationError extends Error {
+    constructor(message) {
+        super(message);
+        this.name = "ValidationError";
+    }
+}
 /**
  * A ES6 Promise, that exposes the resolve()/reject() methods.
+ *
+ * TODO: See [Promise.withResolvers()](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Promise/withResolvers#description)
+ * , a proposed standard, but not yet implemented in any browser.
  */
 let Deferred$1 = class Deferred {
     constructor() {
@@ -371,16 +681,18 @@ function elemFromSelector(obj) {
     }
     return obj;
 }
-/** Return a EventTarget from selector or cast an existing element. */
-function eventTargetFromSelector(obj) {
-    if (!obj) {
-        return null;
-    }
-    if (typeof obj === "string") {
-        return document.querySelector(obj);
-    }
-    return obj;
-}
+// /** Return a EventTarget from selector or cast an existing element. */
+// export function eventTargetFromSelector(
+//   obj: string | EventTarget
+// ): EventTarget | null {
+//   if (!obj) {
+//     return null;
+//   }
+//   if (typeof obj === "string") {
+//     return document.querySelector(obj) as EventTarget;
+//   }
+//   return obj as EventTarget;
+// }
 /**
  * Return a canonical descriptive string for a keyboard or mouse event.
  *
@@ -478,7 +790,8 @@ function isPlainObject(obj) {
 function noop(...args) { }
 function onEvent(rootTarget, eventNames, selectorOrHandler, handlerOrNone) {
     let selector, handler;
-    rootTarget = eventTargetFromSelector(rootTarget);
+    rootTarget = elemFromSelector(rootTarget);
+    // rootTarget = eventTargetFromSelector<EventTarget>(rootTarget)!;
     if (handlerOrNone) {
         selector = selectorOrHandler;
         handler = handlerOrNone;
@@ -669,8 +982,6 @@ function type(obj) {
  * ```
  */
 function adaptiveThrottle(callback, options) {
-    let waiting = 0; // Initially, we're not waiting
-    let pendingArgs = null;
     const opts = Object.assign({
         minDelay: 16,
         defaultDelay: 200,
@@ -679,6 +990,9 @@ function adaptiveThrottle(callback, options) {
     }, options);
     const minDelay = Math.max(16, +opts.minDelay);
     const maxDelay = +opts.maxDelay;
+    let waiting = 0; // Initially, we're not waiting
+    let pendingArgs = null;
+    let pendingTimer = null;
     const throttledFn = (...args) => {
         if (waiting) {
             pendingArgs = args;
@@ -705,9 +1019,10 @@ function adaptiveThrottle(callback, options) {
             //   `adaptiveThrottle() calling worker took ${elap}ms. delay = ${curDelay}ms, using ${useDelay}ms`,
             //   pendingArgs
             // );
-            setTimeout(() => {
+            pendingTimer = setTimeout(() => {
                 // Unblock, and trigger pending requests if any
                 // const skipped = waiting - 1;
+                pendingTimer = null;
                 waiting = 0; // And allow future invocations
                 if (pendingArgs != null) {
                     // There was another request while running or waiting
@@ -720,52 +1035,68 @@ function adaptiveThrottle(callback, options) {
             }, useDelay);
         }
     };
+    throttledFn.cancel = () => {
+        if (pendingTimer) {
+            clearTimeout(pendingTimer);
+            pendingTimer = null;
+        }
+        pendingArgs = null;
+        waiting = 0;
+    };
+    throttledFn.pending = () => {
+        return !!pendingTimer;
+    };
+    throttledFn.flush = () => {
+        throw new Error("Not implemented");
+    };
     return throttledFn;
 }
 
 var util = /*#__PURE__*/Object.freeze({
-  __proto__: null,
-  Deferred: Deferred$1,
-  MAX_INT: MAX_INT,
-  MOUSE_BUTTONS: MOUSE_BUTTONS,
-  adaptiveThrottle: adaptiveThrottle,
-  assert: assert,
-  documentReady: documentReady,
-  documentReadyPromise: documentReadyPromise,
-  each: each,
-  elemFromHtml: elemFromHtml,
-  elemFromSelector: elemFromSelector,
-  error: error,
-  escapeHtml: escapeHtml,
-  escapeRegex: escapeRegex,
-  escapeTooltip: escapeTooltip,
-  eventTargetFromSelector: eventTargetFromSelector,
-  eventToString: eventToString,
-  extend: extend,
-  extractHtmlText: extractHtmlText,
-  getOption: getOption,
-  getValueFromElem: getValueFromElem,
-  isArray: isArray,
-  isEmptyObject: isEmptyObject,
-  isFunction: isFunction,
-  isMac: isMac,
-  isPlainObject: isPlainObject,
-  noop: noop,
-  onEvent: onEvent,
-  overrideMethod: overrideMethod,
-  setElemDisplay: setElemDisplay,
-  setTimeoutPromise: setTimeoutPromise,
-  setValueToElem: setValueToElem,
-  sleep: sleep,
-  toSet: toSet,
-  toggleCheckbox: toggleCheckbox,
-  type: type
+    __proto__: null,
+    Deferred: Deferred$1,
+    MAX_INT: MAX_INT,
+    MOUSE_BUTTONS: MOUSE_BUTTONS,
+    ValidationError: ValidationError,
+    adaptiveThrottle: adaptiveThrottle,
+    assert: assert,
+    debounce: debounce,
+    documentReady: documentReady,
+    documentReadyPromise: documentReadyPromise,
+    each: each,
+    elemFromHtml: elemFromHtml,
+    elemFromSelector: elemFromSelector,
+    error: error,
+    escapeHtml: escapeHtml,
+    escapeRegex: escapeRegex,
+    escapeTooltip: escapeTooltip,
+    eventToString: eventToString,
+    extend: extend,
+    extractHtmlText: extractHtmlText,
+    getOption: getOption,
+    getValueFromElem: getValueFromElem,
+    isArray: isArray,
+    isEmptyObject: isEmptyObject,
+    isFunction: isFunction,
+    isMac: isMac,
+    isPlainObject: isPlainObject,
+    noop: noop,
+    onEvent: onEvent,
+    overrideMethod: overrideMethod,
+    setElemDisplay: setElemDisplay,
+    setTimeoutPromise: setTimeoutPromise,
+    setValueToElem: setValueToElem,
+    sleep: sleep,
+    throttle: throttle,
+    toSet: toSet,
+    toggleCheckbox: toggleCheckbox,
+    type: type
 });
 
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -829,7 +1160,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -886,306 +1217,9 @@ class WunderbaumExtension {
 }
 
 /*!
- * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
- * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
- * Modified for TypeScript type annotations.
- */
-/* --- */
-/** Detect free variable `global` from Node.js. */
-const freeGlobal = typeof global === "object" &&
-    global !== null &&
-    global.Object === Object &&
-    global;
-/** Detect free variable `globalThis` */
-const freeGlobalThis = typeof globalThis === "object" &&
-    globalThis !== null &&
-    globalThis.Object == Object &&
-    globalThis;
-/** Detect free variable `self`. */
-const freeSelf = typeof self === "object" && self !== null && self.Object === Object && self;
-/** Used as a reference to the global object. */
-const root = freeGlobalThis || freeGlobal || freeSelf || Function("return this")();
-/**
- * Checks if `value` is the
- * [language type](http://www.ecma-international.org/ecma-262/7.0/#sec-ecmascript-language-types)
- * of `Object`. (e.g. arrays, functions, objects, regexes, `new Number(0)`, and `new String('')`)
- *
- * @since 0.1.0
- * @category Lang
- * @param {*} value The value to check.
- * @returns {boolean} Returns `true` if `value` is an object, else `false`.
- * @example
- *
- * isObject({})
- * // => true
- *
- * isObject([1, 2, 3])
- * // => true
- *
- * isObject(Function)
- * // => true
- *
- * isObject(null)
- * // => false
- */
-function isObject(value) {
-    const type = typeof value;
-    return value != null && (type === "object" || type === "function");
-}
-/**
- * Creates a debounced function that delays invoking `func` until after `wait`
- * milliseconds have elapsed since the last time the debounced function was
- * invoked, or until the next browser frame is drawn. The debounced function
- * comes with a `cancel` method to cancel delayed `func` invocations and a
- * `flush` method to immediately invoke them. Provide `options` to indicate
- * whether `func` should be invoked on the leading and/or trailing edge of the
- * `wait` timeout. The `func` is invoked with the last arguments provided to the
- * debounced function. Subsequent calls to the debounced function return the
- * result of the last `func` invocation.
- *
- * **Note:** If `leading` and `trailing` options are `true`, `func` is
- * invoked on the trailing edge of the timeout only if the debounced function
- * is invoked more than once during the `wait` timeout.
- *
- * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
- * until the next tick, similar to `setTimeout` with a timeout of `0`.
- *
- * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
- * invocation will be deferred until the next frame is drawn (typically about
- * 16ms).
- *
- * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
- * for details over the differences between `debounce` and `throttle`.
- *
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to debounce.
- * @param {number} [wait=0]
- *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
- *  used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=false]
- *  Specify invoking on the leading edge of the timeout.
- * @param {number} [options.maxWait]
- *  The maximum time `func` is allowed to be delayed before it's invoked.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
- * @returns {Function} Returns the new debounced function.
- * @example
- *
- * // Avoid costly calculations while the window size is in flux.
- * jQuery(window).on('resize', debounce(calculateLayout, 150))
- *
- * // Invoke `sendMail` when clicked, debouncing subsequent calls.
- * jQuery(element).on('click', debounce(sendMail, 300, {
- *   'leading': true,
- *   'trailing': false
- * }))
- *
- * // Ensure `batchLog` is invoked once after 1 second of debounced calls.
- * const debounced = debounce(batchLog, 250, { 'maxWait': 1000 })
- * const source = new EventSource('/stream')
- * jQuery(source).on('message', debounced)
- *
- * // Cancel the trailing debounced invocation.
- * jQuery(window).on('popstate', debounced.cancel)
- *
- * // Check for pending invocations.
- * const status = debounced.pending() ? "Pending..." : "Ready"
- */
-function debounce(func, wait = 0, options = {}) {
-    let lastArgs, lastThis, maxWait, result, timerId, lastCallTime;
-    let lastInvokeTime = 0;
-    let leading = false;
-    let maxing = false;
-    let trailing = true;
-    // Bypass `requestAnimationFrame` by explicitly setting `wait=0`.
-    const useRAF = !wait && wait !== 0 && typeof root.requestAnimationFrame === "function";
-    if (typeof func !== "function") {
-        throw new TypeError("Expected a function");
-    }
-    wait = +wait || 0;
-    if (isObject(options)) {
-        leading = !!options.leading;
-        maxing = "maxWait" in options;
-        maxWait = maxing ? Math.max(+options.maxWait || 0, wait) : maxWait;
-        trailing = "trailing" in options ? !!options.trailing : trailing;
-    }
-    function invokeFunc(time) {
-        const args = lastArgs;
-        const thisArg = lastThis;
-        lastArgs = lastThis = undefined;
-        lastInvokeTime = time;
-        result = func.apply(thisArg, args);
-        return result;
-    }
-    function startTimer(pendingFunc, wait) {
-        if (useRAF) {
-            root.cancelAnimationFrame(timerId);
-            return root.requestAnimationFrame(pendingFunc);
-        }
-        return setTimeout(pendingFunc, wait);
-    }
-    function cancelTimer(id) {
-        if (useRAF) {
-            return root.cancelAnimationFrame(id);
-        }
-        clearTimeout(id);
-    }
-    function leadingEdge(time) {
-        // Reset any `maxWait` timer.
-        lastInvokeTime = time;
-        // Start the timer for the trailing edge.
-        timerId = startTimer(timerExpired, wait);
-        // Invoke the leading edge.
-        return leading ? invokeFunc(time) : result;
-    }
-    function remainingWait(time) {
-        const timeSinceLastCall = time - lastCallTime;
-        const timeSinceLastInvoke = time - lastInvokeTime;
-        const timeWaiting = wait - timeSinceLastCall;
-        return maxing
-            ? Math.min(timeWaiting, maxWait - timeSinceLastInvoke)
-            : timeWaiting;
-    }
-    function shouldInvoke(time) {
-        const timeSinceLastCall = time - lastCallTime;
-        const timeSinceLastInvoke = time - lastInvokeTime;
-        // Either this is the first call, activity has stopped and we're at the
-        // trailing edge, the system time has gone backwards and we're treating
-        // it as the trailing edge, or we've hit the `maxWait` limit.
-        return (lastCallTime === undefined ||
-            timeSinceLastCall >= wait ||
-            timeSinceLastCall < 0 ||
-            (maxing && timeSinceLastInvoke >= maxWait));
-    }
-    function timerExpired() {
-        const time = Date.now();
-        if (shouldInvoke(time)) {
-            return trailingEdge(time);
-        }
-        // Restart the timer.
-        timerId = startTimer(timerExpired, remainingWait(time));
-    }
-    function trailingEdge(time) {
-        timerId = undefined;
-        // Only invoke if we have `lastArgs` which means `func` has been
-        // debounced at least once.
-        if (trailing && lastArgs) {
-            return invokeFunc(time);
-        }
-        lastArgs = lastThis = undefined;
-        return result;
-    }
-    function cancel() {
-        if (timerId !== undefined) {
-            cancelTimer(timerId);
-        }
-        lastInvokeTime = 0;
-        lastArgs = lastCallTime = lastThis = timerId = undefined;
-    }
-    function flush() {
-        return timerId === undefined ? result : trailingEdge(Date.now());
-    }
-    function pending() {
-        return timerId !== undefined;
-    }
-    function debounced(...args) {
-        const time = Date.now();
-        const isInvoking = shouldInvoke(time);
-        lastArgs = args;
-        // eslint-disable-next-line  @typescript-eslint/no-this-alias
-        lastThis = this;
-        lastCallTime = time;
-        if (isInvoking) {
-            if (timerId === undefined) {
-                return leadingEdge(lastCallTime);
-            }
-            if (maxing) {
-                // Handle invocations in a tight loop.
-                timerId = startTimer(timerExpired, wait);
-                return invokeFunc(lastCallTime);
-            }
-        }
-        if (timerId === undefined) {
-            timerId = startTimer(timerExpired, wait);
-        }
-        return result;
-    }
-    debounced.cancel = cancel;
-    debounced.flush = flush;
-    debounced.pending = pending;
-    return debounced;
-}
-/**
- * Creates a throttled function that only invokes `func` at most once per
- * every `wait` milliseconds (or once per browser frame). The throttled function
- * comes with a `cancel` method to cancel delayed `func` invocations and a
- * `flush` method to immediately invoke them. Provide `options` to indicate
- * whether `func` should be invoked on the leading and/or trailing edge of the
- * `wait` timeout. The `func` is invoked with the last arguments provided to the
- * throttled function. Subsequent calls to the throttled function return the
- * result of the last `func` invocation.
- *
- * **Note:** If `leading` and `trailing` options are `true`, `func` is
- * invoked on the trailing edge of the timeout only if the throttled function
- * is invoked more than once during the `wait` timeout.
- *
- * If `wait` is `0` and `leading` is `false`, `func` invocation is deferred
- * until the next tick, similar to `setTimeout` with a timeout of `0`.
- *
- * If `wait` is omitted in an environment with `requestAnimationFrame`, `func`
- * invocation will be deferred until the next frame is drawn (typically about
- * 16ms).
- *
- * See [David Corbacho's article](https://css-tricks.com/debouncing-throttling-explained-examples/)
- * for details over the differences between `throttle` and `debounce`.
- *
- * @since 0.1.0
- * @category Function
- * @param {Function} func The function to throttle.
- * @param {number} [wait=0]
- *  The number of milliseconds to throttle invocations to; if omitted,
- *  `requestAnimationFrame` is used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=true]
- *  Specify invoking on the leading edge of the timeout.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
- * @returns {Function} Returns the new throttled function.
- * @example
- *
- * // Avoid excessively updating the position while scrolling.
- * jQuery(window).on('scroll', throttle(updatePosition, 100))
- *
- * // Invoke `renewToken` when the click event is fired, but not more than once every 5 minutes.
- * const throttled = throttle(renewToken, 300000, { 'trailing': false })
- * jQuery(element).on('click', throttled)
- *
- * // Cancel the trailing throttled invocation.
- * jQuery(window).on('popstate', throttled.cancel)
- */
-function throttle(func, wait = 0, options = {}) {
-    let leading = true;
-    let trailing = true;
-    if (typeof func !== "function") {
-        throw new TypeError("Expected a function");
-    }
-    if (isObject(options)) {
-        leading = "leading" in options ? !!options.leading : leading;
-        trailing = "trailing" in options ? !!options.trailing : trailing;
-    }
-    return debounce(func, wait, {
-        leading,
-        trailing,
-        maxWait: wait,
-    });
-}
-
-/*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1367,7 +1401,12 @@ class FilterExtension extends WunderbaumExtension {
         });
         treeOpts.autoCollapse = prevAutoCollapse;
         if (count === 0 && opts.noData && hideMode) {
-            tree.root.setStatus(NodeStatusType.noData);
+            if (typeof opts.noData === "string") {
+                tree.root.setStatus(NodeStatusType.noData, { message: opts.noData });
+            }
+            else {
+                tree.root.setStatus(NodeStatusType.noData);
+            }
         }
         // Redraw whole tree
         tree.logInfo(`Filter '${match}' found ${count} nodes in ${Date.now() - start} ms.`);
@@ -1485,7 +1524,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1507,6 +1546,13 @@ class KeynavExtension extends WunderbaumExtension {
         }
         return input;
     }
+    // /* Return the current cell's embedded input that has keyboard focus. */
+    // protected _getFocusedInputElem(): HTMLInputElement | null {
+    //   const ace = this.tree
+    //     .getActiveColElem()
+    //     ?.querySelector<HTMLInputElement>("input:focus,select:focus");
+    //   return ace || null;
+    // }
     /* Return true if the current cell's embedded input has keyboard focus. */
     _isCurInputFocused() {
         var _a;
@@ -1522,7 +1568,6 @@ class KeynavExtension extends WunderbaumExtension {
         const curInput = this._getEmbeddedInputElem(event.target);
         const inputHasFocus = curInput && this._isCurInputFocused();
         const navModeOption = opts.navigationModeOption;
-        // isCellEditMode = tree.navMode === NavigationMode.cellEdit;
         let focusNode, eventName = eventToString(event), node = data.node, handled = true;
         // tree.log(`onKeyEvent: ${eventName}, curInput`, curInput);
         if (!tree.isEnabled()) {
@@ -1667,22 +1712,34 @@ class KeynavExtension extends WunderbaumExtension {
             }
         }
         else {
-            const curInput = this._getEmbeddedInputElem(null);
+            // -----------------------------------------------------------------------
+            // --- Cell Mode ---
+            // -----------------------------------------------------------------------
+            // // Standard navigation (cell mode)
+            // if (isCellEditMode && INPUT_BREAKOUT_KEYS.has(eventName)) {
+            // }
+            // const curInput = this._getEmbeddedInputElem(null);
             const curInputType = curInput ? curInput.type || curInput.tagName : "";
-            const inputHasFocus = curInput && this._isCurInputFocused();
+            // const inputHasFocus = curInput && this._isCurInputFocused();
             const inputCanFocus = curInput && curInputType !== "checkbox";
             if (inputHasFocus) {
                 if (eventName === "Escape") {
-                    // Discard changes
+                    node.logDebug(`Reset focused input on Escape`);
+                    // Discard changes and reset input validation state
+                    curInput.setCustomValidity("");
                     node._render();
                     // Keep cell-nav mode
-                    node.logDebug(`Reset focused input`);
                     tree.setFocus();
                     tree.setColumn(tree.activeColIdx);
                     return;
                     // } else if (!INPUT_BREAKOUT_KEYS.has(eventName)) {
                 }
                 else if (eventName !== "Enter") {
+                    if (curInput && curInput.checkValidity && !curInput.checkValidity()) {
+                        // Invalid input: ignore all keys except Enter and Escape
+                        node.logDebug(`Ignored ${eventName} inside invalid input`);
+                        return false;
+                    }
                     // Let current `<input>` handle it
                     node.logDebug(`Ignored ${eventName} inside focused input`);
                     return;
@@ -1697,9 +1754,10 @@ class KeynavExtension extends WunderbaumExtension {
             else if (curInput) {
                 // On a cell that has an embedded, unfocused <input>
                 if (eventName.length === 1 && inputCanFocus) {
+                    // Typing a single char
                     curInput.focus();
                     curInput.value = "";
-                    node.logDebug(`Focus imput: ${eventName}`);
+                    node.logDebug(`Focus input: ${eventName}`);
                     return false;
                 }
             }
@@ -1711,7 +1769,6 @@ class KeynavExtension extends WunderbaumExtension {
                 eventName = tree.activeColIdx > 0 ? "ArrowLeft" : "";
                 handled = true;
             }
-            else ;
             switch (eventName) {
                 case "+":
                 case "Add":
@@ -1831,7 +1888,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1873,7 +1930,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -1992,7 +2049,7 @@ const KEY_TO_ACTION_DICT = {
 };
 /** Return a callback that returns true if the node title matches the string
  * or regular expression.
- * @see {@link WunderbaumNode.findAll}
+ * @see {@link WunderbaumNode.findAll()}
  */
 function makeNodeTitleMatcher(match) {
     if (match instanceof RegExp) {
@@ -2196,7 +2253,7 @@ function decompressSourceData(source) {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2445,7 +2502,7 @@ class DndExtension extends WunderbaumExtension {
         if (e.type === "dragstart") {
             // Set a default definition of allowed effects
             e.dataTransfer.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
-            if (srcNode.isEditing()) {
+            if (srcNode.isEditingTitle()) {
                 srcNode.logDebug("Prevented dragging node in edit mode.");
                 e.preventDefault();
                 return false;
@@ -2627,7 +2684,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2763,7 +2820,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2800,7 +2857,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2824,27 +2881,27 @@ class Deferred {
             this._reject = reject;
         });
     }
-    /** Resolve the [[Promise]]. */
+    /** Resolve the Promise. */
     resolve(value) {
         this._resolve(value);
     }
-    /** Reject the [[Promise]]. */
+    /** Reject the Promise. */
     reject(reason) {
         this._reject(reason);
     }
-    /** Return the native [[Promise]] instance.*/
+    /** Return the native Promise instance.*/
     promise() {
         return this._promise;
     }
-    /** Call [[Promise.then]] on the embedded promise instance.*/
+    /** Call Promise.then on the embedded promise instance.*/
     then(cb) {
         return this._promise.then(cb);
     }
-    /** Call [[Promise.catch]] on the embedded promise instance.*/
+    /** Call Promise.catch on the embedded promise instance.*/
     catch(cb) {
         return this._promise.catch(cb);
     }
-    /** Call [[Promise.finally]] on the embedded promise instance.*/
+    /** Call Promise.finally on the embedded promise instance.*/
     finally(cb) {
         return this._promise.finally(cb);
     }
@@ -2853,7 +2910,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3154,6 +3211,10 @@ class WunderbaumNode {
             }
         }
     }
+    /** Start editing this node's title. */
+    startEditTitle() {
+        this.tree._callMethod("edit.startEditTitle", this);
+    }
     /** Call `setExpanded()` on all descendant nodes. */
     async expandAll(flag = true, options) {
         const tree = this.tree;
@@ -3363,6 +3424,22 @@ class WunderbaumNode {
         const colElems = (_a = this._rowElem) === null || _a === void 0 ? void 0 : _a.querySelectorAll("span.wb-col");
         return colElems ? colElems[colIdx] : null;
     }
+    /**
+     * Return all nodes with the same refKey.
+     *
+     * @param includeSelf Include this node itself.
+     * @see {@link Wunderbaum.findByRefKey}
+     */
+    getCloneList(includeSelf = false) {
+        if (!this.refKey) {
+            return [];
+        }
+        const clones = this.tree.findByRefKey(this.refKey);
+        if (includeSelf) {
+            return clones;
+        }
+        return [...clones].filter((n) => n !== this);
+    }
     /** Return the first child node or null.
      * @returns {WunderbaumNode | null}
      */
@@ -3467,16 +3544,21 @@ class WunderbaumNode {
         return this.tree.activeNode === this;
     }
     /** Return true if this node is a direct or indirect parent of `other`.
-     * (See also [[isParentOf]].)
+     * @see {@link WunderbaumNode.isParentOf}
      */
     isAncestorOf(other) {
         return other && other.isDescendantOf(this);
     }
     /** Return true if this node is a **direct** subnode of `other`.
-     * (See also [[isDescendantOf]].)
+     * @see {@link WunderbaumNode.isDescendantOf}
      */
     isChildOf(other) {
         return other && this.parent === other;
+    }
+    /** Return true if this node's refKey is used by at least one other node.
+     */
+    isClone() {
+        return !!this.refKey && this.tree.findByRefKey(this.refKey).length > 1;
     }
     /** Return true if this node's title spans all columns, i.e. the node has no
      * grid cells.
@@ -3485,7 +3567,7 @@ class WunderbaumNode {
         return !!this.getOption("colspan");
     }
     /** Return true if this node is a direct or indirect subnode of `other`.
-     * (See also [[isChildOf]].)
+     * @see {@link WunderbaumNode.isChildOf}
      */
     isDescendantOf(other) {
         if (!other || other.tree !== this.tree) {
@@ -3520,8 +3602,11 @@ class WunderbaumNode {
         }
         return true;
     }
-    /** Return true if this node is currently in edit-title mode. */
-    isEditing() {
+    /** Return true if _this_ node is currently in edit-title mode.
+     *
+     * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+     */
+    isEditingTitle() {
         return this.tree._callMethod("edit.isEditingTitle", this);
     }
     /** Return true if this node is currently expanded. */
@@ -3555,7 +3640,7 @@ class WunderbaumNode {
         return this.statusNodeType === "paging";
     }
     /** Return true if this node is a **direct** parent of `other`.
-     * (See also [[isAncestorOf]].)
+     * @see {@link WunderbaumNode.isAncestorOf}
      */
     isParentOf(other) {
         return other && other.parent === this;
@@ -3577,7 +3662,7 @@ class WunderbaumNode {
         return !!this._rowElem;
     }
     /** Return true if this node is the (invisible) system root node.
-     * (See also [[isTopLevel()]].)
+     * @see {@link WunderbaumNode.isTopLevel}
      */
     isRootNode() {
         return this.tree.root === this;
@@ -4456,6 +4541,7 @@ class WunderbaumNode {
             let i = 0;
             for (const colSpan of rowDiv.children) {
                 colSpan.classList.toggle("wb-active", i++ === tree.activeColIdx);
+                colSpan.classList.remove("wb-error", "wb-invalid");
             }
             // Update icon (if not opts.isNew, which would rebuild markup anyway)
             const iconSpan = nodeElem.querySelector("i.wb-icon");
@@ -4637,16 +4723,21 @@ class WunderbaumNode {
         return this.tree.scrollTo(opts);
     }
     /**
-     * Activate this node, deactivate previous, send events, activate column and scroll int viewport.
+     * Activate this node, deactivate previous, send events, activate column and
+     * scroll into viewport.
      */
     async setActive(flag = true, options) {
         const tree = this.tree;
         const prev = tree.activeNode;
         const retrigger = options === null || options === void 0 ? void 0 : options.retrigger; // Default: false
         const focusTree = options === null || options === void 0 ? void 0 : options.focusTree; // Default: false
-        const focusNode = (options === null || options === void 0 ? void 0 : options.focusNode) !== false; // Default: true
+        // const focusNode = options?.focusNode !== false; // Default: true
         const noEvents = options === null || options === void 0 ? void 0 : options.noEvents; // Default: false
-        const orgEvent = options === null || options === void 0 ? void 0 : options.event; // Default: false
+        const orgEvent = options === null || options === void 0 ? void 0 : options.event; // Default: null
+        const colIdx = options === null || options === void 0 ? void 0 : options.colIdx; // Default: null
+        const edit = options === null || options === void 0 ? void 0 : options.edit; // Default: false
+        assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
+        assert(!edit || colIdx != null, "edit requires colIdx");
         if (!noEvents) {
             if (flag) {
                 if (prev !== this || retrigger) {
@@ -4671,32 +4762,36 @@ class WunderbaumNode {
         if (prev !== this) {
             if (flag) {
                 tree.activeNode = this;
-                if (focusNode || focusTree) {
-                    tree.focusNode = this;
-                }
-                if (focusTree) {
-                    tree.setFocus();
-                }
             }
             prev === null || prev === void 0 ? void 0 : prev.update(ChangeType.status);
             this.update(ChangeType.status);
         }
-        if (options &&
-            options.colIdx != null &&
-            options.colIdx !== tree.activeColIdx &&
-            tree.isCellNav()) {
-            tree.setColumn(options.colIdx);
-        }
-        if (flag && !noEvents) {
-            this._callEvent("activate", { prevNode: prev, event: orgEvent });
-        }
-        return this.makeVisible();
+        return this.makeVisible().then(() => {
+            if (flag) {
+                if (focusTree || edit) {
+                    tree.setFocus();
+                    tree.focusNode = this;
+                    tree.focusNode.setFocus();
+                }
+                // if (focusNode || edit) {
+                //   tree.focusNode = this;
+                //   tree.focusNode.setFocus();
+                // }
+                if (colIdx != null && tree.isCellNav()) {
+                    tree.setColumn(colIdx, { edit: edit });
+                }
+                if (!noEvents) {
+                    this._callEvent("activate", { prevNode: prev, event: orgEvent });
+                }
+            }
+        });
     }
     /**
      * Expand or collapse this node.
      */
     async setExpanded(flag = true, options) {
         const { force, scrollIntoView, immediate } = options !== null && options !== void 0 ? options : {};
+        const sendEvents = !(options === null || options === void 0 ? void 0 : options.noEvents); // Default: send events
         if (!flag &&
             this.isExpanded() &&
             this.getLevel() <= this.tree.getOption("minExpandLevel") &&
@@ -4706,6 +4801,10 @@ class WunderbaumNode {
         }
         if (!flag === !this.expanded) {
             return; // Nothing to do
+        }
+        if (sendEvents &&
+            this._callEvent("beforeExpand", { flag: flag }) === false) {
+            return;
         }
         // this.log("setExpanded()");
         if (flag && this.getOption("autoCollapse")) {
@@ -4725,13 +4824,16 @@ class WunderbaumNode {
                 lastChild.scrollIntoView({ topNode: this });
             }
         }
+        if (sendEvents) {
+            this._callEvent("expand", { flag: flag });
+        }
     }
     /**
      * Set keyboard focus here.
      * @see {@link setActive}
      */
     setFocus(flag = true) {
-        assert(!!flag, "blur is not yet implemented");
+        assert(!!flag, "Blur is not yet implemented");
         const prev = this.tree.focusNode;
         this.tree.focusNode = this;
         prev === null || prev === void 0 ? void 0 : prev.update();
@@ -5186,7 +5288,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.7.0, Sat, 09 Dec 2023 13:47:27 GMT (https://github.com/mar10/wunderbaum)
+ * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5211,40 +5313,62 @@ class EditExtension extends WunderbaumExtension {
         this.debouncedOnChange = debounce(this._onChange.bind(this), this.getPluginOption("debounce"));
     }
     /*
-     * Call an event handler, while marking the current node cell 'dirty'.
+     * Call an event handler, while marking the current node cell 'busy'.
+     * Deal with returned promises and ValidationError.
+     * Convert a ValidationError into a input.setCustomValidity() call and vice versa.
      */
-    _applyChange(eventName, node, colElem, extra) {
-        let res;
+    async _applyChange(eventName, node, colElem, inputElem, extra) {
         node.log(`_applyChange(${eventName})`, extra);
         colElem.classList.add("wb-busy");
-        colElem.classList.remove("wb-error");
-        try {
-            res = node._callEvent(eventName, extra);
-        }
-        catch (err) {
-            node.logError(`Error in ${eventName} event handler`, err);
-            colElem.classList.add("wb-error");
-            colElem.classList.remove("wb-busy");
-        }
-        // Convert scalar return value to a resolved promise
-        if (!(res instanceof Promise)) {
-            res = Promise.resolve(res);
-        }
-        res
+        colElem.classList.remove("wb-error", "wb-invalid");
+        inputElem.setCustomValidity("");
+        // Call event handler either ('change' or 'edit.appy'), which may return a
+        // promise or a scalar value or throw a ValidationError.
+        return new Promise((resolve, reject) => {
+            const res = node._callEvent(eventName, extra);
+            // normalize to promise, even if a scalar value was returned and await it
+            Promise.resolve(res)
+                .then((res) => {
+                resolve(res);
+            })
+                .catch((err) => {
+                reject(err);
+            });
+        })
+            .then((res) => {
+            if (!inputElem.checkValidity()) {
+                // Native validation failed or handler called 'inputElem.setCustomValidity()'
+                node.logWarn("inputElem.checkValidity() failed: throwing....");
+                throw new ValidationError(inputElem.validationMessage);
+            }
+            return res;
+        })
             .catch((err) => {
-            node.logError(`Error in ${eventName} event promise`, err);
-            colElem.classList.add("wb-error");
+            if (err instanceof ValidationError) {
+                node.logWarn("catched ", err);
+                colElem.classList.add("wb-invalid");
+                if (inputElem.setCustomValidity && !inputElem.validationMessage) {
+                    inputElem.setCustomValidity(err.message);
+                }
+                if (inputElem.validationMessage) {
+                    inputElem.reportValidity();
+                }
+                // throw err;
+            }
+            else {
+                node.logError(`Error in ${eventName} event handler (throw e.util.ValidationError instead if this was intended)`, err);
+                colElem.classList.add("wb-error");
+                throw err;
+            }
         })
             .finally(() => {
             colElem.classList.remove("wb-busy");
         });
-        return res;
     }
     /*
      * Called for when a control that is embedded in a cell fires a `change` event.
      */
     _onChange(e) {
-        // let res;
         const info = Wunderbaum.getEventInfo(e);
         const node = info.node;
         const colElem = info.colElem;
@@ -5252,16 +5376,15 @@ class EditExtension extends WunderbaumExtension {
             this.tree.log("Ignored change event for removed element or node title");
             return;
         }
-        this._applyChange("change", node, colElem, {
+        // See also WbChangeEventType
+        this._applyChange("change", node, colElem, e.target, {
             info: info,
             event: e,
             inputElem: e.target,
             inputValue: Wunderbaum.util.getValueFromElem(e.target),
+            inputValid: e.target.checkValidity(),
         });
     }
-    // handleKey(e:KeyboardEvent):boolean {
-    //   if(this.tree.cellNavMode )
-    // }
     init() {
         super.init();
         onEvent(this.tree.element, "change", //"change input",
@@ -5308,7 +5431,6 @@ class EditExtension extends WunderbaumExtension {
                     break;
                 case "F2":
                     if (trigger.indexOf("F2") >= 0) {
-                        // tree.setNavigationMode(NavigationMode.cellEdit);
                         this.startEditTitle();
                         return false;
                     }
@@ -5333,14 +5455,21 @@ class EditExtension extends WunderbaumExtension {
         this.tree.logDebug(`startEditTitle(node=${node})`);
         let inputHtml = node._callEvent("edit.beforeEdit");
         if (inputHtml === false) {
-            node.logInfo("beforeEdit canceled operation.");
+            node.logDebug("beforeEdit canceled operation.");
             return;
         }
-        // `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+        // `beforeEdit(e)` may return an input HTML string. Otherwise use a default
         // (we also treat a `true` return value as 'use default'):
         if (inputHtml === true || !inputHtml) {
             const title = escapeHtml(node.title);
-            inputHtml = `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" required autocorrect=off>`;
+            let opt = this.getPluginOption("maxlength");
+            const maxlength = opt ? ` maxlength="${opt}"` : "";
+            opt = this.getPluginOption("minlength");
+            const minlength = opt ? ` minlength="${opt}"` : "";
+            const required = opt > 0 ? " required" : "";
+            inputHtml =
+                `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" ` +
+                    `autocorrect="off"${required}${minlength}${maxlength} >`;
         }
         const titleSpan = node
             .getColElem(0)
@@ -5351,7 +5480,9 @@ class EditExtension extends WunderbaumExtension {
             // Permanently apply input validations (CSS and tooltip)
             inputElem.addEventListener("keydown", (e) => {
                 inputElem.setCustomValidity("");
-                if (!inputElem.reportValidity()) ;
+                if (!inputElem.reportValidity()) {
+                    node.logWarn(`Invalid input: '${inputElem.value}'`);
+                }
             });
         }
         inputElem.focus();
@@ -5398,12 +5529,12 @@ class EditExtension extends WunderbaumExtension {
                 throw new Error(`Input validation failed for "${newValue}": ${errMsg}.`);
             }
             const colElem = node.getColElem(0);
-            this._applyChange("edit.apply", node, colElem, {
+            this._applyChange("edit.apply", node, colElem, focusElem, {
                 oldValue: node.title,
                 newValue: newValue,
                 inputElem: focusElem,
-            })
-                .then((value) => {
+                inputValid: focusElem.checkValidity(),
+            }).then((value) => {
                 const errMsg = focusElem.validationMessage;
                 if (validity && errMsg && value !== false) {
                     // Handler called 'inputElem.setCustomValidity()' to signal error
@@ -5422,10 +5553,10 @@ class EditExtension extends WunderbaumExtension {
                 this.curEditNode = null;
                 this.relatedNode = null;
                 this.tree.setFocus(); // restore focus that was in the input element
-            })
-                .catch((err) => {
-                node.logError(err);
             });
+            // .catch((err) => {
+            //   node.logError(err);
+            // });
             // Trigger 'change' event for embedded `<input>`
             // focusElem.blur();
         }
@@ -5486,8 +5617,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.7.0
- * @date Sat, 09 Dec 2023 13:47:27 GMT
+ * @version v0.8.0
+ * @date Thu, 11 Jan 2024 19:37:23 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -5504,7 +5635,7 @@ class WbSystemRoot extends WunderbaumNode {
 /**
  * A persistent plain object or array.
  *
- * See also [[WunderbaumOptions]].
+ * See also {@link WunderbaumOptions}.
  */
 class Wunderbaum {
     constructor(options) {
@@ -5537,7 +5668,7 @@ class Wunderbaum {
         // --- FILTER ---
         this.filterMode = null;
         // --- KEYNAV ---
-        /** @internal Use `setColumn()`/`getActiveColElem()`*/
+        /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
         this.activeColIdx = 0;
         /** @internal */
         this._cellNavMode = false;
@@ -5713,6 +5844,7 @@ class Wunderbaum {
                 else {
                     this.setNavigationOption(opts.navigationModeOption);
                 }
+                this.update(ChangeType.structure, { immediate: true });
                 readyDeferred.resolve();
             })
                 .catch((error) => {
@@ -5764,7 +5896,7 @@ class Wunderbaum {
                     info.region === "title" &&
                     node.isActive() &&
                     (!slowClickDelay || Date.now() - this.lastClickTime < slowClickDelay)) {
-                    this._callMethod("edit.startEditTitle", node);
+                    node.startEditTitle();
                 }
                 if (info.colIdx >= 0) {
                     node.setActive(true, { colIdx: info.colIdx, event: e });
@@ -5811,7 +5943,7 @@ class Wunderbaum {
             const flag = e.type === "focusin";
             const targetNode = Wunderbaum.getNode(e);
             this._callEvent("focus", { flag: flag, event: e });
-            if (flag && this.isRowNav() && !this.isEditing()) {
+            if (flag && this.isRowNav() && !this.isEditingTitle()) {
                 if (opts.navigationModeOption === NavModeEnum.row) {
                     targetNode === null || targetNode === void 0 ? void 0 : targetNode.setActive();
                 }
@@ -5835,7 +5967,7 @@ class Wunderbaum {
      * getTree(1);        // Get second Wunderbaum instance on page
      * getTree(event);    // Get tree for this mouse- or keyboard event
      * getTree("foo");    // Get tree for this `tree.options.id`
-     * getTree("#tree");  // Get tree for this matching element
+     * getTree("#tree");  // Get tree for first matching element selector
      * ```
      */
     static getTree(el) {
@@ -5942,31 +6074,33 @@ class Wunderbaum {
         assert(key != null && !this.keyMap.has(key), `Missing or duplicate key: '${key}'.`);
         this.keyMap.set(key, node);
         const rk = node.refKey;
-        if (rk) {
+        if (rk != null) {
             const rks = this.refKeyMap.get(rk); // Set of nodes with this refKey
             if (rks) {
                 rks.add(node);
             }
             else {
-                this.refKeyMap.set(rk, new Set());
+                this.refKeyMap.set(rk, new Set([node]));
             }
         }
     }
     /** Remove node from tree's bookkeeping data structures. */
     _unregisterNode(node) {
+        // Remove refKey reference from map (if any)
         const rk = node.refKey;
-        if (rk) {
+        if (rk != null) {
             const rks = this.refKeyMap.get(rk);
             if (rks && rks.delete(node) && !rks.size) {
                 // We just removed the last element
                 this.refKeyMap.delete(rk);
             }
         }
-        // mark as disposed
+        // Remove key reference from map
+        this.keyMap.delete(node.key);
+        // Mark as disposed
         node.tree = null;
         node.parent = null;
-        // node.title = "DISPOSED: " + node.title
-        // this.viewNodes.delete(node);
+        // Remove HTML markup
         node.removeMarkup();
     }
     /** Call all hook methods of all registered extensions.*/
@@ -6170,7 +6304,7 @@ class Wunderbaum {
                 this._callMethod("edit.createNode", "after");
                 break;
             case "rename":
-                this._callMethod("edit.startEditTitle");
+                node.startEditTitle();
                 break;
             // Simple clipboard simulation:
             // case "cut":
@@ -6217,7 +6351,6 @@ class Wunderbaum {
         this.root.children = null;
         this.keyMap.clear();
         this.refKeyMap.clear();
-        // this.viewNodes.clear();
         this.treeRowCount = 0;
         this.activeNode = null;
         this.focusNode = null;
@@ -6410,14 +6543,31 @@ class Wunderbaum {
     /**
      * Find all nodes that match condition.
      *
+     * @param match title string to search for, or a
+     *     callback function that returns `true` if a node is matched.
      * @see {@link WunderbaumNode.findAll}
      */
     findAll(match) {
         return this.root.findAll(match);
     }
     /**
+     * Find all nodes with a given _refKey_ (aka a list of clones).
+     *
+     * @param refKey a `node.refKey` value to search for.
+     * @returns an array of matching nodes with at least two element or `[]`
+     * if nothing found.
+     *
+     * @see {@link WunderbaumNode.getCloneList}
+     */
+    findByRefKey(refKey) {
+        const clones = this.refKeyMap.get(refKey);
+        return clones ? Array.from(clones) : [];
+    }
+    /**
      * Find first node that matches condition.
      *
+     * @param match title string to search for, or a
+     *     callback function that returns `true` if a node is matched.
      * @see {@link WunderbaumNode.findFirst}
      */
     findFirst(match) {
@@ -6426,8 +6576,6 @@ class Wunderbaum {
     /**
      * Find first node that matches condition.
      *
-     * @param match title string to search for, or a
-     *     callback function that returns `true` if a node is matched.
      * @see {@link WunderbaumNode.findFirst}
      *
      */
@@ -6437,6 +6585,7 @@ class Wunderbaum {
     /**
      * Find the next visible node that starts with `match`, starting at `startNode`
      * and wrap-around at the end.
+     * Used by quicksearch and keyboard navigation.
      */
     findNextNode(match, startNode) {
         //, visibleOnly) {
@@ -6604,6 +6753,9 @@ class Wunderbaum {
     }
     /**
      * Return the currently active node or null.
+     * @see {@link WunderbaumNode.setActive}
+     * @see {@link WunderbaumNode.isActive}
+     * @see {@link WunderbaumNode.getFocusNode}
      */
     getActiveNode() {
         return this.activeNode;
@@ -6615,7 +6767,8 @@ class Wunderbaum {
         return this.root.getFirstChild();
     }
     /**
-     * Return the currently active node or null.
+     * Return the node that currently has keyboard focus or null.
+     * @see {@link WunderbaumNode.getActiveNode}
      */
     getFocusNode() {
         return this.focusNode;
@@ -6692,8 +6845,19 @@ class Wunderbaum {
     toString() {
         return `Wunderbaum<'${this.id}'>`;
     }
-    /** Return true if any node is currently in edit-title mode. */
+    /** Return true if any node title or grid cell is currently beeing edited.
+     *
+     * See also {@link Wunderbaum.isEditingTitle}.
+     */
     isEditing() {
+        const focusElem = this.nodeListElement.querySelector("input:focus,select:focus");
+        return !!focusElem;
+    }
+    /** Return true if any node is currently in edit-title mode.
+     *
+     * See also {@link WunderbaumNode.isEditingTitle} and {@link Wunderbaum.isEditing}.
+     */
+    isEditingTitle() {
         return this._callMethod("edit.isEditingTitle");
     }
     /**
@@ -6829,12 +6993,23 @@ class Wunderbaum {
     /**
      * Set column #colIdx to 'active'.
      *
-     * This higlights the column header and -cells by adding the `wb-active` class.
+     * This higlights the column header and -cells by adding the `wb-active`
+     * class to all grid cells of the active column. <br>
      * Available in cell-nav mode only.
+     *
+     * If _options.edit_ is true, the embedded input element is focused, or if
+     * colIdx is 0, the node title is put into edit mode.
      */
-    setColumn(colIdx) {
-        var _a;
-        assert(this.isCellNav(), "Exected cellNav mode");
+    setColumn(colIdx, options) {
+        var _a, _b, _c;
+        const edit = options === null || options === void 0 ? void 0 : options.edit;
+        const scroll = (options === null || options === void 0 ? void 0 : options.scrollIntoView) !== false;
+        assert(this.isCellNav(), "Expected cellNav mode");
+        if (typeof colIdx === "string") {
+            const cid = colIdx;
+            colIdx = this.columns.findIndex((c) => c.id === colIdx);
+            assert(colIdx >= 0, `Invalid colId: ${cid}`);
+        }
         assert(0 <= colIdx && colIdx < this.columns.length, `Invalid colIdx: ${colIdx}`);
         this.activeColIdx = colIdx;
         // Update `wb-active` class for all headers
@@ -6854,17 +7029,26 @@ class Wunderbaum {
                 colDiv.classList.toggle("wb-active", i++ === colIdx);
             }
         }
-        // Vertical scroll into view
-        // if (this.options.fixedCol) {
-        this.scrollToHorz();
-        // }
+        // Horizontically scroll into view
+        if (scroll || edit) {
+            this.scrollToHorz();
+        }
+        if (edit && this.activeNode) {
+            // this.activeNode.setFocus(); // Blur prev. input if any
+            if (colIdx === 0) {
+                this.activeNode.startEditTitle();
+            }
+            else {
+                (_c = (_b = this.getActiveColElem()) === null || _b === void 0 ? void 0 : _b.querySelector("input,select")) === null || _c === void 0 ? void 0 : _c.focus();
+            }
+        }
     }
-    /** Set or remove keybaord focus to the tree container. */
+    /** Set or remove keyboard focus to the tree container. */
     setActiveNode(key, flag = true, options) {
         var _a;
         (_a = this.findKey(key)) === null || _a === void 0 ? void 0 : _a.setActive(flag, options);
     }
-    /** Set or remove keybaord focus to the tree container. */
+    /** Set or remove keyboard focus to the tree container. */
     setFocus(flag = true) {
         if (flag) {
             this.element.focus();
@@ -6874,6 +7058,14 @@ class Wunderbaum {
         }
     }
     update(change, node, options) {
+        // this.log(`update(${change}) node=${node}`);
+        if (!(node instanceof WunderbaumNode)) {
+            options = node;
+            node = undefined;
+        }
+        const immediate = !!getOption(options, "immediate");
+        const RF = RenderFlag;
+        const pending = this.pendingChangeTypes;
         if (this._disableUpdateCount) {
             // Assuming that we redraw all when enableUpdate() is re-enabled.
             // this.log(
@@ -6882,14 +7074,6 @@ class Wunderbaum {
             this._disableUpdateIgnoreCount++;
             return;
         }
-        // this.log(`update(${change}) node=${node}`);
-        if (!(node instanceof WunderbaumNode)) {
-            options = node;
-            node = null;
-        }
-        const immediate = !!getOption(options, "immediate");
-        const RF = RenderFlag;
-        const pending = this.pendingChangeTypes;
         switch (change) {
             case ChangeType.any:
             case ChangeType.colStructure:
@@ -7217,9 +7401,13 @@ class Wunderbaum {
     _updateViewportImmediately() {
         var _a;
         if (this._disableUpdateCount) {
-            this.log(`_updateViewportImmediately() IGNORED (disable level: ${this._disableUpdateCount})`);
+            this.log(`_updateViewportImmediately() IGNORED (disable level: ${this._disableUpdateCount}).`);
             this._disableUpdateIgnoreCount++;
             return;
+        }
+        if (this._updateViewportThrottled.pending()) {
+            // this.logWarn(`_updateViewportImmediately() cancel pending timer.`);
+            this._updateViewportThrottled.cancel();
         }
         // Shorten container height to avoid v-scrollbar
         const FIX_ADJUST_HEIGHT = 1;
@@ -7324,9 +7512,6 @@ class Wunderbaum {
         }
         let endIdx = Math.max(0, (ofs + vp_height) / row_height + prefetch);
         endIdx = Math.ceil(endIdx);
-        // const obsoleteViewNodes = this.viewNodes;
-        // this.viewNodes = new Set();
-        // const viewNodes = this.viewNodes;
         // this.debug("render", opts);
         const obsoleteNodes = new Set();
         this.nodeListElement.childNodes.forEach((elem) => {
@@ -7582,37 +7767,31 @@ class Wunderbaum {
      * FILTER
      * -------------------------------------------------------------------------*/
     /**
-     * [ext-filter] Dim or hide nodes.
+     * Dim or hide nodes.
      */
     filterNodes(filter, options) {
         return this.extensions.filter.filterNodes(filter, options);
     }
     /**
-     * [ext-filter] Dim or hide whole branches.
+     * Dim or hide whole branches.
      */
     filterBranches(filter, options) {
         return this.extensions.filter.filterBranches(filter, options);
     }
     /**
-     * [ext-filter] Reset the filter.
-     *
-     * @requires [[FilterExtension]]
+     * Reset the filter.
      */
     clearFilter() {
         return this.extensions.filter.clearFilter();
     }
     /**
-     * [ext-filter] Return true if a filter is currently applied.
-     *
-     * @requires [[FilterExtension]]
+     * Return true if a filter is currently applied.
      */
     isFilterActive() {
         return !!this.filterMode;
     }
     /**
-     * [ext-filter] Re-apply current filter.
-     *
-     * @requires [[FilterExtension]]
+     * Re-apply current filter.
      */
     updateFilter() {
         return this.extensions.filter.updateFilter();
@@ -7620,7 +7799,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.7.0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.8.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 

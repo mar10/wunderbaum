@@ -492,8 +492,11 @@ i.wb-icon > span.wb-badge {
 }
 
 .wb-col input:invalid {
-  color: var(--wb-error-color);
   background-color: var(--wb-error-background-color);
+}
+
+.wb-col.wb-invalid {
+  border: 1px dotted var(--wb-error-color);
 }
 
 @keyframes wb-spin-animation {

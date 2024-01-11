@@ -3,6 +3,9 @@
  * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
+/* global mar10, QUnit */
+/* eslint-env browser */
+/* eslint-disable no-console */
 
 const { test } = QUnit;
 const Wunderbaum = mar10.Wunderbaum;
@@ -42,21 +45,21 @@ QUnit.module("Static tests", (hooks) => {
 
     assert.throws(
       function () {
-        let _dummy = Wunderbaum();
+        const _dummy = Wunderbaum();
       },
       /TypeError/,
       "Fail if 'new' keyword is missing"
     );
     assert.throws(
       function () {
-        let _dummy = new Wunderbaum();
+        const _dummy = new Wunderbaum();
       },
       /Error: Invalid 'element' option: null/,
       "Fail if option is missing"
     );
     assert.throws(
       function () {
-        let _dummy = new Wunderbaum({});
+        const _dummy = new Wunderbaum({});
       },
       /Error: Invalid 'element' option: null/,
       "Fail if 'element' option is missing"
@@ -178,6 +181,43 @@ QUnit.module("Instance tests", (hooks) => {
         node1.applyCommand("moveDown");
         assert.equal(node1.getPrevSibling(), node2);
         // Avoid errors reported by ResizeObserver
+        done();
+      },
+    });
+  });
+  test("clones", (assert) => {
+    assert.expect(11);
+    assert.timeout(1000); // Timeout after 1 second
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: [
+        { title: "Node 1", key: "1", refKey: "n1" },
+        { title: "Node 2", key: "2", refKey: "nX" },
+        { title: "Node 3", key: "3", refKey: "nX" },
+      ],
+      init: (e) => {
+        const n1 = tree.findKey("1");
+        const n2 = tree.findKey("2");
+        const n3 = tree.findKey("3");
+
+        // console.warn(`tree.findByRefKey('nX'): >${tree.findByRefKey("nX")}<`);
+
+        assert.deepEqual(tree.findByRefKey("x"), []);
+        assert.deepEqual(tree.findByRefKey("n1"), [n1]);
+        assert.equal(tree.findByRefKey("nX").length, 2);
+
+        assert.false(n1.isClone());
+        assert.true(n2.isClone());
+        assert.true(n3.isClone());
+
+        assert.deepEqual(n1.getCloneList(), []);
+        assert.deepEqual(n1.getCloneList(true), [n1]);
+        assert.equal(n2.getCloneList().length, 1);
+        assert.equal(n2.getCloneList(false).length, 1);
+        assert.equal(n2.getCloneList(true).length, 2);
+
         done();
       },
     });
