@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.8.1: Fix #76: Lazyload could be called for the same node multiple times
+
 - v0.8.0: Add `expand(e)` and `beforeExpand(e)` events.
 - v0.8.0: Add `tree.findByRefKey()`, `node.getCloneList()`, and `node.isClone()`.
 - v0.8.0: Add `node.startEditTitle()`.

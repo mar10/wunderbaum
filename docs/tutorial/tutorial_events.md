@@ -219,7 +219,7 @@ Common event handlers include:
 </dd>
 
 <dt>
-  <code>modifyChild(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbNodeEventType.html">WbNodeEventType</a>)</code>
+  <code>modifyChild(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbModifyChildEventType.html">WbModifyChildEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>
   TODO

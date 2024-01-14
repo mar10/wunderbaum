@@ -1181,14 +1181,22 @@ export class WunderbaumNode {
     }
   }
 
-  /**Load content of a lazy node. */
-  async loadLazy(forceReload = false) {
+  /**
+   * Load content of a lazy node.
+   * If the node is already loaded, nothing happens.
+   * @param [forceReload=false] If true, reload even if already loaded.
+   */
+  async loadLazy(forceReload: boolean = false) {
     const wasExpanded = this.expanded;
 
     util.assert(this.lazy, "load() requires a lazy node");
-    // _assert( forceReload || this.isUndefined(), "Pass forceReload=true to re-load a lazy node" );
+
     if (!forceReload && !this.isUnloaded()) {
-      return;
+      return; // Already loaded: nothing to do
+    }
+    if (this.isLoading()) {
+      this.logWarn("loadLazy() called while already loading: ignored.");
+      return; // Already loading: prevent duplicate requests
     }
     if (this.isLoaded()) {
       this.resetLazy(); // Also collapses if currently expanded
@@ -1209,7 +1217,7 @@ export class WunderbaumNode {
 
       await this.load(source);
 
-      this.setStatus(NodeStatusType.ok);
+      this.setStatus(NodeStatusType.ok); // Also resets `this._isLoading`
 
       if (wasExpanded) {
         this.expanded = true;
@@ -1220,6 +1228,7 @@ export class WunderbaumNode {
     } catch (e) {
       this.logError("Error during loadLazy()", e);
       this._callEvent("error", { error: e });
+      // Also resets `this._isLoading`:
       this.setStatus(NodeStatusType.error, { message: "" + e });
     }
     return;
@@ -2191,7 +2200,7 @@ export class WunderbaumNode {
       this.getLevel() <= this.tree.getOption("minExpandLevel") &&
       !force
     ) {
-      this.logDebug("Ignored collapse request below expandLevel.");
+      this.logDebug("Ignored collapse request below minExpandLevel.");
       return;
     }
     if (!flag === !this.expanded) {

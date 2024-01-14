@@ -245,6 +245,12 @@ export interface WbKeydownEventType extends WbTreeEventType {
   info: WbEventInfo;
 }
 
+export interface WbModifyChildEventType extends WbNodeEventType {
+  /** Type of change: 'add', 'remove', 'rename', 'move', 'data', ... */
+  operation: string;
+  child: WunderbaumNode;
+}
+
 export interface WbReceiveEventType extends WbNodeEventType {
   response: any;
 }
