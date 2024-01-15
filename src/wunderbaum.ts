@@ -119,10 +119,23 @@ export class Wunderbaum {
   protected _disableUpdateCount = 0;
   protected _disableUpdateIgnoreCount = 0;
 
-  /** Currently active node if any. */
-  public activeNode: WunderbaumNode | null = null;
-  /** Current node hat has keyboard focus if any. */
-  public focusNode: WunderbaumNode | null = null;
+  protected _activeNode: WunderbaumNode | null = null;
+  protected _focusNode: WunderbaumNode | null = null;
+
+  /** Currently active node if any.
+   * Use @link {WunderbaumNode.setActive|setActive} to modify.
+   */
+  public get activeNode() {
+    // Check for deleted node, i.e. node.tree === null
+    return this._activeNode?.tree ? this._activeNode : null;
+  }
+  /** Current node hat has keyboard focus if any.
+   * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+   */
+  public get focusNode() {
+    // Check for deleted node, i.e. node.tree === null
+    return this._focusNode?.tree ? this._focusNode : null;
+  }
 
   /** Shared properties, referenced by `node.type`. */
   public types: NodeTypeDefinitionMap = {};
@@ -946,8 +959,8 @@ export class Wunderbaum {
     this.keyMap.clear();
     this.refKeyMap.clear();
     this.treeRowCount = 0;
-    this.activeNode = null;
-    this.focusNode = null;
+    this._activeNode = null;
+    this._focusNode = null;
 
     // this.types = {};
     // this. columns =[];
@@ -1390,10 +1403,13 @@ export class Wunderbaum {
   }
 
   /**
-   * Return the currently active node or null.
+   * Return the currently active node or null (alias for `tree.activeNode`).
+   * Alias for {@link Wunderbaum.activeNode}.
+   *
    * @see {@link WunderbaumNode.setActive}
    * @see {@link WunderbaumNode.isActive}
-   * @see {@link WunderbaumNode.getFocusNode}
+   * @see {@link Wunderbaum.activeNode}
+   * @see {@link Wunderbaum.focusNode}
    */
   getActiveNode() {
     return this.activeNode;
@@ -1408,7 +1424,11 @@ export class Wunderbaum {
 
   /**
    * Return the node that currently has keyboard focus or null.
-   * @see {@link WunderbaumNode.getActiveNode}
+   * Alias for {@link Wunderbaum.focusNode}.
+   * @see {@link WunderbaumNode.setFocus}
+   * @see {@link WunderbaumNode.hasFocus}
+   * @see {@link Wunderbaum.activeNode}
+   * @see {@link Wunderbaum.focusNode}
    */
   getFocusNode() {
     return this.focusNode;
@@ -1719,6 +1739,11 @@ export class Wunderbaum {
     }
   }
 
+  /* Set or remove keyboard focus to the tree container. @internal */
+  _setActiveNode(node: WunderbaumNode | null) {
+    this._activeNode = node;
+  }
+
   /** Set or remove keyboard focus to the tree container. */
   setActiveNode(key: string, flag: boolean = true, options?: SetActiveOptions) {
     this.findKey(key)?.setActive(flag, options);
@@ -1731,6 +1756,11 @@ export class Wunderbaum {
     } else {
       this.element.blur();
     }
+  }
+
+  /* Set or remove keyboard focus to the tree container. @internal */
+  _setFocusNode(node: WunderbaumNode | null) {
+    this._focusNode = node;
   }
 
   /**

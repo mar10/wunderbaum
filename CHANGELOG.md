@@ -8,6 +8,7 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.8.1: Fix #76: Lazyload could be called for the same node multiple times
+- v0.8.1: Fix #75: After reloading nodes with "resetLazy", wunderbaum is broken
 
 - v0.8.0: Add `expand(e)` and `beforeExpand(e)` events.
 - v0.8.0: Add `tree.findByRefKey()`, `node.getCloneList()`, and `node.isClone()`.

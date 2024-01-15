@@ -1463,11 +1463,11 @@ export class WunderbaumNode {
     if (!this.children) {
       return;
     }
-    if (tree.activeNode && tree.activeNode.isDescendantOf(this)) {
+    if (tree.activeNode?.isDescendantOf(this)) {
       tree.activeNode.setActive(false); // TODO: don't fire events
     }
-    if (tree.focusNode && tree.focusNode.isDescendantOf(this)) {
-      tree.focusNode = null;
+    if (tree.focusNode?.isDescendantOf(this)) {
+      tree._setFocusNode(null);
     }
     // TODO: persist must take care to clear select and expand cookies
     // Unlink children to support GC
@@ -2125,7 +2125,7 @@ export class WunderbaumNode {
    */
   async setActive(flag: boolean = true, options?: SetActiveOptions) {
     const tree = this.tree;
-    const prev = tree.activeNode;
+    const prev = tree.getActiveNode();
     const retrigger = options?.retrigger; // Default: false
     const focusTree = options?.focusTree; // Default: false
     // const focusNode = options?.focusNode !== false; // Default: true
@@ -2152,7 +2152,7 @@ export class WunderbaumNode {
           ) {
             return;
           }
-          tree.activeNode = null;
+          tree._setActiveNode(null);
           prev?.update(ChangeType.status);
         }
       } else if (prev === this || retrigger) {
@@ -2162,7 +2162,7 @@ export class WunderbaumNode {
 
     if (prev !== this) {
       if (flag) {
-        tree.activeNode = this;
+        tree._setActiveNode(this);
       }
       prev?.update(ChangeType.status);
       this.update(ChangeType.status);
@@ -2171,8 +2171,8 @@ export class WunderbaumNode {
       if (flag) {
         if (focusTree || edit) {
           tree.setFocus();
-          tree.focusNode = this;
-          tree.focusNode.setFocus();
+          tree._setFocusNode(this);
+          tree.focusNode!.setFocus();
         }
         // if (focusNode || edit) {
         //   tree.focusNode = this;
@@ -2243,7 +2243,7 @@ export class WunderbaumNode {
   setFocus(flag: boolean = true) {
     util.assert(!!flag, "Blur is not yet implemented");
     const prev = this.tree.focusNode;
-    this.tree.focusNode = this;
+    this.tree._setFocusNode(this);
     prev?.update();
     this.update();
   }
