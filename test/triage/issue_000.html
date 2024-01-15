@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <!-- Tree view/grid -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+
+    <!-- <link rel="stylesheet" href="../../build/wunderbaum.css"> -->
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@v0.8.0/dist/wunderbaum.css"> -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@latest/dist/wunderbaum.css">
+    <style>
+    </style>
+</head>
+
+<body>
+    <div id="demo-tree" class="wb-skeleton wb-initializing"></div>
+
+    <!-- <script src="../../build/wunderbaum.umd.js"></script> -->
+    <!-- <script src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@v0.3.5/dist/wunderbaum.umd.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@latest/dist/wunderbaum.umd.min.js"></script>
+    <script>
+        new mar10.Wunderbaum({
+            id: "demo",
+            element: document.getElementById("demo-tree"),
+            // header: "Plain Tree",
+            source: {
+                children: [
+                    { title: "1", expanded: true, children: [{ title: "1.1" }, { title: "1.2" }] },
+                    { title: "2", lazy: true },
+                    { title: "3", lazy: true },
+
+                ]
+            },
+            debugLevel: 5,
+            // checkbox: true,
+            // minExpandLevel: 1,
+            types: {},
+
+            init: (e) => {
+                // Tree was loaded and rendered. Now set focus:
+                // const node = e.tree.findFirst("Jumping dopily");
+                // node.setActive();
+                e.tree.setFocus();
+            },
+            dnd: {
+                dragStart: (e) => {
+                    if (e.node.type === "folder") {
+                        return false;
+                    }
+                    e.event.dataTransfer.effectAllowed = "all";
+                    return true;
+                },
+                dragEnter: (e) => {
+                    if (e.node.type === "folder") {
+                        e.event.dataTransfer.dropEffect = "copy";
+                        return "over";
+                    }
+                    return ["before", "after"];
+                },
+                drop: (e) => {
+                    console.log(
+                        `Drop ${e.sourceNode} => ${e.suggestedDropEffect} ${e.suggestedDropMode} ${e.node}`,
+                        e
+                    );
+                    e.sourceNode.moveTo(e.node, e.suggestedDropMode);
+                },
+            },
+
+            lazyLoad: (e) => {
+                console.log(e.type, e);
+                // simulate async loading
+                return e.util.setTimeoutPromise(() => {
+                    return [
+                        { title: "2.1" },
+                        { title: "2.2" },
+                        { title: "2.3" },
+                    ]
+                }, 5000);
+            },
+            beforeExpand: (e) => {
+                console.log(e.type, e);
+                // return false; // cancel expand
+            },
+            expand: (e) => {
+                console.log(e.type, e);
+                if (e.node.isLazy() && !e.flag) {
+                    e.node.resetLazy(); // remove children on collapse
+                }
+            },
+        });
+    </script>
+</body>
+
+</html>

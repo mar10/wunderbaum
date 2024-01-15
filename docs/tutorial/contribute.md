@@ -18,14 +18,22 @@ There are many ways how you can help:
 Issues can be reported in the [bug tracker](https://github.com/mar10/wunderbaum/issues).
 
 ?> Try your best to make fixing as easy as possible.
-Create a [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).<br>
 Do not assume that bugs are fixed, just because they are reported:
 Please understand that issues are likely to be closed, if they are hard to
-reproduce.
+reproduce. <br>
+A bug report should contain:
+
+- A short description of the problem.
+- A [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).<br>
+  See here for [a wunderbaum triage template](https://github.com/mar10/wunderbaum/blob/main/test/triage/issue_000.html).
+- The expected result.
+- The actual result.
+- The version of the library.
+- The version of the browser.
 
 Of course a
 [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
-is the most welcomed form of contribution.<br>
+is the most welcomed form of contribution. 😉<br>
 Do not forget to add an entry to the `CHANGELOG.md`.
 
 ## Request New Features
