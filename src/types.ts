@@ -873,6 +873,22 @@ export type DropRegionTypeSet = Set<DropRegionType>;
 //   | "none" // == false == "" == null
 //   | "over"; // == "child"
 
+export interface DragEventType extends WbNodeEventType {
+  /** The original event. */
+  event: DragEvent;
+  /** The source node. */
+  node: WunderbaumNode;
+}
+
+export interface DropEventType extends WbNodeEventType {
+  /** The original event. */
+  event: DragEvent;
+  /** The target node. */
+  node: WunderbaumNode;
+  /** The source node if any. */
+  sourceNode: WunderbaumNode;
+}
+
 export type DndOptionsType = {
   /**
    * Expand nodes after n milliseconds of hovering
@@ -995,19 +1011,19 @@ export type DndOptionsType = {
    * @default null
    * @category Callback
    */
-  dragStart?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
+  dragStart?: null | ((e: DragEventType) => boolean);
   /**
    * Callback(sourceNode, data)
    * @default null
    * @category Callback
    */
-  drag?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  drag?: null | ((e: DragEventType) => void);
   /**
    * Callback(sourceNode, data)
    * @default null
    * @category Callback
    */
-  dragEnd?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  dragEnd?: null | ((e: DragEventType) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop
@@ -1016,21 +1032,19 @@ export type DndOptionsType = {
    */
   dragEnter?:
     | null
-    | ((
-        e: WbNodeEventType & { event: DragEvent }
-      ) => DropRegionTypeSet | boolean);
+    | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
   /**
    * Callback(targetNode, data)
    * @default null
    * @category Callback
    */
-  dragOver?: null | ((e: WbNodeEventType & { event: DragEvent }) => void);
+  dragOver?: null | ((e: DropEventType) => void);
   /**
    * Callback(targetNode, data), return false to prevent autoExpand
    * @default null
    * @category Callback
    */
-  dragExpand?: null | ((e: WbNodeEventType & { event: DragEvent }) => boolean);
+  dragExpand?: null | ((e: DropEventType) => boolean);
   /**
    * Callback(targetNode, data)
    * @default null
@@ -1053,7 +1067,7 @@ export type DndOptionsType = {
    * @default null
    * @category Callback
    */
-  dragLeave?: null;
+  dragLeave?: null | ((e: DropEventType) => void);
 };
 
 /* -----------------------------------------------------------------------------
