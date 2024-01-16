@@ -9,6 +9,7 @@ First release.
 
 - v0.8.1: Fix #76: Lazyload could be called for the same node multiple times
 - v0.8.1: Fix #75: After reloading nodes with "resetLazy", wunderbaum is broken
+- v0.8.1: Fix #72: DragEnter event does not provide the source node, only the target
 
 - v0.8.0: Add `expand(e)` and `beforeExpand(e)` events.
 - v0.8.0: Add `tree.findByRefKey()`, `node.getCloneList()`, and `node.isClone()`.

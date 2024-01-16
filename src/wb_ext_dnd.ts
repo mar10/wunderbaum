@@ -382,6 +382,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
     // --- dragenter ---
     if (e.type === "dragenter") {
+      this.tree.logWarn(` onDropEvent.${e.type} targetNode: ${targetNode}`, e);
       this.lastAllowedDropRegions = null;
       // `dragleave` is not reliable with event delegation, so we generate it
       // from dragenter:
@@ -417,7 +418,10 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       // User may return a set of regions (or `false` to prevent drop)
       // Figure out a drop effect (copy/link/move) using opinated conventions.
       dt.dropEffect = this._guessDropEffect(e) || "none";
-      let regionSet = targetNode._callEvent("dnd.dragEnter", { event: e });
+      let regionSet = targetNode._callEvent("dnd.dragEnter", {
+        event: e,
+        sourceNode: srcNode,
+      });
       //
       regionSet = this.unifyDragover(regionSet);
       if (!regionSet) {
@@ -438,7 +442,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
       dt.dropEffect = this._guessDropEffect(e) || "none";
 
-      targetNode._callEvent("dnd.dragOver", { event: e });
+      targetNode._callEvent("dnd.dragOver", { event: e, sourceNode: srcNode });
 
       const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
@@ -450,7 +454,10 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         targetNode.isExpandable(true) &&
         !targetNode._isLoading &&
         Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS! &&
-        targetNode._callEvent("dnd.dragExpand", { event: e }) !== false
+        targetNode._callEvent("dnd.dragExpand", {
+          event: e,
+          sourceNode: srcNode,
+        }) !== false
       ) {
         targetNode.setExpanded();
       }
@@ -469,7 +476,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     } else if (e.type === "dragleave") {
       // NOTE: we cannot trust this event, since it is always fired,
       // Instead we remove the marker on dragenter
-      targetNode._callEvent("dnd.dragLeave", { event: e });
+      targetNode._callEvent("dnd.dragLeave", { event: e, sourceNode: srcNode });
 
       // --- drop ---
     } else if (e.type === "drop") {

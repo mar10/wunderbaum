@@ -15,7 +15,7 @@ modify the tree accordingly.
 The following events are fired on the tree during drag and drop.
 
 ?> Note that the `dragStart`, `drag`, and `dragEnd` events are fired on the
-tree that contains the dragged node. <br>
+tree that contains the dragged node (i.e. the source node). <br>
 The other events are fired on the tree that contains the drop target.
 
 The events are named after the corresponding
@@ -47,7 +47,8 @@ These are events are sent in a typical drag and drop operation:
 - `dragEnter(e)`: Fired when a dragged item enters a drop target.<br>
   This event handler MUST be implemented by the application in order to enable
   dropping in general. <br>
-  The handler can return `false` to prevent the drop operation or return a set of drop regions to indicate which drop regions are allowed. <br>
+  The handler can return `false` to prevent the drop operation or return a set
+  of drop regions to indicate which drop regions are allowed. <br>
   The handler can set the `e.event.dataTransfer.dropEffect` property in order to
   adjust copy/move/link behavior.
 
@@ -84,7 +85,8 @@ These are events are sent in a typical drag and drop operation:
 
 ## Related Tree Options
 
-?> See also the [API Documentation for DnD options](https://mar10.github.io/wunderbaum/api/types/types.DndOptionsType.html) and the [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain).
+?> See also the [API Documentation for DnD options](https://mar10.github.io/wunderbaum/api/types/types.DndOptionsType.html)
+and the [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain).
 
 ## Examples
 
