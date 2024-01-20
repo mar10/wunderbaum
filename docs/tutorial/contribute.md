@@ -24,8 +24,12 @@ reproduce. <br>
 A bug report should contain:
 
 - A short description of the problem.
-- A [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example).<br>
-  See here for [a wunderbaum triage template](https://github.com/mar10/wunderbaum/blob/main/test/triage/issue_000.html).
+- A [minimal, reproducible example](https://stackoverflow.com/help/minimal-reproducible-example):
+  - See here for [a wunderbaum triage template](https://github.com/mar10/wunderbaum/blob/main/test/triage/issue_000.html). <br>
+    Copy and rename this file, then edit it to reproduce the issue.
+    It can be opened directly in the browser.
+  - See here for [a wunderbaum JS Bin template](https://jsbin.com/lecasinava/edit?html,js,output).
+    Copy and edit this template to reproduce the issue.
 - The expected result.
 - The actual result.
 - The version of the library.
