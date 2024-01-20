@@ -961,7 +961,7 @@ export type DndOptionsType = {
    * Prevent dropping nodes under same direct parent
    * @default false
    */
-  preventSameParent?: false;
+  preventSameParent?: boolean;
   /**
    * Prevent dropping nodes 'before self', etc. (move only)
    * @default true
