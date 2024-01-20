@@ -1234,33 +1234,40 @@ export class WunderbaumNode {
     return;
   }
 
-  /** Alias for `logDebug` */
+  /** Write to `console.log` with node name as prefix if opts.debugLevel >= 4.
+   * @see {@link WunderbaumNode.logDebug}
+   */
   log(...args: any[]) {
-    this.logDebug(...args);
-  }
-
-  /* Log to console if opts.debugLevel >= 4 */
-  logDebug(...args: any[]) {
     if (this.tree.options.debugLevel! >= 4) {
       console.log(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
-  /* Log error to console. */
+  /** Write to `console.debug` with node name as prefix if opts.debugLevel >= 4
+   * and browser console level includes debug/verbose messages.
+   * @see {@link WunderbaumNode.log}
+   */
+  logDebug(...args: any[]) {
+    if (this.tree.options.debugLevel! >= 4) {
+      console.debug(this.toString(), ...args); // eslint-disable-line no-console
+    }
+  }
+
+  /** Write to `console.error` with node name as prefix if opts.debugLevel >= 1. */
   logError(...args: any[]) {
     if (this.tree.options.debugLevel! >= 1) {
       console.error(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
-  /* Log to console if opts.debugLevel >= 3 */
+  /** Write to `console.info` with node name as prefix if opts.debugLevel >= 3. */
   logInfo(...args: any[]) {
     if (this.tree.options.debugLevel! >= 3) {
       console.info(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
-  /* Log warning to console if opts.debugLevel >= 2 */
+  /** Write to `console.warn` with node name as prefix if opts.debugLevel >= 2. */
   logWarn(...args: any[]) {
     if (this.tree.options.debugLevel! >= 2) {
       console.warn(this.toString(), ...args); // eslint-disable-line no-console

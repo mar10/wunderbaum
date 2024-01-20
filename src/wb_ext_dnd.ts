@@ -371,11 +371,10 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     /** Helper to log a message if predicate is false. */
     const _t = (pred: any, msg: string) => {
       if (pred) {
-        this.tree.logDebug(`Prevented drop operation (${msg}).`);
+        this.tree.log(`Prevented drop operation (${msg}).`);
       }
       return pred;
     };
-
     if (!targetNode) {
       this._leaveNode();
       return;

@@ -1540,26 +1540,33 @@ export class Wunderbaum {
     return res;
   }
 
-  /** Alias for {@link Wunderbaum.logDebug}.
-   * @alias Wunderbaum.logDebug
+  /** Write to `console.log` with tree name as prefix if opts.debugLevel >= 4.
+   * @see {@link Wunderbaum.logDebug}
    */
-  log = this.logDebug;
-
-  /** Log to console if opts.debugLevel >= 4 */
-  logDebug(...args: any[]) {
+  log(...args: any[]) {
     if (this.options.debugLevel! >= 4) {
       console.log(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
-  /** Log error to console. */
+  /** Write to `console.debug`  with tree name as prefix if opts.debugLevel >= 4.
+   * and browser console level includes debug/verbose messages.
+   * @see {@link Wunderbaum.log}
+   */
+  logDebug(...args: any[]) {
+    if (this.options.debugLevel! >= 4) {
+      console.debug(this.toString(), ...args); // eslint-disable-line no-console
+    }
+  }
+
+  /** Write to `console.error` with tree name as prefix. */
   logError(...args: any[]) {
     if (this.options.debugLevel! >= 1) {
       console.error(this.toString(), ...args); // eslint-disable-line no-console
     }
   }
 
-  /** Log to console if opts.debugLevel >= 3 */
+  /** Write to `console.info`  with tree name as prefix if opts.debugLevel >= 3. */
   logInfo(...args: any[]) {
     if (this.options.debugLevel! >= 3) {
       console.info(this.toString(), ...args); // eslint-disable-line no-console
@@ -1581,7 +1588,7 @@ export class Wunderbaum {
     }
   }
 
-  /** Log to console if opts.debugLevel >= 2 */
+  /** Write to `console.warn` with tree name as prefix with if opts.debugLevel >= 2. */
   logWarn(...args: any[]) {
     if (this.options.debugLevel! >= 2) {
       console.warn(this.toString(), ...args); // eslint-disable-line no-console
