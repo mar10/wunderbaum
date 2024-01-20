@@ -29,7 +29,7 @@ If applicable, add screenshots to help explain your problem.
 
 **Minimal Reproducible Example**
 See here for an details and an
-[HTML template](https://mar10.github.io/wunderbaum/index.html#/tutorial/contribute);
+[HTML template](https://mar10.github.io/wunderbaum/index.html#/tutorial/contribute) or create one at [JS BIN](https://jsbin.com/lecasinava/edit?html,js,output)
 
 **Desktop (please complete the following information):**
 
