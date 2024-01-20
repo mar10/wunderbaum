@@ -12,6 +12,7 @@ First release.
 - v0.8.1: Fix #75: After reloading nodes with "resetLazy", wunderbaum is broken.
 - v0.8.1: Fix #76: Lazyload could be called for the same node multiple times.
 - v0.8.1: Fix #78: Add JS Bin template for reporting issues.
+- v0.8.1: Fix #79: Improve logging when drop operation is prevented.
 - Thanks to @jogibear9988 for the testing, opening, and contributing to all of
   these issues.
 

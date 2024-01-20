@@ -289,7 +289,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     const srcNode = Wunderbaum.getNode(e);
 
     if (!srcNode) {
-      this.tree.logWarn(`onDragEvent.${e.type} no node`);
+      this.tree.logWarn(`onDragEvent.${e.type}: no node`);
       return;
     }
     if (["dragstart", "dragend"].includes(e.type)) {
@@ -368,6 +368,14 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     const dt = e.dataTransfer!;
     const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
+    /** Helper to log a message if predicate is false. */
+    const _t = (pred: any, msg: string) => {
+      if (pred) {
+        this.tree.logDebug(`Prevented drop operation (${msg}).`);
+      }
+      return pred;
+    };
+
     if (!targetNode) {
       this._leaveNode();
       return;
@@ -382,7 +390,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
     // --- dragenter ---
     if (e.type === "dragenter") {
-      this.tree.logWarn(` onDropEvent.${e.type} targetNode: ${targetNode}`, e);
+      // this.tree.logWarn(` onDropEvent.${e.type} targetNode: ${targetNode}`, e);
       this.lastAllowedDropRegions = null;
       // `dragleave` is not reliable with event delegation, so we generate it
       // from dragenter:
@@ -394,24 +402,34 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
       if (
         // Don't drop on status node:
-        targetNode.isStatusNode() ||
+        _t(targetNode.isStatusNode(), "is status node") ||
         // Prevent dropping nodes from different Wunderbaum trees:
-        (dndOpts.preventForeignNodes && targetNode.tree !== srcTree) ||
+        _t(
+          dndOpts.preventForeignNodes && targetNode.tree !== srcTree,
+          "preventForeignNodes"
+        ) ||
         // Prevent dropping items on unloaded lazy Wunderbaum tree nodes:
-        (dndOpts.preventLazyParents && !targetNode.isLoaded()) ||
+        _t(
+          dndOpts.preventLazyParents && !targetNode.isLoaded(),
+          "preventLazyParents"
+        ) ||
         // Prevent dropping items other than Wunderbaum tree nodes:
-        (dndOpts.preventNonNodes && !srcNode) ||
+        _t(dndOpts.preventNonNodes && !srcNode, "preventNonNodes") ||
         // Prevent dropping nodes on own descendants:
-        (dndOpts.preventRecursion && srcNode?.isAncestorOf(targetNode)) ||
+        _t(
+          dndOpts.preventRecursion && srcNode?.isAncestorOf(targetNode),
+          "preventRecursion"
+        ) ||
         // Prevent dropping nodes under same direct parent:
         (dndOpts.preventSameParent &&
           srcNode &&
-          targetNode.parent === srcNode.parent) ||
+          targetNode.parent === srcNode.parent,
+        "preventSameParent") ||
         // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
         (dndOpts.preventVoidMoves && targetNode === srcNode)
       ) {
         dt.dropEffect = "none";
-        this.tree.log("Prevented drop operation");
+        // this.tree.log("Prevented drop operation");
         return true; // Prevent drop operation
       }
 
