@@ -823,13 +823,26 @@ declare module "wb_node" {
         _fetchWithOptions(source: any): Promise<any>;
         /** Download  data from the cloud, then call `.update()`. */
         load(source: SourceType): Promise<void>;
-        /**Load content of a lazy node. */
+        /**
+         * Load content of a lazy node.
+         * If the node is already loaded, nothing happens.
+         * @param [forceReload=false] If true, reload even if already loaded.
+         */
         loadLazy(forceReload?: boolean): Promise<void>;
-        /** Alias for `logDebug` */
+        /** Write to `console.log` with node name as prefix if opts.debugLevel >= 4.
+         * @see {@link WunderbaumNode.logDebug}
+         */
         log(...args: any[]): void;
+        /** Write to `console.debug` with node name as prefix if opts.debugLevel >= 4
+         * and browser console level includes debug/verbose messages.
+         * @see {@link WunderbaumNode.log}
+         */
         logDebug(...args: any[]): void;
+        /** Write to `console.error` with node name as prefix if opts.debugLevel >= 1. */
         logError(...args: any[]): void;
+        /** Write to `console.info` with node name as prefix if opts.debugLevel >= 3. */
         logInfo(...args: any[]): void;
+        /** Write to `console.warn` with node name as prefix if opts.debugLevel >= 2. */
         logWarn(...args: any[]): void;
         /** Expand all parents and optionally scroll into visible area as neccessary.
          * Promise is resolved, when lazy loading and animations are done.
@@ -1032,7 +1045,7 @@ declare module "wb_options" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbTreeEventType } from "types";
+    import { WbCancelableEventResultType, ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType, WbIconBadgeEventResultType } from "types";
     /**
      * Available options for {@link wunderbaum.Wunderbaum}.
      *
@@ -1220,18 +1233,30 @@ declare module "wb_options" {
         dnd?: DndOptionsType;
         edit?: EditOptionsType;
         filter?: FilterOptionsType;
-        grid?: any;
         /**
-         *
+         * `e.node` was activated.
          * @category Callback
          */
         activate?: (e: WbActivateEventType) => void;
         /**
-         *
-         * Return `false` to prevent default handling, e.g. activating the node.
+         * `e.node` is about to be activated.
+         * Return `false` to prevent default handling, i.e. activating the node.
+         * See also `deactivate` event.
          * @category Callback
          */
-        beforeActivate?: (e: WbActivateEventType) => void;
+        beforeActivate?: (e: WbActivateEventType) => WbCancelableEventResultType;
+        /**
+         * `e.node` is about to be expanded/collapsed.
+         * Return `false` to prevent default handling, i.e. expanding/collapsing the node.
+         * @category Callback
+         */
+        beforeExpand?: (e: WbExpandEventType) => WbCancelableEventResultType;
+        /**
+         *
+         * Return `false` to prevent default handling, i.e. (de)selecting the node.
+         * @category Callback
+         */
+        beforeSelect?: (e: WbSelectEventType) => WbCancelableEventResultType;
         /**
          *
          * @category Callback
@@ -1239,39 +1264,46 @@ declare module "wb_options" {
         change?: (e: WbChangeEventType) => void;
         /**
          *
-         * Return `false` to prevent default handling, e.g. activating the node.
+         * Return `false` to prevent default behavior, e.g. expand/collapse, (de)selection, or activation.
          * @category Callback
          */
-        click?: (e: WbClickEventType) => void;
+        click?: (e: WbClickEventType) => WbCancelableEventResultType;
         /**
-         *
+         * Return `false` to prevent default behavior, e.g. expand/collapse.
          * @category Callback
          */
-        dblclick?: (e: WbClickEventType) => void;
+        dblclick?: (e: WbClickEventType) => WbCancelableEventResultType;
         /**
+         * `e.node` was deactivated.
          *
          * Return `false` to prevent default handling, e.g. deactivating the node
          * and activating the next.
+         * See also `activate` event.
          * @category Callback
          */
-        deactivate?: (e: WbDeactivateEventType) => void;
+        deactivate?: (e: WbDeactivateEventType) => WbCancelableEventResultType;
         /**
-         *
+         * `e.node` was discarded from the viewport and its HTML markup removed.
          * @category Callback
          */
         discard?: (e: WbNodeEventType) => void;
         /**
-         *
+         * `e.node` is about to be rendered. We can add a badge to the icon cell here.
          * @category Callback
          */
-        iconBadge?: WbIconBadgeCallback;
+        iconBadge?: (e: WbIconBadgeCallback) => WbIconBadgeEventResultType;
         /**
-         *
+         * An error occurred, e.g. during initialization or lazy loading.
          * @category Callback
          */
         error?: (e: WbErrorEventType) => void;
         /**
-         *
+         * `e.node` was expanded (`e.flag === true`) or collapsed (`e.flag === false`)
+         * @category Callback
+         */
+        expand?: (e: WbTreeEventType) => void;
+        /**
+         * The tree received or lost focus.
          * Check `e.flag` for status.
          * @category Callback
          */
@@ -1280,15 +1312,17 @@ declare module "wb_options" {
          * Fires when the tree markup was created and the initial source data was loaded.
          * Typical use cases would be activating a node, setting focus, enabling other
          * controls on the page, etc.<br>
-         * Check `e.error` for status.
+         *  Also sent if an error occured during initialization (check `e.error` for status).
          * @category Callback
          */
         init?: (e: WbInitEventType) => void;
         /**
-         *
+         * Fires when a key was pressed while the tree has focus.
+         * `e.node` is set if a node is currently active.
+         * Return `false` to prevent default navigation.
          * @category Callback
          */
-        keydown?: (e: WbKeydownEventType) => void;
+        keydown?: (e: WbKeydownEventType) => WbCancelableEventResultType;
         /**
          * Fires when a node that was marked 'lazy', is expanded for the first time.
          * Typically we return an endpoint URL or the Promise of a fetch request that
@@ -1324,13 +1358,12 @@ declare module "wb_options" {
          */
         render?: (e: WbRenderEventType) => void;
         /**
-         *
+         * Same as `render(e)`, but for the status nodes, i.e. `e.node.statusNodeType`.
          * @category Callback
          */
         renderStatusNode?: (e: WbRenderEventType) => void;
         /**
-         *
-         * Check `e.flag` for status.
+         *`e.node` was selected (`e.flag === true`) or deselected (`e.flag === false`)
          * @category Callback
          */
         select?: (e: WbNodeEventType) => void;
@@ -1440,6 +1473,8 @@ declare module "types" {
         /** Other data is passed to `node.data` and can be accessed via `node.data.NAME` */
         [key: string]: unknown;
     }
+    /** A callback that receives a node instance and returns a string value. */
+    export type WbCancelableEventResultType = false | void;
     export interface WbTreeEventType {
         /** Name of the event. */
         type: string;
@@ -1537,6 +1572,11 @@ declare module "types" {
         node: WunderbaumNode;
         /** Additional information derived from the original keyboard event. */
         info: WbEventInfo;
+    }
+    export interface WbModifyChildEventType extends WbNodeEventType {
+        /** Type of change: 'add', 'remove', 'rename', 'move', 'data', ... */
+        operation: string;
+        child: WunderbaumNode;
     }
     export interface WbReceiveEventType extends WbNodeEventType {
         response: any;
@@ -2023,27 +2063,43 @@ declare module "types" {
         validity?: boolean;
         /**
          * `beforeEdit(e)` may return an input HTML string. Otherwise use a default.
+         * @category Callback
          */
         beforeEdit?: null | ((e: WbNodeEventType) => boolean) | string;
         /**
          *
+         * @category Callback
          */
         edit?: null | ((e: WbNodeEventType & {
             inputElem: HTMLInputElement;
         }) => void);
         /**
          *
+         * @category Callback
          */
         apply?: null | ((e: WbNodeEventType & {
             inputElem: HTMLInputElement;
         }) => any) | Promise<any>;
     };
-    export type GridOptionsType = object;
     export type InsertNodeType = "before" | "after" | "prependChild" | "appendChild";
     export type DropEffectType = "none" | "copy" | "link" | "move";
     export type DropEffectAllowedType = "none" | "copy" | "copyLink" | "copyMove" | "link" | "linkMove" | "move" | "all";
     export type DropRegionType = "over" | "before" | "after";
     export type DropRegionTypeSet = Set<DropRegionType>;
+    export interface DragEventType extends WbNodeEventType {
+        /** The original event. */
+        event: DragEvent;
+        /** The source node. */
+        node: WunderbaumNode;
+    }
+    export interface DropEventType extends WbNodeEventType {
+        /** The original event. */
+        event: DragEvent;
+        /** The target node. */
+        node: WunderbaumNode;
+        /** The source node if any. */
+        sourceNode: WunderbaumNode;
+    }
     export type DndOptionsType = {
         /**
          * Expand nodes after n milliseconds of hovering
@@ -2129,53 +2185,49 @@ declare module "types" {
         /**
          * Optional callback passed to `toDict` on dragStart @since 2.38
          * @default null
+         * @category Callback
          */
         sourceCopyHook?: null;
         /**
          * Callback(sourceNode, data), return true, to enable dnd drag
          * @default null
+         * @category Callback
          */
-        dragStart?: null | ((e: WbNodeEventType & {
-            event: DragEvent;
-        }) => boolean);
+        dragStart?: null | ((e: DragEventType) => boolean);
         /**
          * Callback(sourceNode, data)
          * @default null
+         * @category Callback
          */
-        drag?: null | ((e: WbNodeEventType & {
-            event: DragEvent;
-        }) => void);
+        drag?: null | ((e: DragEventType) => void);
         /**
          * Callback(sourceNode, data)
          * @default null
+         * @category Callback
          */
-        dragEnd?: null | ((e: WbNodeEventType & {
-            event: DragEvent;
-        }) => void);
+        dragEnd?: null | ((e: DragEventType) => void);
         /**
          * Callback(targetNode, data), return true, to enable dnd drop
          * @default null
+         * @category Callback
          */
-        dragEnter?: null | ((e: WbNodeEventType & {
-            event: DragEvent;
-        }) => DropRegionTypeSet | boolean);
+        dragEnter?: null | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
         /**
          * Callback(targetNode, data)
          * @default null
+         * @category Callback
          */
-        dragOver?: null | ((e: WbNodeEventType & {
-            event: DragEvent;
-        }) => void);
+        dragOver?: null | ((e: DropEventType) => void);
         /**
          * Callback(targetNode, data), return false to prevent autoExpand
          * @default null
+         * @category Callback
          */
-        dragExpand?: null | ((e: WbNodeEventType & {
-            event: DragEvent;
-        }) => boolean);
+        dragExpand?: null | ((e: DropEventType) => boolean);
         /**
          * Callback(targetNode, data)
          * @default null
+         * @category Callback
          */
         drop?: null | ((e: WbNodeEventType & {
             event: DragEvent;
@@ -2188,9 +2240,13 @@ declare module "types" {
         /**
          * Callback(targetNode, data)
          * @default null
+         * @category Callback
          */
-        dragLeave?: null;
+        dragLeave?: null | ((e: DropEventType) => void);
     };
+    export type GridOptionsType = object;
+    export type KeynavOptionsType = object;
+    export type LoggerOptionsType = object;
 }
 declare module "wb_extension_base" {
     import { Wunderbaum } from "wunderbaum";
@@ -2244,9 +2300,15 @@ declare module "wb_ext_filter" {
     }
 }
 declare module "wb_ext_keynav" {
+    /*!
+     * Wunderbaum - ext-keynav
+     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
+     */
+    import { KeynavOptionsType } from "types";
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
-    export class KeynavExtension extends WunderbaumExtension<any> {
+    export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
         constructor(tree: Wunderbaum);
         protected _getEmbeddedInputElem(elem: any): HTMLInputElement | null;
         protected _isCurInputFocused(): boolean;
@@ -2254,9 +2316,15 @@ declare module "wb_ext_keynav" {
     }
 }
 declare module "wb_ext_logger" {
+    /*!
+     * Wunderbaum - ext-logger
+     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
+     */
+    import { LoggerOptionsType } from "types";
     import { WunderbaumExtension } from "wb_extension_base";
     import { Wunderbaum } from "wunderbaum";
-    export class LoggerExtension extends WunderbaumExtension<any> {
+    export class LoggerExtension extends WunderbaumExtension<LoggerOptionsType> {
         readonly prefix: string;
         protected ignoreEvents: Set<string>;
         constructor(tree: Wunderbaum);
@@ -2479,10 +2547,16 @@ declare module "wunderbaum" {
         protected treeRowCount: number;
         protected _disableUpdateCount: number;
         protected _disableUpdateIgnoreCount: number;
-        /** Currently active node if any. */
-        activeNode: WunderbaumNode | null;
-        /** Current node hat has keyboard focus if any. */
-        focusNode: WunderbaumNode | null;
+        protected _activeNode: WunderbaumNode | null;
+        protected _focusNode: WunderbaumNode | null;
+        /** Currently active node if any.
+         * Use @link {WunderbaumNode.setActive|setActive} to modify.
+         */
+        get activeNode(): WunderbaumNode;
+        /** Current node hat has keyboard focus if any.
+         * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+         */
+        get focusNode(): WunderbaumNode;
         /** Shared properties, referenced by `node.type`. */
         types: NodeTypeDefinitionMap;
         /** List of column definitions. */
@@ -2740,10 +2814,13 @@ declare module "wunderbaum" {
          */
         getActiveColElem(): HTMLSpanElement;
         /**
-         * Return the currently active node or null.
+         * Return the currently active node or null (alias for `tree.activeNode`).
+         * Alias for {@link Wunderbaum.activeNode}.
+         *
          * @see {@link WunderbaumNode.setActive}
          * @see {@link WunderbaumNode.isActive}
-         * @see {@link WunderbaumNode.getFocusNode}
+         * @see {@link Wunderbaum.activeNode}
+         * @see {@link Wunderbaum.focusNode}
          */
         getActiveNode(): WunderbaumNode;
         /**
@@ -2752,7 +2829,11 @@ declare module "wunderbaum" {
         getFirstChild(): WunderbaumNode;
         /**
          * Return the node that currently has keyboard focus or null.
-         * @see {@link WunderbaumNode.getActiveNode}
+         * Alias for {@link Wunderbaum.focusNode}.
+         * @see {@link WunderbaumNode.setFocus}
+         * @see {@link WunderbaumNode.hasFocus}
+         * @see {@link Wunderbaum.activeNode}
+         * @see {@link Wunderbaum.focusNode}
          */
         getFocusNode(): WunderbaumNode;
         /** Return a {node: WunderbaumNode, region: TYPE} object for a mouse event.
@@ -2781,21 +2862,24 @@ declare module "wunderbaum" {
          * Return true if any node is currently beeing loaded, i.e. a Ajax request is pending.
          */
         isLoading(): boolean;
-        /** Alias for {@link Wunderbaum.logDebug}.
-         * @alias Wunderbaum.logDebug
+        /** Write to `console.log` with tree name as prefix if opts.debugLevel >= 4.
+         * @see {@link Wunderbaum.logDebug}
          */
-        log: (...args: any[]) => void;
-        /** Log to console if opts.debugLevel >= 4 */
+        log(...args: any[]): void;
+        /** Write to `console.debug`  with tree name as prefix if opts.debugLevel >= 4.
+         * and browser console level includes debug/verbose messages.
+         * @see {@link Wunderbaum.log}
+         */
         logDebug(...args: any[]): void;
-        /** Log error to console. */
+        /** Write to `console.error` with tree name as prefix. */
         logError(...args: any[]): void;
-        /** Log to console if opts.debugLevel >= 3 */
+        /** Write to `console.info`  with tree name as prefix if opts.debugLevel >= 3. */
         logInfo(...args: any[]): void;
         /** @internal */
         logTime(label: string): string;
         /** @internal */
         logTimeEnd(label: string): void;
-        /** Log to console if opts.debugLevel >= 2 */
+        /** Write to `console.warn` with tree name as prefix with if opts.debugLevel >= 2. */
         logWarn(...args: any[]): void;
         /**
          * Make sure that this node is vertically scrolled into the viewport.
@@ -2820,10 +2904,12 @@ declare module "wunderbaum" {
          * colIdx is 0, the node title is put into edit mode.
          */
         setColumn(colIdx: number | string, options?: SetColumnOptions): void;
+        _setActiveNode(node: WunderbaumNode | null): void;
         /** Set or remove keyboard focus to the tree container. */
         setActiveNode(key: string, flag?: boolean, options?: SetActiveOptions): void;
         /** Set or remove keyboard focus to the tree container. */
         setFocus(flag?: boolean): void;
+        _setFocusNode(node: WunderbaumNode | null): void;
         /**
          * Schedule an update request to reflect a tree change.
          * The render operation is async and debounced unless the `immediate` option

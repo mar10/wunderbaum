@@ -304,7 +304,7 @@
     /*!
      * Wunderbaum - util
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     /** @module util */
     /** Readable names for `MouseEvent.button` */
@@ -1102,7 +1102,7 @@
     /*!
      * Wunderbaum - types
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -1166,7 +1166,7 @@
     /*!
      * Wunderbaum - wb_extension_base
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     class WunderbaumExtension {
         constructor(tree, id, defaults) {
@@ -1225,7 +1225,7 @@
     /*!
      * Wunderbaum - ext-filter
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     const START_MARKER = "\uFFF7";
     const END_MARKER = "\uFFF8";
@@ -1530,7 +1530,7 @@
     /*!
      * Wunderbaum - ext-keynav
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     const QUICKSEARCH_DELAY = 500;
     class KeynavExtension extends WunderbaumExtension {
@@ -1894,7 +1894,7 @@
     /*!
      * Wunderbaum - ext-logger
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     class LoggerExtension extends WunderbaumExtension {
         constructor(tree) {
@@ -1936,7 +1936,7 @@
     /*!
      * Wunderbaum - common
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
     /**
@@ -2259,7 +2259,7 @@
     /*!
      * Wunderbaum - ext-dnd
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     const nodeMimeType = "application/x-wunderbaum-node";
     class DndExtension extends WunderbaumExtension {
@@ -2498,7 +2498,7 @@
             const dndOpts = this.treeOpts.dnd;
             const srcNode = Wunderbaum.getNode(e);
             if (!srcNode) {
-                this.tree.logWarn(`onDragEvent.${e.type} no node`);
+                this.tree.logWarn(`onDragEvent.${e.type}: no node`);
                 return;
             }
             if (["dragstart", "dragend"].includes(e.type)) {
@@ -2573,6 +2573,13 @@
             const dndOpts = this.treeOpts.dnd;
             const dt = e.dataTransfer;
             const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
+            /** Helper to log a message if predicate is false. */
+            const _t = (pred, msg) => {
+                if (pred) {
+                    this.tree.log(`Prevented drop operation (${msg}).`);
+                }
+                return pred;
+            };
             if (!targetNode) {
                 this._leaveNode();
                 return;
@@ -2583,6 +2590,7 @@
             }
             // --- dragenter ---
             if (e.type === "dragenter") {
+                // this.tree.logWarn(` onDropEvent.${e.type} targetNode: ${targetNode}`, e);
                 this.lastAllowedDropRegions = null;
                 // `dragleave` is not reliable with event delegation, so we generate it
                 // from dragenter:
@@ -2593,29 +2601,33 @@
                 this.lastEnterStamp = Date.now();
                 if (
                 // Don't drop on status node:
-                targetNode.isStatusNode() ||
+                _t(targetNode.isStatusNode(), "is status node") ||
                     // Prevent dropping nodes from different Wunderbaum trees:
-                    (dndOpts.preventForeignNodes && targetNode.tree !== srcTree) ||
+                    _t(dndOpts.preventForeignNodes && targetNode.tree !== srcTree, "preventForeignNodes") ||
                     // Prevent dropping items on unloaded lazy Wunderbaum tree nodes:
-                    (dndOpts.preventLazyParents && !targetNode.isLoaded()) ||
+                    _t(dndOpts.preventLazyParents && !targetNode.isLoaded(), "preventLazyParents") ||
                     // Prevent dropping items other than Wunderbaum tree nodes:
-                    (dndOpts.preventNonNodes && !srcNode) ||
+                    _t(dndOpts.preventNonNodes && !srcNode, "preventNonNodes") ||
                     // Prevent dropping nodes on own descendants:
-                    (dndOpts.preventRecursion && (srcNode === null || srcNode === void 0 ? void 0 : srcNode.isAncestorOf(targetNode))) ||
+                    _t(dndOpts.preventRecursion && (srcNode === null || srcNode === void 0 ? void 0 : srcNode.isAncestorOf(targetNode)), "preventRecursion") ||
                     // Prevent dropping nodes under same direct parent:
                     (dndOpts.preventSameParent &&
                         srcNode &&
-                        targetNode.parent === srcNode.parent) ||
+                        targetNode.parent === srcNode.parent,
+                        "preventSameParent") ||
                     // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
                     (dndOpts.preventVoidMoves && targetNode === srcNode)) {
                     dt.dropEffect = "none";
-                    this.tree.log("Prevented drop operation");
+                    // this.tree.log("Prevented drop operation");
                     return true; // Prevent drop operation
                 }
                 // User may return a set of regions (or `false` to prevent drop)
                 // Figure out a drop effect (copy/link/move) using opinated conventions.
                 dt.dropEffect = this._guessDropEffect(e) || "none";
-                let regionSet = targetNode._callEvent("dnd.dragEnter", { event: e });
+                let regionSet = targetNode._callEvent("dnd.dragEnter", {
+                    event: e,
+                    sourceNode: srcNode,
+                });
                 //
                 regionSet = this.unifyDragover(regionSet);
                 if (!regionSet) {
@@ -2633,7 +2645,7 @@
                 const viewportY = e.clientY - this.tree.element.offsetTop;
                 this._autoScroll(viewportY);
                 dt.dropEffect = this._guessDropEffect(e) || "none";
-                targetNode._callEvent("dnd.dragOver", { event: e });
+                targetNode._callEvent("dnd.dragOver", { event: e, sourceNode: srcNode });
                 const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
                 this.lastDropRegion = region;
                 this.lastDropEffect = dt.dropEffect;
@@ -2641,7 +2653,10 @@
                     targetNode.isExpandable(true) &&
                     !targetNode._isLoading &&
                     Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS &&
-                    targetNode._callEvent("dnd.dragExpand", { event: e }) !== false) {
+                    targetNode._callEvent("dnd.dragExpand", {
+                        event: e,
+                        sourceNode: srcNode,
+                    }) !== false) {
                     targetNode.setExpanded();
                 }
                 if (!region || this._isVoidDrop(targetNode, srcNode, region)) {
@@ -2657,7 +2672,7 @@
             else if (e.type === "dragleave") {
                 // NOTE: we cannot trust this event, since it is always fired,
                 // Instead we remove the marker on dragenter
-                targetNode._callEvent("dnd.dragLeave", { event: e });
+                targetNode._callEvent("dnd.dragLeave", { event: e, sourceNode: srcNode });
                 // --- drop ---
             }
             else if (e.type === "drop") {
@@ -2690,7 +2705,7 @@
     /*!
      * Wunderbaum - drag_observer
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2826,7 +2841,7 @@
     /*!
      * Wunderbaum - ext-grid
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     class GridExtension extends WunderbaumExtension {
         constructor(tree) {
@@ -2863,7 +2878,7 @@
     /*!
      * Wunderbaum - deferred
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2916,7 +2931,7 @@
     /*!
      * Wunderbaum - wunderbaum_node
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     /** WunderbaumNode properties that can be passed with source data.
      * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3876,13 +3891,20 @@
                 }
             }
         }
-        /**Load content of a lazy node. */
+        /**
+         * Load content of a lazy node.
+         * If the node is already loaded, nothing happens.
+         * @param [forceReload=false] If true, reload even if already loaded.
+         */
         async loadLazy(forceReload = false) {
             const wasExpanded = this.expanded;
             assert(this.lazy, "load() requires a lazy node");
-            // _assert( forceReload || this.isUndefined(), "Pass forceReload=true to re-load a lazy node" );
             if (!forceReload && !this.isUnloaded()) {
-                return;
+                return; // Already loaded: nothing to do
+            }
+            if (this.isLoading()) {
+                this.logWarn("loadLazy() called while already loading: ignored.");
+                return; // Already loading: prevent duplicate requests
             }
             if (this.isLoaded()) {
                 this.resetLazy(); // Also collapses if currently expanded
@@ -3898,7 +3920,7 @@
                 }
                 assert(isArray(source) || (source && source.url), "The lazyLoad event must return a node list, `{url: ...}`, or false.");
                 await this.load(source);
-                this.setStatus(NodeStatusType.ok);
+                this.setStatus(NodeStatusType.ok); // Also resets `this._isLoading`
                 if (wasExpanded) {
                     this.expanded = true;
                     this.tree.update(ChangeType.structure);
@@ -3910,33 +3932,41 @@
             catch (e) {
                 this.logError("Error during loadLazy()", e);
                 this._callEvent("error", { error: e });
+                // Also resets `this._isLoading`:
                 this.setStatus(NodeStatusType.error, { message: "" + e });
             }
             return;
         }
-        /** Alias for `logDebug` */
+        /** Write to `console.log` with node name as prefix if opts.debugLevel >= 4.
+         * @see {@link WunderbaumNode.logDebug}
+         */
         log(...args) {
-            this.logDebug(...args);
-        }
-        /* Log to console if opts.debugLevel >= 4 */
-        logDebug(...args) {
             if (this.tree.options.debugLevel >= 4) {
                 console.log(this.toString(), ...args); // eslint-disable-line no-console
             }
         }
-        /* Log error to console. */
+        /** Write to `console.debug` with node name as prefix if opts.debugLevel >= 4
+         * and browser console level includes debug/verbose messages.
+         * @see {@link WunderbaumNode.log}
+         */
+        logDebug(...args) {
+            if (this.tree.options.debugLevel >= 4) {
+                console.debug(this.toString(), ...args); // eslint-disable-line no-console
+            }
+        }
+        /** Write to `console.error` with node name as prefix if opts.debugLevel >= 1. */
         logError(...args) {
             if (this.tree.options.debugLevel >= 1) {
                 console.error(this.toString(), ...args); // eslint-disable-line no-console
             }
         }
-        /* Log to console if opts.debugLevel >= 3 */
+        /** Write to `console.info` with node name as prefix if opts.debugLevel >= 3. */
         logInfo(...args) {
             if (this.tree.options.debugLevel >= 3) {
                 console.info(this.toString(), ...args); // eslint-disable-line no-console
             }
         }
-        /* Log warning to console if opts.debugLevel >= 2 */
+        /** Write to `console.warn` with node name as prefix if opts.debugLevel >= 2. */
         logWarn(...args) {
             if (this.tree.options.debugLevel >= 2) {
                 console.warn(this.toString(), ...args); // eslint-disable-line no-console
@@ -4127,15 +4157,16 @@
         }
         /** Remove all descendants of this node. */
         removeChildren() {
+            var _a, _b;
             const tree = this.tree;
             if (!this.children) {
                 return;
             }
-            if (tree.activeNode && tree.activeNode.isDescendantOf(this)) {
+            if ((_a = tree.activeNode) === null || _a === void 0 ? void 0 : _a.isDescendantOf(this)) {
                 tree.activeNode.setActive(false); // TODO: don't fire events
             }
-            if (tree.focusNode && tree.focusNode.isDescendantOf(this)) {
-                tree.focusNode = null;
+            if ((_b = tree.focusNode) === null || _b === void 0 ? void 0 : _b.isDescendantOf(this)) {
+                tree._setFocusNode(null);
             }
             // TODO: persist must take care to clear select and expand cookies
             // Unlink children to support GC
@@ -4734,7 +4765,7 @@
          */
         async setActive(flag = true, options) {
             const tree = this.tree;
-            const prev = tree.activeNode;
+            const prev = tree.getActiveNode();
             const retrigger = options === null || options === void 0 ? void 0 : options.retrigger; // Default: false
             const focusTree = options === null || options === void 0 ? void 0 : options.focusTree; // Default: false
             // const focusNode = options?.focusNode !== false; // Default: true
@@ -4757,7 +4788,7 @@
                             }) === false) {
                             return;
                         }
-                        tree.activeNode = null;
+                        tree._setActiveNode(null);
                         prev === null || prev === void 0 ? void 0 : prev.update(ChangeType.status);
                     }
                 }
@@ -4767,7 +4798,7 @@
             }
             if (prev !== this) {
                 if (flag) {
-                    tree.activeNode = this;
+                    tree._setActiveNode(this);
                 }
                 prev === null || prev === void 0 ? void 0 : prev.update(ChangeType.status);
                 this.update(ChangeType.status);
@@ -4776,7 +4807,7 @@
                 if (flag) {
                     if (focusTree || edit) {
                         tree.setFocus();
-                        tree.focusNode = this;
+                        tree._setFocusNode(this);
                         tree.focusNode.setFocus();
                     }
                     // if (focusNode || edit) {
@@ -4802,7 +4833,7 @@
                 this.isExpanded() &&
                 this.getLevel() <= this.tree.getOption("minExpandLevel") &&
                 !force) {
-                this.logDebug("Ignored collapse request below expandLevel.");
+                this.logDebug("Ignored collapse request below minExpandLevel.");
                 return;
             }
             if (!flag === !this.expanded) {
@@ -4841,7 +4872,7 @@
         setFocus(flag = true) {
             assert(!!flag, "Blur is not yet implemented");
             const prev = this.tree.focusNode;
-            this.tree.focusNode = this;
+            this.tree._setFocusNode(this);
             prev === null || prev === void 0 ? void 0 : prev.update();
             this.update();
         }
@@ -5294,7 +5325,7 @@
     /*!
      * Wunderbaum - ext-edit
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
-     * v0.8.0, Thu, 11 Jan 2024 19:37:23 GMT (https://github.com/mar10/wunderbaum)
+     * v0.8.1, Sat, 20 Jan 2024 15:57:59 GMT (https://github.com/mar10/wunderbaum)
      */
     // const START_MARKER = "\uFFF7";
     class EditExtension extends WunderbaumExtension {
@@ -5623,8 +5654,8 @@
      * https://github.com/mar10/wunderbaum
      *
      * Released under the MIT license.
-     * @version v0.8.0
-     * @date Thu, 11 Jan 2024 19:37:23 GMT
+     * @version v0.8.1
+     * @date Sat, 20 Jan 2024 15:57:59 GMT
      */
     // import "./wunderbaum.scss";
     class WbSystemRoot extends WunderbaumNode {
@@ -5644,6 +5675,22 @@
      * See also {@link WunderbaumOptions}.
      */
     class Wunderbaum {
+        /** Currently active node if any.
+         * Use @link {WunderbaumNode.setActive|setActive} to modify.
+         */
+        get activeNode() {
+            var _a;
+            // Check for deleted node, i.e. node.tree === null
+            return ((_a = this._activeNode) === null || _a === void 0 ? void 0 : _a.tree) ? this._activeNode : null;
+        }
+        /** Current node hat has keyboard focus if any.
+         * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+         */
+        get focusNode() {
+            var _a;
+            // Check for deleted node, i.e. node.tree === null
+            return ((_a = this._focusNode) === null || _a === void 0 ? void 0 : _a.tree) ? this._focusNode : null;
+        }
         constructor(options) {
             this.enabled = true;
             /** Contains additional data that was sent as response to an Ajax source load request. */
@@ -5655,10 +5702,8 @@
             this.treeRowCount = 0;
             this._disableUpdateCount = 0;
             this._disableUpdateIgnoreCount = 0;
-            /** Currently active node if any. */
-            this.activeNode = null;
-            /** Current node hat has keyboard focus if any. */
-            this.focusNode = null;
+            this._activeNode = null;
+            this._focusNode = null;
             /** Shared properties, referenced by `node.type`. */
             this.types = {};
             /** List of column definitions. */
@@ -5684,10 +5729,6 @@
             this.lastQuicksearchTerm = "";
             // --- EDIT ---
             this.lastClickTime = 0;
-            /** Alias for {@link Wunderbaum.logDebug}.
-             * @alias Wunderbaum.logDebug
-             */
-            this.log = this.logDebug;
             const opts = (this.options = extend({
                 id: null,
                 source: null,
@@ -6077,7 +6118,8 @@
         /** Add node to tree's bookkeeping data structures. */
         _registerNode(node) {
             const key = node.key;
-            assert(key != null && !this.keyMap.has(key), `Missing or duplicate key: '${key}'.`);
+            assert(key != null, `Missing key: '${node}'.`);
+            assert(!this.keyMap.has(key), `Duplicate key: '${key}': ${node}.`);
             this.keyMap.set(key, node);
             const rk = node.refKey;
             if (rk != null) {
@@ -6358,8 +6400,8 @@
             this.keyMap.clear();
             this.refKeyMap.clear();
             this.treeRowCount = 0;
-            this.activeNode = null;
-            this.focusNode = null;
+            this._activeNode = null;
+            this._focusNode = null;
             // this.types = {};
             // this. columns =[];
             // this._columnsById = {};
@@ -6758,10 +6800,13 @@
             return null;
         }
         /**
-         * Return the currently active node or null.
+         * Return the currently active node or null (alias for `tree.activeNode`).
+         * Alias for {@link Wunderbaum.activeNode}.
+         *
          * @see {@link WunderbaumNode.setActive}
          * @see {@link WunderbaumNode.isActive}
-         * @see {@link WunderbaumNode.getFocusNode}
+         * @see {@link Wunderbaum.activeNode}
+         * @see {@link Wunderbaum.focusNode}
          */
         getActiveNode() {
             return this.activeNode;
@@ -6774,7 +6819,11 @@
         }
         /**
          * Return the node that currently has keyboard focus or null.
-         * @see {@link WunderbaumNode.getActiveNode}
+         * Alias for {@link Wunderbaum.focusNode}.
+         * @see {@link WunderbaumNode.setFocus}
+         * @see {@link WunderbaumNode.hasFocus}
+         * @see {@link Wunderbaum.activeNode}
+         * @see {@link Wunderbaum.focusNode}
          */
         getFocusNode() {
             return this.focusNode;
@@ -6880,19 +6929,30 @@
             }, true);
             return res;
         }
-        /** Log to console if opts.debugLevel >= 4 */
-        logDebug(...args) {
+        /** Write to `console.log` with tree name as prefix if opts.debugLevel >= 4.
+         * @see {@link Wunderbaum.logDebug}
+         */
+        log(...args) {
             if (this.options.debugLevel >= 4) {
                 console.log(this.toString(), ...args); // eslint-disable-line no-console
             }
         }
-        /** Log error to console. */
+        /** Write to `console.debug`  with tree name as prefix if opts.debugLevel >= 4.
+         * and browser console level includes debug/verbose messages.
+         * @see {@link Wunderbaum.log}
+         */
+        logDebug(...args) {
+            if (this.options.debugLevel >= 4) {
+                console.debug(this.toString(), ...args); // eslint-disable-line no-console
+            }
+        }
+        /** Write to `console.error` with tree name as prefix. */
         logError(...args) {
             if (this.options.debugLevel >= 1) {
                 console.error(this.toString(), ...args); // eslint-disable-line no-console
             }
         }
-        /** Log to console if opts.debugLevel >= 3 */
+        /** Write to `console.info`  with tree name as prefix if opts.debugLevel >= 3. */
         logInfo(...args) {
             if (this.options.debugLevel >= 3) {
                 console.info(this.toString(), ...args); // eslint-disable-line no-console
@@ -6911,7 +6971,7 @@
                 console.timeEnd(this + ": " + label); // eslint-disable-line no-console
             }
         }
-        /** Log to console if opts.debugLevel >= 2 */
+        /** Write to `console.warn` with tree name as prefix with if opts.debugLevel >= 2. */
         logWarn(...args) {
             if (this.options.debugLevel >= 2) {
                 console.warn(this.toString(), ...args); // eslint-disable-line no-console
@@ -7049,6 +7109,10 @@
                 }
             }
         }
+        /* Set or remove keyboard focus to the tree container. @internal */
+        _setActiveNode(node) {
+            this._activeNode = node;
+        }
         /** Set or remove keyboard focus to the tree container. */
         setActiveNode(key, flag = true, options) {
             var _a;
@@ -7062,6 +7126,10 @@
             else {
                 this.element.blur();
             }
+        }
+        /* Set or remove keyboard focus to the tree container. @internal */
+        _setFocusNode(node) {
+            this._focusNode = node;
         }
         update(change, node, options) {
             // this.log(`update(${change}) node=${node}`);
@@ -7805,7 +7873,7 @@
     }
     Wunderbaum.sequence = 0;
     /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-    Wunderbaum.version = "v0.8.0"; // Set to semver by 'grunt release'
+    Wunderbaum.version = "v0.8.1"; // Set to semver by 'grunt release'
     /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
     Wunderbaum.util = util;
 
