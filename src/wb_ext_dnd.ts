@@ -420,12 +420,17 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
           "preventRecursion"
         ) ||
         // Prevent dropping nodes under same direct parent:
-        (dndOpts.preventSameParent &&
-          srcNode &&
-          targetNode.parent === srcNode.parent,
-        "preventSameParent") ||
+        _t(
+          dndOpts.preventSameParent &&
+            srcNode &&
+            targetNode.parent === srcNode.parent,
+          "preventSameParent"
+        ) ||
         // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
-        (dndOpts.preventVoidMoves && targetNode === srcNode)
+        _t(
+          dndOpts.preventVoidMoves && targetNode === srcNode,
+          "preventVoidMoves"
+        )
       ) {
         dt.dropEffect = "none";
         // this.tree.log("Prevented drop operation");

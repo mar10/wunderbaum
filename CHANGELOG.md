@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.8.2: Fix #82: Drag/Drop of nodes does not work any more.
+
 - v0.8.1: Distinguish between `.log()` and `.logDebug()`, which now call
   `console.log()` and `console.debug()` respectively.
 - v0.8.1: Fix #72: DragEnter event does not provide the source node, only the target.
