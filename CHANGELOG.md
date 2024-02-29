@@ -7,6 +7,9 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.8.3: Fix #84: After editing a node title a javascript error
+  "Cannot read properties of null (reading '\_render')" occurs (Chromium).
+
 - v0.8.2: Fix #82: Drag/Drop of nodes does not work any more.
 
 - v0.8.1: Distinguish between `.log()` and `.logDebug()`, which now call
