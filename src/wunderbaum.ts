@@ -59,7 +59,7 @@ import {
   makeNodeTitleStartMatcher,
   nodeTitleSorter,
   RENDER_MAX_PREFETCH,
-  ROW_HEIGHT,
+  DEFAULT_ROW_HEIGHT,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -189,7 +189,7 @@ export class Wunderbaum {
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
         header: null, // Show/hide header (pass bool or string)
         // headerHeightPx: ROW_HEIGHT,
-        rowHeightPx: ROW_HEIGHT,
+        rowHeightPx: DEFAULT_ROW_HEIGHT,
         iconMap: "bootstrap",
         columns: null,
         types: null,
@@ -286,6 +286,16 @@ export class Wunderbaum {
       this.element.tabIndex = 0;
     }
 
+    if (opts.rowHeightPx !== DEFAULT_ROW_HEIGHT) {
+      this.element.style.setProperty(
+        "--wb-row-outer-height",
+        opts.rowHeightPx + "px"
+      );
+      this.element.style.setProperty(
+        "--wb-row-inner-height",
+        opts.rowHeightPx - 2 + "px"
+      );
+    }
     // Attach tree instance to <div>
     (<any>this.element)._wb_tree = this;
 
@@ -744,6 +754,7 @@ export class Wunderbaum {
 
   /** Return the topmost visible node in the viewport. */
   getTopmostVpNode(complete = true) {
+    const rowHeight = this.options.rowHeightPx!;
     const gracePx = 1; // ignore subpixel scrolling
     const scrollParent = this.element;
     // const headerHeight = this.headerElement.clientHeight;  // May be 0
@@ -751,15 +762,16 @@ export class Wunderbaum {
     let topIdx: number;
 
     if (complete) {
-      topIdx = Math.ceil((scrollTop - gracePx) / ROW_HEIGHT);
+      topIdx = Math.ceil((scrollTop - gracePx) / rowHeight);
     } else {
-      topIdx = Math.floor(scrollTop / ROW_HEIGHT);
+      topIdx = Math.floor(scrollTop / rowHeight);
     }
     return this._getNodeByRowIdx(topIdx)!;
   }
 
   /** Return the lowest visible node in the viewport. */
   getLowestVpNode(complete = true) {
+    const rowHeight = this.options.rowHeightPx!;
     const scrollParent = this.element;
     const headerHeight = this.headerElement.clientHeight; // May be 0
     const scrollTop = scrollParent.scrollTop;
@@ -767,9 +779,9 @@ export class Wunderbaum {
     let bottomIdx: number;
 
     if (complete) {
-      bottomIdx = Math.floor((scrollTop + clientHeight) / ROW_HEIGHT) - 1;
+      bottomIdx = Math.floor((scrollTop + clientHeight) / rowHeight) - 1;
     } else {
-      bottomIdx = Math.ceil((scrollTop + clientHeight) / ROW_HEIGHT) - 1;
+      bottomIdx = Math.ceil((scrollTop + clientHeight) / rowHeight) - 1;
     }
     bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
     return this._getNodeByRowIdx(bottomIdx)!;
@@ -1267,9 +1279,10 @@ export class Wunderbaum {
    * @param includeHidden Not yet implemented
    */
   findRelatedNode(node: WunderbaumNode, where: string, includeHidden = false) {
+    const rowHeight = this.options.rowHeightPx!;
     let res = null;
     const pageSize = Math.floor(
-      this.listContainerElement.clientHeight / ROW_HEIGHT
+      this.listContainerElement.clientHeight / rowHeight
     );
 
     switch (where) {
@@ -1605,7 +1618,7 @@ export class Wunderbaum {
     const PADDING = 2; // leave some pixels between viewport bounds
 
     let node;
-    WunderbaumNode;
+    // WunderbaumNode;
     let options: ScrollToOptions | undefined;
 
     if (nodeOrOpts instanceof WunderbaumNode) {
@@ -1616,14 +1629,15 @@ export class Wunderbaum {
     }
     util.assert(node && node._rowIdx != null, `Invalid node: ${node}`);
 
+    const rowHeight = this.options.rowHeightPx!;
     const scrollParent = this.element;
     const headerHeight = this.headerElement.clientHeight; // May be 0
     const scrollTop = scrollParent.scrollTop;
     const vpHeight = scrollParent.clientHeight;
-    const rowTop = node._rowIdx! * ROW_HEIGHT + headerHeight;
+    const rowTop = node._rowIdx! * rowHeight + headerHeight;
     const vpTop = headerHeight;
     const vpRowTop = rowTop - scrollTop;
-    const vpRowBottom = vpRowTop + ROW_HEIGHT;
+    const vpRowBottom = vpRowTop + rowHeight;
     const topNode = options?.topNode;
 
     // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts , options);
@@ -1636,7 +1650,7 @@ export class Wunderbaum {
       } else {
         // Node is below viewport
         // this.log("Below viewport");
-        newScrollTop = rowTop + ROW_HEIGHT - vpHeight + PADDING; // leave some pixels between viewport bounds
+        newScrollTop = rowTop + rowHeight - vpHeight + PADDING; // leave some pixels between viewport bounds
       }
     } else {
       // Node is above viewport
@@ -2276,20 +2290,20 @@ export class Wunderbaum {
     options = Object.assign({ newNodesOnly: false }, options);
     const newNodesOnly = !!options.newNodesOnly;
 
-    const row_height = ROW_HEIGHT;
-    const vp_height = this.element.clientHeight;
+    const rowHeight = this.options.rowHeightPx!;
+    const vpHeight = this.element.clientHeight;
     const prefetch = RENDER_MAX_PREFETCH;
     // const grace_prefetch = RENDER_MAX_PREFETCH - RENDER_MIN_PREFETCH;
     const ofs = this.element.scrollTop;
 
-    let startIdx = Math.max(0, ofs / row_height - prefetch);
+    let startIdx = Math.max(0, ofs / rowHeight - prefetch);
     startIdx = Math.floor(startIdx);
     // Make sure start is always even, so the alternating row colors don't
     // change when scrolling:
     if (startIdx % 2) {
       startIdx--;
     }
-    let endIdx = Math.max(0, (ofs + vp_height) / row_height + prefetch);
+    let endIdx = Math.max(0, (ofs + vpHeight) / rowHeight + prefetch);
     endIdx = Math.ceil(endIdx);
 
     // this.debug("render", opts);
@@ -2322,20 +2336,20 @@ export class Wunderbaum {
       } else if (rowDiv && newNodesOnly) {
         obsoleteNodes.delete(node);
         // no need to update existing node markup
-        rowDiv.style.top = idx * ROW_HEIGHT + "px";
+        rowDiv.style.top = idx * rowHeight + "px";
         prevElem = rowDiv;
       } else {
         obsoleteNodes.delete(node);
         // Create new markup
         if (rowDiv) {
-          rowDiv.style.top = idx * ROW_HEIGHT + "px";
+          rowDiv.style.top = idx * rowHeight + "px";
         }
         node._render({ top: top, after: prevElem });
         // node.log("render", top, prevElem, "=>", node._rowElem);
         prevElem = node._rowElem!;
       }
       idx++;
-      top += row_height;
+      top += rowHeight;
     });
     this.treeRowCount = idx;
     for (const n of obsoleteNodes) {

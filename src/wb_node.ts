@@ -44,7 +44,6 @@ import {
   makeNodeTitleMatcher,
   RESERVED_TREE_SOURCE_KEYS,
   TITLE_SPAN_PAD_Y,
-  ROW_HEIGHT,
   TEST_IMG,
   decompressSourceData,
   nodeTitleSorter,
@@ -1630,6 +1629,7 @@ export class WunderbaumNode {
   protected _render_markup(opts: RenderOptions) {
     const tree = this.tree;
     const treeOptions = tree.options;
+    const rowHeight = treeOptions.rowHeightPx!;
     const checkbox = this.getOption("checkbox");
     const columns = tree.columns;
     const level = this.getLevel();
@@ -1651,7 +1651,7 @@ export class WunderbaumNode {
     rowDiv = document.createElement("div");
     rowDiv.classList.add("wb-row");
 
-    rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
+    rowDiv.style.top = this._rowIdx! * rowHeight + "px";
 
     this._rowElem = rowDiv;
 
