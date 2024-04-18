@@ -245,7 +245,7 @@ export class WunderbaumNode {
    * ```
    */
   _callEvent(type: string, extra?: any): any {
-    return this.tree._callEvent(
+    return this.tree?._callEvent(
       type,
       util.extend(
         {
