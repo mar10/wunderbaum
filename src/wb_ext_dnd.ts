@@ -14,7 +14,6 @@ import {
   DropRegionType,
   DropRegionTypeSet,
 } from "./types";
-import { ROW_HEIGHT } from "./common";
 import { DebouncedFunction, throttle } from "./debounce";
 
 const nodeMimeType = "application/x-wunderbaum-node";
@@ -135,21 +134,22 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     e: DragEvent,
     allowed: DropRegionTypeSet | null
   ): DropRegionType | false {
+    const rowHeight = this.tree.options.rowHeightPx!;
     const dy = e.offsetY;
 
     if (!allowed) {
       return false;
     } else if (allowed.size === 3) {
-      return dy < 0.25 * ROW_HEIGHT
+      return dy < 0.25 * rowHeight
         ? "before"
-        : dy > 0.75 * ROW_HEIGHT
+        : dy > 0.75 * rowHeight
         ? "after"
         : "over";
     } else if (allowed.size === 1 && allowed.has("over")) {
       return "over";
     } else {
       // Only 'before' and 'after':
-      return dy > ROW_HEIGHT / 2 ? "after" : "before";
+      return dy > rowHeight / 2 ? "after" : "before";
     }
     // return "over";
   }
