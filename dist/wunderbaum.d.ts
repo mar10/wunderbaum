@@ -511,7 +511,7 @@ declare module "deferred" {
 }
 declare module "wb_node" {
     import { Wunderbaum } from "wunderbaum";
-    import { AddChildrenOptions, InsertNodeType, ApplyCommandOptions, ApplyCommandType, ChangeType, ExpandAllOptions, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortCallback, NodeToDictCallback, WbNodeData, TristateType, CheckboxOption, IconOption, SourceType } from "types";
+    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, CheckboxOption, ExpandAllOptions, IconOption, InsertNodeType, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortCallback, SourceType, TristateType, WbNodeData } from "types";
     /**
      * A single tree node.
      *
@@ -1045,7 +1045,7 @@ declare module "wb_options" {
      * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { WbCancelableEventResultType, ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType, WbIconBadgeEventResultType } from "types";
+    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbCancelableEventResultType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbIconBadgeEventResultType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType } from "types";
     /**
      * Available options for {@link wunderbaum.Wunderbaum}.
      *
@@ -2507,7 +2507,7 @@ declare module "wunderbaum" {
      */
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { ApplyCommandType, ChangeType, ColumnDefinitionList, ExpandAllOptions, FilterModeType, MatcherCallback, NavModeEnum, NodeStatusType, NodeStringCallback, NodeTypeDefinitionMap, ScrollToOptions, SetActiveOptions, UpdateOptions, SetStatusOptions, WbEventInfo, ApplyCommandOptions, AddChildrenOptions, VisitRowsOptions, NodeFilterCallback, FilterNodesOptions, RenderFlag, NodeVisitCallback, SortCallback, NodeToDictCallback, WbNodeData, DynamicCheckboxOption, SourceType, DynamicIconOption, DynamicStringOption, DynamicBoolOption, SetColumnOptions } from "types";
+    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, ColumnDefinitionList, DynamicBoolOption, DynamicCheckboxOption, DynamicIconOption, DynamicStringOption, ExpandAllOptions, FilterModeType, FilterNodesOptions, MatcherCallback, NavModeEnum, NodeFilterCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeTypeDefinitionMap, NodeVisitCallback, RenderFlag, ScrollToOptions, SetActiveOptions, SetColumnOptions, SetStatusOptions, SortCallback, SourceType, UpdateOptions, VisitRowsOptions, WbEventInfo, WbNodeData } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     import { DebouncedFunction } from "debounce";
