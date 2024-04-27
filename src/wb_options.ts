@@ -5,7 +5,6 @@
  */
 
 import {
-  WbCancelableEventResultType,
   ColumnDefinitionList,
   DndOptionsType,
   DynamicBoolOption,
@@ -21,12 +20,14 @@ import {
   NodeTypeDefinitionMap,
   SelectModeType,
   WbActivateEventType,
+  WbCancelableEventResultType,
   WbChangeEventType,
   WbClickEventType,
   WbDeactivateEventType,
   WbErrorEventType,
   WbExpandEventType,
   WbIconBadgeCallback,
+  WbIconBadgeEventResultType,
   WbInitEventType,
   WbKeydownEventType,
   WbNodeData,
@@ -35,7 +36,6 @@ import {
   WbRenderEventType,
   WbSelectEventType,
   WbTreeEventType,
-  WbIconBadgeEventResultType,
 } from "./types";
 
 /**

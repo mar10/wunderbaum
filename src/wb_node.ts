@@ -9,18 +9,21 @@ import * as util from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import {
   AddChildrenOptions,
-  InsertNodeType,
   ApplyCommandOptions,
   ApplyCommandType,
   ChangeType,
+  CheckboxOption,
   ColumnEventInfoMap,
   ExpandAllOptions,
+  IconOption,
+  InsertNodeType,
   MakeVisibleOptions,
   MatcherCallback,
   NavigateOptions,
   NodeAnyCallback,
   NodeStatusType,
   NodeStringCallback,
+  NodeToDictCallback,
   NodeVisitCallback,
   NodeVisitResponse,
   RenderOptions,
@@ -30,24 +33,21 @@ import {
   SetSelectedOptions,
   SetStatusOptions,
   SortCallback,
-  NodeToDictCallback,
-  WbNodeData,
-  TristateType,
-  CheckboxOption,
-  IconOption,
   SourceType,
+  TristateType,
+  WbNodeData,
 } from "./types";
 
 import {
+  decompressSourceData,
   ICON_WIDTH,
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
+  nodeTitleSorter,
   RESERVED_TREE_SOURCE_KEYS,
-  TITLE_SPAN_PAD_Y,
   ROW_HEIGHT,
   TEST_IMG,
-  decompressSourceData,
-  nodeTitleSorter,
+  TITLE_SPAN_PAD_Y,
 } from "./common";
 import { Deferred } from "./deferred";
 
