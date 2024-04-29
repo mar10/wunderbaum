@@ -29,6 +29,7 @@ import {
   DynamicCheckboxOption,
   DynamicIconOption,
   DynamicStringOption,
+  DynamicTooltipOption,
   ExpandAllOptions,
   FilterModeType,
   FilterNodesOptions,
@@ -141,10 +142,15 @@ export class Wunderbaum {
   public types: NodeTypeDefinitionMap = {};
   /** List of column definitions. */
   public columns: ColumnDefinitionList = []; // any[] = [];
+  /** Show/hide a checkbox or radiobutton. */
   public checkbox?: DynamicCheckboxOption;
+  /** Show/hide a node icon. */
   public icon?: DynamicIconOption;
+  /** Show/hide a tooltip for the node icon. */
   public iconTooltip?: DynamicStringOption;
-  public tooltip?: DynamicStringOption;
+  /** Show/hide a tooltip. */
+  public tooltip?: DynamicTooltipOption;
+  /** Define a node checkbox as readonly. */
   public unselectable?: DynamicBoolOption;
 
   protected _columnsById: { [key: string]: any } = {};

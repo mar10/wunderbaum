@@ -20,6 +20,8 @@ export type CheckboxOption = boolean | "radio";
  * or a boolean value that indicates if the default icon should be used or hidden.
  */
 export type IconOption = boolean | string;
+/** Show/hide tooltip or display a string. */
+export type TooltipOption = boolean | string;
 
 /*
  * `source` can be a url, an array of nodes, or an object with `url`, ...
@@ -92,6 +94,7 @@ export type DynamicBoolOrStringOption =
   | BoolOrStringOptionResolver;
 export type DynamicCheckboxOption = CheckboxOption | BoolOrStringOptionResolver;
 export type DynamicIconOption = IconOption | BoolOrStringOptionResolver;
+export type DynamicTooltipOption = TooltipOption | BoolOrStringOptionResolver;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
 /** A plain object (dictionary) that represents a node instance. */

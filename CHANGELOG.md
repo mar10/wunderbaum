@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.8.4: Fix #90: Tooltip is not shown.
+
 - v0.8.3: Fix #84: After editing a node title a javascript error
   "Cannot read properties of null (reading '\_render')" occurs (Chromium).
 

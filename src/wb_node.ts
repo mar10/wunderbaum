@@ -1791,6 +1791,11 @@ export class WunderbaumNode {
     } else {
       titleSpan.textContent = this.title; // TODO: this triggers scroll events
     }
+    const tooltip = this.getOption("tooltip", false);
+    if (tooltip) {
+      titleSpan.title = tooltip === true ? this.title : tooltip;
+    }
+
     // NOTE: At least on Safari, this render call triggers a scroll event
     // probably when a focused input is replaced.
     if (preventScroll) {
