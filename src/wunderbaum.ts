@@ -3,7 +3,7 @@
  *
  * A treegrid control.
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.

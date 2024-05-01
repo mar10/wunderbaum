@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
 /* eslint-env browser */
