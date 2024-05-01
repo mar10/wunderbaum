@@ -34,6 +34,7 @@ import {
   SetStatusOptions,
   SortCallback,
   SourceType,
+  TooltipOption,
   TristateType,
   WbNodeData,
 } from "./types";
@@ -2624,6 +2625,12 @@ export class WunderbaumNode {
     this.title = title;
     this.update();
     // this.triggerModify("rename"); // TODO
+  }
+
+  /** Set the node tooltip. */
+  setTooltip(tooltip: TooltipOption): void {
+    this.tooltip = tooltip;
+    this.update();
   }
 
   _sortChildren(cmp: SortCallback, deep: boolean): void {

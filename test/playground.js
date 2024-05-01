@@ -24,9 +24,9 @@ const tree = new Wunderbaum({
   debugLevel: 4,
   // minExpandLevel: 1,
   emptyChildListExpandable: true,
-  tooltip: (e) => {
-    return `${e.node.title} (${e.node.children?.length || 0})`;
-  },
+  // tooltip: (e) => {
+  //   return `${e.node.title} (${e.node.children?.length || 0})`;
+  // },
   // autoCollapse: true,
   header: true, //"Playground",
   // navigationModeOption: "cell",
@@ -237,6 +237,7 @@ const tree = new Wunderbaum({
       edit: true,
       focusTree: true,
     });
+    e.tree.findFirst("Observe")?.setTooltip("This is a tooltip");
   },
 });
 console.log(`Created  ${tree}`);
