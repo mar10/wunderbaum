@@ -511,7 +511,7 @@ declare module "deferred" {
 }
 declare module "wb_node" {
     import { Wunderbaum } from "wunderbaum";
-    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, CheckboxOption, ExpandAllOptions, IconOption, InsertNodeType, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortCallback, SourceType, TristateType, WbNodeData } from "types";
+    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, CheckboxOption, ExpandAllOptions, IconOption, InsertNodeType, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortCallback, SourceType, TooltipOption, TristateType, WbNodeData } from "types";
     /**
      * A single tree node.
      *
@@ -985,6 +985,8 @@ declare module "wb_node" {
         setStatus(status: NodeStatusType, options?: SetStatusOptions): WunderbaumNode | null;
         /** Rename this node. */
         setTitle(title: string): void;
+        /** Set the node tooltip. */
+        setTooltip(tooltip: TooltipOption): void;
         _sortChildren(cmp: SortCallback, deep: boolean): void;
         /**
          * Sort child list by title or custom criteria.
@@ -1394,6 +1396,8 @@ declare module "types" {
      * or a boolean value that indicates if the default icon should be used or hidden.
      */
     export type IconOption = boolean | string;
+    /** Show/hide tooltip or display a string. */
+    export type TooltipOption = boolean | string;
     export interface SourceAjaxType {
         url: string;
         params?: any;
@@ -1448,6 +1452,7 @@ declare module "types" {
     export type DynamicBoolOrStringOption = boolean | string | BoolOrStringOptionResolver;
     export type DynamicCheckboxOption = CheckboxOption | BoolOrStringOptionResolver;
     export type DynamicIconOption = IconOption | BoolOrStringOptionResolver;
+    export type DynamicTooltipOption = TooltipOption | BoolOrStringOptionResolver;
     /** A plain object (dictionary) that represents a node instance. */
     export interface WbNodeData {
         checkbox?: CheckboxOption;
@@ -2507,7 +2512,7 @@ declare module "wunderbaum" {
      */
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, ColumnDefinitionList, DynamicBoolOption, DynamicCheckboxOption, DynamicIconOption, DynamicStringOption, ExpandAllOptions, FilterModeType, FilterNodesOptions, MatcherCallback, NavModeEnum, NodeFilterCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeTypeDefinitionMap, NodeVisitCallback, RenderFlag, ScrollToOptions, SetActiveOptions, SetColumnOptions, SetStatusOptions, SortCallback, SourceType, UpdateOptions, VisitRowsOptions, WbEventInfo, WbNodeData } from "types";
+    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, ColumnDefinitionList, DynamicBoolOption, DynamicCheckboxOption, DynamicIconOption, DynamicStringOption, DynamicTooltipOption, ExpandAllOptions, FilterModeType, FilterNodesOptions, MatcherCallback, NavModeEnum, NodeFilterCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeTypeDefinitionMap, NodeVisitCallback, RenderFlag, ScrollToOptions, SetActiveOptions, SetColumnOptions, SetStatusOptions, SortCallback, SourceType, UpdateOptions, VisitRowsOptions, WbEventInfo, WbNodeData } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     import { DebouncedFunction } from "debounce";
@@ -2561,10 +2566,15 @@ declare module "wunderbaum" {
         types: NodeTypeDefinitionMap;
         /** List of column definitions. */
         columns: ColumnDefinitionList;
+        /** Show/hide a checkbox or radiobutton. */
         checkbox?: DynamicCheckboxOption;
+        /** Show/hide a node icon. */
         icon?: DynamicIconOption;
+        /** Show/hide a tooltip for the node icon. */
         iconTooltip?: DynamicStringOption;
-        tooltip?: DynamicStringOption;
+        /** Show/hide a tooltip. */
+        tooltip?: DynamicTooltipOption;
+        /** Define a node checkbox as readonly. */
         unselectable?: DynamicBoolOption;
         protected _columnsById: {
             [key: string]: any;
