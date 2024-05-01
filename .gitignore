@@ -15,3 +15,4 @@ test/issue_*.*
 docs/assets/ajax_1M_3_6.json
 playwright-report/
 test-results/
+.venv/
