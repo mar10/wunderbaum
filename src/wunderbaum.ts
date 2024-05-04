@@ -2592,6 +2592,12 @@ export class Wunderbaum {
    * -------------------------------------------------------------------------*/
   /**
    * Dim or hide nodes.
+   * @example
+   * ```ts
+   * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
+   * // or pass a callback
+   * tree.filterNodes((node) => { return node.data.foo === true }, {mode: 'hide'});
+   * ```
    */
   filterNodes(
     filter: string | NodeFilterCallback,
@@ -2605,6 +2611,7 @@ export class Wunderbaum {
 
   /**
    * Dim or hide whole branches.
+   * @deprecated Use {@link filterNodes} instead and set `options.branchMode: true`.
    */
   filterBranches(
     filter: string | NodeFilterCallback,

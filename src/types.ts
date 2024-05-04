@@ -539,15 +539,28 @@ export interface ExpandAllOptions {
   keepActiveNodeVisible?: boolean;
 }
 
-/** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
+/** Possible values for {@link Wunderbaum.filterNodes()}. */
 export interface FilterNodesOptions {
-  mode?: string;
-  leavesOnly?: boolean;
-  fuzzy?: boolean;
-  highlight?: boolean;
-  hideExpanders?: boolean;
+  /** Expand all branches that contain matches while filtered @default false */
   autoExpand?: boolean;
-  noData?: boolean;
+  /** Wether to implicitly match all children of matched nodes  @default false */
+  branchMode?: boolean;
+  /** Show a badge with number of matching child nodes near parent icons @default true */
+  counter?: boolean;
+  /** Match single characters in order, e.g. 'fb' will match 'FooBar' @default false */
+  fuzzy?: boolean;
+  /** Hide counter badge if parent is expanded @default: true */
+  hideExpandedCounter?: true,
+  /**Hide expanders if all child nodes are hidden by filter @default false */
+  hideExpanders?: boolean;
+  /** Highlight matches by wrapping inside `<mark>` tags @default true */
+  highlight?: boolean;
+  /** Match end nodes only @default false */
+  leavesOnly?: boolean;
+  /** Grayout unmatched nodes (pass 'hide' to remove instead) @default 'dim' */
+  mode?: FilterModeType;
+  /** Display a 'no data' status node if result is empty @default true */
+  noData?: boolean | string;
 }
 
 /** Possible values for {@link WunderbaumNode.makeVisible()}. */
@@ -719,6 +732,12 @@ export type FilterOptionsType = {
    */
   autoExpand?: boolean;
   /**
+   * true: implicitly match all children of a matched node
+   * false: only match nodes that are explicitly matched
+   * @default false
+   */
+  branchMode?: boolean;
+  /**
    * Show a badge with number of matching child nodes near parent icons
    * @default true
    */
@@ -749,7 +768,7 @@ export type FilterOptionsType = {
    */
   leavesOnly?: boolean;
   /**
-   * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
+   * Grayout unmatched nodes (pass "hide" to remove unmatched nodes instead)
    * @default 'dim'
    */
   mode?: FilterModeType;
@@ -829,16 +848,16 @@ export type EditOptionsType = {
    * @category Callback
    */
   edit?:
-    | null
-    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
+  | null
+  | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
   /**
    *
    * @category Callback
    */
   apply?:
-    | null
-    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
-    | Promise<any>;
+  | null
+  | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
+  | Promise<any>;
 };
 
 /* -----------------------------------------------------------------------------
@@ -975,8 +994,8 @@ export type DndOptionsType = {
    * @default true
    */
   serializeClipboardData?:
-    | boolean
-    | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
+  | boolean
+  | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
   /**
    * Enable auto-scrolling while dragging
    * @default true
@@ -1034,8 +1053,8 @@ export type DndOptionsType = {
    * @category Callback
    */
   dragEnter?:
-    | null
-    | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
+  | null
+  | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
   /**
    * Callback(targetNode, data)
    * @default null
@@ -1054,17 +1073,17 @@ export type DndOptionsType = {
    * @category Callback
    */
   drop?:
-    | null
-    | ((
-        e: WbNodeEventType & {
-          event: DragEvent;
-          region: DropRegionType;
-          suggestedDropMode: InsertNodeType;
-          suggestedDropEffect: DropEffectType;
-          sourceNode: WunderbaumNode;
-          sourceNodeData: WbNodeData | null;
-        }
-      ) => void);
+  | null
+  | ((
+    e: WbNodeEventType & {
+      event: DragEvent;
+      region: DropRegionType;
+      suggestedDropMode: InsertNodeType;
+      suggestedDropEffect: DropEffectType;
+      sourceNode: WunderbaumNode;
+      sourceNodeData: WbNodeData | null;
+    }
+  ) => void);
   /**
    * Callback(targetNode, data)
    * @default null

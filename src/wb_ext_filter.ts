@@ -5,6 +5,7 @@
  */
 
 import {
+  assert,
   elemFromSelector,
   escapeHtml,
   escapeRegex,
@@ -33,9 +34,9 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 
   constructor(tree: Wunderbaum) {
     super(tree, "filter", {
-      connectInput: null, // Element or selector of an input control for filter query strings
       autoApply: true, // Re-apply last filter if lazy data is loaded
       autoExpand: false, // Expand all branches that contain matches while filtered
+      connectInput: null, // Element or selector of an input control for filter query strings
       counter: true, // Show a badge with number of matching child nodes near parent icons
       fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
       hideExpandedCounter: true, // Hide counter badge if parent is expanded
@@ -74,31 +75,24 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     }
   }
 
-  _applyFilterNoUpdate(
-    filter: string | NodeFilterCallback,
-    branchMode: boolean,
-    _opts: any
-  ) {
+  _applyFilterNoUpdate(filter: string | NodeFilterCallback, _opts: FilterNodesOptions) {
     return this.tree.runWithDeferredUpdate(() => {
-      return this._applyFilterImpl(filter, branchMode, _opts);
+      return this._applyFilterImpl(filter, _opts);
     });
   }
 
-  _applyFilterImpl(
-    filter: string | NodeFilterCallback,
-    branchMode: boolean,
-    _opts: any
-  ) {
+  _applyFilterImpl(filter: string | NodeFilterCallback, _opts: FilterNodesOptions) {
     let match,
       temp,
       count = 0;
     const start = Date.now();
     const tree = this.tree;
     const treeOpts = tree.options;
-    // escapeTitles = treeOpts.escapeTitles,
     const prevAutoCollapse = treeOpts.autoCollapse;
+    // Use default options from `tree.options.filter`, but allow to override them
     const opts = extend({}, treeOpts.filter, _opts);
     const hideMode = opts.mode === "hide";
+    const branchMode = !!opts.branchMode;
     const leavesOnly = !!opts.leavesOnly && !branchMode;
 
     // Default to 'match title substring (case insensitive)'
@@ -140,7 +134,6 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
         const res = text.match(re);
 
         if (res && opts.highlight) {
-          // if (escapeTitles) {
           if (opts.fuzzy) {
             temp = _markFuzzyMatchedChars(text, res, true);
           } else {
@@ -155,16 +148,6 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
             // ... and finally insert the desired `<mark>` tags
             .replace(RE_START_MARKER, "<mark>")
             .replace(RE_END_MARTKER, "</mark>");
-          // } else {
-          //   if (opts.fuzzy) {
-          //     node.titleWithHighlight = _markFuzzyMatchedChars(text, res);
-          //   } else {
-          //     node.titleWithHighlight = text.replace(reHighlight, function (s) {
-          //       return "<mark>" + s + "</mark>";
-          //     });
-          //   }
-          // }
-          // node.debug("filter", escapeTitles, text, node.titleWithHighlight);
         }
         return !!res;
       };
@@ -256,17 +239,20 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     filter: string | NodeFilterCallback,
     options: FilterNodesOptions
   ) {
-    return this._applyFilterNoUpdate(filter, false, options);
+    return this._applyFilterNoUpdate(filter, options);
   }
 
   /**
    * [ext-filter] Dim or hide whole branches.
+   * @deprecated Use {@link filterNodes} instead and set `options.branchMode: true`.
    */
   filterBranches(
     filter: string | NodeFilterCallback,
     options: FilterNodesOptions
   ) {
-    return this._applyFilterNoUpdate(filter, true, options);
+    assert(options.branchMode === undefined, "filterBranches() is deprecated.");
+    options.branchMode = true;
+    return this._applyFilterNoUpdate(filter, options);
   }
 
   /**
