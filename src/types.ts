@@ -539,15 +539,28 @@ export interface ExpandAllOptions {
   keepActiveNodeVisible?: boolean;
 }
 
-/** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
+/**
+ * Possible option values for {@link Wunderbaum.filterNodes}.
+ * The defaults are inherited from the tree instances ´tree.options.filter`
+ * settings (see also {@link FilterOptionsType}).
+ */
 export interface FilterNodesOptions {
-  mode?: string;
-  leavesOnly?: boolean;
-  fuzzy?: boolean;
-  highlight?: boolean;
-  hideExpanders?: boolean;
+  /** Expand all branches that contain matches while filtered @default false */
   autoExpand?: boolean;
-  noData?: boolean;
+  /** Whether to implicitly match all children of matched nodes @default false */
+  branchMode?: boolean;
+  /** Match single characters in order, e.g. 'fb' will match 'FooBar' @default false */
+  fuzzy?: boolean;
+  /**Hide expanders if all child nodes are hidden by filter @default false */
+  hideExpanders?: boolean;
+  /** Highlight matches by wrapping inside `<mark>` tags @default true */
+  highlight?: boolean;
+  /** Match end nodes only @default false */
+  leavesOnly?: boolean;
+  /** Grayout unmatched nodes (pass 'hide' to remove instead) @default 'dim' */
+  mode?: FilterModeType;
+  /** Display a 'no data' status node if result is empty @default true */
+  noData?: boolean | string;
 }
 
 /** Possible values for {@link WunderbaumNode.makeVisible()}. */
@@ -628,7 +641,7 @@ export interface SetActiveOptions {
   edit?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setColumn()} `options` argument. */
+/** Possible values for {@link Wunderbaum.setColumn()} `options` argument. */
 export interface SetColumnOptions {
   /**
    * Focus embedded input control of the grid cell if any .
@@ -702,6 +715,12 @@ export interface VisitRowsOptions {
 /* -----------------------------------------------------------------------------
  * wb_ext_filter
  * ---------------------------------------------------------------------------*/
+/**
+ * Passed as tree options to configure default filtering behavior.
+ *
+ * @see {@link Wunderbaum.filterNodes}
+ * @see {@link FilterNodesOptions}
+ */
 export type FilterOptionsType = {
   /**
    * Element or selector of an input control for filter query strings
@@ -713,53 +732,7 @@ export type FilterOptionsType = {
    * @default true
    */
   autoApply?: boolean;
-  /**
-   * Expand all branches that contain matches while filtered
-   * @default false
-   */
-  autoExpand?: boolean;
-  /**
-   * Show a badge with number of matching child nodes near parent icons
-   * @default true
-   */
-  counter?: boolean;
-  /**
-   * Match single characters in order, e.g. 'fb' will match 'FooBar'
-   * @default false
-   */
-  fuzzy?: boolean;
-  /**
-   * Hide counter badge if parent is expanded
-   * @default true
-   */
-  hideExpandedCounter?: boolean;
-  /**
-   * Hide expanders if all child nodes are hidden by filter
-   * @default false;
-   */
-  hideExpanders?: boolean;
-  /**
-   * Highlight matches by wrapping inside <mark> tags
-   * @default true
-   */
-  highlight?: boolean;
-  /**
-   * Match end nodes only
-   * @default false
-   */
-  leavesOnly?: boolean;
-  /**
-   * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
-   * @default 'dim'
-   */
-  mode?: FilterModeType;
-  /**
-   * Display a 'no data' status node if result is empty (hide-mode only).
-   * Pass false to simply show an empy pane, or pass a string to customize the message.
-   * @default true
-   */
-  noData?: boolean | string;
-};
+} & FilterNodesOptions;
 
 /* -----------------------------------------------------------------------------
  * wb_ext_edit

@@ -7,6 +7,11 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.9.0: Deprecate `tree.filterBranches()`:
+  use `tree.filterNodes(..., {branchMode: true})` instead.
+- v0.9.0: Add `tree.countMatches()`.
+- v0.9.0: Add `node.hasFocus()`.
+
 - v0.8.4: Fix #90: Add tooltip functionality to node titles
 
 - v0.8.3: Fix #84: After editing a node title a javascript error

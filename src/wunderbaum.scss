@@ -596,6 +596,12 @@ div.wunderbaum {
       }
     }
   }
+  // Hide expanders for nodes that don't have matching children
+  &.wb-ext-filter-hide.wb-ext-filter-hide-expanders {
+    div.wb-node-list div.wb-row:not(.wb-submatch) i.wb-expander {
+      visibility: hidden;
+    }
+  }
 
   // /* --- INPUT controls in grid --- */
   // &.wb-lean-input div.wb-node-list div.wb-row span.wb-col {

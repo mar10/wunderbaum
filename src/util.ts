@@ -144,7 +144,7 @@ export function documentReadyPromise(): Promise<void> {
  * Iterate over Object properties or array elements.
  *
  * @param obj `Object`, `Array` or null
- * @param callback(index, item) called for every item.
+ * @param callback called for every item.
  *  `this` also contains the item.
  *  Return `false` to stop the iteration.
  */
@@ -542,7 +542,7 @@ export function noop(...args: any[]): any {}
 /**
  * Bind one or more event handlers directly to an [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
  *
- * @param element EventTarget or selector
+ * @param rootTarget EventTarget or selector
  * @param eventNames
  * @param handler
  */
@@ -563,7 +563,7 @@ export function onEvent(
  * });
  * ```
  *
- * @param element EventTarget or selector
+ * @param rootTarget EventTarget or selector
  * @param eventNames
  * @param selector
  * @param handler
