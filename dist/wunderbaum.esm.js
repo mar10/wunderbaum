@@ -76,13 +76,7 @@ function isObject(value) {
  * @param {number} [wait=0]
  *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
  *  used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=false]
- *  Specify invoking on the leading edge of the timeout.
- * @param {number} [options.maxWait]
- *  The maximum time `func` is allowed to be delayed before it's invoked.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
+ * @param [options={}] The options object.
  * @returns {Function} Returns the new debounced function.
  * @example
  *
@@ -260,11 +254,7 @@ function debounce(func, wait = 0, options = {}) {
  * @param {number} [wait=0]
  *  The number of milliseconds to throttle invocations to; if omitted,
  *  `requestAnimationFrame` is used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=true]
- *  Specify invoking on the leading edge of the timeout.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
+ * @param [options={}] The options object.
  * @returns {Function} Returns the new throttled function.
  * @example
  *
@@ -297,8 +287,8 @@ function throttle(func, wait = 0, options = {}) {
 
 /*!
  * Wunderbaum - util
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -421,7 +411,7 @@ function documentReadyPromise() {
  * Iterate over Object properties or array elements.
  *
  * @param obj `Object`, `Array` or null
- * @param callback(index, item) called for every item.
+ * @param callback called for every item.
  *  `this` also contains the item.
  *  Return `false` to stop the iteration.
  */
@@ -1095,8 +1085,8 @@ var util = /*#__PURE__*/Object.freeze({
 
 /*!
  * Wunderbaum - types
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -1159,8 +1149,8 @@ var NavModeEnum;
 
 /*!
  * Wunderbaum - wb_extension_base
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1218,8 +1208,8 @@ class WunderbaumExtension {
 
 /*!
  * Wunderbaum - ext-filter
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1228,16 +1218,15 @@ const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
 class FilterExtension extends WunderbaumExtension {
     constructor(tree) {
         super(tree, "filter", {
-            connectInput: null,
-            autoApply: true,
-            autoExpand: false,
-            counter: true,
-            fuzzy: false,
-            hideExpandedCounter: true,
-            hideExpanders: false,
-            highlight: true,
-            leavesOnly: false,
-            mode: "dim",
+            autoApply: true, // Re-apply last filter if lazy data is loaded
+            autoExpand: false, // Expand all branches that contain matches while filtered
+            matchBranch: false, // Whether to implicitly match all children of matched nodes
+            connectInput: null, // Element or selector of an input control for filter query strings
+            fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
+            hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
+            highlight: true, // Highlight matches by wrapping inside <mark> tags
+            leavesOnly: false, // Match end nodes only
+            mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             noData: true, // Display a 'no data' status node if result is empty
         });
         this.lastFilterArgs = null;
@@ -1263,33 +1252,38 @@ class FilterExtension extends WunderbaumExtension {
                 break;
         }
     }
-    _applyFilterNoUpdate(filter, branchMode, _opts) {
+    _applyFilterNoUpdate(filter, _opts) {
         return this.tree.runWithDeferredUpdate(() => {
-            return this._applyFilterImpl(filter, branchMode, _opts);
+            return this._applyFilterImpl(filter, _opts);
         });
     }
-    _applyFilterImpl(filter, branchMode, _opts) {
-        let match, temp, count = 0;
+    _applyFilterImpl(filter, _opts) {
+        let //temp,
+        count = 0;
         const start = Date.now();
         const tree = this.tree;
         const treeOpts = tree.options;
-        // escapeTitles = treeOpts.escapeTitles,
         const prevAutoCollapse = treeOpts.autoCollapse;
+        // Use default options from `tree.options.filter`, but allow to override them
         const opts = extend({}, treeOpts.filter, _opts);
         const hideMode = opts.mode === "hide";
-        const leavesOnly = !!opts.leavesOnly && !branchMode;
+        const matchBranch = !!opts.matchBranch;
+        const leavesOnly = !!opts.leavesOnly && !matchBranch;
+        let filterRegExp;
+        let highlightRegExp;
         // Default to 'match title substring (case insensitive)'
-        if (typeof filter === "string") {
+        if (typeof filter === "string" || filter instanceof RegExp) {
             if (filter === "") {
                 tree.logInfo("Passing an empty string as a filter is handled as clearFilter().");
                 this.clearFilter();
-                return;
+                return 0;
             }
             if (opts.fuzzy) {
+                assert(typeof filter === "string", "fuzzy filter must be a string");
                 // See https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function/23905#23905
                 // and http://www.quora.com/How-is-the-fuzzy-search-algorithm-in-Sublime-Text-designed
                 // and http://www.dustindiaz.com/autocomplete-fuzzy-matching
-                match = filter
+                const matchReString = filter
                     .split("")
                     // Escaping the `filter` will not work because,
                     // it gets further split into individual characters. So,
@@ -1300,12 +1294,21 @@ class FilterExtension extends WunderbaumExtension {
                     // the character
                     return a + "([^" + b + "]*)" + b;
                 }, "");
+                filterRegExp = new RegExp(matchReString, "i");
+                // highlightRegExp = new RegExp(escapeRegex(filter), "gi");
+            }
+            else if (filter instanceof RegExp) {
+                filterRegExp = filter;
+                highlightRegExp = filter;
             }
             else {
-                match = escapeRegex(filter); // make sure a '.' is treated literally
+                const matchReString = escapeRegex(filter); // make sure a '.' is treated literally
+                filterRegExp = new RegExp(matchReString, "i");
+                highlightRegExp = new RegExp(matchReString, "gi");
             }
-            const re = new RegExp(match, "i");
-            const reHighlight = new RegExp(escapeRegex(filter), "gi");
+            tree.logDebug(`Filtering nodes by '${filterRegExp}'`);
+            // const re = new RegExp(match, "i");
+            // const reHighlight = new RegExp(escapeRegex(filter), "gi");
             filter = (node) => {
                 if (!node.title) {
                     return false;
@@ -1313,34 +1316,25 @@ class FilterExtension extends WunderbaumExtension {
                 // let text = escapeTitles ? node.title : extractHtmlText(node.title);
                 const text = node.title;
                 // `.match` instead of `.test` to get the capture groups
-                const res = text.match(re);
+                // const res = text.match(filterRegExp);
+                const res = filterRegExp.exec(text);
                 if (res && opts.highlight) {
-                    // if (escapeTitles) {
+                    let highlightString;
                     if (opts.fuzzy) {
-                        temp = _markFuzzyMatchedChars(text, res, true);
+                        highlightString = _markFuzzyMatchedChars(text, res, true);
                     }
                     else {
                         // #740: we must not apply the marks to escaped entity names, e.g. `&quot;`
                         // Use some exotic characters to mark matches:
-                        temp = text.replace(reHighlight, function (s) {
+                        highlightString = text.replace(highlightRegExp, function (s) {
                             return START_MARKER + s + END_MARKER;
                         });
                     }
                     // now we can escape the title...
-                    node.titleWithHighlight = escapeHtml(temp)
+                    node.titleWithHighlight = escapeHtml(highlightString)
                         // ... and finally insert the desired `<mark>` tags
                         .replace(RE_START_MARKER, "<mark>")
                         .replace(RE_END_MARTKER, "</mark>");
-                    // } else {
-                    //   if (opts.fuzzy) {
-                    //     node.titleWithHighlight = _markFuzzyMatchedChars(text, res);
-                    //   } else {
-                    //     node.titleWithHighlight = text.replace(reHighlight, function (s) {
-                    //       return "<mark>" + s + "</mark>";
-                    //     });
-                    //   }
-                    // }
-                    // node.debug("filter", escapeTitles, text, node.titleWithHighlight);
                 }
                 return !!res;
             };
@@ -1377,7 +1371,7 @@ class FilterExtension extends WunderbaumExtension {
                 return "skip";
             }
             let matchedByBranch = false;
-            if ((branchMode || res === "branch") && node.parent.match) {
+            if ((matchBranch || res === "branch") && node.parent.match) {
                 res = true;
                 matchedByBranch = true;
             }
@@ -1409,20 +1403,35 @@ class FilterExtension extends WunderbaumExtension {
             }
         }
         // Redraw whole tree
-        tree.logInfo(`Filter '${match}' found ${count} nodes in ${Date.now() - start} ms.`);
+        tree.logDebug(`Filter '${filter}' found ${count} nodes in ${Date.now() - start} ms.`);
         return count;
     }
     /**
      * [ext-filter] Dim or hide nodes.
      */
     filterNodes(filter, options) {
-        return this._applyFilterNoUpdate(filter, false, options);
+        return this._applyFilterNoUpdate(filter, options);
     }
     /**
      * [ext-filter] Dim or hide whole branches.
+     * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
      */
     filterBranches(filter, options) {
-        return this._applyFilterNoUpdate(filter, true, options);
+        assert(options.matchBranch === undefined, "filterBranches() is deprecated.");
+        options.matchBranch = true;
+        return this._applyFilterNoUpdate(filter, options);
+    }
+    /**
+     * [ext-filter] Return the number of matched nodes.
+     */
+    countMatches() {
+        let n = 0;
+        this.tree.visit((node) => {
+            if (node.match && !node.statusNodeType) {
+                n++;
+            }
+        });
+        return n;
     }
     /**
      * [ext-filter] Re-apply current filter.
@@ -1523,8 +1532,8 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 
 /*!
  * Wunderbaum - ext-keynav
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1887,8 +1896,8 @@ class KeynavExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - ext-logger
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1929,8 +1938,8 @@ class LoggerExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - common
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -2005,12 +2014,12 @@ const iconMaps = {
 };
 /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
 const RESERVED_TREE_SOURCE_KEYS = new Set([
-    "_format",
-    "_keyMap",
-    "_positional",
-    "_typeList",
-    "_valueMap",
-    "_version",
+    "_format", // reserved for future use
+    "_keyMap", // Used for compressed data format
+    "_positional", // Used for compressed data format
+    "_typeList", // Used for compressed data format @deprecated
+    "_valueMap", // Used for compressed data format
+    "_version", // reserved for future use
     "children",
     "columns",
     "types",
@@ -2038,8 +2047,8 @@ const KEY_TO_ACTION_DICT = {
     Home: "firstCol",
     "Control+End": "last",
     "Control+Home": "first",
-    "Meta+ArrowDown": "last",
-    "Meta+ArrowUp": "first",
+    "Meta+ArrowDown": "last", // macOs
+    "Meta+ArrowUp": "first", // macOs
     "*": "expandAll",
     Multiply: "expandAll",
     PageDown: "pageDown",
@@ -2252,44 +2261,44 @@ function decompressSourceData(source) {
 
 /*!
  * Wunderbaum - ext-dnd
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
     constructor(tree) {
         super(tree, "dnd", {
-            autoExpandMS: 1500,
+            autoExpandMS: 1500, // Expand nodes after n milliseconds of hovering
             // dropMarkerInsertOffsetX: -16, // Additional offset for drop-marker with hitMode = "before"/"after"
             // dropMarkerOffsetX: -24, // Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
             // #1021 `document.body` is not available yet
             // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
-            multiSource: false,
-            effectAllowed: "all",
-            dropEffectDefault: "move",
-            guessDropEffect: true,
-            preventForeignNodes: false,
-            preventLazyParents: true,
-            preventNonNodes: false,
-            preventRecursion: true,
-            preventSameParent: false,
-            preventVoidMoves: true,
-            serializeClipboardData: true,
-            scroll: true,
-            scrollSensitivity: 20,
+            multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
+            effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+            dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (override in drag, dragOver).
+            guessDropEffect: true, // Calculate from `effectAllowed` and modifier keys)
+            preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
+            preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes
+            preventNonNodes: false, // Prevent dropping items other than Wunderbaum tree nodes
+            preventRecursion: true, // Prevent dropping nodes on own descendants
+            preventSameParent: false, // Prevent dropping nodes under same direct parent
+            preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
+            serializeClipboardData: true, // Serialize node data to dataTransfer object
+            scroll: true, // Enable auto-scrolling while dragging
+            scrollSensitivity: 20, // Active top/bottom margin in pixel
             // scrollnterval: 50, // Generate event every 50 ms
-            scrollSpeed: 5,
+            scrollSpeed: 5, // Scroll pixel per 50 ms
             // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
-            sourceCopyHook: null,
+            sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
             // Events (drag support)
-            dragStart: null,
-            drag: null,
-            dragEnd: null,
+            dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
+            drag: null, // Callback(sourceNode, data)
+            dragEnd: null, // Callback(sourceNode, data)
             // Events (drop support)
-            dragEnter: null,
-            dragOver: null,
-            dragExpand: null,
-            drop: null,
+            dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
+            dragOver: null, // Callback(targetNode, data)
+            dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
+            drop: null, // Callback(targetNode, data)
             dragLeave: null, // Callback(targetNode, data)
         });
         // public dropMarkerElem?: HTMLElement;
@@ -2697,8 +2706,8 @@ class DndExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - drag_observer
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2833,8 +2842,8 @@ class DragObserver {
 
 /*!
  * Wunderbaum - ext-grid
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2870,8 +2879,8 @@ class GridExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - deferred
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2923,8 +2932,8 @@ class Deferred {
 
 /*!
  * Wunderbaum - wunderbaum_node
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3236,7 +3245,7 @@ class WunderbaumNode {
         const minExpandLevel = this.tree.options.minExpandLevel;
         const { depth = 99, loadLazy, force, keepActiveNodeVisible = true, } = options !== null && options !== void 0 ? options : {};
         const expandOpts = {
-            scrollIntoView: false,
+            scrollIntoView: false, // don't scroll very node on iteration
             force: force,
             loadLazy: loadLazy,
         };
@@ -3504,7 +3513,7 @@ class WunderbaumNode {
     }
     /** Return a string representing the hierachical node path, e.g. "a/b/c".
      * @param includeSelf
-     * @param node property name or callback
+     * @param part property name or callback
      * @param separator
      */
     getPath(includeSelf = true, part = "title", separator = "/") {
@@ -3553,6 +3562,10 @@ class WunderbaumNode {
     /** Return true if node has className set. */
     hasClass(className) {
         return this.classes ? this.classes.has(className) : false;
+    }
+    /** Return true if node ist the currently focused node. */
+    hasFocus() {
+        return this.tree.focusNode === this;
     }
     /** Return true if this node is the currently active tree node. */
     isActive() {
@@ -3619,7 +3632,7 @@ class WunderbaumNode {
     }
     /** Return true if _this_ node is currently in edit-title mode.
      *
-     * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+     * See {@link WunderbaumNode.startEditTitle}.
      */
     isEditingTitle() {
         return this.tree._callMethod("edit.isEditingTitle", this);
@@ -4648,8 +4661,8 @@ class WunderbaumNode {
      *
      * The result is compatible with node.addChildren().
      *
-     * @param include child nodes
-     * @param callback(dict, node) is called for every node, in order to allow
+     * @param recursive include child nodes
+     * @param callback is called for every node, in order to allow
      *     modifications.
      *     Return `false` to ignore this node or `"skip"` to include this node
      *     without its children.
@@ -5301,8 +5314,9 @@ class WunderbaumNode {
      * Stop iteration, if fn() returns false.<br>
      * Return false if iteration was stopped.
      *
-     * @param {function} fn the callback function.
+     * @param callback the callback function.
      *     Return false to stop iteration.
+     * @param includeSelf include this node in the iteration.
      */
     visitSiblings(callback, includeSelf = false) {
         const ac = this.parent.children;
@@ -5327,8 +5341,8 @@ WunderbaumNode.sequence = 0;
 
 /*!
  * Wunderbaum - ext-edit
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.4, Wed, 01 May 2024 06:13:52 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5337,11 +5351,11 @@ class EditExtension extends WunderbaumExtension {
             debounce: 100,
             minlength: 1,
             maxlength: null,
-            trigger: [],
+            trigger: [], //["clickActive", "F2", "macEnter"],
             trim: true,
             select: true,
-            slowClickDelay: 1000,
-            validity: true,
+            slowClickDelay: 1000, // Handle 'clickActive' only if last click is less than this old (0: always)
+            validity: true, //"Please enter a title",
             // --- Events ---
             // (note: there is also the `tree.change` event.)
             beforeEdit: null,
@@ -5655,12 +5669,12 @@ class EditExtension extends WunderbaumExtension {
  *
  * A treegrid control.
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.8.4
- * @date Wed, 01 May 2024 06:13:52 GMT
+ * @version v0.9.0
+ * @date Sun, 05 May 2024 16:08:56 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -5722,6 +5736,7 @@ class Wunderbaum {
         // /** @internal */
         // public selectRangeAnchor: WunderbaumNode | null = null;
         // --- FILTER ---
+        /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
         this.filterMode = null;
         // --- KEYNAV ---
         /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
@@ -5736,10 +5751,10 @@ class Wunderbaum {
         this.lastClickTime = 0;
         const opts = (this.options = extend({
             id: null,
-            source: null,
-            element: null,
-            debugLevel: DEFAULT_DEBUGLEVEL,
-            header: null,
+            source: null, // URL for GET/PUT, Ajax options, or callback
+            element: null, // <div class="wunderbaum">
+            debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
+            header: null, // Show/hide header (pass bool or string)
             // headerHeightPx: ROW_HEIGHT,
             rowHeightPx: ROW_HEIGHT,
             iconMap: "bootstrap",
@@ -5754,10 +5769,10 @@ class Wunderbaum {
             emptyChildListExpandable: false,
             // updateThrottleWait: 200,
             skeleton: false,
-            connectTopBreadcrumb: null,
-            selectMode: "multi",
+            connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+            selectMode: "multi", // SelectModeType
             // --- KeyNav ---
-            navigationModeOption: null,
+            navigationModeOption: null, // NavModeEnum.startRow,
             quicksearch: true,
             // --- Events ---
             iconBadge: null,
@@ -7298,7 +7313,7 @@ class Wunderbaum {
     }
     /** Convert tree to an array of plain objects.
      *
-     * @param callback(dict, node) is called for every node, in order to allow
+     * @param callback is called for every node, in order to allow
      *     modifications.
      *     Return `false` to ignore this node or `"skip"` to include this node
      *     without its children.
@@ -7846,13 +7861,30 @@ class Wunderbaum {
      * FILTER
      * -------------------------------------------------------------------------*/
     /**
-     * Dim or hide nodes.
+     * Dim or hide unmatched nodes.
+     * @param filter a string to match against node titles, or a callback function.
+     * @param options filter options. Defaults to the `tree.options.filter` settings.
+     * @returns the number of nodes that match the filter.
+     * @example
+     * ```ts
+     * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
+     * // or pass a callback
+     * tree.filterNodes((node) => { return node.data.foo === true }, {mode: 'hide'});
+     * ```
      */
     filterNodes(filter, options) {
         return this.extensions.filter.filterNodes(filter, options);
     }
     /**
+     * Return the number of nodes that match the current filter.
+     * @see {@link Wunderbaum.filterNodes}
+     */
+    countMatches() {
+        return this.extensions.filter.countMatches();
+    }
+    /**
      * Dim or hide whole branches.
+     * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
      */
     filterBranches(filter, options) {
         return this.extensions.filter.filterBranches(filter, options);
@@ -7878,7 +7910,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.8.4"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.9.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 

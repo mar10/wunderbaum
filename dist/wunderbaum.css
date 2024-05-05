@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /*!
  * Wunderbaum style sheet (generated from wunderbaum.scss)
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 :root,
@@ -332,6 +332,9 @@ div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row.wb-submatch, div.wu
 }
 div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row.wb-match, div.wunderbaum.wb-ext-filter-hide div.wb-node-list div.wb-row.wb-match {
   color: var(--wb-node-text-color);
+}
+div.wunderbaum.wb-ext-filter-hide.wb-ext-filter-hide-expanders div.wb-node-list div.wb-row:not(.wb-submatch) i.wb-expander {
+  visibility: hidden;
 }
 div.wunderbaum div.wb-row.wb-drag-source {
   opacity: 0.5;

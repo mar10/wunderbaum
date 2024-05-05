@@ -6,12 +6,17 @@ declare module "debounce" {
      */
     type Procedure = (...args: any[]) => any;
     type DebounceOptions = {
+        /** Specify invoking on the leading edge of the timeout. @default false */
         leading?: boolean;
+        /** The maximum time `func` is allowed to be delayed before it's invoked.*/
         maxWait?: number;
+        /**  Specify invoking on the trailing edge of the timeout. @default true */
         trailing?: boolean;
     };
     type ThrottleOptions = {
+        /** Specify invoking on the leading edge of the timeout. @default true */
         leading?: boolean;
+        /**  Specify invoking on the trailing edge of the timeout. @default true */
         trailing?: boolean;
     };
     export interface DebouncedFunction<F extends Procedure> {
@@ -51,13 +56,7 @@ declare module "debounce" {
      * @param {number} [wait=0]
      *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
      *  used (if available).
-     * @param {Object} [options={}] The options object.
-     * @param {boolean} [options.leading=false]
-     *  Specify invoking on the leading edge of the timeout.
-     * @param {number} [options.maxWait]
-     *  The maximum time `func` is allowed to be delayed before it's invoked.
-     * @param {boolean} [options.trailing=true]
-     *  Specify invoking on the trailing edge of the timeout.
+     * @param [options={}] The options object.
      * @returns {Function} Returns the new debounced function.
      * @example
      *
@@ -112,11 +111,7 @@ declare module "debounce" {
      * @param {number} [wait=0]
      *  The number of milliseconds to throttle invocations to; if omitted,
      *  `requestAnimationFrame` is used (if available).
-     * @param {Object} [options={}] The options object.
-     * @param {boolean} [options.leading=true]
-     *  Specify invoking on the leading edge of the timeout.
-     * @param {boolean} [options.trailing=true]
-     *  Specify invoking on the trailing edge of the timeout.
+     * @param [options={}] The options object.
      * @returns {Function} Returns the new throttled function.
      * @example
      *
@@ -135,7 +130,7 @@ declare module "debounce" {
 declare module "util" {
     /*!
      * Wunderbaum - util
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     /** @module util */
@@ -189,7 +184,7 @@ declare module "util" {
      * Iterate over Object properties or array elements.
      *
      * @param obj `Object`, `Array` or null
-     * @param callback(index, item) called for every item.
+     * @param callback called for every item.
      *  `this` also contains the item.
      *  Return `false` to stop the iteration.
      */
@@ -310,7 +305,7 @@ declare module "util" {
     /**
      * Bind one or more event handlers directly to an [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
      *
-     * @param element EventTarget or selector
+     * @param rootTarget EventTarget or selector
      * @param eventNames
      * @param handler
      */
@@ -326,7 +321,7 @@ declare module "util" {
      * });
      * ```
      *
-     * @param element EventTarget or selector
+     * @param rootTarget EventTarget or selector
      * @param eventNames
      * @param selector
      * @param handler
@@ -398,7 +393,7 @@ declare module "util" {
 declare module "common" {
     /*!
      * Wunderbaum - common
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { MatcherCallback, SourceObjectType } from "types";
@@ -470,7 +465,7 @@ declare module "common" {
 declare module "deferred" {
     /*!
      * Wunderbaum - deferred
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     type PromiseCallbackType = (val: any) => void;
@@ -728,7 +723,7 @@ declare module "wb_node" {
         getParentList(includeRoot?: boolean, includeSelf?: boolean): any[];
         /** Return a string representing the hierachical node path, e.g. "a/b/c".
          * @param includeSelf
-         * @param node property name or callback
+         * @param part property name or callback
          * @param separator
          */
         getPath(includeSelf?: boolean, part?: keyof WunderbaumNode | NodeAnyCallback, separator?: string): string;
@@ -740,6 +735,8 @@ declare module "wb_node" {
         hasChildren(): boolean;
         /** Return true if node has className set. */
         hasClass(className: string): boolean;
+        /** Return true if node ist the currently focused node. */
+        hasFocus(): boolean;
         /** Return true if this node is the currently active tree node. */
         isActive(): boolean;
         /** Return true if this node is a direct or indirect parent of `other`.
@@ -768,7 +765,7 @@ declare module "wb_node" {
         isExpandable(andCollapsed?: boolean): boolean;
         /** Return true if _this_ node is currently in edit-title mode.
          *
-         * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+         * See {@link WunderbaumNode.startEditTitle}.
          */
         isEditingTitle(): boolean;
         /** Return true if this node is currently expanded. */
@@ -899,8 +896,8 @@ declare module "wb_node" {
          *
          * The result is compatible with node.addChildren().
          *
-         * @param include child nodes
-         * @param callback(dict, node) is called for every node, in order to allow
+         * @param recursive include child nodes
+         * @param callback is called for every node, in order to allow
          *     modifications.
          *     Return `false` to ignore this node or `"skip"` to include this node
          *     without its children.
@@ -1031,8 +1028,9 @@ declare module "wb_node" {
          * Stop iteration, if fn() returns false.<br>
          * Return false if iteration was stopped.
          *
-         * @param {function} fn the callback function.
+         * @param callback the callback function.
          *     Return false to stop iteration.
+         * @param includeSelf include this node in the iteration.
          */
         visitSiblings(callback: (node: WunderbaumNode) => boolean | void, includeSelf?: boolean): boolean;
         /**
@@ -1044,7 +1042,7 @@ declare module "wb_node" {
 declare module "wb_options" {
     /*!
      * Wunderbaum - utils
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbCancelableEventResultType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbIconBadgeEventResultType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType } from "types";
@@ -1379,7 +1377,7 @@ declare module "wb_options" {
 declare module "types" {
     /*!
      * Wunderbaum - types
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { WunderbaumNode } from "wb_node";
@@ -1782,9 +1780,9 @@ declare module "types" {
     }
     /** Initial navigation mode and possible transition. */
     export enum NavModeEnum {
-        startRow = "startRow",
-        cell = "cell",
-        startCell = "startCell",
+        startRow = "startRow",// Start with row mode, but allow cell-nav mode
+        cell = "cell",// Cell-nav mode only
+        startCell = "startCell",// Start in cell-nav mode, but allow row mode
         row = "row"
     }
     /** Possible values for {@link WunderbaumNode.addChildren()}. */
@@ -1817,15 +1815,31 @@ declare module "types" {
         /** Keep active node visible @default true */
         keepActiveNodeVisible?: boolean;
     }
-    /** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
+    /**
+     * Possible option values for {@link Wunderbaum.filterNodes()}.
+     * The defaults are inherited from the tree instances ´tree.options.filter`
+     * settings (see also {@link FilterOptionsType}).
+     */
     export interface FilterNodesOptions {
-        mode?: string;
-        leavesOnly?: boolean;
-        fuzzy?: boolean;
-        highlight?: boolean;
-        hideExpanders?: boolean;
+        /** Expand all branches that contain matches while filtered @default false */
         autoExpand?: boolean;
-        noData?: boolean;
+        /** Whether to implicitly match all children of matched nodes @default false */
+        matchBranch?: boolean;
+        /** Match single characters in order, e.g. 'fb' will match 'FooBar' @default false */
+        fuzzy?: boolean;
+        /**Hide expanders if all child nodes are hidden by filter @default false */
+        hideExpanders?: boolean;
+        /** Highlight matches by wrapping inside `<mark>` tags.
+         * Does not work for filter callbacks.
+         *  @default true
+         */
+        highlight?: boolean;
+        /** Match end nodes only @default false */
+        leavesOnly?: boolean;
+        /** Grayout unmatched nodes (pass 'hide' to remove instead) @default 'dim' */
+        mode?: FilterModeType;
+        /** Display a 'no data' status node if result is empty @default true */
+        noData?: boolean | string;
     }
     /** Possible values for {@link WunderbaumNode.makeVisible()}. */
     export interface MakeVisibleOptions {
@@ -1895,7 +1909,7 @@ declare module "types" {
          */
         edit?: boolean;
     }
-    /** Possible values for {@link WunderbaumNode.setColumn()} `options` argument. */
+    /** Possible values for {@link Wunderbaum.setColumn()} `options` argument. */
     export interface SetColumnOptions {
         /**
          * Focus embedded input control of the grid cell if any .
@@ -1956,6 +1970,12 @@ declare module "types" {
          * until the start node is reached again @default false */
         wrap?: boolean;
     }
+    /**
+     * Passed as tree options to configure default filtering behavior.
+     *
+     * @see {@link Wunderbaum.filterNodes}
+     * @see {@link FilterNodesOptions}
+     */
     export type FilterOptionsType = {
         /**
          * Element or selector of an input control for filter query strings
@@ -1967,53 +1987,7 @@ declare module "types" {
          * @default true
          */
         autoApply?: boolean;
-        /**
-         * Expand all branches that contain matches while filtered
-         * @default false
-         */
-        autoExpand?: boolean;
-        /**
-         * Show a badge with number of matching child nodes near parent icons
-         * @default true
-         */
-        counter?: boolean;
-        /**
-         * Match single characters in order, e.g. 'fb' will match 'FooBar'
-         * @default false
-         */
-        fuzzy?: boolean;
-        /**
-         * Hide counter badge if parent is expanded
-         * @default true
-         */
-        hideExpandedCounter?: boolean;
-        /**
-         * Hide expanders if all child nodes are hidden by filter
-         * @default false;
-         */
-        hideExpanders?: boolean;
-        /**
-         * Highlight matches by wrapping inside <mark> tags
-         * @default true
-         */
-        highlight?: boolean;
-        /**
-         * Match end nodes only
-         * @default false
-         */
-        leavesOnly?: boolean;
-        /**
-         * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
-         * @default 'dim'
-         */
-        mode?: FilterModeType;
-        /**
-         * Display a 'no data' status node if result is empty (hide-mode only).
-         * Pass false to simply show an empy pane, or pass a string to customize the message.
-         * @default true
-         */
-        noData?: boolean | string;
-    };
+    } & FilterNodesOptions;
     /**
      * Note: <br>
      * This options are used for renaming node titles. <br>
@@ -2284,16 +2258,21 @@ declare module "wb_ext_filter" {
         constructor(tree: Wunderbaum);
         init(): void;
         setPluginOption(name: string, value: any): void;
-        _applyFilterNoUpdate(filter: string | NodeFilterCallback, branchMode: boolean, _opts: any): void;
-        _applyFilterImpl(filter: string | NodeFilterCallback, branchMode: boolean, _opts: any): number;
+        _applyFilterNoUpdate(filter: string | RegExp | NodeFilterCallback, _opts: FilterNodesOptions): number;
+        _applyFilterImpl(filter: string | RegExp | NodeFilterCallback, _opts: FilterNodesOptions): number;
         /**
          * [ext-filter] Dim or hide nodes.
          */
-        filterNodes(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
+        filterNodes(filter: string | RegExp | NodeFilterCallback, options: FilterNodesOptions): number;
         /**
          * [ext-filter] Dim or hide whole branches.
+         * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
          */
-        filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
+        filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): number;
+        /**
+         * [ext-filter] Return the number of matched nodes.
+         */
+        countMatches(): number;
         /**
          * [ext-filter] Re-apply current filter.
          */
@@ -2307,7 +2286,7 @@ declare module "wb_ext_filter" {
 declare module "wb_ext_keynav" {
     /*!
      * Wunderbaum - ext-keynav
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { KeynavOptionsType } from "types";
@@ -2323,7 +2302,7 @@ declare module "wb_ext_keynav" {
 declare module "wb_ext_logger" {
     /*!
      * Wunderbaum - ext-logger
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { LoggerOptionsType } from "types";
@@ -2387,7 +2366,7 @@ declare module "wb_ext_dnd" {
 declare module "drag_observer" {
     /*!
      * Wunderbaum - drag_observer
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     export type DragCallbackArgType = {
@@ -2447,7 +2426,7 @@ declare module "drag_observer" {
 declare module "wb_ext_grid" {
     /*!
      * Wunderbaum - ext-grid
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { Wunderbaum } from "wunderbaum";
@@ -2464,7 +2443,7 @@ declare module "wb_ext_grid" {
 declare module "wb_ext_edit" {
     /*!
      * Wunderbaum - ext-edit
-     * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { Wunderbaum } from "wunderbaum";
@@ -2503,7 +2482,7 @@ declare module "wunderbaum" {
      *
      * A treegrid control.
      *
-     * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+     * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
      * https://github.com/mar10/wunderbaum
      *
      * Released under the MIT license.
@@ -2587,6 +2566,7 @@ declare module "wunderbaum" {
         static util: typeof util;
         /** Expose some useful methods of the util.ts module as `tree._util`. */
         _util: typeof util;
+        /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
         filterMode: FilterModeType;
         /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
         activeColIdx: number;
@@ -2726,7 +2706,7 @@ declare module "wunderbaum" {
          * });
          * ```
          */
-        runWithDeferredUpdate(func: () => any, hint?: any): void;
+        runWithDeferredUpdate(func: () => any, hint?: any): any;
         /** Recursively expand all expandable nodes (triggers lazy load if needed). */
         expandAll(flag?: boolean, options?: ExpandAllOptions): Promise<void>;
         /** Recursively select all nodes. */
@@ -2962,7 +2942,7 @@ declare module "wunderbaum" {
         sortChildren(cmp?: SortCallback | null, deep?: boolean): void;
         /** Convert tree to an array of plain objects.
          *
-         * @param callback(dict, node) is called for every node, in order to allow
+         * @param callback is called for every node, in order to allow
          *     modifications.
          *     Return `false` to ignore this node or `"skip"` to include this node
          *     without its children.
@@ -3051,13 +3031,28 @@ declare module "wunderbaum" {
          */
         enableUpdate(flag: boolean): void;
         /**
-         * Dim or hide nodes.
+         * Dim or hide unmatched nodes.
+         * @param filter a string to match against node titles, or a callback function.
+         * @param options filter options. Defaults to the `tree.options.filter` settings.
+         * @returns the number of nodes that match the filter.
+         * @example
+         * ```ts
+         * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
+         * // or pass a callback
+         * tree.filterNodes((node) => { return node.data.foo === true }, {mode: 'hide'});
+         * ```
          */
-        filterNodes(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
+        filterNodes(filter: string | RegExp | NodeFilterCallback, options: FilterNodesOptions): number;
+        /**
+         * Return the number of nodes that match the current filter.
+         * @see {@link Wunderbaum.filterNodes}
+         */
+        countMatches(): number;
         /**
          * Dim or hide whole branches.
+         * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
          */
-        filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): void;
+        filterBranches(filter: string | NodeFilterCallback, options: FilterNodesOptions): number;
         /**
          * Reset the filter.
          */
