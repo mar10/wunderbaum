@@ -36,10 +36,9 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     super(tree, "filter", {
       autoApply: true, // Re-apply last filter if lazy data is loaded
       autoExpand: false, // Expand all branches that contain matches while filtered
+      branchMode: false, // Whether to implicitly match all children of matched nodes
       connectInput: null, // Element or selector of an input control for filter query strings
-      counter: true, // Show a badge with number of matching child nodes near parent icons
       fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
-      hideExpandedCounter: true, // Hide counter badge if parent is expanded
       hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
       highlight: true, // Highlight matches by wrapping inside <mark> tags
       leavesOnly: false, // Match end nodes only
@@ -75,13 +74,19 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     }
   }
 
-  _applyFilterNoUpdate(filter: string | NodeFilterCallback, _opts: FilterNodesOptions) {
+  _applyFilterNoUpdate(
+    filter: string | NodeFilterCallback,
+    _opts: FilterNodesOptions
+  ) {
     return this.tree.runWithDeferredUpdate(() => {
       return this._applyFilterImpl(filter, _opts);
     });
   }
 
-  _applyFilterImpl(filter: string | NodeFilterCallback, _opts: FilterNodesOptions) {
+  _applyFilterImpl(
+    filter: string | NodeFilterCallback,
+    _opts: FilterNodesOptions
+  ) {
     let match,
       temp,
       count = 0;
@@ -253,6 +258,19 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     assert(options.branchMode === undefined, "filterBranches() is deprecated.");
     options.branchMode = true;
     return this._applyFilterNoUpdate(filter, options);
+  }
+
+  /**
+   * [ext-filter] Return the number of matched nodes.
+   */
+  countMatches(): number {
+    let n = 0;
+    this.tree.visit((node) => {
+      if (node.match) {
+        n++;
+      }
+    });
+    return n;
   }
 
   /**

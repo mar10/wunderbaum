@@ -727,13 +727,13 @@ export class WunderbaumNode {
   }
   /** Return a string representing the hierachical node path, e.g. "a/b/c".
    * @param includeSelf
-   * @param node property name or callback
+   * @param part property name or callback
    * @param separator
    */
   getPath(
-    includeSelf = true,
+    includeSelf: boolean = true,
     part: keyof WunderbaumNode | NodeAnyCallback = "title",
-    separator = "/"
+    separator: string = "/"
   ) {
     // includeSelf = includeSelf !== false;
     // part = part || "title";
@@ -785,6 +785,11 @@ export class WunderbaumNode {
   /** Return true if node has className set. */
   hasClass(className: string): boolean {
     return this.classes ? this.classes.has(className) : false;
+  }
+
+  /** Return true if node ist the currently focused node. */
+  hasFocus(): boolean {
+    return this.tree.focusNode === this;
   }
 
   /** Return true if this node is the currently active tree node. */
@@ -858,7 +863,7 @@ export class WunderbaumNode {
 
   /** Return true if _this_ node is currently in edit-title mode.
    *
-   * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+   * See {@link WunderbaumNode.startEditTitle}.
    */
   isEditingTitle(): boolean {
     return this.tree._callMethod("edit.isEditingTitle", this);
@@ -2017,8 +2022,8 @@ export class WunderbaumNode {
    *
    * The result is compatible with node.addChildren().
    *
-   * @param include child nodes
-   * @param callback(dict, node) is called for every node, in order to allow
+   * @param recursive include child nodes
+   * @param callback is called for every node, in order to allow
    *     modifications.
    *     Return `false` to ignore this node or `"skip"` to include this node
    *     without its children.
@@ -2762,8 +2767,9 @@ export class WunderbaumNode {
    * Stop iteration, if fn() returns false.<br>
    * Return false if iteration was stopped.
    *
-   * @param {function} fn the callback function.
+   * @param callback the callback function.
    *     Return false to stop iteration.
+   * @param includeSelf include this node in the iteration.
    */
   visitSiblings(
     callback: (node: WunderbaumNode) => boolean | void,

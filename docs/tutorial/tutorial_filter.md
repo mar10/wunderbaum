@@ -45,9 +45,11 @@ First, define the filter options in the tree options:
 const tree = new Wunderbaum({
   ...
   filter: {
+    autoApply: true, // Re-apply last filter if lazy data is loaded
     mode: "hide",
     ...
   },
+  ...
 });
 ```
 
@@ -60,24 +62,43 @@ const tree = new Wunderbaum({
   filter: {
     autoApply: true, // Re-apply last filter if lazy data is loaded
     autoExpand: false, // Expand all branches that contain matches while filtered
-    branchMode: false, // Wether to implicitly match all children of matched nodes
+    branchMode: false, // Whether to implicitly match all children of matched nodes
     connectInput: null, // Element or selector of an input control for filter query strings
-    counter: true, // Show a badge with number of matching child nodes near parent icons
     fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
-    hideExpandedCounter: true, // Hide counter badge if parent is expanded
     hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
     highlight: true, // Highlight matches by wrapping inside <mark> tags
     leavesOnly: false, // Match end nodes only
     mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
     noData: true, // Display a 'no data' status node if result is empty
   },
+  ...
 });
 ```
 
 ### Filter Nodes
 
+The `filterNodes()` method can be used to apply a filter to the tree. It accepts
+a string or a function as a filter pattern:
+
+```js
+tree.filterNodes("Joe");
+tree.filterNodes((node) => {
+  return node.data.age <= 30;
+});
+```
+
+Options can be passed as a second argument to override the default `tree.filter`
+options:
+
+```js
+tree.filterNodes("Joe", { mode: "hide" });
+```
+
+See
+[FilterNodesOptions](https://mar10.github.io/wunderbaum/api/types/types.FilterNodesOptions.html)):
+
 Examples
-  
+
 ```js
 // Match all nodes with a title that does contain 'Joe' (case insensitive) and
 // dim the rest:
@@ -86,9 +107,35 @@ tree.filterNodes("Joe");
 // hide the rest:
 tree.filterNodes("Joe", { mode: "hide" });
 // Match all nodes with a custom property 'age' > 30:
-tree.filterNodes((node) => { return node.data.age <= 30; });
+tree.filterNodes((node) => {
+  return node.data.age <= 30;
+});
 // Match  all nodes with a a title that contains 'foo' or 'fox':
-tree.filterNodes((node) => { return /.*fo[ox].*/i; });
+tree.filterNodes((node) => {
+  return /.*fo[ox].*/i;
+});
+```
+
+### Display Count of Matches as Badges
+
+Show a badge with number of matching child nodes near parent icons.
+If no matchin children exist or the node is expanded, the badge is hidden.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    const node = e.node;
+    if (node.children?.length > 0 && !node.expanded && node.subMatchCount > 0) {
+      return {
+        badge: node.subMatchCount,
+        badgeTooltip: `${node.subMatchCount} matches`,
+        badgeClass: "match-count",
+      };
+    }
+  },
+  ...
+});
 ```
 
 ### Connect to Search Input
@@ -143,7 +190,11 @@ and enter some text in the _Filter_ control at the top.
 
 ### Related Methods
 
-- `util.foo()`
+- `tree.findFirst()`
+- `tree.findAll()`
+- `tree.countMatches()`
+- `tree.filterNodes()`
+- `tree.iconBadge()`
 
 ### Related CSS Rules
 
@@ -162,19 +213,4 @@ and enter some text in the _Filter_ control at the top.
     }
   }
 }
-```
-
-### Code Hacks
-
-```js
-
-```
-
-### Related Tree Options
-
-```js
-const tree = new Wunderbaum({
-  // --- Common Options ---
-  ...
-});
 ```

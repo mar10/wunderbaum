@@ -539,18 +539,18 @@ export interface ExpandAllOptions {
   keepActiveNodeVisible?: boolean;
 }
 
-/** Possible values for {@link Wunderbaum.filterNodes()}. */
+/**
+ * Possible option values for {@link Wunderbaum.filterNodes}.
+ * The defaults are inherited from the tree instances ´tree.options.filter`
+ * settings (see also {@link FilterOptionsType}).
+ */
 export interface FilterNodesOptions {
   /** Expand all branches that contain matches while filtered @default false */
   autoExpand?: boolean;
-  /** Wether to implicitly match all children of matched nodes  @default false */
+  /** Whether to implicitly match all children of matched nodes @default false */
   branchMode?: boolean;
-  /** Show a badge with number of matching child nodes near parent icons @default true */
-  counter?: boolean;
   /** Match single characters in order, e.g. 'fb' will match 'FooBar' @default false */
   fuzzy?: boolean;
-  /** Hide counter badge if parent is expanded @default: true */
-  hideExpandedCounter?: true,
   /**Hide expanders if all child nodes are hidden by filter @default false */
   hideExpanders?: boolean;
   /** Highlight matches by wrapping inside `<mark>` tags @default true */
@@ -641,7 +641,7 @@ export interface SetActiveOptions {
   edit?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setColumn()} `options` argument. */
+/** Possible values for {@link Wunderbaum.setColumn()} `options` argument. */
 export interface SetColumnOptions {
   /**
    * Focus embedded input control of the grid cell if any .
@@ -715,6 +715,12 @@ export interface VisitRowsOptions {
 /* -----------------------------------------------------------------------------
  * wb_ext_filter
  * ---------------------------------------------------------------------------*/
+/**
+ * Passed as tree options to configure default filtering behavior.
+ *
+ * @see {@link Wunderbaum.filterNodes}
+ * @see {@link FilterNodesOptions}
+ */
 export type FilterOptionsType = {
   /**
    * Element or selector of an input control for filter query strings
@@ -726,59 +732,7 @@ export type FilterOptionsType = {
    * @default true
    */
   autoApply?: boolean;
-  /**
-   * Expand all branches that contain matches while filtered
-   * @default false
-   */
-  autoExpand?: boolean;
-  /**
-   * true: implicitly match all children of a matched node
-   * false: only match nodes that are explicitly matched
-   * @default false
-   */
-  branchMode?: boolean;
-  /**
-   * Show a badge with number of matching child nodes near parent icons
-   * @default true
-   */
-  counter?: boolean;
-  /**
-   * Match single characters in order, e.g. 'fb' will match 'FooBar'
-   * @default false
-   */
-  fuzzy?: boolean;
-  /**
-   * Hide counter badge if parent is expanded
-   * @default true
-   */
-  hideExpandedCounter?: boolean;
-  /**
-   * Hide expanders if all child nodes are hidden by filter
-   * @default false;
-   */
-  hideExpanders?: boolean;
-  /**
-   * Highlight matches by wrapping inside <mark> tags
-   * @default true
-   */
-  highlight?: boolean;
-  /**
-   * Match end nodes only
-   * @default false
-   */
-  leavesOnly?: boolean;
-  /**
-   * Grayout unmatched nodes (pass "hide" to remove unmatched nodes instead)
-   * @default 'dim'
-   */
-  mode?: FilterModeType;
-  /**
-   * Display a 'no data' status node if result is empty (hide-mode only).
-   * Pass false to simply show an empy pane, or pass a string to customize the message.
-   * @default true
-   */
-  noData?: boolean | string;
-};
+} & FilterNodesOptions;
 
 /* -----------------------------------------------------------------------------
  * wb_ext_edit
@@ -848,16 +802,16 @@ export type EditOptionsType = {
    * @category Callback
    */
   edit?:
-  | null
-  | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
+    | null
+    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => void);
   /**
    *
    * @category Callback
    */
   apply?:
-  | null
-  | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
-  | Promise<any>;
+    | null
+    | ((e: WbNodeEventType & { inputElem: HTMLInputElement }) => any)
+    | Promise<any>;
 };
 
 /* -----------------------------------------------------------------------------
@@ -994,8 +948,8 @@ export type DndOptionsType = {
    * @default true
    */
   serializeClipboardData?:
-  | boolean
-  | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
+    | boolean
+    | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
   /**
    * Enable auto-scrolling while dragging
    * @default true
@@ -1053,8 +1007,8 @@ export type DndOptionsType = {
    * @category Callback
    */
   dragEnter?:
-  | null
-  | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
+    | null
+    | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
   /**
    * Callback(targetNode, data)
    * @default null
@@ -1073,17 +1027,17 @@ export type DndOptionsType = {
    * @category Callback
    */
   drop?:
-  | null
-  | ((
-    e: WbNodeEventType & {
-      event: DragEvent;
-      region: DropRegionType;
-      suggestedDropMode: InsertNodeType;
-      suggestedDropEffect: DropEffectType;
-      sourceNode: WunderbaumNode;
-      sourceNodeData: WbNodeData | null;
-    }
-  ) => void);
+    | null
+    | ((
+        e: WbNodeEventType & {
+          event: DragEvent;
+          region: DropRegionType;
+          suggestedDropMode: InsertNodeType;
+          suggestedDropEffect: DropEffectType;
+          sourceNode: WunderbaumNode;
+          sourceNodeData: WbNodeData | null;
+        }
+      ) => void);
   /**
    * Callback(targetNode, data)
    * @default null
