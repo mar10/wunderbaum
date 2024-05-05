@@ -241,15 +241,15 @@ const tree = new Wunderbaum({
     //   focusTree: true,
     // });
     // e.tree.findFirst("Observe")?.setTooltip("This is a tooltip");
-    e.tree.filterNodes("ee", {
+    const res = e.tree.filterNodes(/^jo[eh]/i, {
       mode: "hide",
       hideExpanders: true,
-      // branchMode: true,
+      // matchBranch: true,
       // leavesOnly: true,
       // fuzzy: true,
       autoExpand: true,
     });
-    e.tree.log("matches", e.tree.countMatches());
+    e.tree.log("matches", e.tree.countMatches(), res);
   },
 });
 console.log(`Created  ${tree}`);

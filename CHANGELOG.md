@@ -7,12 +7,16 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.9.0: Deprecate `tree.filterBranches()`:
-  use `tree.filterNodes(..., {branchMode: true})` instead.
-- v0.9.0: Add `tree.countMatches()`.
-- v0.9.0: Add `node.hasFocus()`.
+- v0.9.0: DEPRECATE `tree.filterBranches()`:
+  use `tree.filterNodes(..., {matchBranch: true})` instead.
+- v0.9.0: Allow to pass a RegEx to filterNodes()
+- v0.9.0: Add `tree.countMatches()` method.
+- v0.9.0: Add `node.hasFocus()` method.
+- v0.9.0: Fix `tree.filter.hideExpanders` option.
+- v0.9.0: Drop `tree.filter.count` and `hideExpandedCounter` options in favor of
+  `tree.iconBadge` (see tutorial for an example).
 
-- v0.8.4: Fix #90: Add tooltip functionality to node titles
+- v0.8.4: Fix #90: Add tooltip functionality to node titles.
 
 - v0.8.3: Fix #84: After editing a node title a javascript error
   "Cannot read properties of null (reading '\_render')" occurs (Chromium).

@@ -540,7 +540,7 @@ export interface ExpandAllOptions {
 }
 
 /**
- * Possible option values for {@link Wunderbaum.filterNodes}.
+ * Possible option values for {@link Wunderbaum.filterNodes()}.
  * The defaults are inherited from the tree instances ´tree.options.filter`
  * settings (see also {@link FilterOptionsType}).
  */
@@ -548,12 +548,15 @@ export interface FilterNodesOptions {
   /** Expand all branches that contain matches while filtered @default false */
   autoExpand?: boolean;
   /** Whether to implicitly match all children of matched nodes @default false */
-  branchMode?: boolean;
+  matchBranch?: boolean;
   /** Match single characters in order, e.g. 'fb' will match 'FooBar' @default false */
   fuzzy?: boolean;
   /**Hide expanders if all child nodes are hidden by filter @default false */
   hideExpanders?: boolean;
-  /** Highlight matches by wrapping inside `<mark>` tags @default true */
+  /** Highlight matches by wrapping inside `<mark>` tags.
+   * Does not work for filter callbacks.
+   *  @default true
+   */
   highlight?: boolean;
   /** Match end nodes only @default false */
   leavesOnly?: boolean;

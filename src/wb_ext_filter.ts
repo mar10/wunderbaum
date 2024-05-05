@@ -36,7 +36,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     super(tree, "filter", {
       autoApply: true, // Re-apply last filter if lazy data is loaded
       autoExpand: false, // Expand all branches that contain matches while filtered
-      branchMode: false, // Whether to implicitly match all children of matched nodes
+      matchBranch: false, // Whether to implicitly match all children of matched nodes
       connectInput: null, // Element or selector of an input control for filter query strings
       fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
       hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
@@ -75,20 +75,19 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   }
 
   _applyFilterNoUpdate(
-    filter: string | NodeFilterCallback,
+    filter: string | RegExp | NodeFilterCallback,
     _opts: FilterNodesOptions
-  ) {
+  ): number {
     return this.tree.runWithDeferredUpdate(() => {
       return this._applyFilterImpl(filter, _opts);
     });
   }
 
   _applyFilterImpl(
-    filter: string | NodeFilterCallback,
+    filter: string | RegExp | NodeFilterCallback,
     _opts: FilterNodesOptions
-  ) {
-    let match,
-      temp,
+  ): number {
+    let //temp,
       count = 0;
     const start = Date.now();
     const tree = this.tree;
@@ -97,23 +96,27 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     // Use default options from `tree.options.filter`, but allow to override them
     const opts = extend({}, treeOpts.filter, _opts);
     const hideMode = opts.mode === "hide";
-    const branchMode = !!opts.branchMode;
-    const leavesOnly = !!opts.leavesOnly && !branchMode;
+    const matchBranch = !!opts.matchBranch;
+    const leavesOnly = !!opts.leavesOnly && !matchBranch;
+
+    let filterRegExp: RegExp;
+    let highlightRegExp: RegExp;
 
     // Default to 'match title substring (case insensitive)'
-    if (typeof filter === "string") {
+    if (typeof filter === "string" || filter instanceof RegExp) {
       if (filter === "") {
         tree.logInfo(
           "Passing an empty string as a filter is handled as clearFilter()."
         );
         this.clearFilter();
-        return;
+        return 0;
       }
       if (opts.fuzzy) {
+        assert(typeof filter === "string", "fuzzy filter must be a string");
         // See https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function/23905#23905
         // and http://www.quora.com/How-is-the-fuzzy-search-algorithm-in-Sublime-Text-designed
         // and http://www.dustindiaz.com/autocomplete-fuzzy-matching
-        match = filter
+        const matchReString = (<string>filter)
           .split("")
           // Escaping the `filter` will not work because,
           // it gets further split into individual characters. So,
@@ -124,11 +127,19 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
             // the character
             return a + "([^" + b + "]*)" + b;
           }, "");
+        filterRegExp = new RegExp(matchReString, "i");
+        // highlightRegExp = new RegExp(escapeRegex(filter), "gi");
+      } else if (filter instanceof RegExp) {
+        filterRegExp = filter;
+        highlightRegExp = filter;
       } else {
-        match = escapeRegex(filter); // make sure a '.' is treated literally
+        const matchReString = escapeRegex(filter); // make sure a '.' is treated literally
+        filterRegExp = new RegExp(matchReString, "i");
+        highlightRegExp = new RegExp(matchReString, "gi");
       }
-      const re = new RegExp(match, "i");
-      const reHighlight = new RegExp(escapeRegex(filter), "gi");
+      tree.logDebug(`Filtering nodes by '${filterRegExp}'`);
+      // const re = new RegExp(match, "i");
+      // const reHighlight = new RegExp(escapeRegex(filter), "gi");
       filter = (node: WunderbaumNode) => {
         if (!node.title) {
           return false;
@@ -136,20 +147,23 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
         // let text = escapeTitles ? node.title : extractHtmlText(node.title);
         const text = node.title;
         // `.match` instead of `.test` to get the capture groups
-        const res = text.match(re);
+        // const res = text.match(filterRegExp);
+        const res = filterRegExp.exec(text);
 
         if (res && opts.highlight) {
+          let highlightString: string;
+
           if (opts.fuzzy) {
-            temp = _markFuzzyMatchedChars(text, res, true);
+            highlightString = _markFuzzyMatchedChars(text, res, true);
           } else {
             // #740: we must not apply the marks to escaped entity names, e.g. `&quot;`
             // Use some exotic characters to mark matches:
-            temp = text.replace(reHighlight, function (s) {
+            highlightString = text.replace(highlightRegExp, function (s) {
               return START_MARKER + s + END_MARKER;
             });
           }
           // now we can escape the title...
-          node.titleWithHighlight = escapeHtml(temp)
+          node.titleWithHighlight = escapeHtml(highlightString)
             // ... and finally insert the desired `<mark>` tags
             .replace(RE_START_MARKER, "<mark>")
             .replace(RE_END_MARTKER, "</mark>");
@@ -198,7 +212,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       }
 
       let matchedByBranch = false;
-      if ((branchMode || res === "branch") && node.parent.match) {
+      if ((matchBranch || res === "branch") && node.parent.match) {
         res = true;
         matchedByBranch = true;
       }
@@ -231,8 +245,8 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       }
     }
     // Redraw whole tree
-    tree.logInfo(
-      `Filter '${match}' found ${count} nodes in ${Date.now() - start} ms.`
+    tree.logDebug(
+      `Filter '${filter}' found ${count} nodes in ${Date.now() - start} ms.`
     );
     return count;
   }
@@ -241,22 +255,25 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
    * [ext-filter] Dim or hide nodes.
    */
   filterNodes(
-    filter: string | NodeFilterCallback,
+    filter: string | RegExp | NodeFilterCallback,
     options: FilterNodesOptions
-  ) {
+  ): number {
     return this._applyFilterNoUpdate(filter, options);
   }
 
   /**
    * [ext-filter] Dim or hide whole branches.
-   * @deprecated Use {@link filterNodes} instead and set `options.branchMode: true`.
+   * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
    */
   filterBranches(
     filter: string | NodeFilterCallback,
     options: FilterNodesOptions
   ) {
-    assert(options.branchMode === undefined, "filterBranches() is deprecated.");
-    options.branchMode = true;
+    assert(
+      options.matchBranch === undefined,
+      "filterBranches() is deprecated."
+    );
+    options.matchBranch = true;
     return this._applyFilterNoUpdate(filter, options);
   }
 
@@ -266,7 +283,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   countMatches(): number {
     let n = 0;
     this.tree.visit((node) => {
-      if (node.match) {
+      if (node.match && !node.statusNodeType) {
         n++;
       }
     });

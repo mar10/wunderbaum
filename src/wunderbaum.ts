@@ -1084,7 +1084,7 @@ export class Wunderbaum {
    * });
    * ```
    */
-  runWithDeferredUpdate(func: () => any, hint = null): void {
+  runWithDeferredUpdate(func: () => any, hint = null): any {
     try {
       this.enableUpdate(false);
       const res = func();
@@ -2595,6 +2595,7 @@ export class Wunderbaum {
    * Dim or hide unmatched nodes.
    * @param filter a string to match against node titles, or a callback function.
    * @param options filter options. Defaults to the `tree.options.filter` settings.
+   * @returns the number of nodes that match the filter.
    * @example
    * ```ts
    * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
@@ -2603,9 +2604,9 @@ export class Wunderbaum {
    * ```
    */
   filterNodes(
-    filter: string | NodeFilterCallback,
+    filter: string | RegExp | NodeFilterCallback,
     options: FilterNodesOptions
-  ) {
+  ): number {
     return (this.extensions.filter as FilterExtension).filterNodes(
       filter,
       options
@@ -2622,7 +2623,7 @@ export class Wunderbaum {
 
   /**
    * Dim or hide whole branches.
-   * @deprecated Use {@link filterNodes} instead and set `options.branchMode: true`.
+   * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
    */
   filterBranches(
     filter: string | NodeFilterCallback,

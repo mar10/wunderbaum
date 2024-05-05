@@ -62,7 +62,7 @@ const tree = new Wunderbaum({
   filter: {
     autoApply: true, // Re-apply last filter if lazy data is loaded
     autoExpand: false, // Expand all branches that contain matches while filtered
-    branchMode: false, // Whether to implicitly match all children of matched nodes
+    matchBranch: false, // Whether to implicitly match all children of matched nodes
     connectInput: null, // Element or selector of an input control for filter query strings
     fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
     hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
@@ -78,17 +78,23 @@ const tree = new Wunderbaum({
 ### Filter Nodes
 
 The `filterNodes()` method can be used to apply a filter to the tree. It accepts
-a string or a function as a filter pattern:
+a string, a regular expression, or a function as a filter pattern:
 
 ```js
+// Strings are matched against the node titles (contains, case insensitive)
 tree.filterNodes("Joe");
+// Regular expressions are matched against the node titles
+// E.g. fin titles that start with 'joe' or 'joh' (case insensitive)
+tree.filterNodes(/^jo[eh]/i);
+// Functions are called with the node as an argument and can test for any
+// condition
 tree.filterNodes((node) => {
-  return node.data.age <= 30;
+  return node.data.price >= 99;
 });
 ```
 
-Options can be passed as a second argument to override the default `tree.filter`
-options:
+Additional options can be passed as a second argument to override the default
+`tree.filter` settings:
 
 ```js
 tree.filterNodes("Joe", { mode: "hide" });
@@ -111,10 +117,15 @@ tree.filterNodes((node) => {
   return node.data.age <= 30;
 });
 // Match  all nodes with a a title that contains 'foo' or 'fox':
+const re = /.*fo[ox].*/i;
 tree.filterNodes((node) => {
-  return /.*fo[ox].*/i;
+  return re.test(node.title);
 });
 ```
+
+?> A filter callback may return a boolean value, or the string values 'skip' or
+'branch'. The latter will skip or match the node and all its descendants. <br>
+Note that highlighting matches is not supported for function filters.
 
 ### Display Count of Matches as Badges
 
@@ -190,11 +201,14 @@ and enter some text in the _Filter_ control at the top.
 
 ### Related Methods
 
-- `tree.findFirst()`
-- `tree.findAll()`
+- `tree.clearFilter()`
 - `tree.countMatches()`
 - `tree.filterNodes()`
+- `tree.findAll()`
+- `tree.findFirst()`
 - `tree.iconBadge()`
+- `tree.isFilterActive()`
+- `tree.updateFilter()`
 
 ### Related CSS Rules
 
