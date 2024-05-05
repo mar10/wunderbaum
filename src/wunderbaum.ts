@@ -171,6 +171,7 @@ export class Wunderbaum {
   // public selectRangeAnchor: WunderbaumNode | null = null;
 
   // --- FILTER ---
+  /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
   public filterMode: FilterModeType = null;
 
   // --- KEYNAV ---
@@ -1981,7 +1982,7 @@ export class Wunderbaum {
 
   /** Convert tree to an array of plain objects.
    *
-   * @param callback(dict, node) is called for every node, in order to allow
+   * @param callback is called for every node, in order to allow
    *     modifications.
    *     Return `false` to ignore this node or `"skip"` to include this node
    *     without its children.
@@ -2591,7 +2592,15 @@ export class Wunderbaum {
    * FILTER
    * -------------------------------------------------------------------------*/
   /**
-   * Dim or hide nodes.
+   * Dim or hide unmatched nodes.
+   * @param filter a string to match against node titles, or a callback function.
+   * @param options filter options. Defaults to the `tree.options.filter` settings.
+   * @example
+   * ```ts
+   * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
+   * // or pass a callback
+   * tree.filterNodes((node) => { return node.data.foo === true }, {mode: 'hide'});
+   * ```
    */
   filterNodes(
     filter: string | NodeFilterCallback,
@@ -2604,7 +2613,16 @@ export class Wunderbaum {
   }
 
   /**
+   * Return the number of nodes that match the current filter.
+   * @see {@link Wunderbaum.filterNodes}
+   */
+  countMatches(): number {
+    return (this.extensions.filter as FilterExtension).countMatches();
+  }
+
+  /**
    * Dim or hide whole branches.
+   * @deprecated Use {@link filterNodes} instead and set `options.branchMode: true`.
    */
   filterBranches(
     filter: string | NodeFilterCallback,

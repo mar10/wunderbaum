@@ -152,6 +152,9 @@ const tree = new Wunderbaum({
       }
     },
   },
+  filter: {
+    // mode: "hide",
+  },
   lazyLoad: (e) => {
     // return {url: "../docs/assets/ajax-lazy-products.json"};
     return util.setTimeoutPromise(() => {
@@ -232,12 +235,21 @@ const tree = new Wunderbaum({
   //   }
   // },
   init: (e) => {
-    e.tree.findFirst("Anthony Ross")?.setActive(true, {
-      colIdx: "*",
-      edit: true,
-      focusTree: true,
+    // e.tree.findFirst("Anthony Ross")?.setActive(true, {
+    //   colIdx: "*",
+    //   edit: true,
+    //   focusTree: true,
+    // });
+    // e.tree.findFirst("Observe")?.setTooltip("This is a tooltip");
+    e.tree.filterNodes("ee", {
+      mode: "hide",
+      hideExpanders: true,
+      // branchMode: true,
+      // leavesOnly: true,
+      // fuzzy: true,
+      autoExpand: true,
     });
-    e.tree.findFirst("Observe")?.setTooltip("This is a tooltip");
+    e.tree.log("matches", e.tree.countMatches());
   },
 });
 console.log(`Created  ${tree}`);
