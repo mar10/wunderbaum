@@ -6,7 +6,7 @@
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { DragCallbackArgType, DragObserver } from "./drag_observer";
-import { GridOptionsType } from "./types";
+import { ChangeType, GridOptionsType } from "./types";
 
 export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   protected observer: DragObserver;
@@ -22,6 +22,8 @@ export class GridExtension extends WunderbaumExtension<GridOptionsType> {
       thresh: 4,
       // throttle: 400,
       dragstart: (e) => {
+        const info = Wunderbaum.getEventInfo(e.startEvent);
+        this.tree.log("dragstart", e, info);
         return this.tree.element.contains(e.dragElem);
       },
       drag: (e) => {
@@ -39,8 +41,18 @@ export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   }
 
   protected handleDrag(e: DragCallbackArgType): void {
-    const info = Wunderbaum.getEventInfo(e.event);
+    const info = Wunderbaum.getEventInfo(e.startEvent);
+    const colDef = info.colDef!;
     // this.tree.options.
-    this.tree.log(`${e.type}(${e.dx})`, e, info);
+    // this.tree.log(`${e.type} (dx=${e.dx})`, e, info);
+    // We drag the right border of the column header
+    // const newWidth = e.dragElem!.offsetWidth + e.dx;
+    // e.dragElem!.style.width = `${newWidth}px`;
+    if (e.type === "dragstop" && e.apply) {
+      const newWidth = parseInt(<string>colDef.width, 10) + e.dx;
+      colDef!.width = `${newWidth}px`;
+      this.tree.log("dragstop", e, info);
+      this.tree.update(ChangeType.colStructure);
+    }
   }
 }

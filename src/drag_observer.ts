@@ -7,7 +7,12 @@
 export type DragCallbackArgType = {
   /** "dragstart", "drag", or "dragstop". */
   type: string;
-  /** Original mouse or touch event that triggered the drag event. */
+  /** Original mousedown or touch event that triggered the dragstart event. */
+  startEvent: MouseEvent | TouchEvent;
+  /** Original mouse or touch event that triggered the current drag event.
+   * Note that this is not the same as `startEvent`, but a mousemove in case of
+   * a dragstart threshold.
+   */
   event: MouseEvent | TouchEvent;
   /** Element which is currently dragged. */
   dragElem: HTMLElement | null;
@@ -38,7 +43,16 @@ type DragObserverOptionsType = {
 export class DragObserver {
   protected _handler;
   protected root: EventTarget;
-  protected start = {
+  protected start: {
+    event: MouseEvent | TouchEvent | null;
+    x: number;
+    y: number;
+    altKey: boolean;
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+  } = {
+    event: null,
     x: 0,
     y: 0,
     altKey: false,
@@ -81,10 +95,15 @@ export class DragObserver {
   public stopDrag(cb_event?: DragCallbackArgType): void {
     if (this.dragging && this.opts.dragstop && cb_event) {
       cb_event.type = "dragstop";
-      this.opts.dragstop(cb_event);
+      try {
+        this.opts.dragstop(cb_event);
+      } catch (err) {
+        console.error("dragstop error", err); // eslint-disable-line no-console
+      }
     }
     this.dragElem = null;
     this.dragging = false;
+    this.start.event = null;
   }
 
   protected handleEvent(e: MouseEvent): boolean | void {
@@ -92,6 +111,7 @@ export class DragObserver {
     const opts = this.opts;
     const cb_event: DragCallbackArgType = {
       type: e.type,
+      startEvent: type === "mousedown" ? e : this.start.event!,
       event: e,
       dragElem: this.dragElem,
       dx: e.pageX - this.start.x,
@@ -120,6 +140,7 @@ export class DragObserver {
             }
           }
         }
+        this.start.event = e;
         this.start.x = e.pageX;
         this.start.y = e.pageY;
         this.start.altKey = e.altKey;

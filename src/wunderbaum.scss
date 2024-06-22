@@ -183,6 +183,8 @@ div.wunderbaum {
     position: sticky;
     top: 0;
     z-index: 2;
+    user-select: none;
+    -webkit-user-select: none; /* Safari */
   }
 
   div.wb-header,
@@ -385,6 +387,8 @@ div.wunderbaum {
       border-right: 2px solid var(--wb-border-color);
       height: 100%;
       cursor: col-resize;
+      user-select: none;
+      -webkit-user-select: none; // Safari
     }
   }
 
@@ -406,6 +410,7 @@ div.wunderbaum {
 
   span.wb-node {
     user-select: none;
+    -webkit-user-select: none; // Safari
     // &:first-of-type {
     //   margin-left: 8px; // leftmost icon gets a little margin
     // }
@@ -766,11 +771,11 @@ div.wunderbaum {
 
 .wb-no-select {
   user-select: none;
-  -webkit-user-select: none;
+  -webkit-user-select: none; // Safari
 
   span.wb-title {
     user-select: contain;
-    -webkit-user-select: contain;
+    -webkit-user-select: contain; // Safari
   }
 }
 
