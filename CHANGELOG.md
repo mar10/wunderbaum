@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.10.0: Resize columns.
+
 - v0.9.0: DEPRECATE `tree.filterBranches()`:
   use `tree.filterNodes(..., {matchBranch: true})` instead.
 - v0.9.0: Allow to pass a RegEx to filterNodes()

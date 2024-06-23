@@ -764,6 +764,24 @@ export function toSet(val: any): Set<string> {
   throw new Error("Cannot convert to Set<string>: " + val);
 }
 
+/** Convert a pixel string to number. */
+export function toPixel(
+  val: string | number | undefined | null,
+  defaultValue?: number
+): number {
+  if (typeof val === "number") {
+    return val;
+  }
+  if (val == null && defaultValue != null) {
+    return +defaultValue;
+  }
+  assert(
+    typeof val === "string" && val.endsWith("px"),
+    `Expected a string like '123px': ${val}`
+  );
+  return parseInt(<string>val, 10);
+}
+
 // /** Check if a string is contained in an Array or Set. */
 // export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
 //   return Array.prototype.includes.call(items, s)

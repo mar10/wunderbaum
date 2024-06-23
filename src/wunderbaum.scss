@@ -386,9 +386,12 @@ div.wunderbaum {
       border: none;
       border-right: 2px solid var(--wb-border-color);
       height: 100%;
-      cursor: col-resize;
       user-select: none;
       -webkit-user-select: none; // Safari
+      &.wb-col-resizer-active {
+        cursor: col-resize;
+        // border-right-color: red;
+      }
     }
   }
 

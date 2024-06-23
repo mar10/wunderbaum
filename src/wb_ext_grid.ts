@@ -7,6 +7,8 @@ import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { DragCallbackArgType, DragObserver } from "./drag_observer";
 import { ChangeType, GridOptionsType } from "./types";
+import { DEFAULT_MIN_COL_WIDTH } from "./common";
+import { toPixel } from "./util";
 
 export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   protected observer: DragObserver;
@@ -18,13 +20,25 @@ export class GridExtension extends WunderbaumExtension<GridOptionsType> {
 
     this.observer = new DragObserver({
       root: window.document,
-      selector: "span.wb-col-resizer",
+      selector: "span.wb-col-resizer-active",
       thresh: 4,
       // throttle: 400,
       dragstart: (e) => {
         const info = Wunderbaum.getEventInfo(e.startEvent);
         this.tree.log("dragstart", e, info);
-        return this.tree.element.contains(e.dragElem);
+        const allow =
+          info.colDef &&
+          info.colDef.resizable !== false &&
+          this.tree.element.contains(e.dragElem);
+
+        if (allow) {
+          // this.tree.element.classList.add("wb-col-resizing");
+          info.colDef!.customWidthPx = Number.parseInt(
+            info.colElem!.style.width,
+            10
+          );
+        }
+        return allow;
       },
       drag: (e) => {
         // TODO: throttle
@@ -43,15 +57,18 @@ export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   protected handleDrag(e: DragCallbackArgType): void {
     const info = Wunderbaum.getEventInfo(e.startEvent);
     const colDef = info.colDef!;
-    // this.tree.options.
     // this.tree.log(`${e.type} (dx=${e.dx})`, e, info);
-    // We drag the right border of the column header
-    // const newWidth = e.dragElem!.offsetWidth + e.dx;
-    // e.dragElem!.style.width = `${newWidth}px`;
-    if (e.type === "dragstop" && e.apply) {
-      const newWidth = parseInt(<string>colDef.width, 10) + e.dx;
-      colDef!.width = `${newWidth}px`;
-      this.tree.log("dragstop", e, info);
+
+    if (e.type === "dragstop") {
+      if (e.apply) {
+        const minWidth = toPixel(colDef.minWidth, DEFAULT_MIN_COL_WIDTH);
+        const newWidth = Math.max(minWidth, toPixel(colDef.width) + e.dx);
+        colDef.customWidthPx = newWidth;
+        this.tree.log("dragstop", e, info);
+      } else {
+        this.tree.log("dragstop (cancelled)", e, info);
+        delete colDef.customWidthPx;
+      }
       this.tree.update(ChangeType.colStructure);
     }
   }
