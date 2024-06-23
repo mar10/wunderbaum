@@ -81,6 +81,7 @@ new mar10.Wunderbaum({
       // "html": "<input type=text tabindex='-1'>",
     },
   ],
+  resizableColumns: true,
 
   edit: {
     trigger: ["clickActive", "F2"], // "macEnter"],

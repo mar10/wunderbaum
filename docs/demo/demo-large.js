@@ -47,6 +47,7 @@ new mar10.Wunderbaum({
     // In order to test horizontal scrolling, we need a fixed or at least minimal width:
     { id: "details", title: "Details", width: "*", minWidth: "600px" },
   ],
+  resizableColumns: true,
   dnd: {
     dragStart: (e) => {
       if (e.node.type === "folder") {

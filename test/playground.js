@@ -69,6 +69,8 @@ const tree = new Wunderbaum({
   // source: "generator/ajax_1k_3_54 t_c.json",
   // source: "generator/fixture_department_1k_3_6_flat_comp.json",
   source: "generator/fixture_department_1k_3_6_comp.json",
+  resizableColumns: true,
+
   // source: "../docs/assets/ajax-tree-products.json",
   // source:
   //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",

@@ -14,6 +14,8 @@ export type DragCallbackArgType = {
    * a dragstart threshold.
    */
   event: MouseEvent | TouchEvent;
+  /** Custom data that was passed to the DragObserver, typically on dragstart. */
+  customData: any;
   /** Element which is currently dragged. */
   dragElem: HTMLElement | null;
   /** Relative horizontal drag distance since start. */
@@ -62,6 +64,7 @@ export class DragObserver {
   };
   protected dragElem: HTMLElement | null = null;
   protected dragging: boolean = false;
+  protected customData: object = {};
   // TODO: touch events
   protected events = ["mousedown", "mouseup", "mousemove", "keydown"];
   protected opts: DragObserverOptionsType;
@@ -104,6 +107,7 @@ export class DragObserver {
     this.dragElem = null;
     this.dragging = false;
     this.start.event = null;
+    this.customData = {};
   }
 
   protected handleEvent(e: MouseEvent): boolean | void {
@@ -113,11 +117,15 @@ export class DragObserver {
       type: e.type,
       startEvent: type === "mousedown" ? e : this.start.event!,
       event: e,
+      customData: this.customData,
       dragElem: this.dragElem,
       dx: e.pageX - this.start.x,
       dy: e.pageY - this.start.y,
       apply: undefined,
     };
+
+    // console.log("handleEvent", type, cb_event);
+
     switch (type) {
       case "keydown":
         this.stopDrag(cb_event);
