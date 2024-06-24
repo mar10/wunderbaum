@@ -358,12 +358,13 @@ export interface ColumnDefinition {
    * Default: unset.
    */
   customWidthPx?: number;
-  /** Allow user to sort the column.
-   * Default: false.
+  /** Allow user to sort the column. Default: false. <br>
+   * **Note:** Sorting is not implemented yet.
    */
   sortable?: boolean;
   /** Optional custom column sort orde when user clicked the sort icon.
-   * Default: unset.
+   * Default: unset. <br>
+   * **Note:** Sorting is not implemented yet.
    */
   sortOrder?: SortOrderType;
   /** Optional class names that are added to all `span.wb-col` header AND data

@@ -20,7 +20,8 @@ Issues can be reported in the [bug tracker](https://github.com/mar10/wunderbaum/
 ?> Try your best to make fixing as easy as possible.
 Do not assume that bugs are fixed, just because they are reported:
 Please understand that issues are likely to be closed, if they are hard to
-reproduce. <br>
+reproduce.
+
 A bug report should contain:
 
 - A short description of the problem.
