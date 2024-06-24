@@ -1602,6 +1602,14 @@ export class Wunderbaum {
     }
   }
 
+  /** Reset column widths to default. */
+  resetColumns() {
+    this.columns.forEach((col) => {
+      delete col.customWidthPx;
+    });
+    this.update(ChangeType.colStructure);
+  }
+
   /**
    * Make sure that this node is vertically scrolled into the viewport.
    *
@@ -2026,7 +2034,7 @@ export class Wunderbaum {
     this._columnsById = {};
     for (const col of columns) {
       this._columnsById[<string>col.id] = col;
-      const cw = col.width;
+      const cw = col.customWidthPx ? `${col.customWidthPx}px` : col.width;
       if (col.id === "*" && col !== col0) {
         throw new Error(
           `Column id '*' must be defined only once: '${col.title}'.`
@@ -2139,7 +2147,12 @@ export class Wunderbaum {
       }
       let resizer = "";
       if (i < colCount - 1) {
-        resizer = '<span class="wb-col-resizer"></span>';
+        if (util.toBool(col.resizable, this.options.resizableColumns, false)) {
+          resizer =
+            '<span class="wb-col-resizer wb-col-resizer-active"></span>';
+        } else {
+          resizer = '<span class="wb-col-resizer"></span>';
+        }
       }
       colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
       if (this.isCellNav()) {

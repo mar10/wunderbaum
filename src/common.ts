@@ -26,6 +26,8 @@ export const TITLE_SPAN_PAD_Y = 7;
 export const RENDER_MAX_PREFETCH = 5;
 /** Skip rendering new rows when we have at least N nodes rendeed above and below the viewport. */
 export const RENDER_MIN_PREFETCH = 5;
+/** Minimum column width if not set otherwise. */
+export const DEFAULT_MIN_COL_WIDTH = 4;
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
  */

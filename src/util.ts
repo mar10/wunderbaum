@@ -764,6 +764,56 @@ export function toSet(val: any): Set<string> {
   throw new Error("Cannot convert to Set<string>: " + val);
 }
 
+/** Convert a pixel string to number.
+ * We accept a number or a string like '123px'. If undefined, the first default
+ * value that is a number or a string ending with 'px' is returned.
+ *
+ * Example:
+ * ```js
+ * const width = util.toPixel("123px", 100);
+ * ```
+ */
+export function toPixel(
+  // val: string | number | undefined | null,
+  ...defaults: (string | number | undefined | null)[]
+): number {
+  // if (typeof val === "number") {
+  //   return val;
+  // }
+  for (const d of defaults) {
+    if (typeof d === "number") {
+      return d;
+    }
+    if (typeof d === "string" && d.endsWith("px")) {
+      return parseInt(d, 10);
+    }
+    assert(d == null, `Expected a number or string like '123px': ${d}`);
+  }
+  throw new Error(`Expected a string like '123px': ${defaults}`);
+}
+
+/** Evaluate a boolean value using default if undefined.
+ * Example:
+ * ```js
+ * const opts = { flag: true };
+ * const value = util.toBool(opts.flag, otherVar, false);
+ * ```
+ */
+export function toBool(
+  // val: boolean | undefined | null,
+  ...boolDefaults: (boolean | undefined | null)[]
+): boolean {
+  // if (val != null) {
+  //   return !!val;
+  // }
+  for (const d of boolDefaults) {
+    if (d != null) {
+      return !!d;
+    }
+  }
+  throw new Error("No default boolean value provided");
+}
+
 // /** Check if a string is contained in an Array or Set. */
 // export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
 //   return Array.prototype.includes.call(items, s)

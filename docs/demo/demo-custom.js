@@ -27,6 +27,7 @@ new mar10.Wunderbaum({
     },
     { id: "description", title: "Details", width: "*" },
   ],
+  resizableColumns: true,
   types: {
     category: { colspan: true },
     electronics: { icon: "bi bi-cpu" },

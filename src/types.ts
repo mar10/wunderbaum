@@ -12,6 +12,8 @@ import { WunderbaumOptions } from "./wb_options";
 export type TristateType = boolean | undefined;
 /** Show/hide checkbox or display a radiobutton icon instead. */
 export type CheckboxOption = boolean | "radio";
+/** A value that can either be true, false, or undefined. */
+export type SortOrderType = "asc" | "desc" | undefined;
 /** An icon may either be
  * a string-tag that references an entry in the `iconMap` (e.g. `"folderOpen"`)),
  * an HTML string that contains a `<` and is used as-is,
@@ -348,6 +350,22 @@ export interface ColumnDefinition {
    * Default: `4px`.
    */
   minWidth?: string | number;
+  /** Allow user to resize the column.
+   * Default: false.
+   */
+  resizable?: boolean;
+  /** Optional custom column width when user resized by mouse drag.
+   * Default: unset.
+   */
+  customWidthPx?: number;
+  /** Allow user to sort the column.
+   * Default: false.
+   */
+  sortable?: boolean;
+  /** Optional custom column sort orde when user clicked the sort icon.
+   * Default: unset.
+   */
+  sortOrder?: SortOrderType;
   /** Optional class names that are added to all `span.wb-col` header AND data
    * elements of that column.
    */

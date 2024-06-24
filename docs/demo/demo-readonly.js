@@ -47,6 +47,7 @@ new mar10.Wunderbaum({
     },
     { title: "Remarks", id: "remarks", width: "*" },
   ],
+  resizableColumns: true,
   filter: {
     connectInput: "input#filterQuery",
   },
