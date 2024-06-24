@@ -8,4 +8,4 @@ API, Markup, Stylesheet, etc. are still subject to change.
 - [Online Demo](https://mar10.github.io/wunderbaum/demo/#demo-welcome)
 - [Source Code on GitHub](https://github.com/mar10/wunderbaum)
 
-<small>Copyright &copy; 2021-2023 Martin Wendt, {docsify-updated}</small>
+<small>Copyright &copy; 2021-2024 Martin Wendt, {docsify-updated}</small>

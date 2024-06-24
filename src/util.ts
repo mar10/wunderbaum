@@ -521,7 +521,7 @@ export function isArray(obj: any) {
   return Array.isArray(obj);
 }
 
-/** Return true if `obj` is of type `Object` and has no propertied. */
+/** Return true if `obj` is of type `Object` and has no properties. */
 export function isEmptyObject(obj: any) {
   return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
