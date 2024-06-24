@@ -94,6 +94,8 @@ div.wunderbaum div.wb-header {
   position: sticky;
   top: 0;
   z-index: 2;
+  user-select: none;
+  -webkit-user-select: none; /* Safari */
 }
 div.wunderbaum div.wb-header,
 div.wunderbaum div.wb-list-container {
@@ -202,6 +204,10 @@ div.wunderbaum div.wb-header span.wb-col-resizer {
   border: none;
   border-right: 2px solid var(--wb-border-color);
   height: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+div.wunderbaum div.wb-header span.wb-col-resizer.wb-col-resizer-active {
   cursor: col-resize;
 }
 div.wunderbaum span.wb-col {
@@ -219,6 +225,7 @@ div.wunderbaum span.wb-col:last-of-type {
 }
 div.wunderbaum span.wb-node {
   user-select: none;
+  -webkit-user-select: none;
   /* Fix Bootstrap Icon alignment */
 }
 div.wunderbaum span.wb-node i.wb-checkbox,

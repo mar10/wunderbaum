@@ -374,6 +374,24 @@ declare module "util" {
     export function getOption(opts: any, name: string, defaultValue?: any): any;
     /** Convert an Array or space-separated string to a Set. */
     export function toSet(val: any): Set<string>;
+    /** Convert a pixel string to number.
+     * We accept a number or a string like '123px'. If undefined, the first default
+     * value that is a number or a string ending with 'px' is returned.
+     *
+     * Example:
+     * ```js
+     * const width = util.toPixel("123px", 100);
+     * ```
+     */
+    export function toPixel(...defaults: (string | number | undefined | null)[]): number;
+    /** Evaluate a boolean value using default if undefined.
+     * Example:
+     * ```js
+     * const opts = { flag: true };
+     * const value = util.toBool(opts.flag, otherVar, false);
+     * ```
+     */
+    export function toBool(...boolDefaults: (boolean | undefined | null)[]): boolean;
     /** Return a canonical string representation for an object's type (e.g. 'array', 'number', ...). */
     export function type(obj: any): string;
     /**
@@ -416,6 +434,8 @@ declare module "common" {
     export const RENDER_MAX_PREFETCH = 5;
     /** Skip rendering new rows when we have at least N nodes rendeed above and below the viewport. */
     export const RENDER_MIN_PREFETCH = 5;
+    /** Minimum column width if not set otherwise. */
+    export const DEFAULT_MIN_COL_WIDTH = 4;
     /** Regular expression to detect if a string describes an image URL (in contrast
      * to a class name). Strings are considered image urls if they contain '.' or '/'.
      */
@@ -1218,6 +1238,11 @@ declare module "wb_options" {
          */
         fixedCol?: boolean;
         /**
+         * Default value for ColumnDefinition.resizable option.
+         * Default: false
+         */
+        resizableColumns?: boolean;
+        /**
          * Default: "multi"
          */
         selectMode?: SelectModeType;
@@ -1386,6 +1411,8 @@ declare module "types" {
     export type TristateType = boolean | undefined;
     /** Show/hide checkbox or display a radiobutton icon instead. */
     export type CheckboxOption = boolean | "radio";
+    /** A value that can either be true, false, or undefined. */
+    export type SortOrderType = "asc" | "desc" | undefined;
     /** An icon may either be
      * a string-tag that references an entry in the `iconMap` (e.g. `"folderOpen"`)),
      * an HTML string that contains a `<` and is used as-is,
@@ -1667,6 +1694,22 @@ declare module "types" {
          * Default: `4px`.
          */
         minWidth?: string | number;
+        /** Allow user to resize the column.
+         * Default: false.
+         */
+        resizable?: boolean;
+        /** Optional custom column width when user resized by mouse drag.
+         * Default: unset.
+         */
+        customWidthPx?: number;
+        /** Allow user to sort the column.
+         * Default: false.
+         */
+        sortable?: boolean;
+        /** Optional custom column sort orde when user clicked the sort icon.
+         * Default: unset.
+         */
+        sortOrder?: SortOrderType;
         /** Optional class names that are added to all `span.wb-col` header AND data
          * elements of that column.
          */
@@ -2372,8 +2415,15 @@ declare module "drag_observer" {
     export type DragCallbackArgType = {
         /** "dragstart", "drag", or "dragstop". */
         type: string;
-        /** Original mouse or touch event that triggered the drag event. */
+        /** Original mousedown or touch event that triggered the dragstart event. */
+        startEvent: MouseEvent | TouchEvent;
+        /** Original mouse or touch event that triggered the current drag event.
+         * Note that this is not the same as `startEvent`, but a mousemove in case of
+         * a dragstart threshold.
+         */
         event: MouseEvent | TouchEvent;
+        /** Custom data that was passed to the DragObserver, typically on dragstart. */
+        customData: any;
         /** Element which is currently dragged. */
         dragElem: HTMLElement | null;
         /** Relative horizontal drag distance since start. */
@@ -2403,6 +2453,7 @@ declare module "drag_observer" {
         protected _handler: any;
         protected root: EventTarget;
         protected start: {
+            event: MouseEvent | TouchEvent | null;
             x: number;
             y: number;
             altKey: boolean;
@@ -2412,6 +2463,7 @@ declare module "drag_observer" {
         };
         protected dragElem: HTMLElement | null;
         protected dragging: boolean;
+        protected customData: object;
         protected events: string[];
         protected opts: DragObserverOptionsType;
         constructor(opts: DragObserverOptionsType);
@@ -2437,6 +2489,9 @@ declare module "wb_ext_grid" {
         protected observer: DragObserver;
         constructor(tree: Wunderbaum);
         init(): void;
+        /**
+         * Hanldes drag and sragstop events for column resizing.
+         */
         protected handleDrag(e: DragCallbackArgType): void;
     }
 }
@@ -2871,6 +2926,8 @@ declare module "wunderbaum" {
         logTimeEnd(label: string): void;
         /** Write to `console.warn` with tree name as prefix with if opts.debugLevel >= 2. */
         logWarn(...args: any[]): void;
+        /** Reset column widths to default. */
+        resetColumns(): void;
         /**
          * Make sure that this node is vertically scrolled into the viewport.
          *

@@ -288,7 +288,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -937,6 +937,52 @@ function toSet(val) {
     }
     throw new Error("Cannot convert to Set<string>: " + val);
 }
+/** Convert a pixel string to number.
+ * We accept a number or a string like '123px'. If undefined, the first default
+ * value that is a number or a string ending with 'px' is returned.
+ *
+ * Example:
+ * ```js
+ * const width = util.toPixel("123px", 100);
+ * ```
+ */
+function toPixel(
+// val: string | number | undefined | null,
+...defaults) {
+    // if (typeof val === "number") {
+    //   return val;
+    // }
+    for (const d of defaults) {
+        if (typeof d === "number") {
+            return d;
+        }
+        if (typeof d === "string" && d.endsWith("px")) {
+            return parseInt(d, 10);
+        }
+        assert(d == null, `Expected a number or string like '123px': ${d}`);
+    }
+    throw new Error(`Expected a string like '123px': ${defaults}`);
+}
+/** Evaluate a boolean value using default if undefined.
+ * Example:
+ * ```js
+ * const opts = { flag: true };
+ * const value = util.toBool(opts.flag, otherVar, false);
+ * ```
+ */
+function toBool(
+// val: boolean | undefined | null,
+...boolDefaults) {
+    // if (val != null) {
+    //   return !!val;
+    // }
+    for (const d of boolDefaults) {
+        if (d != null) {
+            return !!d;
+        }
+    }
+    throw new Error("No default boolean value provided");
+}
 // /** Check if a string is contained in an Array or Set. */
 // export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
 //   return Array.prototype.includes.call(items, s)
@@ -1078,6 +1124,8 @@ var util = /*#__PURE__*/Object.freeze({
     setValueToElem: setValueToElem,
     sleep: sleep,
     throttle: throttle,
+    toBool: toBool,
+    toPixel: toPixel,
     toSet: toSet,
     toggleCheckbox: toggleCheckbox,
     type: type
@@ -1086,7 +1134,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
@@ -1150,7 +1198,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1209,7 +1257,7 @@ class WunderbaumExtension {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1533,7 +1581,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1897,7 +1945,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1939,7 +1987,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -1957,6 +2005,8 @@ const ICON_WIDTH = 20;
 const TITLE_SPAN_PAD_Y = 7;
 /** Render row markup for N nodes above and below the visible viewport. */
 const RENDER_MAX_PREFETCH = 5;
+/** Minimum column width if not set otherwise. */
+const DEFAULT_MIN_COL_WIDTH = 4;
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
  */
@@ -2262,7 +2312,7 @@ function decompressSourceData(source) {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2707,7 +2757,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2715,6 +2765,7 @@ class DndExtension extends WunderbaumExtension {
 class DragObserver {
     constructor(opts) {
         this.start = {
+            event: null,
             x: 0,
             y: 0,
             altKey: false,
@@ -2724,6 +2775,7 @@ class DragObserver {
         };
         this.dragElem = null;
         this.dragging = false;
+        this.customData = {};
         // TODO: touch events
         this.events = ["mousedown", "mouseup", "mousemove", "keydown"];
         if (!opts.root) {
@@ -2751,22 +2803,32 @@ class DragObserver {
     stopDrag(cb_event) {
         if (this.dragging && this.opts.dragstop && cb_event) {
             cb_event.type = "dragstop";
-            this.opts.dragstop(cb_event);
+            try {
+                this.opts.dragstop(cb_event);
+            }
+            catch (err) {
+                console.error("dragstop error", err); // eslint-disable-line no-console
+            }
         }
         this.dragElem = null;
         this.dragging = false;
+        this.start.event = null;
+        this.customData = {};
     }
     handleEvent(e) {
         const type = e.type;
         const opts = this.opts;
         const cb_event = {
             type: e.type,
+            startEvent: type === "mousedown" ? e : this.start.event,
             event: e,
+            customData: this.customData,
             dragElem: this.dragElem,
             dx: e.pageX - this.start.x,
             dy: e.pageY - this.start.y,
             apply: undefined,
         };
+        // console.log("handleEvent", type, cb_event);
         switch (type) {
             case "keydown":
                 this.stopDrag(cb_event);
@@ -2791,6 +2853,7 @@ class DragObserver {
                         }
                     }
                 }
+                this.start.event = e;
                 this.start.x = e.pageX;
                 this.start.y = e.pageY;
                 this.start.altKey = e.altKey;
@@ -2843,7 +2906,7 @@ class DragObserver {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2852,11 +2915,43 @@ class GridExtension extends WunderbaumExtension {
         });
         this.observer = new DragObserver({
             root: window.document,
-            selector: "span.wb-col-resizer",
+            selector: "span.wb-col-resizer-active",
             thresh: 4,
             // throttle: 400,
             dragstart: (e) => {
-                return this.tree.element.contains(e.dragElem);
+                const info = Wunderbaum.getEventInfo(e.startEvent);
+                const colDef = info.colDef;
+                const allow = colDef &&
+                    this.tree.element.contains(e.dragElem) &&
+                    toBool(colDef.resizable, tree.options.resizableColumns, false);
+                // this.tree.log("dragstart", colDef, e, info);
+                this.tree.element.classList.toggle("wb-col-resizing", !!allow);
+                info.colElem.classList.toggle("wb-col-resizing", !!allow);
+                // We start dagging, so we remember the actual width in *pixels*
+                // (which may be 'auto' or '100%').
+                // Since we we re-create the markup on each update, we also cannot store
+                // the original event or DOM element, but only the colDef object.
+                if (allow) {
+                    // Store initial target column infos in customData
+                    e.customData.colDef = colDef;
+                    e.customData.orgCustomWidthPx = colDef.customWidthPx;
+                    const curWidthPx = Number.parseInt(info.colElem.style.width, 10);
+                    e.customData.orgWidthPx = curWidthPx;
+                    // Set custom width to current width, so that we can modify it
+                    colDef.customWidthPx = curWidthPx;
+                    // this.tree.log(
+                    //   `dragstart customWidthPx=${colDef.customWidthPx}`,
+                    //   e,
+                    //   info
+                    // );
+                    this.tree.update(ChangeType.colStructure);
+                    // this.tree.log(
+                    //   `dragstart 2 customWidthPx=${colDef.customWidthPx}`,
+                    //   e,
+                    //   info
+                    // );
+                }
+                return allow;
             },
             drag: (e) => {
                 // TODO: throttle
@@ -2870,17 +2965,39 @@ class GridExtension extends WunderbaumExtension {
     init() {
         super.init();
     }
+    /**
+     * Hanldes drag and sragstop events for column resizing.
+     */
     handleDrag(e) {
-        const info = Wunderbaum.getEventInfo(e.event);
-        // this.tree.options.
-        this.tree.log(`${e.type}(${e.dx})`, e, info);
+        const custom = e.customData;
+        const colDef = custom.colDef;
+        // this.tree.log(`${e.type} (dx=${e.dx})`, e, info);
+        if (e.type === "dragstop" || e.type === "drag") {
+            this.tree.element.classList.remove("wb-col-resizing");
+            // info.colElem!.classList.remove("wb-col-resizing");
+            if (e.apply || e.type === "drag") {
+                const minWidth = toPixel(colDef.minWidth, DEFAULT_MIN_COL_WIDTH);
+                const newWidth = Math.max(minWidth, custom.orgWidthPx + e.dx);
+                colDef.customWidthPx = newWidth;
+                // this.tree.log(
+                //   `${e.type} minWidth=${minWidth}, newWidth=${newWidth}`,
+                //   colDef
+                // );
+            }
+            else {
+                // Drag was cancelled
+                this.tree.log("Column resize cancelled", e);
+                colDef.customWidthPx = custom.orgCustomWidthPx; // Restore original width or undefined
+            }
+            this.tree.update(ChangeType.colStructure);
+        }
     }
 }
 
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2933,7 +3050,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -5342,7 +5459,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.9.0, Sun, 05 May 2024 16:08:56 GMT (https://github.com/mar10/wunderbaum)
+ * v0.10.0, Mon, 24 Jun 2024 19:17:59 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5673,8 +5790,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.9.0
- * @date Sun, 05 May 2024 16:08:56 GMT
+ * @version v0.10.0
+ * @date Mon, 24 Jun 2024 19:17:59 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -6997,6 +7114,13 @@ class Wunderbaum {
             console.warn(this.toString(), ...args); // eslint-disable-line no-console
         }
     }
+    /** Reset column widths to default. */
+    resetColumns() {
+        this.columns.forEach((col) => {
+            delete col.customWidthPx;
+        });
+        this.update(ChangeType.colStructure);
+    }
     /**
      * Make sure that this node is vertically scrolled into the viewport.
      *
@@ -7354,7 +7478,7 @@ class Wunderbaum {
         this._columnsById = {};
         for (const col of columns) {
             this._columnsById[col.id] = col;
-            const cw = col.width;
+            const cw = col.customWidthPx ? `${col.customWidthPx}px` : col.width;
             if (col.id === "*" && col !== col0) {
                 throw new Error(`Column id '*' must be defined only once: '${col.title}'.`);
             }
@@ -7460,7 +7584,13 @@ class Wunderbaum {
             }
             let resizer = "";
             if (i < colCount - 1) {
-                resizer = '<span class="wb-col-resizer"></span>';
+                if (toBool(col.resizable, this.options.resizableColumns, false)) {
+                    resizer =
+                        '<span class="wb-col-resizer wb-col-resizer-active"></span>';
+                }
+                else {
+                    resizer = '<span class="wb-col-resizer"></span>';
+                }
             }
             colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
             if (this.isCellNav()) {
@@ -7910,7 +8040,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.9.0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.10.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 
