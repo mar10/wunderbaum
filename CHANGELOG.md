@@ -7,8 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.10.0: `tree.options.resizableColumns` and `ColumnDefinition.resizable`.
-- v0.10.0: `tree.resetColumns()`.
+- v0.10.0: Add `tree.options.resizableColumns` and `ColumnDefinition.resizable`.
+- v0.10.0: Add `tree.resetColumns()`.
 
 - v0.9.0: DEPRECATE `tree.filterBranches()`:
   use `tree.filterNodes(..., {matchBranch: true})` instead.
