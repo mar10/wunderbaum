@@ -2242,6 +2242,10 @@ export class Wunderbaum {
     }
 
     if (this.options.connectTopBreadcrumb) {
+      util.assert(
+        this.options.connectTopBreadcrumb.textContent,
+        `Invalid 'connectTopBreadcrumb' option (input element expected).`
+      );
       let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
       path = path ? path + " >" : "";
       this.options.connectTopBreadcrumb.textContent = path;
