@@ -52,7 +52,10 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     const connectInput = this.getPluginOption("connectInput");
     if (connectInput) {
       this.queryInput = elemFromSelector(connectInput) as HTMLInputElement;
-      assert(this.queryInput, `Invalid 'filter.connectInput' option: ${connectInput}.`);
+      assert(
+        this.queryInput,
+        `Invalid 'filter.connectInput' option: ${connectInput}.`
+      );
       onEvent(
         this.queryInput,
         "input",
