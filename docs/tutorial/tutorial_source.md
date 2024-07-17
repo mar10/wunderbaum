@@ -1,6 +1,6 @@
 # Data Formats
 
-Some examples of how the data should be formatted in JSON. 
+Some examples of how the data should be formatted in JSON.
 
 ## Nested List Format
 
@@ -187,7 +187,7 @@ or <br>
 `[PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]`
 
 `PARENT_ID` is either a string that references an existing `node.key`
-or the numeric the index of a node that appeared before in the list.
+or the numeric 0-based index of a node that appeared before in the list.
 
 `POSITIONAL_ARGS` define property values in the order defined by `_positional`.
 
@@ -212,9 +212,9 @@ or the numeric the index of a node that appeared before in the list.
   // List index is 0-based, parent index null means 'top-node'.
   // If parent index is a string, parent is searched by `node.key` (slower)
   "children": [
-    [0, "Node 1", "id123", 0, {"e": true}],   // index=0
-    [1, "Node 1.1", "id234", 1],              // index=1
-    [1, "Node 1.2", "id345", 1, {"age": 32}]  // index=2
+    [null, "Node 1", "id123", 0, {"e": true}],  // index=0
+    [0, "Node 1.1", "id234", 1],                // index=1
+    [0, "Node 1.2", "id345", 1, {"age": 32}]    // index=2
   ]
 }
 ```

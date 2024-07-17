@@ -770,7 +770,9 @@ export function toSet(val: any): Set<string> {
  *
  * Example:
  * ```js
- * const width = util.toPixel("123px", 100);
+ * let x = undefined;
+ * let y = "123px";
+ * const width = util.toPixel(x, y, 100);  // returns 123
  * ```
  */
 export function toPixel(
@@ -792,11 +794,11 @@ export function toPixel(
   throw new Error(`Expected a string like '123px': ${defaults}`);
 }
 
-/** Evaluate a boolean value using default if undefined.
+/** Return the the boolean value of the first non-null element.
  * Example:
  * ```js
  * const opts = { flag: true };
- * const value = util.toBool(opts.flag, otherVar, false);
+ * const value = util.toBool(opts.foo, opts.flag, false);  // returns true
  * ```
  */
 export function toBool(
