@@ -94,8 +94,8 @@ div.wunderbaum div.wb-header {
   position: sticky;
   top: 0;
   z-index: 2;
-  user-select: none;
   -webkit-user-select: none; /* Safari */
+  user-select: none;
 }
 div.wunderbaum div.wb-header,
 div.wunderbaum div.wb-list-container {
@@ -204,8 +204,8 @@ div.wunderbaum div.wb-header span.wb-col-resizer {
   border: none;
   border-right: 2px solid var(--wb-border-color);
   height: 100%;
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
 }
 div.wunderbaum div.wb-header span.wb-col-resizer.wb-col-resizer-active {
   cursor: col-resize;
@@ -224,8 +224,8 @@ div.wunderbaum span.wb-col:last-of-type {
   border-right: none;
 }
 div.wunderbaum span.wb-node {
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
   /* Fix Bootstrap Icon alignment */
 }
 div.wunderbaum span.wb-node i.wb-checkbox,
@@ -445,12 +445,12 @@ div.wunderbaum.wb-checkbox-auto-hide:focus .wb-row.wb-active i.wb-checkbox, div.
 }
 
 .wb-no-select {
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
 }
 .wb-no-select span.wb-title {
-  user-select: contain;
   -webkit-user-select: contain;
+  user-select: contain;
 }
 
 /* RTL support */

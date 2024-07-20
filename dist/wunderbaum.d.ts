@@ -294,7 +294,7 @@ declare module "util" {
     export function extend(...args: any[]): any;
     /** Return true if `obj` is of type `array`. */
     export function isArray(obj: any): boolean;
-    /** Return true if `obj` is of type `Object` and has no propertied. */
+    /** Return true if `obj` is of type `Object` and has no properties. */
     export function isEmptyObject(obj: any): boolean;
     /** Return true if `obj` is of type `function`. */
     export function isFunction(obj: any): boolean;
@@ -380,15 +380,17 @@ declare module "util" {
      *
      * Example:
      * ```js
-     * const width = util.toPixel("123px", 100);
+     * let x = undefined;
+     * let y = "123px";
+     * const width = util.toPixel(x, y, 100);  // returns 123
      * ```
      */
     export function toPixel(...defaults: (string | number | undefined | null)[]): number;
-    /** Evaluate a boolean value using default if undefined.
+    /** Return the the boolean value of the first non-null element.
      * Example:
      * ```js
      * const opts = { flag: true };
-     * const value = util.toBool(opts.flag, otherVar, false);
+     * const value = util.toBool(opts.foo, opts.flag, false);  // returns true
      * ```
      */
     export function toBool(...boolDefaults: (boolean | undefined | null)[]): boolean;
@@ -1702,12 +1704,13 @@ declare module "types" {
          * Default: unset.
          */
         customWidthPx?: number;
-        /** Allow user to sort the column.
-         * Default: false.
+        /** Allow user to sort the column. Default: false. <br>
+         * **Note:** Sorting is not implemented yet.
          */
         sortable?: boolean;
         /** Optional custom column sort orde when user clicked the sort icon.
-         * Default: unset.
+         * Default: unset. <br>
+         * **Note:** Sorting is not implemented yet.
          */
         sortOrder?: SortOrderType;
         /** Optional class names that are added to all `span.wb-col` header AND data
