@@ -244,7 +244,7 @@ function reconfigureTree(tag = null) {
   let demoTree = mar10.Wunderbaum.getTree("demo");
   const detailsElem = document.getElementById("demo-info");
 
-  console.info(`reconfigureTree(${tag}), tree=${demoTree}`, demoTree);
+  console.info("reconfigureTree(%s), tree=%s", tag, demoTree, demoTree);
 
   if (tag == null) {
     tag = window.location.hash;
