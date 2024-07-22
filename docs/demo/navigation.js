@@ -229,7 +229,7 @@ function loadScript(
       resolve(e);
     });
     scriptElem.addEventListener("error", (e) => {
-      console.error(`Loading script ${url}... ERROR:`, e);
+      console.error("Loading script %s... ERROR:", url, e);
       reject(e);
     });
   });
@@ -258,7 +258,7 @@ function reconfigureTree(tag = null) {
   window.location.hash = tag;
 
   detailsElem.classList.remove("error");
-  detailsElem.innerHTML = `Loading demo '${tag}'&hellip;`;
+  detailsElem.textContent = `Loading demo '${tag}'...`;
   // Elements that are hidden from the initial welcome page:
   document.querySelectorAll(".hide-on-welcome").forEach((elem) => {
     elem.classList.toggle("hidden", isWelcome);
@@ -281,7 +281,7 @@ function reconfigureTree(tag = null) {
   loadScript(url)
     .then(() => {
       demoTree = mar10.Wunderbaum.getTree("demo");
-      console.debug(`Script ${url} was run. tree:`, demoTree); //, demoTree?.options);
+      console.debug("Script %s was run. tree:", url, demoTree);
       if (!demoTree) {
         detailsElem.innerHTML = "&nbsp;";
         console.timeEnd(label);
