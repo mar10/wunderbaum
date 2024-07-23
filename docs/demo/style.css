@@ -6,7 +6,7 @@ body {
   --bg-color-dimmed: whitesmoke;
   --bg-color-light: white;
   --hint-color: lightyellow;
-  --link-color: royalblue;
+  --link-color: #1D47BE;  /* royalblue; */
   --error-color: red;
   --border-radius: 4px;
 }
