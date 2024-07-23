@@ -6,7 +6,7 @@ body {
   --bg-color-dimmed: whitesmoke;
   --bg-color-light: white;
   --hint-color: lightyellow;
-  --link-color: #1D47BE;  /* royalblue; */
+  --link-color: #1D47BE;
   --error-color: red;
   --border-radius: 4px;
 }
@@ -41,12 +41,15 @@ img.logo {
   background-color: var(--bg-color-dimmed);
   border-radius: 2px;
 }
+
 div.grid-wrapper {
   display: grid;
   width: 100vw;
-  width: 100dvw; /* 100vw minus width of scrollbar */
+  width: 100dvw;
+  /* 100vw minus width of scrollbar */
   height: 100vh;
-  height: 100dvh; /* 100vh minus height of address bar */
+  height: 100dvh;
+  /* 100vh minus height of address bar */
   grid-template-columns: 1fr 4fr;
   grid-template-rows: 3em 6em auto 5em 1em;
   padding: 5px;
@@ -120,7 +123,8 @@ div#demo-tree {
 div#nav-tree {
   background-color: var(--bg-color-dimmed);
   /* background-color: transparent; */
-  overflow: hidden; /* keep background color outside round borders */
+  overflow: hidden;
+  /* keep background color outside round borders */
   border: none;
 }
 
@@ -136,6 +140,7 @@ div.wunderbaum span.wb-badge {
     color: white;
     background-color: green;
   }
+
   &.match-count {
     color: darkgreen;
     background-color: #e0e0e0;
