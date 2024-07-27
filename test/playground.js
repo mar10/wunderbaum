@@ -175,6 +175,29 @@ const tree = new Wunderbaum({
   },
   buttonClick: (e) => {
     tree.log(e.type, e);
+
+    if (e.command === "filter") {
+      // ... <open a filter dialog or toggle the filter mode> ...
+
+      // Update the button state
+      e.info.colDef.filterActive = !e.info.colDef.filterActive;
+      tree.update("colStructure");
+    }
+    if (e.command === "sort") {
+      const curSortMode = e.info.colDef.sortOrder;
+      const nextSortMode =
+        curSortMode == null ? "asc" : curSortMode === "asc" ? "desc" : null;
+
+      // ... <resort the tree > ...
+
+      // Update the button state
+      e.info.colDef.sortOrder = nextSortMode;
+      tree.update("colStructure");
+    }
+    if (e.command === "menu") {
+      // eslint-disable-next-line no-alert
+      alert("Open menu...");
+    }
   },
   deactivate: (e) => {},
   discard: (e) => {},

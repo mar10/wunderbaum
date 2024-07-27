@@ -68,6 +68,12 @@ const tree = new mar10.Wunderbaum({
     folderOpen: "bi bi-folder2-open",
     folderLazy: "bi bi-folder-symlink",
     doc: "bi bi-file-earmark",
+    colSortable: "bi bi-arrow-down-up",
+    colSortAsc: "bi bi-arrow-down",
+    colSortDesc: "bi bi-arrow-up",
+    colFilter: "bi bi-filter",
+    colFilterActive: "bi bi-filter-square-fill",
+    colMenu: "bi bi-three-dots-vertical",
    },
   ...
 });

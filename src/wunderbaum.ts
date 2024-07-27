@@ -416,8 +416,15 @@ export class Wunderbaum {
 
     util.onEvent(this.element, "click", ".wb-button,.wb-col-icon", (e) => {
       const info = Wunderbaum.getEventInfo(e);
-      this._callEvent("buttonClick", { event: e, info: info });
+      const command = (<HTMLElement>e.target)?.dataset?.command;
+
+      this._callEvent("buttonClick", {
+        event: e,
+        info: info,
+        command: command,
+      });
     });
+
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
       const node = info.node;
@@ -578,7 +585,6 @@ export class Wunderbaum {
   get iconMap(): { [key: string]: string } {
     const map = this.options.iconMap!;
     if (typeof map === "string") {
-      this.logInfo(`Using iconMap '${map}'`, iconMaps[map]);
       return iconMaps[map];
     }
     return map;
@@ -2159,7 +2165,7 @@ export class Wunderbaum {
       // reverse order
       if (col.menu) {
         const iconClass = "wb-col-icon-menu " + iconMap.colMenu;
-        const icon = `<i class="wb-col-icon ${iconClass}"></i>`;
+        const icon = `<i data-command=menu class="wb-col-icon ${iconClass}"></i>`;
         addMarkup += icon;
       }
       if (col.sortable) {
@@ -2167,11 +2173,9 @@ export class Wunderbaum {
         if (col.sortOrder) {
           iconClass += `wb-col-sort-${col.sortOrder}`;
           iconClass +=
-            col.sortOrder === "asc"
-              ? iconMap.colSortableAsc
-              : iconMap.colSortableDesc;
+            col.sortOrder === "asc" ? iconMap.colSortAsc : iconMap.colSortDesc;
         }
-        const icon = `<i class="wb-col-icon ${iconClass}"></i>`;
+        const icon = `<i data-command=sort class="wb-col-icon ${iconClass}"></i>`;
         addMarkup += icon;
       }
       if (col.filterable) {
@@ -2180,7 +2184,7 @@ export class Wunderbaum {
         if (col.filterActive) {
           iconClass += iconMap.colFilterActive;
         }
-        const icon = `<i class="wb-col-icon ${iconClass}"></i>`;
+        const icon = `<i data-command=filter class="wb-col-icon ${iconClass}"></i>`;
         addMarkup += icon;
       }
       // Add resizer to all but the last column

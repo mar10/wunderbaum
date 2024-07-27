@@ -7,8 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.11.0: Add `col.sortable`, col.filterable, col.menu.
--
+- v0.11.0: Add support for icon buttons in column headers (menu, sort, filter).
+
 - v0.10.1: Fix column resizer for Edge.
 
 - v0.10.0: Add `tree.options.resizableColumns` and `ColumnDefinition.resizable`.

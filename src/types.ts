@@ -266,6 +266,8 @@ export interface WbSelectEventType extends WbNodeEventType {
 
 export interface WbButtonClickEventType extends WbTreeEventType {
   info: WbEventInfo;
+  /** The associated command, e.g. 'menu', 'sort', 'filter', ... */
+  command: string;
 }
 
 export interface WbRenderEventType extends WbNodeEventType {
@@ -362,25 +364,26 @@ export interface ColumnDefinition {
    * Default: unset.
    */
   customWidthPx?: number;
-  /** Allow user to filter the column. Default: false. <br>
-   * **Note:** Filtering is not implemented yet.
+  /** Display a 'filter' button in the column header. Default: false. <br>
+   * Note: The actual filtering must be implemented in the `buttonClick()` event.
    */
   filterable?: boolean;
   /** .
    * Default: inactive. <br>
-   * **Note:** Filtering is not implemented yet.
+   * Note: The actual filtering must be implemented in the `buttonClick()` event.
    */
   filterActive?: boolean;
-  /** Allow user to sort the column. Default: false. <br>
-   * **Note:** Sorting is not implemented yet.
+  /** Display a 'sort' button in the column header. Default: false. <br>
+   * Note: The actual sorting must be implemented in the `buttonClick()` event.
    */
   sortable?: boolean;
   /** Optional custom column sort orde when user clicked the sort icon.
    * Default: unset, e.g. not sorted. <br>
-   * **Note:** Sorting is not implemented yet.
+   * Note: The actual sorting must be implemented in the `buttonClick()` event.
    */
   sortOrder?: SortOrderType;
   /** Display a menu icon that may open a context menu for this column.
+   * Note: The actual functionality must be implemented in the `buttonClick()` event.
    */
   menu?: boolean;
   /** Optional class names that are added to all `span.wb-col` header AND data
