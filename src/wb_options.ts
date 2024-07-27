@@ -20,6 +20,7 @@ import {
   NodeTypeDefinitionMap,
   SelectModeType,
   WbActivateEventType,
+  WbButtonClickEventType,
   WbCancelableEventResultType,
   WbChangeEventType,
   WbClickEventType,
@@ -271,11 +272,15 @@ export interface WunderbaumOptions {
    */
   beforeExpand?: (e: WbExpandEventType) => WbCancelableEventResultType;
   /**
-   *
    * Return `false` to prevent default handling, i.e. (de)selecting the node.
    * @category Callback
    */
   beforeSelect?: (e: WbSelectEventType) => WbCancelableEventResultType;
+  /**
+   * Return `false` to prevent default handling, i.e. (de)selecting the node.
+   * @category Callback
+   */
+  buttonClick?: (e: WbButtonClickEventType) => void;
   /**
    *
    * @category Callback

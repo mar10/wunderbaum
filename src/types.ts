@@ -264,6 +264,10 @@ export interface WbSelectEventType extends WbNodeEventType {
   flag: boolean;
 }
 
+export interface WbButtonClickEventType extends WbTreeEventType {
+  info: WbEventInfo;
+}
+
 export interface WbRenderEventType extends WbNodeEventType {
   /**
    * True if the node's markup was not yet created. In this case the render
@@ -358,23 +362,39 @@ export interface ColumnDefinition {
    * Default: unset.
    */
   customWidthPx?: number;
+  /** Allow user to filter the column. Default: false. <br>
+   * **Note:** Filtering is not implemented yet.
+   */
+  filterable?: boolean;
+  /** .
+   * Default: inactive. <br>
+   * **Note:** Filtering is not implemented yet.
+   */
+  filterActive?: boolean;
   /** Allow user to sort the column. Default: false. <br>
    * **Note:** Sorting is not implemented yet.
    */
   sortable?: boolean;
   /** Optional custom column sort orde when user clicked the sort icon.
-   * Default: unset. <br>
+   * Default: unset, e.g. not sorted. <br>
    * **Note:** Sorting is not implemented yet.
    */
   sortOrder?: SortOrderType;
+  /** Display a menu icon that may open a context menu for this column.
+   */
+  menu?: boolean;
   /** Optional class names that are added to all `span.wb-col` header AND data
-   * elements of that column.
+   * elements of that column. Separate multiple classes with space.
    */
   classes?: string;
   /** If `headerClasses` is a set, it will be used for the header element only
    * (unlike `classes`, which is used for body and header cells).
+   * Separate multiple classes with space.
    */
   headerClasses?: string;
+  // /** A list of icon definitions added to the column header.
+  //  */
+  // headerIcons?: string;
   /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
   /** @internal */

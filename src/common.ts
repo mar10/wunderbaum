@@ -64,6 +64,12 @@ export const iconMaps: { [key: string]: { [key: string]: string } } = {
     folderOpen: "bi bi-folder2-open",
     folderLazy: "bi bi-folder-symlink",
     doc: "bi bi-file-earmark",
+    colSortable: "bi bi-arrow-down-up",
+    colSortAsc: "bi bi-arrow-down",
+    colSortDesc: "bi bi-arrow-up",
+    colFilter: "bi bi-filter",
+    colFilterActive: "bi bi-filter-square-fill",
+    colMenu: "bi bi-three-dots-vertical",
   },
   fontawesome6: {
     error: "fa-solid fa-triangle-exclamation",
@@ -82,6 +88,12 @@ export const iconMaps: { [key: string]: { [key: string]: string } } = {
     folderOpen: "fa-regular fa-folder-open",
     folderLazy: "fa-solid fa-folder-plus",
     doc: "fa-regular fa-file",
+    colSortable: "fa-solid fa-fw fa-sort",
+    colSortAsc: "fa-solid fa-fw fa-sort-up",
+    colSortDesc: "fa-solid fa-fw fa-sort-down",
+    colFilter: "fa-solid fa-fw fa-filter",
+    colFilterActive: "fa-solid fa-fw fa-filter wb-helper-invalid",
+    colMenu: "fa-solid fa-fw fa-ellipsis-v",
   },
 };
 

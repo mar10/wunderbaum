@@ -285,7 +285,7 @@ export class Wunderbaum {
     delete opts.types;
 
     // --- Create Markup
-    this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
+    this.element = util.elemFromSelector<HTMLDivElement>(opts.element)!;
     util.assert(!!this.element, `Invalid 'element' option: ${opts.element}`);
 
     this.element.classList.add("wunderbaum");
@@ -298,9 +298,8 @@ export class Wunderbaum {
 
     // Create header markup, or take it from the existing html
 
-    this.headerElement = this.element.querySelector(
-      "div.wb-header"
-    ) as HTMLDivElement;
+    this.headerElement =
+      this.element.querySelector<HTMLDivElement>("div.wb-header")!;
 
     const wantHeader =
       opts.header == null ? this.columns.length > 1 : !!opts.header;
@@ -312,9 +311,8 @@ export class Wunderbaum {
         "`opts.columns` must not be set if markup already contains a header"
       );
       this.columns = [];
-      const rowElement = this.headerElement.querySelector(
-        "div.wb-row"
-      ) as HTMLDivElement;
+      const rowElement =
+        this.headerElement.querySelector<HTMLDivElement>("div.wb-row")!;
       for (const colDiv of rowElement.querySelectorAll("div")) {
         this.columns.push({
           id: colDiv.dataset.id || `col_${this.columns.length}`,
@@ -337,9 +335,7 @@ export class Wunderbaum {
         </div>`;
 
       if (!wantHeader) {
-        const he = this.element.querySelector(
-          "div.wb-header"
-        ) as HTMLDivElement;
+        const he = this.element.querySelector<HTMLDivElement>("div.wb-header")!;
         he.style.display = "none";
       }
     }
@@ -349,15 +345,15 @@ export class Wunderbaum {
       <div class="wb-list-container">
         <div class="wb-node-list"></div>
       </div>`;
-    this.listContainerElement = this.element.querySelector(
+    this.listContainerElement = this.element.querySelector<HTMLDivElement>(
       "div.wb-list-container"
-    ) as HTMLDivElement;
-    this.nodeListElement = this.listContainerElement.querySelector(
-      "div.wb-node-list"
-    ) as HTMLDivElement;
-    this.headerElement = this.element.querySelector(
-      "div.wb-header"
-    ) as HTMLDivElement;
+    )!;
+    this.nodeListElement =
+      this.listContainerElement.querySelector<HTMLDivElement>(
+        "div.wb-node-list"
+      )!;
+    this.headerElement =
+      this.element.querySelector<HTMLDivElement>("div.wb-header")!;
 
     this.element.classList.toggle("wb-grid", this.columns.length > 1);
 
@@ -418,6 +414,10 @@ export class Wunderbaum {
     });
     this.resizeObserver.observe(this.element);
 
+    util.onEvent(this.element, "click", ".wb-button,.wb-col-icon", (e) => {
+      const info = Wunderbaum.getEventInfo(e);
+      this._callEvent("buttonClick", { event: e, info: info });
+    });
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
       const node = info.node;
@@ -578,6 +578,7 @@ export class Wunderbaum {
   get iconMap(): { [key: string]: string } {
     const map = this.options.iconMap!;
     if (typeof map === "string") {
+      this.logInfo(`Using iconMap '${map}'`, iconMaps[map]);
       return iconMaps[map];
     }
     return map;
@@ -2109,6 +2110,12 @@ export class Wunderbaum {
     return modified;
   }
 
+  protected _insertIcon(icon: string, elem: HTMLElement) {
+    const iconElem = document.createElement("i");
+    iconElem.className = icon;
+    elem.appendChild(iconElem);
+  }
+
   /** Create/update header markup from `this.columns` definition.
    * @internal
    */
@@ -2119,6 +2126,7 @@ export class Wunderbaum {
     if (!wantHeader) {
       return;
     }
+    const iconMap = this.iconMap;
     const colCount = this.columns.length;
     const headerRow = this.headerElement.querySelector(".wb-row")!;
     util.assert(headerRow, "Expected a row in header element");
@@ -2139,22 +2147,57 @@ export class Wunderbaum {
         col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
       }
 
-      const title = util.escapeHtml(col.title || col.id);
+      // Add tooltip to column title
       let tooltip = "";
       if (col.tooltip) {
         tooltip = util.escapeTooltip(col.tooltip);
         tooltip = ` title="${tooltip}"`;
       }
-      let resizer = "";
+      // Add column header icons
+      let addMarkup = "";
+      // NOTE: we use CSS float: right to align icons, so they must be added in
+      // reverse order
+      if (col.menu) {
+        const iconClass = "wb-col-icon-menu " + iconMap.colMenu;
+        const icon = `<i class="wb-col-icon ${iconClass}"></i>`;
+        addMarkup += icon;
+      }
+      if (col.sortable) {
+        let iconClass = "wb-col-icon-sort " + iconMap.colSortable;
+        if (col.sortOrder) {
+          iconClass += `wb-col-sort-${col.sortOrder}`;
+          iconClass +=
+            col.sortOrder === "asc"
+              ? iconMap.colSortableAsc
+              : iconMap.colSortableDesc;
+        }
+        const icon = `<i class="wb-col-icon ${iconClass}"></i>`;
+        addMarkup += icon;
+      }
+      if (col.filterable) {
+        colElem.classList.toggle("wb-col-filter", !!col.filterActive);
+        let iconClass = "wb-col-icon-filter " + iconMap.colFilter;
+        if (col.filterActive) {
+          iconClass += iconMap.colFilterActive;
+        }
+        const icon = `<i class="wb-col-icon ${iconClass}"></i>`;
+        addMarkup += icon;
+      }
+      // Add resizer to all but the last column
       if (i < colCount - 1) {
         if (util.toBool(col.resizable, this.options.resizableColumns, false)) {
-          resizer =
+          addMarkup +=
             '<span class="wb-col-resizer wb-col-resizer-active"></span>';
         } else {
-          resizer = '<span class="wb-col-resizer"></span>';
+          addMarkup += '<span class="wb-col-resizer"></span>';
         }
       }
-      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
+
+      // Create column header
+      const title = util.escapeHtml(col.title || col.id);
+      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${addMarkup}`;
+
+      // Highlight active column
       if (this.isCellNav()) {
         colElem.classList.toggle("wb-active", i === this.activeColIdx);
       }

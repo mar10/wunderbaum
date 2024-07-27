@@ -29,36 +29,40 @@ const tree = new Wunderbaum({
   // },
   // autoCollapse: true,
   header: true, //"Playground",
+  // iconMap: "fontawesome6",
   // navigationModeOption: "cell",
   // scrollIntoViewOnExpandClick: false,
   // showSpinner: true,
 
-  // columns: [
-  //   { title: "test", id: "*", width: "200px" },
-  //   // {
-  //   //   title: "Fav",
-  //   //   id: "favorite",
-  //   //   width: "30px",
-  //   //   classes: "wb-helper-center",
-  //   //   html: "<input type=checkbox tabindex='-1'>",
-  //   // },
-  //   {
-  //     title: "Details",
-  //     id: "details",
-  //     width: "100px",
-  //     html: "<input type=text tabindex='-1' autocomplete=off>",
-  //     headerClasses: "wb-helper-center",
-  //     // headerClasses: "",
-  //     classes: "wb-helper-end",
-  //   },
-  //   // { title: "Mode", id: "mode", width: "100px" },
-  //   {
-  //     title: "Date",
-  //     id: "date",
-  //     width: "100px",
-  //     html: "<input type=date tabindex='-1'>",
-  //   },
-  // ],
+  columns: [
+    { title: "test", id: "*", width: "200px" },
+    // {
+    //   title: "Fav",
+    //   id: "favorite",
+    //   width: "30px",
+    //   classes: "wb-helper-center",
+    //   html: "<input type=checkbox tabindex='-1'>",
+    // },
+    {
+      title: "Details",
+      id: "details",
+      width: "100px",
+      html: "<input type=text tabindex='-1' autocomplete=off>",
+      headerClasses: "wb-helper-center",
+      sortable: true,
+      filterable: true,
+      menu: true,
+      // headerClasses: "",
+      classes: "wb-helper-end",
+    },
+    // { title: "Mode", id: "mode", width: "100px" },
+    {
+      title: "Date",
+      id: "date",
+      width: "100px",
+      html: "<input type=date tabindex='-1'>",
+    },
+  ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
     folder: {
@@ -68,7 +72,7 @@ const tree = new Wunderbaum({
   },
   // source: "generator/ajax_1k_3_54 t_c.json",
   // source: "generator/fixture_department_1k_3_6_flat_comp.json",
-  source: "generator/fixture_department_1k_3_6_comp.json",
+  // source: "generator/fixture_department_1k_3_6_comp.json",
   resizableColumns: true,
 
   // source: "../docs/assets/ajax-tree-products.json",
@@ -167,6 +171,9 @@ const tree = new Wunderbaum({
     tree.log(e.type, e);
   },
   click: (e) => {
+    tree.log(e.type, e);
+  },
+  buttonClick: (e) => {
     tree.log(e.type, e);
   },
   deactivate: (e) => {},

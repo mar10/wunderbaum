@@ -393,6 +393,16 @@ div.wunderbaum {
         // border-right-color: red;
       }
     }
+
+    i.wb-col-icon {
+      float: inline-end;
+      padding-left: 2px;
+
+      &:hover {
+        cursor: pointer;
+        color: var(--wb-focus-border-color);
+      }
+    }
   }
 
   span.wb-col {
