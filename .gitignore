@@ -3,6 +3,7 @@
 /build
 /test/triage
 /node_modules
+/site/
 *.log
 sauce_connect.*
 .pyftpsync-meta.json
