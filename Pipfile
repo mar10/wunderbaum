@@ -6,6 +6,8 @@ name = "pypi"
 [packages]
 fabulist = "*"
 nutree = "*"
+mkdocs = "*"
+mkdocs-material = "*"
 
 [dev-packages]
 black = "*"
@@ -14,4 +16,4 @@ black = "*"
 python_version = "3.12"
 
 [pipenv]
-allow_prereleases = true
+# allow_prereleases = true

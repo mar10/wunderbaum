@@ -5,7 +5,7 @@ repo_url: https://github.com/mar10/wunderbaum
 # site_description: Set the site description. This will add a meta tag to the generated HTML header.
 
 site_author: Martin Wendt
-copyright: Copyright © 2021-2024 Martin Wendt
+copyright: Copyright © 2021-2024 Martin Wendt, Documentation generated with mkdocs
 
 # remote_branch: gh-pages
 # remote_name: origin
@@ -16,43 +16,62 @@ theme:
   include_sidebar: true
   logo: assets/tree_logo_32.png
   favicon: assets/favicon/favicon.ico
+  features:
+    - navigation.path
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.bottom
+    - navigation.prev_next
+    # - navigation.edit_url 
+    # - navigation.search
+    # - navigation.toc
+    # - navigation.scrollspy
+    # - navigation.anchors
+    - navigation.breadcrumbs
+    - navigation.footer
+    # - navigation.meta
+    - navigation.tracking 
+    - toc.integrate 
+    
 
-# theme:
-#   name: mkdocs
-#   # name: readthedocs
-#   locale: en
-#   include_sidebar: true
-
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  
 exclude_docs: |
   .*
   /templates/
   /unittest/
 
 nav:
-  - Home: "index.md"
+  - Welcome: "index.md"
 
   - "User Guide":
-      - "Quick start": "tutorial/quick_start"
-      - "Initialization": "tutorial/tutorial_initialize"
-      - "Data Formats": "tutorial/tutorial_source"
+      - "Quick start": "tutorial/quick_start.md"
+      - "Initialization": "tutorial/tutorial_initialize.md"
+      - "Data Formats": "tutorial/tutorial_source.md"
       - Features:
-          - "Render": "tutorial/tutorial_render"
-          - "Styling": "tutorial/tutorial_styling"
-          - "Grid": "tutorial/tutorial_grid"
-          - "Edit": "tutorial/tutorial_edit"
-          - "Drag'n'Drop": "tutorial/tutorial_dnd"
-          - "Select": "tutorial/tutorial_select"
-          - "Events": "tutorial/tutorial_events"
-          - "Filter": "tutorial/tutorial_filter"
-          - "Keyboard": "tutorial/tutorial_keyboard"
-          - "API": "tutorial/tutorial_api"
-      - "Concepts": "tutorial/concepts"
-      - "Migration": "tutorial/migrate"
-      - "Contribute": "tutorial/contribute"
+          - "Render": "tutorial/tutorial_render.md"
+          - "Styling": "tutorial/tutorial_styling.md"
+          - "Grid": "tutorial/tutorial_grid.md"
+          - "Edit": "tutorial/tutorial_edit.md"
+          - "Drag'n'Drop": "tutorial/tutorial_dnd.md"
+          - "Select": "tutorial/tutorial_select.md"
+          - "Events": "tutorial/tutorial_events.md"
+          - "Filter": "tutorial/tutorial_filter.md"
+          - "Keyboard": "tutorial/tutorial_keyboard.md"
+          - "API": "tutorial/tutorial_api.md"
+      - "Concepts": "tutorial/concepts.md"
+      - "Migration": "tutorial/migrate.md"
+      - "Contribute": "tutorial/contribute.md"
 
-  - "Code Reference": "https://mar10.github.io/wunderbaum/api/index.html"
-  - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"
-  - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"
+  - "Code Reference": "https://mar10.github.io/wunderbaum/api/index.html"{:target="_blank"}
+  - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"{:target="_blank"}
+  - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"{:target="_blank"}
 
 # not_in_nav: |
 #   /private.md
@@ -64,7 +83,18 @@ validation:
   anchors: warn # New in MkDocs 1.6
 
 markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+
   - toc:
       permalink: "#"
       # baselevel: 2
       # separator: "_"
+
+extra:
+  generator: false  # Added to Copyright instead
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
