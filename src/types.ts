@@ -72,6 +72,11 @@ export type BoolOrStringOptionResolver = (
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 /** A callback that receives a node instance and returns a string value. */
 export type NodeStringCallback = (node: WunderbaumNode) => string;
+/** A callback that receives a node instance and property name returns a value. */
+export type NodePropertyGetterCallback = (
+  node: WunderbaumNode,
+  propName: string
+) => any;
 /** A callback that receives a node instance and returns an iteration modifier. */
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 /** A callback that receives a node instance and returns a string value. */
@@ -746,14 +751,31 @@ export interface SetStatusOptions {
  * argument.
  */
 export interface SortByPropertyOptions {
-  /** . */
+  /** The name of the node property that will be used for sorting.
+   * @default use the `colId` as property name.
+   */
+  propName?: string;
+  /** Column ID as defined in `tree.columns` definition. */
   colId?: string;
-  vallueGetter?: NodeAnyCallback;
+  // /** If defined, this callback is used to extract the value to be sorted. */
+  // vallueGetter?: NodePropertyGetterCallback;
+  /** Sort order. @default Use value from column definition */
   order?: SortOrderType;
+  /** Sort string values case insensitive. @default false */
   caseInsensitive?: boolean;
-  /** . */
+  /** Sort descendants recursively. @default true */
   deep?: boolean;
-  /** . */
+  // /** Rotate sort order (asc -> desc -> none) before sorting. @default false */
+  // rotateOrder?: boolean;
+  /**
+   * Update the sort icons in the column header
+   * Rotate sort order (asc -> desc -> none) before sorting.
+   * Note:
+   * Sorting is done in-place. There is no 'unsorted' state, but we can
+   * call `setCurrentSortOrder()` to renumber the `node._sortIdx` property,
+   * which will be used as sort key, when `order` is `undefined`.
+   * @default false
+   */
   updateColInfo?: boolean;
 }
 

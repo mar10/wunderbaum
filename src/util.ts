@@ -746,6 +746,12 @@ export function getOption(
   return value ?? defaultValue;
 }
 
+/** Return the next value from a list of values (rotating). */
+export function rotate(value: any, values: any[]): any {
+  const idx = values.indexOf(value);
+  return values[(idx + 1) % values.length];
+}
+
 /** Convert an Array or space-separated string to a Set. */
 export function toSet(val: any): Set<string> {
   if (val instanceof Set) {
@@ -776,12 +782,8 @@ export function toSet(val: any): Set<string> {
  * ```
  */
 export function toPixel(
-  // val: string | number | undefined | null,
   ...defaults: (string | number | undefined | null)[]
 ): number {
-  // if (typeof val === "number") {
-  //   return val;
-  // }
   for (const d of defaults) {
     if (typeof d === "number") {
       return d;
@@ -802,12 +804,8 @@ export function toPixel(
  * ```
  */
 export function toBool(
-  // val: boolean | undefined | null,
   ...boolDefaults: (boolean | undefined | null)[]
 ): boolean {
-  // if (val != null) {
-  //   return !!val;
-  // }
   for (const d of boolDefaults) {
     if (d != null) {
       return !!d;

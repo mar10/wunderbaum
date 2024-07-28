@@ -2675,7 +2675,37 @@ export class WunderbaumNode {
    * @see {@link WunderbaumNode.sortByProperty}.
    */
   sortByProperty(options: SortByPropertyOptions) {
-    throw new Error("Not yet implemented");
+    const { caseInsensitive = true, deep = true } = options;
+    const desc = options.order === "desc";
+    let propName = options.propName ?? (options.colId || "");
+    if (propName === "*") {
+      propName = "title";
+    }
+    this.logDebug("sortByProperty", propName, options);
+    util.assert(propName, "No property specified");
+    const cmp = (a: WunderbaumNode, b: WunderbaumNode) => {
+      let av, bv;
+      if (NODE_DICT_PROPS.has(<string>propName)) {
+        av = a[propName as keyof WunderbaumNode];
+        bv = b[propName as keyof WunderbaumNode];
+      } else {
+        av = a.data[propName];
+        bv = b.data[propName];
+      }
+      if (caseInsensitive) {
+        if (typeof av === "string") {
+          av = av.toLowerCase();
+        }
+        if (typeof bv === "string") {
+          bv = bv.toLowerCase();
+        }
+      }
+      if (desc) {
+        return av === bv ? 0 : av > bv ? -1 : 1;
+      }
+      return av === bv ? 0 : av > bv ? 1 : -1;
+    };
+    return this.sortChildren(cmp, deep);
   }
 
   /**

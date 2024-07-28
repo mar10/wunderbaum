@@ -9,6 +9,7 @@ First release.
 
 - v0.11.0: Add support for icon buttons in column headers (menu, sort, filter).
 - v0.11.0: Add `tree.sortByProperty()`.
+- v0.11.0: Add `util.rotate()`.
 
 - v0.10.1: Fix column resizer for Edge.
 

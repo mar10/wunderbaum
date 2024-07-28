@@ -185,18 +185,16 @@ const tree = new Wunderbaum({
     }
     if (e.command === "sort") {
       const colDef = e.info.colDef;
-      const curSortMode = colDef.sortOrder;
-      const nextSortMode =
-        curSortMode == null ? "asc" : curSortMode === "asc" ? "desc" : null;
+      const sortOrder = util.rotate(colDef.sortOrder, ["asc", "desc", null]);
 
       // ... <resort the tree > ...
-      tree.sortByProprty({
-        colId: e.info.colDef.id,
-        order: nextSortMode,
-        caseInsensitive: true,
+      tree.sortByProperty({
+        colId: colDef.id,
+        // order: sortOrder,
+        // caseInsensitive: true,
       });
       // Update the button state
-      e.info.colDef.sortOrder = nextSortMode;
+      colDef.sortOrder = sortOrder;
       tree.update("colStructure");
     }
     if (e.command === "menu") {
