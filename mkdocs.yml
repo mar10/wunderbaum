@@ -17,6 +17,7 @@ theme:
   logo: assets/tree_logo_32.png
   favicon: assets/favicon/favicon.ico
   features:
+    - header.autohide
     - navigation.path
     - navigation.tabs
     - navigation.tabs.sticky
@@ -69,9 +70,9 @@ nav:
       - "Migration": "tutorial/migrate.md"
       - "Contribute": "tutorial/contribute.md"
 
-  - "Code Reference": "https://mar10.github.io/wunderbaum/api/index.html"{:target="_blank"}
-  - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"{:target="_blank"}
-  - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"{:target="_blank"}
+  - "Code Reference": "https://mar10.github.io/wunderbaum/api/index.html"
+  - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"
+  - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"
 
 # not_in_nav: |
 #   /private.md
