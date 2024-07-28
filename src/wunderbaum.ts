@@ -47,6 +47,7 @@ import {
   SetActiveOptions,
   SetColumnOptions,
   SetStatusOptions,
+  SortByPropertyOptions,
   SortCallback,
   SourceType,
   UpdateOptions,
@@ -1993,6 +1994,14 @@ export class Wunderbaum {
     deep: boolean = false
   ): void {
     this.root.sortChildren(cmp, deep);
+  }
+
+  /**
+   * Convenience method to implement column sorting.
+   * @see {@link WunderbaumNode.sortByProperty}.
+   */
+  sortByProperty(options: SortByPropertyOptions) {
+    this.root.sortByProperty(options);
   }
 
   /** Convert tree to an array of plain objects.

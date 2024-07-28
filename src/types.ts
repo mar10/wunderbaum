@@ -742,6 +742,21 @@ export interface SetStatusOptions {
   details?: string;
 }
 
+/** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
+ * argument.
+ */
+export interface SortByPropertyOptions {
+  /** . */
+  colId?: string;
+  vallueGetter?: NodeAnyCallback;
+  order?: SortOrderType;
+  caseInsensitive?: boolean;
+  /** . */
+  deep?: boolean;
+  /** . */
+  updateColInfo?: boolean;
+}
+
 /** Options passed to {@link Wunderbaum.visitRows()}. */
 export interface VisitRowsOptions {
   /** Skip filtered nodes and children of collapsed nodes. @default false */

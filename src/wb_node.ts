@@ -32,6 +32,7 @@ import {
   SetExpandedOptions,
   SetSelectedOptions,
   SetStatusOptions,
+  SortByPropertyOptions,
   SortCallback,
   SourceType,
   TooltipOption,
@@ -2667,6 +2668,14 @@ export class WunderbaumNode {
     this._sortChildren(cmp || nodeTitleSorter, deep);
     this.tree.update(ChangeType.structure);
     // this.triggerModify("sort"); // TODO
+  }
+
+  /**
+   * Convenience method to implement column sorting.
+   * @see {@link WunderbaumNode.sortByProperty}.
+   */
+  sortByProperty(options: SortByPropertyOptions) {
+    throw new Error("Not yet implemented");
   }
 
   /**
