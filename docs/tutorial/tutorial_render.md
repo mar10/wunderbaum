@@ -172,6 +172,13 @@ const tree = new Wunderbaum({
 });
 ```
 
+```css
+div.wunderbaum span.wb-badge.selection-count {
+  color: white;
+  background-color: green;
+}
+```
+
 ?> See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
 and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html).
 
@@ -188,3 +195,7 @@ and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfac
 ```js
 
 ``` -->
+
+```
+
+```

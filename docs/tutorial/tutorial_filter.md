@@ -1,4 +1,4 @@
-# Search, Filter, and Sort Nodes
+# Search and Filter Nodes
 
 Wunderbaum supports different ways to search and filter nodes:
 
@@ -257,36 +257,4 @@ const tree = new Wunderbaum({
     }
   }
 }
-```
-
-## Sorting
-
-### Add a Sort Button to the Column Header
-
-Add a filter button to the column header to toggle the filter mode:
-
-```js
-const tree = new Wunderbaum({
-  ...
-  columns: [
-    {
-      title: "Title",
-      sortable: true,
-    },
-    ...
-  ],
-  buttonClick: (e) => {
-    if (e.command === "sort") {
-      const curSortMode = e.info.colDef.sortOrder;
-      const nextSortMode = curSortMode == null ? "asc" : curSortMode === "asc" ? "desc" : null;
-
-      // ... <resort the tree > ...
-
-      // Update the button state
-      e.info.colDef.sortOrder = nextSortMode;
-      tree.update("colStructure");
-    }
-  },
-  ...
-});
 ```
