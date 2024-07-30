@@ -751,15 +751,15 @@ export interface SetStatusOptions {
  * argument.
  */
 export interface SortByPropertyOptions {
+  /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
+  colId?: string;
   /** The name of the node property that will be used for sorting.
    * @default use the `colId` as property name.
    */
   propName?: string;
-  /** Column ID as defined in `tree.columns` definition. */
-  colId?: string;
   // /** If defined, this callback is used to extract the value to be sorted. */
   // vallueGetter?: NodePropertyGetterCallback;
-  /** Sort order. @default Use value from column definition */
+  /** Sort order. @default Use value from column definition (rotated).*/
   order?: SortOrderType;
   /** Sort string values case insensitive. @default false */
   caseInsensitive?: boolean;
@@ -768,8 +768,8 @@ export interface SortByPropertyOptions {
   // /** Rotate sort order (asc -> desc -> none) before sorting. @default false */
   // rotateOrder?: boolean;
   /**
-   * Update the sort icons in the column header
    * Rotate sort order (asc -> desc -> none) before sorting.
+   * Update the sort icons in the column header
    * Note:
    * Sorting is done in-place. There is no 'unsorted' state, but we can
    * call `setCurrentSortOrder()` to renumber the `node._sortIdx` property,

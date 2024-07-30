@@ -21,11 +21,12 @@ new mar10.Wunderbaum({
   // minExpandLevel: 1,
   // fixedCol: true,
   navigationModeOption: "row",
-  source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+  // source:
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
   // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // "../../test/generator/fixture_store_104k_3_7_flat_comp.json",
   // source: "../assets/ajax_100k_3_1_6.json",
+  source: "../assets/fixture_store_104k_3_7_flat_comp.json",
   types: {
     folder: { colspan: true, checkbox: false },
     book: { icon: "bi bi-book" },
@@ -109,6 +110,15 @@ new mar10.Wunderbaum({
         resolve({ url: "../assets/ajax-lazy-products.json" });
       }, 1500);
     });
+  },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    } else if (e.command === "menu") {
+      // eslint-disable-next-line no-alert
+      alert("Menu clicked");
+    }
   },
   change: function (e) {
     const info = e.info;

@@ -13,6 +13,7 @@ import {
   ApplyCommandType,
   ChangeType,
   CheckboxOption,
+  ColumnDefinition,
   ColumnEventInfoMap,
   ExpandAllOptions,
   IconOption,
@@ -34,6 +35,7 @@ import {
   SetStatusOptions,
   SortByPropertyOptions,
   SortCallback,
+  SortOrderType,
   SourceType,
   TooltipOption,
   TristateType,
@@ -2675,14 +2677,38 @@ export class WunderbaumNode {
    * @see {@link WunderbaumNode.sortByProperty}.
    */
   sortByProperty(options: SortByPropertyOptions) {
-    const { caseInsensitive = true, deep = true } = options;
-    const desc = options.order === "desc";
+    const {
+      caseInsensitive = true,
+      deep = true,
+      updateColInfo = false,
+    } = options;
+
+    let order: SortOrderType;
+    let colDef: ColumnDefinition | null;
+
+    if (updateColInfo) {
+      colDef = this.tree["_columnsById"][options.colId!];
+      util.assert(colDef, `Invalid colId specified: ${options.colId}`);
+      order =
+        options.order ??
+        util.rotate(colDef!.sortOrder, ["asc", "desc", undefined]);
+      colDef!.sortOrder = order;
+      this.tree.update(ChangeType.colStructure);
+    } else {
+      order = options.order ?? "asc";
+    }
+
     let propName = options.propName ?? (options.colId || "");
     if (propName === "*") {
       propName = "title";
     }
-    this.logDebug("sortByProperty", propName, options);
-    util.assert(propName, "No property specified");
+    if (order == null) {
+      propName = "_nativeOrder";
+      order = "asc";
+    }
+    this.logDebug(`sortByProperty(), propName=${propName}, ${order}`, options);
+    util.assert(propName, "No property name specified");
+
     const cmp = (a: WunderbaumNode, b: WunderbaumNode) => {
       let av, bv;
       if (NODE_DICT_PROPS.has(<string>propName)) {
@@ -2700,11 +2726,12 @@ export class WunderbaumNode {
           bv = bv.toLowerCase();
         }
       }
-      if (desc) {
+      if (order === "desc") {
         return av === bv ? 0 : av > bv ? -1 : 1;
       }
       return av === bv ? 0 : av > bv ? 1 : -1;
     };
+
     return this.sortChildren(cmp, deep);
   }
 
