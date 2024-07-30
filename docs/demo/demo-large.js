@@ -21,12 +21,12 @@ new mar10.Wunderbaum({
   // minExpandLevel: 1,
   // fixedCol: true,
   navigationModeOption: "row",
-  // source:
-  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+  source:
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
   // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
   // "../../test/generator/fixture_store_104k_3_7_flat_comp.json",
   // source: "../assets/ajax_100k_3_1_6.json",
-  source: "../assets/fixture_store_104k_3_7_flat_comp.json",
+  // source: "../assets/fixture_store_104k_3_7_flat_comp.json",
   types: {
     folder: { colspan: true, checkbox: false },
     book: { icon: "bi bi-book" },
