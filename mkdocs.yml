@@ -5,7 +5,7 @@ repo_url: https://github.com/mar10/wunderbaum
 # site_description: Set the site description. This will add a meta tag to the generated HTML header.
 
 site_author: Martin Wendt
-copyright: Copyright © 2021-2024 Martin Wendt, Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">mkdocs</a>.
+copyright: Copyright © 2021-2024 Martin Wendt, Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
 
 # remote_branch: gh-pages
 # remote_name: origin
