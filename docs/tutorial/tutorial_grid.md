@@ -146,7 +146,7 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See the [Edit Tutorial](/tutorial/tutorial_edit.md) for examples how to render
+?> See the [Edit Tutorial](tutorial_edit.md) for examples how to render
 embedded controls.
 
 ## Editing
@@ -159,7 +159,7 @@ by default. Instead we have to
 2. Implement the `change(e)` callback to update the node data when the user
    has finished editing a cell.
 
-?> See the [Edit Tutorial](/tutorial/tutorial_edit.md) for details.
+?> See the [Edit Tutorial](tutorial_edit.md) for details.
 
 ## Navigation
 
@@ -167,7 +167,7 @@ A treegrid can have one of two navigation modes. We can toggle using the keyboar
 
 Row Mode ↔ Cell-Nav Mode
 
-?> See the [Keyboard Tutorial](/tutorial/tutorial_keyboard.md) for details.
+?> See the [Keyboard Tutorial](tutorial_keyboard.md) for details.
 
 ## Configuration and Customization
 

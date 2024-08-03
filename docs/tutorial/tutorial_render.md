@@ -2,8 +2,8 @@
 
 This chapter describes different ways to customize the appearance of the tree.
 
-?> See also the [Grid Tutorial](/tutorial/tutorial_grid.md) for rendering of
-grid cell content and [Edit Tutorial](/tutorial/tutorial_grid.md) for rendering
+?> See also the [Grid Tutorial](tutorial_grid.md) for rendering of
+grid cell content and [Edit Tutorial](tutorial_grid.md) for rendering
 embedded input controls in grid cells.
 
 ## Custom Style Sheets
@@ -18,7 +18,7 @@ div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
 }
 ```
 
-?> See the [Styling Tutorial](/tutorial/tutorial_styling.md) for details.
+?> See the [Styling Tutorial](tutorial_styling.md) for details.
 
 ## Custom Icons
 
@@ -144,8 +144,8 @@ const tree = new Wunderbaum({
 ```
 
 ?> The render event is especially useful to render the content of grid cells
-in treegrids. See also the [Grid Tutorial](/tutorial/tutorial_grid.md)
-and the [Edit Tutorial](/tutorial/tutorial_edit.md) for rendering of embedded
+in treegrids. See also the [Grid Tutorial](tutorial_grid.md)
+and the [Edit Tutorial](tutorial_edit.md) for rendering of embedded
 input controls in grids.
 
 ### Badges

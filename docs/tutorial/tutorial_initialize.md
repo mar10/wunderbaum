@@ -130,12 +130,11 @@ Event handlers can be used to control tree behavior and react on status changes.
 Common event handlers include: `init(e)`, `lazyLoad(e)`, `receive(e)`, `render(e)`,
 and more.
 
-?> Event Handlers are described in detail in the [Events chapter](/tutorial/tutorial_events.md).
+?> Event Handlers are described in detail in the [Events chapter](tutorial_events.md).
 
 ## Data Source
 
-?> See examples of JSON data and learn more in the next section, [Data Formats](/tutorial/tutorial_source.md)
-
+?> See examples of JSON data and learn more in the next section, [Data Formats](tutorial_source.md)
 
 Typically we load the tree nodes in a separate Ajax request like so:
 
@@ -179,7 +178,6 @@ Note that
   For example if JSON source contains `"title": "<script>..."`, it will be
   converted to `&lt;script&gt;...`, which is rendered by the browser as
   `<script>...`, but not interpreted as HTML element.
-
 
 ### Handling External Data Formats
 

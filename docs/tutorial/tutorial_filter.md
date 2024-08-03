@@ -33,7 +33,7 @@ nodeList = node.findAll((n) => {
 });
 ```
 
-?> See also the [API tutorial](tutorial/tutorial_api) for more details.
+?> See also the [API tutorial](tutorial_api.md) for more details.
 
 ## Filtering
 

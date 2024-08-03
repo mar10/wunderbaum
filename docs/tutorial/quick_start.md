@@ -29,21 +29,21 @@ options.
     <script>
       data = [
         {
-          "title": "Node 1",
-          "expanded": true,
-          "children": [
+          title: "Node 1",
+          expanded: true,
+          children: [
             {
-              "title": "Node 1.1"
+              title: "Node 1.1",
             },
             {
-              "title": "Node 1.2"
-            }
-          ]
+              title: "Node 1.2",
+            },
+          ],
         },
         {
-          "title": "Node 2",
-        }
-      ]
+          title: "Node 2",
+        },
+      ];
 
       document.addEventListener("DOMContentLoaded", (event) => {
         const tree = new mar10.Wunderbaum({
@@ -71,7 +71,6 @@ options.
 </html>
 ```
 
-
 ESM modules are also supported:
 
 ```html
@@ -81,7 +80,7 @@ ESM modules are also supported:
 ```
 
 ?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
-Read [migrate](/tutorial/migrate.md) for details and migration hints.
+Read [migrate](migrate.md) for details and migration hints.
 
 ?> See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
 and the [live demo](https://mar10.github.io/wunderbaum/demo/).

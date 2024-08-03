@@ -79,10 +79,10 @@ nav:
 
 validation:
   omitted_files: warn
-  absolute_links: warn # Or 'relative_to_docs' - new in MkDocs 1.6
+  absolute_links: warn # Or 'relative_to_docs' 
   unrecognized_links: warn
-  anchors: warn # New in MkDocs 1.6
-
+  anchors: warn 
+  
 markdown_extensions:
   - admonition
   - attr_list

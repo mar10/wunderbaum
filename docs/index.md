@@ -14,7 +14,7 @@
 
 ![logo](assets/teaser_1.png)
 
-- Supports drag and drop, editing, filtering, and multi-selection.
+- Supports drag and drop, editing, filtering, sorting, and multi-selection.
 - Written in TypeScript, transpiled to ES6 (esm & umd).
 - Performant handling of _big_ data structures.
 - Provide an object oriented API.

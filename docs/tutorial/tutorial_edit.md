@@ -139,7 +139,7 @@ Todo;
 
 ## 2. Edit Cell Content
 
-?> See the [Grid Tutorial](/tutorial/tutorial_grid?id=editing) for general
+?> See the [Grid Tutorial](tutorial_grid.md?id=editing) for general
 information about rendering grid cell content.
 
 ?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable),
