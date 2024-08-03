@@ -19,6 +19,9 @@ theme:
   logo: assets/tree_logo_32.png
   favicon: assets/favicon/favicon.ico
   features:
+    - content.code.annotate
+    - content.code.copy
+
     - header.autohide
     
     # - navigation.anchors
@@ -42,7 +45,28 @@ theme:
 
     - toc.follow 
     # - toc.integrate 
-    
+
+  palette:
+
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
 
 markdown_extensions:
   - admonition
@@ -55,8 +79,6 @@ exclude_docs: |
   /unittest/
 
 nav:
-  # - Welcome: "index.md"
-
   - "User Guide":
       - index.md
       - "Quick start": "tutorial/quick_start.md"
@@ -95,6 +117,12 @@ markdown_extensions:
   - attr_list
   - pymdownx.details
   - pymdownx.superfences
+  - pymdownx.highlight:
+      use_pygments: true
+      # auto_title: true
+      # linenums: true
+      pygments_lang_class: true
+  - pymdownx.magiclink
 
   - toc:
       permalink: "#"

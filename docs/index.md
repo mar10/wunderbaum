@@ -1,4 +1,6 @@
-# ![logo](assets/tree_logo_32.png) Wunderbaum [![GitHub version](https://img.shields.io/github/v/release/mar10/wunderbaum?display_name=tag&sort=semver)](https://github.com/mar10/wunderbaum/releases/latest)
+# User Guide
+
+[![GitHub version](https://img.shields.io/github/v/release/mar10/wunderbaum?display_name=tag&sort=semver)](https://github.com/mar10/wunderbaum/releases/latest)
 
 > A modern JavaScript tree/treegrid control.
 

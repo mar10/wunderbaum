@@ -52,13 +52,16 @@ const tree = new Wunderbaum({
       id: "price",
       title: "Price ($)",
       width: "80px",
-      classes: "wb-helper-end",
+      classes: "wb-helper-end",  // (1)
     },
     { id: "details", title: "Details", width: "*" },
   ],
   ...
 });
 ```
+
+1.  This classes are added to all header and row cells of that column.
+    In this case: right align the content of the column.
 
 !!! info
 
