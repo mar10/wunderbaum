@@ -35,7 +35,7 @@ theme:
     - navigation.footer
     # - navigation.meta
     - navigation.tracking 
-    - toc.integrate 
+    # - toc.integrate 
     
 
 markdown_extensions:
