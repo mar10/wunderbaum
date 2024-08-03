@@ -68,6 +68,12 @@ const tree = new mar10.Wunderbaum({
     folderOpen: "bi bi-folder2-open",
     folderLazy: "bi bi-folder-symlink",
     doc: "bi bi-file-earmark",
+    colSortable: "bi bi-arrow-down-up",
+    colSortAsc: "bi bi-arrow-down",
+    colSortDesc: "bi bi-arrow-up",
+    colFilter: "bi bi-filter",
+    colFilterActive: "bi bi-filter-square-fill",
+    colMenu: "bi bi-three-dots-vertical",
    },
   ...
 });
@@ -166,6 +172,13 @@ const tree = new Wunderbaum({
 });
 ```
 
+```css
+div.wunderbaum span.wb-badge.selection-count {
+  color: white;
+  background-color: green;
+}
+```
+
 ?> See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
 and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html).
 
@@ -182,3 +195,7 @@ and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfac
 ```js
 
 ``` -->
+
+```
+
+```

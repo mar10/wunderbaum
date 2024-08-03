@@ -92,6 +92,17 @@ Common event handlers include:
 </dd>
 
 <dt>
+  <code>buttonClick(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbButtonClickEventType.html">WbButtonClickEventType</a>)</code>
+  <small>- <i>tree event</i></small>
+</dt> <dd>
+  A column header button was clicked, e.g. sort, filter, or menu.
+  Check `e.command` and `e.info.colId`, ... for details. <br>
+  Note that the actual implementation of the command must be explicitly provided.<br>
+  See also <a href="https://mar10.github.io/wunderbaum/index.html#/tutorial/tutorial_filter">Search and Filter</a> for examples.
+
+</dd>
+
+<dt>
   <code>change(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbChangeEventType.html">WbChangeEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>
