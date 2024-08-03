@@ -13,6 +13,7 @@ import {
   ApplyCommandType,
   ChangeType,
   CheckboxOption,
+  ColumnDefinition,
   ColumnEventInfoMap,
   ExpandAllOptions,
   IconOption,
@@ -27,12 +28,15 @@ import {
   NodeVisitCallback,
   NodeVisitResponse,
   RenderOptions,
+  ResetOrderOptions,
   ScrollIntoViewOptions,
   SetActiveOptions,
   SetExpandedOptions,
   SetSelectedOptions,
   SetStatusOptions,
+  SortByPropertyOptions,
   SortCallback,
+  SortOrderType,
   SourceType,
   TooltipOption,
   TristateType,
@@ -104,12 +108,26 @@ export class WunderbaumNode {
    * @see Use {@link setKey} to modify.
    */
   public readonly refKey: string | undefined = undefined;
+  /**
+   * Array of child nodes (null for leaf nodes).
+   * For lazy nodes, this is `null` or ùndefined` until the children are loaded
+   * and leaf nodes may be `[]` (empty array).
+   * @see {@link hasChildren}, {@link addChildren}, {@link lazy}.
+   */
   public children: WunderbaumNode[] | null = null;
+  /** Render a checkbox or radio button @see {@link selected}. */
   public checkbox?: CheckboxOption;
+  /** If true, this node's children are considerd radio buttons.
+   * @see {@link isRadio}.
+   */
   public radiogroup?: boolean;
   /** If true, (in grid mode) no cells are rendered, except for the node title.*/
   public colspan?: boolean;
+  /** Icon definition. */
   public icon?: IconOption;
+  /** Lazy loading flag.
+   * @see {@link isLazy}, {@link isLoaded}, {@link isUnloaded}.
+   */
   public lazy?: boolean;
   /** Expansion state.
    * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
@@ -118,7 +136,11 @@ export class WunderbaumNode {
    * @see {@link isSelected}, {@link setSelected}, {@link toggleSelected}. */
   public selected?: boolean;
   public unselectable?: boolean;
+  /** Node type (used for styling).
+   * @see {@link Wunderbaum.types}.
+   */
   public type?: string;
+  /** Tooltip definition (`true`: use node's title). */
   public tooltip?: string | boolean;
   /** Additional classes added to `div.wb-row`.
    * @see {@link hasClass}, {@link setClass}. */
@@ -1054,6 +1076,8 @@ export class WunderbaumNode {
     if (tree.options.selectMode === "hier") {
       this.fixSelection3FromEndNodes();
     }
+    // Allow to un-sort nodes after sorting
+    this.resetNativeChildOrder();
 
     this._callEvent("load");
   }
@@ -2667,6 +2691,91 @@ export class WunderbaumNode {
     this._sortChildren(cmp || nodeTitleSorter, deep);
     this.tree.update(ChangeType.structure);
     // this.triggerModify("sort"); // TODO
+  }
+
+  /**
+   * Renumber nodes `_nativeIndex`. This is useful to allow to restore the
+   * order after sorting a column.
+   * This method is automatically called after loading new child nodes.
+   */
+  resetNativeChildOrder(options?: ResetOrderOptions) {
+    const { recursive = true, propName = "_nativeIndex" } = options ?? {};
+
+    if (this.children) {
+      this.children.forEach((child, i) => {
+        child.data[propName] = i;
+        if (recursive && child.children) {
+          child.resetNativeChildOrder(options);
+        }
+      });
+    }
+  }
+
+  /**
+   * Convenience method to implement column sorting.
+   */
+  sortByProperty(options: SortByPropertyOptions) {
+    const {
+      caseInsensitive = true,
+      deep = true,
+      nativeOrderPropName = "_nativeIndex",
+      updateColInfo = false,
+    } = options;
+
+    let order: SortOrderType;
+    let colDef: ColumnDefinition | null;
+
+    if (updateColInfo) {
+      colDef = this.tree["_columnsById"][options.colId!];
+      util.assert(colDef, `Invalid colId specified: ${options.colId}`);
+      order =
+        options.order ??
+        util.rotate(colDef!.sortOrder, ["asc", "desc", undefined]);
+
+      for (const col of this.tree.columns) {
+        col.sortOrder = col === colDef ? order : undefined;
+      }
+
+      this.tree.update(ChangeType.colStructure);
+    } else {
+      order = options.order ?? "asc";
+    }
+
+    let propName = options.propName ?? (options.colId || "");
+    if (propName === "*") {
+      propName = "title";
+    }
+    if (order == null) {
+      propName = nativeOrderPropName;
+      order = "asc";
+    }
+    this.logDebug(`sortByProperty(), propName=${propName}, ${order}`, options);
+    util.assert(propName, "No property name specified");
+
+    const cmp = (a: WunderbaumNode, b: WunderbaumNode) => {
+      let av, bv;
+      if (NODE_DICT_PROPS.has(<string>propName)) {
+        av = a[propName as keyof WunderbaumNode];
+        bv = b[propName as keyof WunderbaumNode];
+      } else {
+        av = a.data[propName];
+        bv = b.data[propName];
+      }
+      if (caseInsensitive) {
+        if (typeof av === "string") {
+          av = av.toLowerCase();
+        }
+        if (typeof bv === "string") {
+          bv = bv.toLowerCase();
+        }
+      }
+      if (order === "desc") {
+        return av === bv ? 0 : av > bv ? -1 : 1;
+      }
+      return av === bv ? 0 : av > bv ? 1 : -1;
+    };
+
+    return this.sortChildren(cmp, deep);
   }
 
   /**

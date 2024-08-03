@@ -1,4 +1,4 @@
-# Search and Filter
+# Search and Filter Nodes
 
 Wunderbaum supports different ways to search and filter nodes:
 
@@ -198,6 +198,36 @@ const tree = new Wunderbaum({
 
 ?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
 and enter some text in the _Filter_ control at the top.
+
+### Add a Filter Button to the Column Header
+
+Add a filter button to the column header to toggle the filter mode:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    {
+      title: "Title",
+      filterable: true,
+    },
+    ...
+  ],
+  buttonClick: (e) => {
+    tree.log(e.type, e);
+
+    if (e.command === "filter") {
+
+      // ... <open a filter dialog or toggle the filter mode> ...
+
+      // Update the button state
+      e.info.colDef.filterActive = !e.info.colDef.filterActive;
+      tree.update("colStructure");
+    }
+  },
+  ...
+});
+```
 
 ### Related Methods
 

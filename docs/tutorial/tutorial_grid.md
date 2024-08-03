@@ -218,3 +218,59 @@ tree.columns.push({
 });
 tree.update("colStructure");
 ```
+
+#### Add a Menu Button to the Column Header
+
+Add a filter button to the column header to toggle the filter mode:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    {
+      title: "Title",
+      menu: true,
+      ...
+    },
+    ...
+  ],
+  buttonClick: (e) => {
+    if (e.command === "menu") {
+      alert("Open menu...");
+    }
+  },
+  ...
+});
+```
+
+#### Add a Sort Button to the Column Header
+
+Add a sort button to the column header to toggle the enable sorting and toggle
+the order:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    {
+      title: "Title",
+      sortable: true,
+      ...
+    },
+    ...
+  ],
+  buttonClick: (e) => {
+    if (e.command === "sort") {
+      const curSortMode = e.info.colDef.sortOrder;
+      const nextSortMode = curSortMode == null ? "asc" : curSortMode === "asc" ? "desc" : null;
+
+      // ... <resort the tree by column `e.info.colId` using the API> ...
+
+      // Update the button state
+      e.info.colDef.sortOrder = nextSortMode;
+      tree.update("colStructure");
+    }
+  },
+  ...
+});
+```

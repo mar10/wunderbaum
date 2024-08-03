@@ -79,3 +79,10 @@ const tree = new Wunderbaum({
   ...
 });
 ```
+
+```css
+div.wunderbaum span.wb-badge.selection-count {
+  color: white;
+  background-color: green;
+}
+```

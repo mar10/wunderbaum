@@ -72,6 +72,11 @@ export type BoolOrStringOptionResolver = (
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 /** A callback that receives a node instance and returns a string value. */
 export type NodeStringCallback = (node: WunderbaumNode) => string;
+/** A callback that receives a node instance and property name returns a value. */
+export type NodePropertyGetterCallback = (
+  node: WunderbaumNode,
+  propName: string
+) => any;
 /** A callback that receives a node instance and returns an iteration modifier. */
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
 /** A callback that receives a node instance and returns a string value. */
@@ -264,6 +269,12 @@ export interface WbSelectEventType extends WbNodeEventType {
   flag: boolean;
 }
 
+export interface WbButtonClickEventType extends WbTreeEventType {
+  info: WbEventInfo;
+  /** The associated command, e.g. 'menu', 'sort', 'filter', ... */
+  command: string;
+}
+
 export interface WbRenderEventType extends WbNodeEventType {
   /**
    * True if the node's markup was not yet created. In this case the render
@@ -358,23 +369,40 @@ export interface ColumnDefinition {
    * Default: unset.
    */
   customWidthPx?: number;
-  /** Allow user to sort the column. Default: false. <br>
-   * **Note:** Sorting is not implemented yet.
+  /** Display a 'filter' button in the column header. Default: false. <br>
+   * Note: The actual filtering must be implemented in the `buttonClick()` event.
+   */
+  filterable?: boolean;
+  /** .
+   * Default: inactive. <br>
+   * Note: The actual filtering must be implemented in the `buttonClick()` event.
+   */
+  filterActive?: boolean;
+  /** Display a 'sort' button in the column header. Default: false. <br>
+   * Note: The actual sorting must be implemented in the `buttonClick()` event.
    */
   sortable?: boolean;
   /** Optional custom column sort orde when user clicked the sort icon.
-   * Default: unset. <br>
-   * **Note:** Sorting is not implemented yet.
+   * Default: unset, e.g. not sorted. <br>
+   * Note: The actual sorting must be implemented in the `buttonClick()` event.
    */
   sortOrder?: SortOrderType;
+  /** Display a menu icon that may open a context menu for this column.
+   * Note: The actual functionality must be implemented in the `buttonClick()` event.
+   */
+  menu?: boolean;
   /** Optional class names that are added to all `span.wb-col` header AND data
-   * elements of that column.
+   * elements of that column. Separate multiple classes with space.
    */
   classes?: string;
   /** If `headerClasses` is a set, it will be used for the header element only
    * (unlike `classes`, which is used for body and header cells).
+   * Separate multiple classes with space.
    */
   headerClasses?: string;
+  // /** A list of icon definitions added to the column header.
+  //  */
+  // headerIcons?: string;
   /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
   /** @internal */
@@ -717,6 +745,56 @@ export interface SetStatusOptions {
   message?: string;
   /** Used as tooltip. */
   details?: string;
+}
+
+/** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
+ * argument.
+ */
+export interface ResetOrderOptions {
+  /** Sort descendants recursively. @default true */
+  recursive?: boolean;
+  /** The name of the node property that will be renumbered.
+   * @default `_nativeIndex`.
+   */
+  propName?: string;
+}
+
+/** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
+ * argument.
+ */
+export interface SortByPropertyOptions {
+  /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
+  colId?: string;
+  /** The name of the node property that will be used for sorting.
+   * @default use the `colId` as property name.
+   */
+  propName?: string;
+  // /** If defined, this callback is used to extract the value to be sorted. */
+  // vallueGetter?: NodePropertyGetterCallback;
+  /** Sort order. @default Use value from column definition (rotated).*/
+  order?: SortOrderType;
+  /**
+   * Sort by this property if order is `undefined`.
+   * See also {@link WunderbaumNode.resetNativeChildOrder()}.
+   * @default `_nativeIndex`.
+   */
+  nativeOrderPropName?: string;
+  /** Sort string values case insensitive. @default false */
+  caseInsensitive?: boolean;
+  /** Sort descendants recursively. @default true */
+  deep?: boolean;
+  // /** Rotate sort order (asc -> desc -> none) before sorting. @default false */
+  // rotateOrder?: boolean;
+  /**
+   * Rotate sort order (asc -> desc -> none) before sorting.
+   * Update the sort icons in the column header
+   * Note:
+   * Sorting is done in-place. There is no 'unsorted' state, but we can
+   * call `setCurrentSortOrder()` to renumber the `node._sortIdx` property,
+   * which will be used as sort key, when `order` is `undefined`.
+   * @default false
+   */
+  updateColInfo?: boolean;
 }
 
 /** Options passed to {@link Wunderbaum.visitRows()}. */
