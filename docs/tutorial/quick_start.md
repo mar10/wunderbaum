@@ -1,7 +1,9 @@
 # Quick Start
 
-!> Wunderbaum has beta status:<br>
-API, Markup, Stylesheet, etc. are still subject to change.
+!!! note
+
+    Wunderbaum has beta status:<br>
+    API, Markup, Stylesheet, etc. are still subject to change.
 
 A Wunderbaum control is added to a web page by defining a `<div>` tag and
 then create a new _Wunderbaum_ class instance, passing the tag and configuration
@@ -29,21 +31,21 @@ options.
     <script>
       data = [
         {
-          "title": "Node 1",
-          "expanded": true,
-          "children": [
+          title: "Node 1",
+          expanded: true,
+          children: [
             {
-              "title": "Node 1.1"
+              title: "Node 1.1",
             },
             {
-              "title": "Node 1.2"
-            }
-          ]
+              title: "Node 1.2",
+            },
+          ],
         },
         {
-          "title": "Node 2",
-        }
-      ]
+          title: "Node 2",
+        },
+      ];
 
       document.addEventListener("DOMContentLoaded", (event) => {
         const tree = new mar10.Wunderbaum({
@@ -71,7 +73,6 @@ options.
 </html>
 ```
 
-
 ESM modules are also supported:
 
 ```html
@@ -80,8 +81,13 @@ ESM modules are also supported:
 </script>
 ```
 
-?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
-Read [migrate](/tutorial/migrate.md) for details and migration hints.
+!!! info
 
-?> See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
-and the [live demo](https://mar10.github.io/wunderbaum/demo/).
+    Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
+
+    Read [migrate](migrate.md) for details and migration hints.
+
+!!! info
+
+    See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
+    and the [live demo](https://mar10.github.io/wunderbaum/demo/).

@@ -1,0 +1,101 @@
+site_name: Wunderbaum
+# site_url: https://mar10.github.io/wunderbaum/
+repo_url: https://github.com/mar10/wunderbaum
+
+# site_description: Set the site description. This will add a meta tag to the generated HTML header.
+
+site_author: Martin Wendt
+copyright: Copyright © 2021-2024 Martin Wendt, Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">mkdocs</a>.
+
+# remote_branch: gh-pages
+# remote_name: origin
+
+theme:
+  name: material
+  locale: en
+  include_sidebar: true
+  logo: assets/tree_logo_32.png
+  favicon: assets/favicon/favicon.ico
+  features:
+    - header.autohide
+    - navigation.path
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - navigation.bottom
+    - navigation.prev_next
+    # - navigation.edit_url 
+    # - navigation.search
+    # - navigation.toc
+    # - navigation.scrollspy
+    # - navigation.anchors
+    - navigation.breadcrumbs
+    - navigation.footer
+    # - navigation.meta
+    - navigation.tracking 
+    # - toc.integrate 
+    
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  
+exclude_docs: |
+  .*
+  /templates/
+  /unittest/
+
+nav:
+  - Welcome: "index.md"
+
+  - "User Guide":
+      - "Quick start": "tutorial/quick_start.md"
+      - "Initialization": "tutorial/tutorial_initialize.md"
+      - "Data Formats": "tutorial/tutorial_source.md"
+      - Features:
+          - "Render": "tutorial/tutorial_render.md"
+          - "Styling": "tutorial/tutorial_styling.md"
+          - "Grid": "tutorial/tutorial_grid.md"
+          - "Edit": "tutorial/tutorial_edit.md"
+          - "Drag'n'Drop": "tutorial/tutorial_dnd.md"
+          - "Select": "tutorial/tutorial_select.md"
+          - "Events": "tutorial/tutorial_events.md"
+          - "Filter": "tutorial/tutorial_filter.md"
+          - "Keyboard": "tutorial/tutorial_keyboard.md"
+          - "API": "tutorial/tutorial_api.md"
+      - "Concepts": "tutorial/concepts.md"
+      - "Migration": "tutorial/migrate.md"
+      - "Contribute": "tutorial/contribute.md"
+
+  - "Code Reference": "https://mar10.github.io/wunderbaum/api/index.html"
+  - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"
+  - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"
+
+# not_in_nav: |
+#   /private.md
+
+validation:
+  omitted_files: warn
+  absolute_links: warn # Or 'relative_to_docs' 
+  unrecognized_links: warn
+  anchors: warn 
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+
+  - toc:
+      permalink: "#"
+      # baselevel: 2
+      # separator: "_"
+
+extra:
+  generator: false  # Added to Copyright instead
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX

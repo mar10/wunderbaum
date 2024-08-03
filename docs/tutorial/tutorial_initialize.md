@@ -67,8 +67,10 @@ Common options include:
 </dd>
 </dl>
 
-?> See [WunderbaumOptions](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html)
-for a complete list of options.
+!!! info
+
+    See [WunderbaumOptions](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html)
+    for a complete list of options.
 
 ### Dynamic Options
 
@@ -130,12 +132,16 @@ Event handlers can be used to control tree behavior and react on status changes.
 Common event handlers include: `init(e)`, `lazyLoad(e)`, `receive(e)`, `render(e)`,
 and more.
 
-?> Event Handlers are described in detail in the [Events chapter](/tutorial/tutorial_events.md).
+!!! info
+
+    Event Handlers are described in detail in the [Events chapter](tutorial_events.md).
 
 ## Data Source
 
-?> See examples of JSON data and learn more in the next section, [Data Formats](/tutorial/tutorial_source.md)
+!!! info
 
+    See examples of JSON data and learn more in the next section,
+    [Data Formats](tutorial_source.md)
 
 Typically we load the tree nodes in a separate Ajax request like so:
 
@@ -180,11 +186,12 @@ Note that
   converted to `&lt;script&gt;...`, which is rendered by the browser as
   `<script>...`, but not interpreted as HTML element.
 
-
 ### Handling External Data Formats
 
-?> See also [Example with source](https://mar10.github.io/wunderbaum/demo/#demo-custom)
-that queries the [Fake Store API](https://fakestoreapi.com).
+!!! info
+
+    See also [Example with source](https://mar10.github.io/wunderbaum/demo/#demo-custom)
+    that queries the [Fake Store API](https://fakestoreapi.com).
 
 ```js
 const tree = new Wunderbaum({

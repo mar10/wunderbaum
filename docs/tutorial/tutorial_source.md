@@ -149,7 +149,9 @@ The example above can still be optimized:
   `{"title": "foo"}` (see below).
 - Use a `_valueMap` to define a global list of potential string values for a distinct property type. Nodes can then pass a numeric index instead of the string, which will save space.
 
-!> The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
+!!! note
+
+    The syntax of `_keyMap` and `_valueMap` has changed with v0.7.0.
 
 ```js
 {

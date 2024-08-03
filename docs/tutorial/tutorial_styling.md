@@ -106,8 +106,10 @@ for a complete list of all availabe CSS variables.
 
 ## CSS Hacks
 
-?> See also the [Render Tutorial](/tutorial/tutorial_render?id=custom-markup)
-for details on the markup structure and used class names.
+!!! info
+
+    See also the [Render Tutorial](tutorial_render.md?id=custom-markup)
+    for details on the markup structure and used class names.
 
 ```css
 div.wunderbaum {

@@ -17,10 +17,12 @@ There are many ways how you can help:
 
 Issues can be reported in the [bug tracker](https://github.com/mar10/wunderbaum/issues).
 
-?> Try your best to make fixing as easy as possible.
-Do not assume that bugs are fixed, just because they are reported:
-Please understand that issues are likely to be closed, if they are hard to
-reproduce.
+!!! info
+
+    Try your best to make fixing as easy as possible.
+    Do not assume that bugs are fixed, just because they are reported:
+    Please understand that issues are likely to be closed, if they are hard to
+    reproduce.
 
 A bug report should contain:
 
@@ -46,9 +48,11 @@ Do not forget to add an entry to the `CHANGELOG.md`.
 Features can be requested and discussed in the [bug tracker](https://github.com/mar10/wunderbaum/issues),
 or - often more adequate - in the [discussion forum](https://github.com/mar10/wunderbaum/discussions).
 
-?> Please understand that feature requests sometimes are rejected due to the lack
-of resources, or because they do not fit into the _greater plan_ or paradigm.<br>
-This does not mean that the proposal is bad, so do not feel offended.
+!!! info
+
+    Please understand that feature requests sometimes are rejected due to the lack
+    of resources, or because they do not fit into the _greater plan_ or paradigm.<br>
+    This does not mean that the proposal is bad, so do not feel offended.
 
 If you plan to contribute a feature via a
 [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)

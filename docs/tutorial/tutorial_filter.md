@@ -33,7 +33,9 @@ nodeList = node.findAll((n) => {
 });
 ```
 
-?> See also the [API tutorial](tutorial/tutorial_api) for more details.
+!!! info
+
+    See also the [API tutorial](tutorial_api.md) for more details.
 
 ## Filtering
 
@@ -123,9 +125,11 @@ tree.filterNodes((node) => {
 });
 ```
 
-?> A filter callback may return a boolean value, or the string values 'skip' or
-'branch'. The latter will skip or match the node and all its descendants. <br>
-Note that highlighting matches is not supported for function filters.
+!!! info
+
+    A filter callback may return a boolean value, or the string values 'skip' or
+    'branch'. The latter will skip or match the node and all its descendants. <br>
+    Note that highlighting matches is not supported for function filters.
 
 ### Display Count of Matches as Badges
 
@@ -196,8 +200,10 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
-and enter some text in the _Filter_ control at the top.
+!!! info
+
+    See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
+    and enter some text in the _Filter_ control at the top.
 
 ### Add a Filter Button to the Column Header
 

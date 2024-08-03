@@ -1,6 +1,8 @@
 # Tree API
 
-!> This chapter is still under construction.
+!!! note
+
+    This chapter is still under construction.
 
 This chapter describes different ways to modify the tree model using
 the API.
@@ -56,15 +58,15 @@ parentNode.visit((node) => {
 
 ## Searching
 
-See [Search and Filter Nodes](/tutorial/tutorial_filter.md).
+See [Search and Filter Nodes](tutorial_filter.md).
 
 ## Selection
 
-See [Search and Filter Nodes](/tutorial/tutorial_filter.md).
+See [Search and Filter Nodes](tutorial_filter.md).
 
 ## Sorting
 
-See [Search and Filter Nodes](/tutorial/tutorial_filter.md).
+See [Search and Filter Nodes](tutorial_filter.md).
 
 ## Mutation
 

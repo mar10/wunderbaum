@@ -51,13 +51,17 @@ e = {
 }
 ```
 
-?> See also the overview of available functions of the
-[utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).
+!!! info
+
+    See also the overview of available functions of the
+    [utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).
 
 ## Event Handlers
 
-?> A list of all available events can also be found in the
-[API Reference](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html).
+!!! info
+
+    A list of all available events can also be found in the
+    [API Reference](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html).
 
 Common event handlers include:
 
@@ -98,7 +102,7 @@ Common event handlers include:
   A column header button was clicked, e.g. sort, filter, or menu.
   Check `e.command` and `e.info.colId`, ... for details. <br>
   Note that the actual implementation of the command must be explicitly provided.<br>
-  See also <a href="https://mar10.github.io/wunderbaum/index.html#/tutorial/tutorial_filter">Search and Filter</a> for examples.
+  See also <a href="https://mar10.github.io/wunderbaum/index.html#tutorial_filter">Search and Filter</a> for examples.
 
 </dd>
 

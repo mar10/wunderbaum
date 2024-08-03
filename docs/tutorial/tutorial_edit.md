@@ -106,10 +106,14 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain),
-activate a node, and hit <code>F2</code>.
+!!! info
 
-?> See also [EditOptionsType](https://mar10.github.io/wunderbaum/api/types/types.EditOptionsType.html).
+    See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain),
+    activate a node, and hit <code>F2</code>.
+
+!!! info
+
+    See also [EditOptionsType](https://mar10.github.io/wunderbaum/api/types/types.EditOptionsType.html).
 
 ### Related Methods
 
@@ -139,11 +143,15 @@ Todo;
 
 ## 2. Edit Cell Content
 
-?> See the [Grid Tutorial](/tutorial/tutorial_grid?id=editing) for general
-information about rendering grid cell content.
+!!! info
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable),
-expand some nodes and enter values into the input controls.
+    See the [Grid Tutorial](tutorial_grid.md?id=editing) for general
+    information about rendering grid cell content.
+
+!!! info
+
+    See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable),
+    expand some nodes and enter values into the input controls.
 
 Editing cells &mdash; other than the node title column &mdash; is not supported
 by default. Instead we have to

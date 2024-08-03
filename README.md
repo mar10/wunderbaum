@@ -16,7 +16,7 @@
 
 [![Demo](docs/assets/teaser_2.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
 
-- Supports drag and drop, editing, filtering, and multi-selection.
+- Supports drag and drop, editing, filtering, sorting, and multi-selection.
 - Written in TypeScript, transpiled to ES6 (esm & umd).
 - Performant handling of big data structures.
 - Provide an object oriented API.
