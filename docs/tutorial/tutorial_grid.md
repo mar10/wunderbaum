@@ -259,7 +259,7 @@ const tree = new Wunderbaum({
 
 #### Add a Sort Button to the Column Header
 
-Add a sort button to the column header to toggle the enable sorting and toggle
+Add a sort button to the column header and handle click events to toggle
 the order:
 
 ```js
@@ -275,14 +275,7 @@ const tree = new Wunderbaum({
   ],
   buttonClick: (e) => {
     if (e.command === "sort") {
-      const curSortMode = e.info.colDef.sortOrder;
-      const nextSortMode = curSortMode == null ? "asc" : curSortMode === "asc" ? "desc" : null;
-
-      // ... <resort the tree by column `e.info.colId` using the API> ...
-
-      // Update the button state
-      e.info.colDef.sortOrder = nextSortMode;
-      tree.update("colStructure");
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
     }
   },
   ...

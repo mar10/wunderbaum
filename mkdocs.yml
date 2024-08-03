@@ -5,7 +5,9 @@ repo_url: https://github.com/mar10/wunderbaum
 # site_description: Set the site description. This will add a meta tag to the generated HTML header.
 
 site_author: Martin Wendt
-copyright: Copyright © 2021-2024 Martin Wendt, Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
+copyright: |
+  Copyright © 2021-2024 Martin Wendt, 
+  Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
 
 # remote_branch: gh-pages
 # remote_name: origin
@@ -18,23 +20,27 @@ theme:
   favicon: assets/favicon/favicon.ico
   features:
     - header.autohide
+    
+    # - navigation.anchors
+    - navigation.bottom
+    - navigation.breadcrumbs
+    # - navigation.edit_url 
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    # - navigation.meta
     - navigation.path
+    - navigation.prev_next
+    # - navigation.scrollspy
+    # - navigation.search
+    - navigation.sections
     - navigation.tabs
     - navigation.tabs.sticky
-    - navigation.sections
-    - navigation.expand
-    - navigation.top
-    - navigation.bottom
-    - navigation.prev_next
-    # - navigation.edit_url 
-    # - navigation.search
     # - navigation.toc
-    # - navigation.scrollspy
-    # - navigation.anchors
-    - navigation.breadcrumbs
-    - navigation.footer
-    # - navigation.meta
+    - navigation.top
     - navigation.tracking 
+
+    - toc.follow 
     # - toc.integrate 
     
 
@@ -49,9 +55,10 @@ exclude_docs: |
   /unittest/
 
 nav:
-  - Welcome: "index.md"
+  # - Welcome: "index.md"
 
   - "User Guide":
+      - index.md
       - "Quick start": "tutorial/quick_start.md"
       - "Initialization": "tutorial/tutorial_initialize.md"
       - "Data Formats": "tutorial/tutorial_source.md"

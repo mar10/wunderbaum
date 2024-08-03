@@ -184,20 +184,8 @@ const tree = new Wunderbaum({
       tree.update("colStructure");
     }
     if (e.command === "sort") {
-      const colDef = e.info.colDef;
-      const sortOrder = util.rotate(colDef.sortOrder, ["asc", "desc", null]);
-
-      // ... <resort the tree > ...
-      tree.sortByProperty({
-        colId: colDef.id,
-        // order: sortOrder,
-        // caseInsensitive: true,
-      });
-      // Update the button state
-      colDef.sortOrder = sortOrder;
-      tree.update("colStructure");
-    }
-    if (e.command === "menu") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    } else if (e.command === "menu") {
       // eslint-disable-next-line no-alert
       alert("Open menu...");
     }
