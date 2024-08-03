@@ -22,7 +22,9 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See also the [Selection Example](https://mar10.github.io/wunderbaum/demo/#demo-select).
+!!! info
+
+    See also the [Selection Example](https://mar10.github.io/wunderbaum/demo/#demo-select).
 
 ### Related Node Properties
 

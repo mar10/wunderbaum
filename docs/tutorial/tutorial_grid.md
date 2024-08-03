@@ -1,6 +1,8 @@
 # Grid
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
+!!! info
+
+    See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
 
 Wunderbaum works as a treegrid out of the box if we specify column definitions. <br>
 In a treegrid, there is also general support for embedded input elements
@@ -17,7 +19,9 @@ Create HTML controls in the `render(e)` callback and implement the
 
 ## Column Definitions
 
-?> Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
+!!! info
+
+    Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
 
 A list of column definitions is specified in the `columns` option.
 `title` and `id` are required. `width` is optional, but recommended.
@@ -56,9 +60,11 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See also
-[ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
-for details.
+!!! info
+
+    See also
+    [ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
+    for details.
 
 ## Rendering
 
@@ -146,8 +152,10 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See the [Edit Tutorial](tutorial_edit.md) for examples how to render
-embedded controls.
+!!! info
+
+    See the [Edit Tutorial](tutorial_edit.md) for examples how to render
+    embedded controls.
 
 ## Editing
 
@@ -159,7 +167,9 @@ by default. Instead we have to
 2. Implement the `change(e)` callback to update the node data when the user
    has finished editing a cell.
 
-?> See the [Edit Tutorial](tutorial_edit.md) for details.
+!!! info
+
+    See the [Edit Tutorial](tutorial_edit.md) for details.
 
 ## Navigation
 
@@ -167,11 +177,15 @@ A treegrid can have one of two navigation modes. We can toggle using the keyboar
 
 Row Mode ↔ Cell-Nav Mode
 
-?> See the [Keyboard Tutorial](tutorial_keyboard.md) for details.
+!!! info
+
+    See the [Keyboard Tutorial](tutorial_keyboard.md) for details.
 
 ## Configuration and Customization
 
-!> Todo.
+!!! note
+
+    Todo.
 
 ### Related Tree Options
 

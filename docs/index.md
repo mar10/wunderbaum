@@ -2,7 +2,7 @@
 
 > A modern JavaScript tree/treegrid control.
 
-!!! note
+!!! info
 
     Wunderbaum has beta status:
     API, Markup, Stylesheet, etc. are still subject to change.

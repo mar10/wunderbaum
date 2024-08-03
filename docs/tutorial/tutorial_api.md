@@ -1,6 +1,8 @@
 # Tree API
 
-!> This chapter is still under construction.
+!!! note
+
+    This chapter is still under construction.
 
 This chapter describes different ways to modify the tree model using
 the API.

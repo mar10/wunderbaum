@@ -51,13 +51,17 @@ e = {
 }
 ```
 
-?> See also the overview of available functions of the
-[utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).
+!!! info
+
+    See also the overview of available functions of the
+    [utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).
 
 ## Event Handlers
 
-?> A list of all available events can also be found in the
-[API Reference](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html).
+!!! info
+
+    A list of all available events can also be found in the
+    [API Reference](https://mar10.github.io/wunderbaum/api/interfaces/wb_options.WunderbaumOptions.html).
 
 Common event handlers include:
 

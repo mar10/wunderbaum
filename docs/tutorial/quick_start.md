@@ -1,7 +1,9 @@
 # Quick Start
 
-!> Wunderbaum has beta status:<br>
-API, Markup, Stylesheet, etc. are still subject to change.
+!!! note
+
+    Wunderbaum has beta status:<br>
+    API, Markup, Stylesheet, etc. are still subject to change.
 
 A Wunderbaum control is added to a web page by defining a `<div>` tag and
 then create a new _Wunderbaum_ class instance, passing the tag and configuration
@@ -79,8 +81,13 @@ ESM modules are also supported:
 </script>
 ```
 
-?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
-Read [migrate](migrate.md) for details and migration hints.
+!!! info
 
-?> See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
-and the [live demo](https://mar10.github.io/wunderbaum/demo/).
+    Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
+
+    Read [migrate](migrate.md) for details and migration hints.
+
+!!! info
+
+    See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
+    and the [live demo](https://mar10.github.io/wunderbaum/demo/).
