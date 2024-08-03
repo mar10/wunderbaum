@@ -750,6 +750,18 @@ export interface SetStatusOptions {
 /** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
  * argument.
  */
+export interface ResetOrderOptions {
+  /** Sort descendants recursively. @default true */
+  recursive?: boolean;
+  /** The name of the node property that will be renumbered.
+   * @default `_nativeIndex`.
+   */
+  propName?: string;
+}
+
+/** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
+ * argument.
+ */
 export interface SortByPropertyOptions {
   /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
   colId?: string;
@@ -761,6 +773,12 @@ export interface SortByPropertyOptions {
   // vallueGetter?: NodePropertyGetterCallback;
   /** Sort order. @default Use value from column definition (rotated).*/
   order?: SortOrderType;
+  /**
+   * Sort by this property if order is `undefined`.
+   * See also {@link WunderbaumNode.resetNativeChildOrder()}.
+   * @default `_nativeIndex`.
+   */
+  nativeOrderPropName?: string;
   /** Sort string values case insensitive. @default false */
   caseInsensitive?: boolean;
   /** Sort descendants recursively. @default true */

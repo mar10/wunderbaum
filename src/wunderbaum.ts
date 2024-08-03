@@ -43,6 +43,7 @@ import {
   NodeTypeDefinitionMap,
   NodeVisitCallback,
   RenderFlag,
+  ResetOrderOptions,
   ScrollToOptions,
   SetActiveOptions,
   SetColumnOptions,
@@ -1617,6 +1618,11 @@ export class Wunderbaum {
     });
     this.update(ChangeType.colStructure);
   }
+
+  // /** Renumber nodes `_nativeIndex`. @see {@link WunderbaumNode.resetNativeChildOrder} */
+  // resetNativeChildOrder(options?: ResetOrderOptions) {
+  //   this.root.resetNativeChildOrder(options);
+  // }
 
   /**
    * Make sure that this node is vertically scrolled into the viewport.
