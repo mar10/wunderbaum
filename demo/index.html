@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Demo &vert; Wunderbaum</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" href="style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css"
+    />
+
+    <script type="text/javascript">
+      const is_local = !!window.location.hostname.match(/127.0.0.1/);
+      const folder = is_local ? "build" : "dist";
+      if (is_local) {
+        // Use current developer code
+        document.title += " (DEV)";
+        document.write(
+          `<link rel="stylesheet" href="../../${folder}/wunderbaum.css" />`
+        );
+        document.write(
+          `<script defer src="../../${folder}/wunderbaum.umd.js"\>\</script\>`
+        );
+      } else {
+        // Use latest published release
+        document.write(
+          `<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.css" />`
+        );
+        document.write(
+          `<script defer src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@main/dist/wunderbaum.umd.min.js"\>\</script\>`
+        );
+      }
+    </script>
+
+    <script defer src="navigation.js"></script>
+  </head>
+
+  <body>
+    <div class="grid-wrapper">
+      <div class="menu">
+        <h1>
+          <a class="neutral" href="./">
+            <img
+              src="../assets/tree_logo_32.png"
+              class="logo"
+              width="32"
+              height="32"
+              alt="wunderbaum-logo"
+            />
+            Wunderbaum
+            <output class="tree-version">v?.?.?</output>
+          </a>
+        </h1>
+      </div>
+      <nav class="nav">
+        <div id="nav-tree" class="wb-skeleton wb-initializing"></div>
+      </nav>
+      <section class="header">
+        <output id="demo-info" class="hide-on-welcome hint"></output>
+        <hr class="hide-on-welcome" />
+        <span id="demo-modifiers" class="hide-on-welcome hidden">
+          Modifiers:
+          <button
+            type="button"
+            id="show-checkboxes"
+            class="toggle-button"
+            title="Show checkboxes"
+          >
+            <i class="bi bi-list-check"></i>
+          </button>
+          <button
+            type="button"
+            id="disable-tree"
+            class="toggle-button"
+            title="Disable tree"
+          >
+            <i class="bi bi-pause-circle"></i>
+          </button>
+          <button
+            type="button"
+            id="enable-cellnav"
+            class="toggle-button"
+            title="Enable cell-navigation mode (treegrids only)"
+          >
+            <i class="bi bi-grid-3x3-gap"></i>
+          </button>
+          &vert;
+          <label
+            ><input
+              type="checkbox"
+              class="auto-class-setter"
+              data-classname="wb-rainbow"
+            />
+            wb-rainbow</label
+          >,
+          <label
+            ><input
+              type="checkbox"
+              class="auto-class-setter"
+              data-classname="wb-alternate"
+            />
+            wb-alternate</label
+          >,
+          <label
+            ><input
+              type="checkbox"
+              class="auto-class-setter"
+              data-classname="wb-checkbox-auto-hide"
+            />
+            wb-checkbox-auto-hide</label
+          >,
+          <label
+            ><input
+              type="checkbox"
+              class="auto-class-setter"
+              data-classname="wb-fade-expander"
+            />
+            wb-fade-expander</label
+          >
+        </span>
+        <br />
+        <!-- <hr> -->
+        <span id="demo-controls" class="hide-on-welcome hidden">
+          <!-- <button id="expand-all" class="icon-button"><i class="bi bi-plus-square"></i></button> -->
+          <!-- <button id="collapse-all" class="icon-button"><i class="bi bi-dash-square"></i></button> -->
+          <button
+            id="toggle-expand-all"
+            class="icon-button"
+            title="Expand/Collapse all"
+          >
+            <i class="bi bi-plus-slash-minus"></i>
+          </button>
+          <button
+            id="toggle-select-all"
+            class="icon-button"
+            title="(De)Select all"
+          >
+            <i class="bi bi-check2-square"></i>
+          </button>
+          &vert;
+          <label for="filterQuery">Filter:</label>
+          <input
+            id="filterQuery"
+            type="search"
+            placeholder="Enter search query"
+            autofocus
+          />
+          <button type="button" id="filter-hide" title="Hide unmatched nodes">
+            <i class="bi bi-funnel"></i>
+          </button>
+          <!-- <select id="selectMode" class="hide-on-init">
+          <option value="single">selectMode: 'single'</option>
+          <option value="multi">selectMode: 'multi'</option>
+          <option value="hier">selectMode: 'hier'</option>
+        </select> -->
+        </span>
+        <span
+          id="demo-modifiers-custom"
+          class="hide-on-welcome clear-on-init hidden"
+        >
+        </span>
+      </section>
+
+      <main class="view">
+        <output id="parentPath" class="hide-on-welcome hidden"></output>
+        <div id="demo-tree" class="wb-skeleton wb-initializing wb-no-select">
+          <!-- class="wb-rainbow wb-skeleton wb-initializing wb-alternate wb-checkbox-auto-hide wb-fade-expander"> -->
+          <h1>Wunderbaum Demo</h1>
+          <p>Loading&hellip;</p>
+        </div>
+      </main>
+
+      <section class="footer">
+        <p>
+          <a id="sourceLink" href="" target="_blank">
+            <i class="wb-icon bi bi-file-code"></i> View Source Code
+          </a>
+        </p>
+        <span id="demo-stats" class="hide-on-welcome hidden">
+          <output id="tree-info"></output>
+          <output id="tree-info-custom" class="clear-on-init"></output>
+        </span>
+      </section>
+
+      <div class="statbar">
+        <a href="https://github.com/mar10/wunderbaum" class="neutral"
+          >Wunderbaum</a
+        >
+        <output class="tree-version">v?.?.?</output>
+        &copy; 2021-2024 Martin Wendt
+      </div>
+    </div>
+  </body>
+</html>

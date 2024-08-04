@@ -1,0 +1,228 @@
+body {
+  --font-color: darkslategray;
+  --font-color-header: whitesmoke;
+  --bg-color-dark: #707070;
+  /* --bg-color-dark: #7895cb; */
+  --bg-color-dimmed: whitesmoke;
+  --bg-color-light: white;
+  --hint-color: lightyellow;
+  --link-color: #1d47be;
+  --error-color: red;
+  --border-radius: 4px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+ul {
+  padding: revert;
+}
+
+body {
+  font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
+    "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
+  background-color: var(--bg-color-dark);
+  color: var(--font-color);
+  /* `<!DOCTYPE html>` switches to standard mode, which would define 
+  100% as content height. We want 100% to interpreted as viewport height: */
+  height: 100%;
+  /* prevent scrollbars, which would break `100vh` */
+  overflow: hidden;
+}
+
+img.logo {
+  height: 1em;
+  vertical-align: text-bottom;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+  padding: 3px;
+  background-color: var(--bg-color-dimmed);
+  border-radius: 2px;
+}
+
+div.grid-wrapper {
+  display: grid;
+  width: 100vw;
+  width: 100dvw;
+  /* 100vw minus width of scrollbar */
+  height: 100vh;
+  height: 100dvh;
+  /* 100vh minus height of address bar */
+  grid-template-columns: 1fr 4fr;
+  grid-template-rows: 3em 6em auto 5em 1em;
+  padding: 5px;
+  grid-gap: 2px;
+}
+
+div.grid-wrapper div.menu {
+  background-color: var(--bg-color-dark);
+  color: var(--font-color-header);
+  grid-column: 1 / span 2;
+  grid-row: 1;
+}
+
+div.grid-wrapper nav.nav {
+  grid-column: 1;
+  grid-row: 2 / 5;
+  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  overflow: hidden;
+}
+
+div.grid-wrapper section.header {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  background-color: var(--bg-color-light);
+  grid-column: 2;
+  grid-row: 2;
+  padding: 5px;
+  font-size: 90%;
+}
+
+div.grid-wrapper main.view {
+  background-color: var(--bg-color-light);
+  grid-column: 2;
+  grid-row: 3;
+  min-height: 4px;
+  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  overflow: hidden;
+}
+
+div.grid-wrapper section.footer {
+  grid-column: 2;
+  grid-row: 4;
+  padding: 5px;
+  font-size: 90%;
+  background-color: var(--bg-color-dimmed);
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+}
+
+div.grid-wrapper div.statbar {
+  grid-column: 1 / span 2;
+  grid-row: 5;
+  text-align: right;
+  font-size: 80%;
+  padding: 1px 4px;
+  color: var(--font-color-header);
+}
+
+/* Suppress system focus border. */
+div.wunderbaum:focus-visible {
+  outline-style: none;
+}
+
+div#demo-tree {
+  /* fill parent container */
+  height: calc(100% - 12px);
+  /* Leave some space for the blue focus outline*/
+  /* padding: 5px;  */
+}
+
+div#nav-tree {
+  background-color: var(--bg-color-dimmed);
+  /* background-color: transparent; */
+  overflow: hidden;
+  /* keep background color outside round borders */
+  border: none;
+}
+
+/* Show tree skeleton while initializing. */
+div.wunderbaum.wb-skeleton.wb-initializing {
+  background-position-y: 20px;
+  background-image: url(data:image/png;base64,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);
+  background-repeat: no-repeat;
+}
+
+div.wunderbaum span.wb-badge {
+  &.selection-count {
+    color: white;
+    background-color: green;
+  }
+
+  &.match-count {
+    color: darkgreen;
+    background-color: #e0e0e0;
+  }
+}
+
+div.welcome-page {
+  padding: 4px 4px;
+}
+
+output.error {
+  color: var(--error-color);
+}
+
+output.hint {
+  display: block;
+  width: 100%;
+  padding: 1px 4px;
+  margin: -2px -1px 0 -4px;
+  color: var(--font-color);
+  background-color: var(--hint-color);
+  font-style: italic;
+}
+
+output.tree-version {
+  font-size: 40%;
+  font-family: "Courier New", Courier, monospace;
+  font-weight: lighter;
+}
+
+output#parentPath:not(.hidden) {
+  font-size: 60%;
+  display: block;
+  padding: 1px 3px;
+  height: 12px;
+  background-color: var(--bg-color-light);
+}
+
+.hide-on-welcome.hidden,
+.hide-on-init.hidden {
+  display: none;
+}
+
+hr {
+  margin: 1px 0;
+  border: none;
+  background-color: var(--font-color);
+  height: 1px;
+}
+
+a {
+  text-decoration: none;
+  color: var(--link-color);
+}
+
+a:hover,
+a:active {
+  text-decoration: underline;
+}
+
+a.neutral,
+a.neutral:hover,
+a.neutral:active {
+  text-decoration: none;
+  color: unset;
+}
+
+button.icon-button,
+button.toggle-button {
+  border: 1px solid var(--bg-color-light);
+  border-radius: 3px;
+  background-color: var(--bg-color-light);
+  color: var(--link-color);
+  padding: 1px 2px;
+}
+
+button.icon-button:hover,
+button.toggle-button:hover {
+  border-color: var(--link-color);
+}
+
+button.toggle-button.checked {
+  background-color: var(--link-color);
+  color: var(--bg-color-light);
+}
