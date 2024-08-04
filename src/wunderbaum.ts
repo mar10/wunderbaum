@@ -43,7 +43,6 @@ import {
   NodeTypeDefinitionMap,
   NodeVisitCallback,
   RenderFlag,
-  ResetOrderOptions,
   ScrollToOptions,
   SetActiveOptions,
   SetColumnOptions,

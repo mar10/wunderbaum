@@ -74,16 +74,41 @@ $ yarn dev
 you can now edit the files in `.../wunderbaum/src` folder.
 TypeScript and SCSS files are automatically transpiled to the `.../wunderbaum/build` folder.
 
-Reformat according to the style guide, generate API documentation, run unit tests,
-build, or compile a version using these commands:
+Reformat according to the style guide, run unit tests, build, or compile a
+version using these commands:
 
 ```bash
 $ yarn format
-$ yarn mkdocs
-$ yarn api_docs
 $ yarn test
-$ yarn build
 ```
 
-Don't forget to call `yarn format` regularly and before committing:
-Formatting errors will be rejected by the CI pipeline.
+!!! note
+
+    Don't forget to call `yarn format` regularly and before committing:
+    Formatting errors will be rejected by the CI pipeline.
+
+### Edit Documentation
+
+The documentation is written in Markdown and can be found in the `docs` folder.
+
+The User Guide is generated using [MkDocs](https://www.mkdocs.org/) and the
+API documentation is generated using [TypeDoc](https://typedoc.org/).
+
+!!! note
+
+    In order to generate the User Guide documentation, we need to have
+    [Python](https://www.python.org/) and
+    [pipenv](https://pipenv.pypa.io/en/stable/index.html) installed.
+
+    Then install the required packages:
+
+    ```bash
+    $ cd path/to/project
+    $ pipenv install
+    ```
+
+```bash
+$ yarn dev_mkdocs
+$ yarn api_docs
+$ yarn build
+```
