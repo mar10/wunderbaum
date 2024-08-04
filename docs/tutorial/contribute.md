@@ -63,6 +63,8 @@ and updates to the demo page.
 
 ## Development
 
+### Edit TypeScript sources
+
 Checkout the project from GiHub, then
 
 ```bash
@@ -71,7 +73,7 @@ $ yarn
 $ yarn dev
 ```
 
-you can now edit the files in `.../wunderbaum/src` folder.
+You can now edit the files in `.../wunderbaum/src` folder.
 TypeScript and SCSS files are automatically transpiled to the `.../wunderbaum/build` folder.
 
 Reformat according to the style guide, run unit tests, build, or compile a
@@ -94,9 +96,27 @@ The documentation is written in Markdown and can be found in the `docs` folder.
 The User Guide is generated using [MkDocs](https://www.mkdocs.org/) and the
 API documentation is generated using [TypeDoc](https://typedoc.org/).
 
+**API Documentation**
+
+The API reference is generated from the TypeScript sources by TypeDoc and the
+resulting files are stored in the `docs/api` folder.
+
+This is done by the build script or manually by running:
+
+```bash
+$ yarn api_docs
+```
+
+**User Guide**
+
+The user guide (i.e. tutorial) is written in Markdown and can be found in the
+`docs/tutorial` folder.
+It is rendered to HTML using MkDocs by a GitHub action and published as GitHub
+pages every time we commit.
+
 !!! note
 
-    In order to generate the User Guide documentation, we need to have
+    In order to generate the User Guide documentation locally, we need to have
     [Python](https://www.python.org/) and
     [pipenv](https://pipenv.pypa.io/en/stable/index.html) installed.
 
@@ -107,8 +127,25 @@ API documentation is generated using [TypeDoc](https://typedoc.org/).
     $ pipenv install
     ```
 
+Run the following command to start the MkDocs server:
+
 ```bash
 $ yarn dev_mkdocs
-$ yarn api_docs
+```
+
+You can now edit files in the `docs/tutorial` folder and see the changes in the
+browser.
+
+### Release
+
+For a local test build, run the following commands:
+
+```bash
 $ yarn build
+```
+
+A new version is released by creating a new tag in the format `vX.Y.Z` and
+
+```bash
+$ grunt yabs:release:patch
 ```

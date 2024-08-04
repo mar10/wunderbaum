@@ -109,7 +109,7 @@
     "build:scss": "sass src/wunderbaum.scss build/wunderbaum.css",
     "build:js": "rollup -c rollup.config.mjs && npm run build:minjs",
     "build:types": "tsc -t esnext --moduleResolution node -d --emitDeclarationOnly --outFile build/wunderbaum.d.ts src/wunderbaum.ts",
-    "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s  && npm run build:scss && npm run build:types -s && npm run docs",
+    "build": "npm run format && mkdir build; rm build/*.*; ls build && npm run build:js -s  && npm run build:scss && npm run build:types -s && npm run api_docs",
     "make_dist": "npm run build && rm dist/*.* ; cp build/*.* dist",
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",

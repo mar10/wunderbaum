@@ -81,7 +81,7 @@ module.exports = (grunt: any) => {
   // ----------------------------------------------------------------------------
 
   // Load "grunt*" dependencies
-  for (let key in grunt.file.readJSON("package.json").devDependencies) {
+  for (const key in grunt.file.readJSON("package.json").devDependencies) {
     if (key !== "grunt" && key.indexOf("grunt") === 0) {
       grunt.loadNpmTasks(key);
     }
