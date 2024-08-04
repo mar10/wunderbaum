@@ -26,7 +26,7 @@ new mar10.Wunderbaum({
   // checkbox: true,
   // minExpandLevel: 1,
   fixedCol: true,
-  // resizableColumns: true,
+  // columnsResizable: true,
   navigationModeOption: "cell",
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],

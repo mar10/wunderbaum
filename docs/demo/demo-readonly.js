@@ -31,7 +31,7 @@ new mar10.Wunderbaum({
   },
   columns: [
     { title: "Title", id: "*", width: "250px" },
-    { title: "Age", id: "age", width: "40px", classes: "wb-helper-end" },
+    { title: "Age", id: "age", width: "60px", classes: "wb-helper-end" },
     { title: "Date", id: "date", width: "90px", classes: "wb-helper-end" },
     {
       title: "Status",
@@ -42,16 +42,23 @@ new mar10.Wunderbaum({
     {
       title: "Avail.",
       id: "avail",
-      width: "50px",
+      width: "60px",
       classes: "wb-helper-center",
     },
     { title: "Remarks", id: "remarks", width: "*" },
   ],
-  resizableColumns: true,
+  columnsResizable: true,
+  columnsSortable: true,
   filter: {
     connectInput: "input#filterQuery",
   },
   init: (e) => {},
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
+  },
   render: function (e) {
     // console.log(e.type, e.isNew, e);
     const node = e.node;

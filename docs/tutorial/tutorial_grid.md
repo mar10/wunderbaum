@@ -271,11 +271,12 @@ const tree = new Wunderbaum({
   columns: [
     {
       title: "Title",
-      sortable: true,
+      sortable: true, // or set in column definition
       ...
     },
     ...
   ],
+  columnsSortable: true, // or set in column definition
   buttonClick: (e) => {
     if (e.command === "sort") {
       e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });

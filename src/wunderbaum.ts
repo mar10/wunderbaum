@@ -2178,12 +2178,12 @@ export class Wunderbaum {
       let addMarkup = "";
       // NOTE: we use CSS float: right to align icons, so they must be added in
       // reverse order
-      if (col.menu) {
+      if (util.toBool(col.menu, this.options.columnsMenu, false)) {
         const iconClass = "wb-col-icon-menu " + iconMap.colMenu;
         const icon = `<i data-command=menu class="wb-col-icon ${iconClass}"></i>`;
         addMarkup += icon;
       }
-      if (col.sortable) {
+      if (util.toBool(col.sortable, this.options.columnsSortable, false)) {
         let iconClass = "wb-col-icon-sort " + iconMap.colSortable;
         if (col.sortOrder) {
           iconClass += `wb-col-sort-${col.sortOrder}`;
@@ -2193,7 +2193,7 @@ export class Wunderbaum {
         const icon = `<i data-command=sort class="wb-col-icon ${iconClass}"></i>`;
         addMarkup += icon;
       }
-      if (col.filterable) {
+      if (util.toBool(col.filterable, this.options.columnsFilterable, false)) {
         colElem.classList.toggle("wb-col-filter", !!col.filterActive);
         let iconClass = "wb-col-icon-filter " + iconMap.colFilter;
         if (col.filterActive) {
@@ -2204,7 +2204,7 @@ export class Wunderbaum {
       }
       // Add resizer to all but the last column
       if (i < colCount - 1) {
-        if (util.toBool(col.resizable, this.options.resizableColumns, false)) {
+        if (util.toBool(col.resizable, this.options.columnsResizable, false)) {
           addMarkup +=
             '<span class="wb-col-resizer wb-col-resizer-active"></span>';
         } else {

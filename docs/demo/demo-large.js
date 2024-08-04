@@ -34,21 +34,22 @@ new mar10.Wunderbaum({
     music: { icon: "bi bi-disc" },
     phone: { icon: "bi bi-phone" },
   },
-  columns: [
-    { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: "200px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "100px", classes: "wb-helper-end" },
-    {
-      id: "price",
-      title: "Price ($)",
-      width: "80px",
-      classes: "wb-helper-end",
-    },
-    // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-    { id: "details", title: "Details", width: "*", minWidth: "600px" },
-  ],
-  resizableColumns: true,
+  // columns: [
+  //   { id: "*", title: "Product", width: "250px" },
+  //   { id: "author", title: "Author", width: "200px" },
+  //   { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
+  //   { id: "qty", title: "Qty", width: "100px", classes: "wb-helper-end" },
+  //   {
+  //     id: "price",
+  //     title: "Price ($)",
+  //     width: "80px",
+  //     classes: "wb-helper-end",
+  //   },
+  //   // In order to test horizontal scrolling, we need a fixed or at least minimal width:
+  //   { id: "details", title: "Details", width: "*", minWidth: "600px" },
+  // ],
+  columnsResizable: true,
+  columnsSortable: true,
   dnd: {
     dragStart: (e) => {
       if (e.node.type === "folder") {

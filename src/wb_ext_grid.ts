@@ -29,7 +29,7 @@ export class GridExtension extends WunderbaumExtension<GridOptionsType> {
         const allow =
           colDef &&
           this.tree.element.contains(e.dragElem) &&
-          toBool(colDef.resizable, tree.options.resizableColumns, false);
+          toBool(colDef.resizable, tree.options.columnsResizable, false);
 
         // this.tree.log("dragstart", colDef, e, info);
 

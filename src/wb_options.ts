@@ -219,11 +219,29 @@ export interface WunderbaumOptions {
    */
   fixedCol?: boolean;
   /**
+   * Default value for ColumnDefinition.filterable option.
+   * Default: false
+   * @since 0.11.0
+   */
+  columnsFilterable?: boolean;
+  /**
+   * Default value for ColumnDefinition.menu option.
+   * Default: false
+   * @since 0.11.0
+   */
+  columnsMenu?: boolean;
+  /**
    * Default value for ColumnDefinition.resizable option.
    * Default: false
    * @since 0.10.0
    */
-  resizableColumns?: boolean;
+  columnsResizable?: boolean;
+  /**
+   * Default value for ColumnDefinition.sortable option.
+   * Default: false
+   * @since 0.11.0
+   */
+  columnsSortable?: boolean;
 
   // --- Selection ---
   /**

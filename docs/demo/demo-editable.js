@@ -28,8 +28,8 @@ new mar10.Wunderbaum({
   // source: "../assets/fixture_department_1k_3_6_p.json",
   source:
     // "../assets/fixture_department_1k_3_6_flat_comp.json",
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_flat_comp.json",
-  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
+    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_flat_comp.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
     department: { icon: "bi bi-diagram-3", colspan: true },
     role: { icon: "bi bi-microsoft-teams", colspan: true },
@@ -43,7 +43,6 @@ new mar10.Wunderbaum({
       title: "Title",
       id: "*",
       width: "250px",
-      sortable: true,
     },
     {
       title: "Age",
@@ -51,7 +50,6 @@ new mar10.Wunderbaum({
       width: "50px",
       classes: "wb-helper-end",
       // "html": "<input type=number min=0 tabindex='-1'>",
-      sortable: true,
     },
     {
       title: "Date",
@@ -59,7 +57,6 @@ new mar10.Wunderbaum({
       width: "100px",
       classes: "wb-helper-end",
       // "html": '<input type=date tabindex="-1">',
-      sortable: true,
     },
     {
       title: "Status",
@@ -70,26 +67,25 @@ new mar10.Wunderbaum({
       //     <option value="h">Happy</option>
       //     <option value="s">Sad</option>
       //     </select>`
-      sortable: true,
     },
     {
       title: "Avail.",
       id: "avail",
-      width: "70px",
+      width: "80px",
       classes: "wb-helper-center",
       // "html": '<input type=checkbox tabindex="-1">',
-      sortable: true,
     },
     {
       title: "Remarks",
       id: "remarks",
       width: "*",
       // "html": "<input type=text tabindex='-1'>",
-      sortable: true,
+
       menu: true,
     },
   ],
-  resizableColumns: true,
+  columnsResizable: true,
+  columnsSortable: true,
 
   edit: {
     trigger: ["clickActive", "F2"], // "macEnter"],
@@ -120,6 +116,12 @@ new mar10.Wunderbaum({
   init: (e) => {},
   // load: function (e) {
   // },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
+  },
   change: function (e) {
     const util = e.util;
     const node = e.node;

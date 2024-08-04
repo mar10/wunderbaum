@@ -29,9 +29,24 @@ new mar10.Wunderbaum({
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: 1, minWidth: "100px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
+    {
+      id: "author",
+      title: "Author",
+      width: 1,
+      minWidth: "100px",
+    },
+    {
+      id: "year",
+      title: "Year",
+      width: "50px",
+      classes: "wb-helper-end",
+    },
+    {
+      id: "qty",
+      title: "Qty",
+      width: "50px",
+      classes: "wb-helper-end",
+    },
     {
       id: "price",
       title: "Price ($)",
@@ -41,7 +56,8 @@ new mar10.Wunderbaum({
     // In order to test horizontal scrolling, we need a fixed or at least minimal width:
     { id: "details", title: "Details", width: 3, minWidth: "200px" },
   ],
-  resizableColumns: true,
+  columnsResizable: true,
+  columnsSortable: true,
   dnd: {
     dragStart: (e) => {
       if (e.node.type === "folder") {
@@ -101,6 +117,12 @@ new mar10.Wunderbaum({
   load: (e) => {
     console.log(e.type, e);
     // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
+  },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
   },
   lazyLoad: function (e) {
     console.log(e.type, e);

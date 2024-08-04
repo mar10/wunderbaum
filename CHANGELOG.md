@@ -7,7 +7,12 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.11.0: BREAKING
+  Renamed `tree.options.resizableColumns` to `columnsResizable`.
 - v0.11.0: Add support for icon buttons in column headers (menu, sort, filter).
+- v0.11.0: Add `tree.options.columnsSortable` and `ColumnDefinition.sortable`.
+- v0.11.0: Add `tree.options.columnsFilerable` and `ColumnDefinition.filterable`.
+- v0.11.0: Add `tree.options.columnsMenu` and `ColumnDefinition.menu`.
 - v0.11.0: Add `tree.sortByProperty()`.
 - v0.11.0: Add `util.rotate()`.
 - v0.11.0: Migrate documentation from docsify to MkDocs.

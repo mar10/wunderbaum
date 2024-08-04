@@ -369,7 +369,8 @@ export interface ColumnDefinition {
    */
   minWidth?: string | number;
   /** Allow user to resize the column.
-   * Default: false.
+   * @default false (or global tree option `columnsSortable`)
+   * @see {@link WunderbaumOptions.columnsResizable}.
    * @since 0.10.0
    */
   resizable?: boolean;
@@ -379,6 +380,7 @@ export interface ColumnDefinition {
   customWidthPx?: number;
   /** Display a 'filter' button in the column header. Default: false. <br>
    * Note: The actual filtering must be implemented in the `buttonClick()` event.
+   * @default false (or global tree option `columnsFilterable`)
    * @since 0.11.0
    */
   filterable?: boolean;
@@ -389,6 +391,8 @@ export interface ColumnDefinition {
   filterActive?: boolean;
   /** Display a 'sort' button in the column header. Default: false. <br>
    * Note: The actual sorting must be implemented in the `buttonClick()` event.
+   * @default false (or global tree option `columnsSortable`)
+   * @see {@link WunderbaumOptions.columnsSortable}.
    * @since 0.11.0
    */
   sortable?: boolean;
@@ -400,6 +404,8 @@ export interface ColumnDefinition {
   sortOrder?: SortOrderType;
   /** Display a menu icon that may open a context menu for this column.
    * Note: The actual functionality must be implemented in the `buttonClick()` event.
+   * @default false (or global tree option `columnsMenu`)
+   * @see {@link WunderbaumOptions.columnsMenu}.
    * @since 0.11.0
    */
   menu?: boolean;
