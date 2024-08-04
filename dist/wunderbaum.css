@@ -210,6 +210,14 @@ div.wunderbaum div.wb-header span.wb-col-resizer {
 div.wunderbaum div.wb-header span.wb-col-resizer.wb-col-resizer-active {
   cursor: col-resize;
 }
+div.wunderbaum div.wb-header i.wb-col-icon {
+  float: inline-end;
+  padding-left: 2px;
+}
+div.wunderbaum div.wb-header i.wb-col-icon:hover {
+  cursor: pointer;
+  color: var(--wb-focus-border-color);
+}
 div.wunderbaum span.wb-col {
   position: absolute;
   display: inline-block;
