@@ -14,7 +14,7 @@
 
 **Status _beta_:<br>API, Markup, Stylesheet, etc. are still subject to change.**
 
-[![Demo](docs/assets/teaser_2.png?raw=true)](https://mar10.github.io/wunderbaum/demo/)
+[![Demo](https://mar10.github.io/wunderbaum/assets/teaser_2.png)](https://mar10.github.io/wunderbaum/demo/)
 
 - Supports drag and drop, editing, filtering, sorting, and multi-selection.
 - Written in TypeScript, transpiled to ES6 (esm & umd).
