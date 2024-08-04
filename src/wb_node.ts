@@ -809,7 +809,7 @@ export class WunderbaumNode {
     return this.classes ? this.classes.has(className) : false;
   }
 
-  /** Return true if node ist the currently focused node. */
+  /** Return true if node ist the currently focused node. @since 0.9.0 */
   hasFocus(): boolean {
     return this.tree.focusNode === this;
   }
@@ -2697,6 +2697,7 @@ export class WunderbaumNode {
    * Renumber nodes `_nativeIndex`. This is useful to allow to restore the
    * order after sorting a column.
    * This method is automatically called after loading new child nodes.
+   * @since 0.11.0
    */
   resetNativeChildOrder(options?: ResetOrderOptions) {
     const { recursive = true, propName = "_nativeIndex" } = options ?? {};
@@ -2713,6 +2714,7 @@ export class WunderbaumNode {
 
   /**
    * Convenience method to implement column sorting.
+   * @since 0.11.0
    */
   sortByProperty(options: SortByPropertyOptions) {
     const {

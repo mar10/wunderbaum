@@ -1611,7 +1611,7 @@ export class Wunderbaum {
     }
   }
 
-  /** Reset column widths to default. */
+  /** Reset column widths to default. @since 0.10.0 */
   resetColumns() {
     this.columns.forEach((col) => {
       delete col.customWidthPx;
@@ -2005,6 +2005,7 @@ export class Wunderbaum {
   /**
    * Convenience method to implement column sorting.
    * @see {@link WunderbaumNode.sortByProperty}.
+   * @since 0.11.0
    */
   sortByProperty(options: SortByPropertyOptions) {
     this.root.sortByProperty(options);
@@ -2695,6 +2696,7 @@ export class Wunderbaum {
   /**
    * Return the number of nodes that match the current filter.
    * @see {@link Wunderbaum.filterNodes}
+   * @since 0.9.0
    */
   countMatches(): number {
     return (this.extensions.filter as FilterExtension).countMatches();

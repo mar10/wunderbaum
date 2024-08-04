@@ -363,6 +363,7 @@ export interface ColumnDefinition {
   minWidth?: string | number;
   /** Allow user to resize the column.
    * Default: false.
+   * @since 0.10.0
    */
   resizable?: boolean;
   /** Optional custom column width when user resized by mouse drag.
@@ -371,6 +372,7 @@ export interface ColumnDefinition {
   customWidthPx?: number;
   /** Display a 'filter' button in the column header. Default: false. <br>
    * Note: The actual filtering must be implemented in the `buttonClick()` event.
+   * @since 0.11.0
    */
   filterable?: boolean;
   /** .
@@ -380,15 +382,18 @@ export interface ColumnDefinition {
   filterActive?: boolean;
   /** Display a 'sort' button in the column header. Default: false. <br>
    * Note: The actual sorting must be implemented in the `buttonClick()` event.
+   * @since 0.11.0
    */
   sortable?: boolean;
   /** Optional custom column sort orde when user clicked the sort icon.
    * Default: unset, e.g. not sorted. <br>
    * Note: The actual sorting must be implemented in the `buttonClick()` event.
+   * @since 0.11.0
    */
   sortOrder?: SortOrderType;
   /** Display a menu icon that may open a context menu for this column.
    * Note: The actual functionality must be implemented in the `buttonClick()` event.
+   * @since 0.11.0
    */
   menu?: boolean;
   /** Optional class names that are added to all `span.wb-col` header AND data
@@ -1076,7 +1081,7 @@ export type DndOptionsType = {
   //  */
   // setTextTypeJson: boolean;
   /**
-   * Optional callback passed to `toDict` on dragStart @since 2.38
+   * Optional callback passed to `toDict` on dragStart
    * @default null
    * @category Callback
    */

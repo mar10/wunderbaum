@@ -746,7 +746,7 @@ export function getOption(
   return value ?? defaultValue;
 }
 
-/** Return the next value from a list of values (rotating). */
+/** Return the next value from a list of values (rotating). @since 0.11 */
 export function rotate(value: any, values: any[]): any {
   const idx = values.indexOf(value);
   return values[(idx + 1) % values.length];

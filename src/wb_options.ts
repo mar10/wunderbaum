@@ -221,6 +221,7 @@ export interface WunderbaumOptions {
   /**
    * Default value for ColumnDefinition.resizable option.
    * Default: false
+   * @since 0.10.0
    */
   resizableColumns?: boolean;
 
