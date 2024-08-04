@@ -1803,15 +1803,15 @@ export class Wunderbaum {
    * The render operation is async and debounced unless the `immediate` option
    * is set.
    *
-   * Use {@link WunderbaumNode.update()} if only a single node has changed,
-   * or {@link WunderbaumNode._render()}) to pass special options.
+   * Use {@link WunderbaumNode.update} if only a single node has changed,
+   * or {@link WunderbaumNode._render}) to pass special options.
    */
   update(change: ChangeType, options?: UpdateOptions): void;
 
   /**
    * Update a row to reflect a single node's modification.
    *
-   * @see {@link WunderbaumNode.update()}, {@link WunderbaumNode._render()}
+   * @see {@link WunderbaumNode.update}, {@link WunderbaumNode._render}
    */
   update(
     change: ChangeType,

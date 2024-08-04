@@ -2115,7 +2115,7 @@ export class WunderbaumNode {
    *
    * @param name name of the option property (on node and tree)
    * @param defaultValue return this if nothing else matched
-   * {@link Wunderbaum.getOption|Wunderbaum.getOption()}
+   * {@link Wunderbaum.getOption|Wunderbaum.getOption}
    */
   getOption(name: string, defaultValue?: any) {
     const tree = this.tree;
@@ -2154,7 +2154,7 @@ export class WunderbaumNode {
   }
 
   /** Make sure that this node is visible in the viewport.
-   * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo()}
+   * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo}
    */
   async scrollIntoView(options?: ScrollIntoViewOptions) {
     const opts = Object.assign({ node: this }, options);
@@ -2308,9 +2308,9 @@ export class WunderbaumNode {
    * and column content. It can be reduced to 'ChangeType.status' if only
    * active/focus/selected state has changed.
    *
-   * This method will eventually call  {@link WunderbaumNode._render()} with
+   * This method will eventually call  {@link WunderbaumNode._render} with
    * default options, but may be more consistent with the tree's
-   * {@link Wunderbaum.update()} API.
+   * {@link Wunderbaum.update} API.
    */
   update(change: ChangeType = ChangeType.data) {
     util.assert(

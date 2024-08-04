@@ -79,9 +79,16 @@ export type NodePropertyGetterCallback = (
 ) => any;
 /** A callback that receives a node instance and returns an iteration modifier. */
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
-/** A callback that receives a node instance and returns a string value. */
+/**
+ * Returned by `NodeVisitCallback` to control iteration.
+ * `false` stops iteration, `skip` skips descendants but continues.
+ * All other values continue iteration.
+ */
 export type NodeVisitResponse = "skip" | boolean | void;
-/** A callback that receives a node-data dictionary and a node instance and returns an iteration modifier. */
+/**
+ * A callback that receives a node-data dictionary and a node instance and
+ * returns an iteration modifier.
+ */
 export type NodeToDictCallback = (
   dict: WbNodeData,
   node: WunderbaumNode
@@ -497,7 +504,7 @@ export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 
 /**
- * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
+ * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
  */
 export enum ChangeType {
   /** Re-render the whole viewport, headers, and all rows. */
@@ -526,7 +533,7 @@ export enum RenderFlag {
   scroll = "scroll",
 }
 
-/** Possible values for {@link WunderbaumNode.setStatus()}. */
+/** Possible values for {@link WunderbaumNode.setStatus}. */
 export enum NodeStatusType {
   ok = "ok",
   loading = "loading",
@@ -558,7 +565,7 @@ export enum NavModeEnum {
  * METHOD OPTIONS TYPES
  * ---------------------------------------------------------------------------*/
 
-/** Possible values for {@link WunderbaumNode.addChildren()}. */
+/** Possible values for {@link WunderbaumNode.addChildren}. */
 export interface AddChildrenOptions {
   /** Insert children before this node (or index)
    * @default undefined or null:  append as last child
@@ -574,12 +581,12 @@ export interface AddChildrenOptions {
   _level?: number;
 }
 
-/** Possible values for {@link Wunderbaum.applyCommand()} and {@link WunderbaumNode.applyCommand()}. */
+/** Possible values for {@link Wunderbaum.applyCommand} and {@link WunderbaumNode.applyCommand}. */
 export interface ApplyCommandOptions {
   [key: string]: unknown;
 }
 
-/** Possible values for {@link Wunderbaum.expandAll()} and {@link WunderbaumNode.expandAll()}. */
+/** Possible values for {@link Wunderbaum.expandAll} and {@link WunderbaumNode.expandAll}. */
 export interface ExpandAllOptions {
   /** Restrict expand level @default 99 */
   depth?: number;
@@ -592,7 +599,7 @@ export interface ExpandAllOptions {
 }
 
 /**
- * Possible option values for {@link Wunderbaum.filterNodes()}.
+ * Possible option values for {@link Wunderbaum.filterNodes}.
  * The defaults are inherited from the tree instances ´tree.options.filter`
  * settings (see also {@link FilterOptionsType}).
  */
@@ -618,7 +625,7 @@ export interface FilterNodesOptions {
   noData?: boolean | string;
 }
 
-/** Possible values for {@link WunderbaumNode.makeVisible()}. */
+/** Possible values for {@link WunderbaumNode.makeVisible}. */
 export interface MakeVisibleOptions {
   /** Do not animate expand (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -628,7 +635,7 @@ export interface MakeVisibleOptions {
   noEvents?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.navigate()}. */
+/** Possible values for {@link WunderbaumNode.navigate}. */
 export interface NavigateOptions {
   /** Activate the new node (otherwise focus only). @default true */
   activate?: boolean;
@@ -636,7 +643,7 @@ export interface NavigateOptions {
   event?: Event;
 }
 
-/** Possible values for {@link WunderbaumNode._render()}. */
+/** Possible values for {@link WunderbaumNode._render}. */
 export interface RenderOptions {
   /** Which parts need update? @default ChangeType.data */
   change?: ChangeType;
@@ -654,7 +661,7 @@ export interface RenderOptions {
   resizeCols?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.scrollIntoView()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.scrollIntoView} `options` argument. */
 export interface ScrollIntoViewOptions {
   /** Do not animate (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -666,7 +673,7 @@ export interface ScrollIntoViewOptions {
   ofsY?: number;
 }
 
-/** Possible values for {@link Wunderbaum.scrollTo()} `options` argument. */
+/** Possible values for {@link Wunderbaum.scrollTo} `options` argument. */
 export interface ScrollToOptions extends ScrollIntoViewOptions {
   /** Which node to scroll into the viewport.*/
   node: WunderbaumNode;
@@ -686,7 +693,7 @@ export interface SetActiveOptions {
   focusTree?: boolean;
   /** Optional original event that will be passed to the (de)activate handler. */
   event?: Event;
-  /** Also call {@link Wunderbaum.setColumn()}. */
+  /** Also call {@link Wunderbaum.setColumn}. */
   colIdx?: number | string;
   /**
    * Focus embedded input control of the grid cell if any (requires colIdx >= 0).
@@ -696,7 +703,7 @@ export interface SetActiveOptions {
   edit?: boolean;
 }
 
-/** Possible values for {@link Wunderbaum.setColumn()} `options` argument. */
+/** Possible values for {@link Wunderbaum.setColumn} `options` argument. */
 export interface SetColumnOptions {
   /**
    * Focus embedded input control of the grid cell if any .
@@ -722,7 +729,7 @@ export interface SetExpandedOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.update()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.update} `options` argument. */
 export interface UpdateOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
@@ -730,7 +737,7 @@ export interface UpdateOptions {
   // removeMarkup?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setSelected()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setSelected} `options` argument. */
 export interface SetSelectedOptions {
   /** Ignore restrictions, e.g. (`unselectable`). @default false */
   force?: boolean;
@@ -744,7 +751,7 @@ export interface SetSelectedOptions {
   callback?: NodeSelectCallback;
 }
 
-/** Possible values for {@link WunderbaumNode.setStatus()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setStatus} `options` argument. */
 export interface SetStatusOptions {
   /** Displayed as status node title. */
   message?: string;
@@ -752,8 +759,8 @@ export interface SetStatusOptions {
   details?: string;
 }
 
-/** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
- * argument.
+/**
+ * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
  */
 export interface ResetOrderOptions {
   /** Sort descendants recursively. @default true */
@@ -764,8 +771,8 @@ export interface ResetOrderOptions {
   propName?: string;
 }
 
-/** Possible values for {@link WunderbaumNode.sortByProperty()} `options`
- * argument.
+/**
+ * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
  */
 export interface SortByPropertyOptions {
   /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
@@ -780,7 +787,7 @@ export interface SortByPropertyOptions {
   order?: SortOrderType;
   /**
    * Sort by this property if order is `undefined`.
-   * See also {@link WunderbaumNode.resetNativeChildOrder()}.
+   * See also {@link WunderbaumNode.resetNativeChildOrder}.
    * @default `_nativeIndex`.
    */
   nativeOrderPropName?: string;
@@ -802,7 +809,7 @@ export interface SortByPropertyOptions {
   updateColInfo?: boolean;
 }
 
-/** Options passed to {@link Wunderbaum.visitRows()}. */
+/** Options passed to {@link Wunderbaum.visitRows}. */
 export interface VisitRowsOptions {
   /** Skip filtered nodes and children of collapsed nodes. @default false */
   includeHidden?: boolean;
