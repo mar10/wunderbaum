@@ -54,7 +54,6 @@
     "@typescript-eslint/eslint-plugin": "^6.7.5",
     "@typescript-eslint/parser": "^6.7.5",
     "concurrently": "^8.1.0",
-    "docsify-cli": "^4.4.4",
     "eslint": "^8.51.0",
     "eslint-config-jquery": "^3.0.0",
     "eslint-config-prettier": "^8.8.0",
@@ -101,7 +100,8 @@
   },
   "scripts": {
     "test": "npm run lint && npm run build:js && grunt ci --verbose",
-    "docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
+    "api_docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
+    "mkdocs": "pipenv run mkdocs serve",
     "format": "eslint src --fix && prettier src docs/demo -w && npm run lint",
     "lint": "prettier src docs/demo --check && eslint src docs/demo && tsc -t esnext --moduleResolution node --noEmit src/wunderbaum.ts",
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"base='build',url='wunderbaum.umd.min.js.map',filename='wunderbaum.umd.js'\" --output build/wunderbaum.umd.min.js",
@@ -115,7 +115,6 @@
     "watch:umd": "nodemon --watch src --ext 'ts' -x \"npm run build:minjs\"",
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
-    "docsify": "docsify serve docs -o",
     "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\""
   },
   "npmName": "wunderbaum",

@@ -79,8 +79,8 @@ build, or compile a version using these commands:
 
 ```bash
 $ yarn format
-$ yarn docsify
-$ yarn docs
+$ yarn mkdocs
+$ yarn api_docs
 $ yarn test
 $ yarn build
 ```

@@ -99,7 +99,7 @@ nav:
       - "Migration": "tutorial/migrate.md"
       - "Contribute": "tutorial/contribute.md"
 
-  - "Code Reference": "https://mar10.github.io/wunderbaum/api/index.html"
+  - "API Reference": "https://mar10.github.io/wunderbaum/api/index.html"
   - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"
   - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"
 
@@ -131,6 +131,6 @@ markdown_extensions:
 
 extra:
   generator: false  # Added to Copyright instead
-  analytics:
-    provider: google
-    property: G-XXXXXXXXXX
+  # analytics:
+  #   provider: google
+  #   property: G-YEXL3TKFNZ

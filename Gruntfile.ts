@@ -16,7 +16,7 @@ module.exports = (grunt: any) => {
       },
       make_docs: {
         stdin: true, // Allow interactive console
-        cmd: "npm run docs",
+        cmd: "npm run api_docs",
       },
       make_dist: {
         stdin: true, // Allow interactive console

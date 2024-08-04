@@ -1087,7 +1087,7 @@ export class Wunderbaum {
 
   /** Run code, but defer rendering of viewport until done.
    *
-   * ```
+   * ```js
    * tree.runWithDeferredUpdate(() => {
    *   return someFuncThatWouldUpdateManyNodes();
    * });
