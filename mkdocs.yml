@@ -1,5 +1,5 @@
 site_name: Wunderbaum
-# site_url: https://mar10.github.io/wunderbaum/
+site_url: https://mar10.github.io/wunderbaum/
 repo_url: https://github.com/mar10/wunderbaum
 
 # site_description: Set the site description. This will add a meta tag to the generated HTML header.
@@ -129,8 +129,12 @@ markdown_extensions:
       # baselevel: 2
       # separator: "_"
 
+plugins:
+  - search
+  - sitemap
+
 extra:
   generator: false  # Added to Copyright instead
   # analytics:
   #   provider: google
-  #   property: G-YEXL3TKFNZ
+  #   property: G-XXXXXXXXXX
