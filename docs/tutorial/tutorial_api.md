@@ -1,8 +1,12 @@
 # Tree API
 
-!!! note
+!!! warning
 
     This chapter is still under construction.
+
+!!! note
+
+    See also the [API Reference](https://mar10.github.io/wunderbaum/api/).
 
 This chapter describes different ways to modify the tree model using
 the API.

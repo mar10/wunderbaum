@@ -1140,9 +1140,9 @@ export class WunderbaumNode {
     // Check for overlapping requests
     if (this._requestId) {
       this.logWarn(
-        `Recursive load request #${requestId} while #${this._requestId} is pending.`
+        `Recursive load request #${requestId} while #${this._requestId} is pending. ` +
+          "The previous request will be ignored."
       );
-      // 	node.debug("Send load request #" + requestId);
     }
     this._requestId = requestId;
 
