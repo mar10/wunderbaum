@@ -5,8 +5,14 @@ Requires Python and pipenv to be installed.
 
 
 ```bash
-cd <project>/wunderbaum/test/generator
+cd <project_root>/wunderbaum
 pipenv install
 pipenv shell
-python -m generator
+cd test/generator
+python -m make_fixture
+```
+e.g.
+```bash
+python -m make_fixture store
+python -m make_fixture department
 ```

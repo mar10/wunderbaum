@@ -92,8 +92,8 @@ def generate_fixture_store(*, add_html: bool) -> dict:
                 "type": SampleRandomizer(("book", "computer", "music", "phone")),
                 # "year": RangeRandomizer(-1000, 2022),
                 "year": DateRangeRandomizer(date(2, 1, 1), date(2021, 12, 31)),
-                "qty": RangeRandomizer(0, 1000000),
-                "price": RangeRandomizer(0, 10000),
+                "qty": RangeRandomizer(0, 1_000_000),
+                "price": RangeRandomizer(0, 10_000),
                 "details": TextRandomizer("$(Verb:s) $(noun:plural) $(adv:#positive)."),
             },
         ]

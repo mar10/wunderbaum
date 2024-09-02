@@ -249,7 +249,7 @@ def generate_tree(spec_list):
         tree.print()
     # print(f"Generated tree with {len(tree):,} nodes, depth: {tree.calc_height()}")
 
-    child_list = tree.to_dict(mapper=WbNode.serialize_mapper)
+    child_list = tree.to_dict_list(mapper=WbNode.serialize_mapper)
     tree_data = {
         "child_list": child_list,
         "node_count": len(tree),
