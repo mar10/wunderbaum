@@ -10,7 +10,6 @@ sys.path.append(os.path.dirname(__file__))
 
 from generator import (
     Automatic,
-    ValueRandomizer,
     compress_child_list,
     DateRangeRandomizer,
     FileFormat,
@@ -398,11 +397,14 @@ def write_json(path: Path, data: dict, *, debug: bool):
 
 if __name__ == "__main__":
     METHOD_PREFIX = "generate_fixture_"
+    METHOD_PREFIX_LEN = len(METHOD_PREFIX)
     ADD_HTML = False
     DEBUG = False
     # DEBUG = True
 
-    avail = [name[17:] for name in locals() if name.startswith(METHOD_PREFIX)]
+    avail = [
+        name[METHOD_PREFIX_LEN:] for name in locals() if name.startswith(METHOD_PREFIX)
+    ]
     avail_disp = "'{}'".format("', '".join(avail))
 
     if len(sys.argv) != 2:

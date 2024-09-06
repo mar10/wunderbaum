@@ -22,9 +22,9 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "row",
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // "../../test/generator/fixture_store_104k_3_7_flat_comp.json",
+    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
+    "../../test/generator/fixture_store_95k_3_7_comp.json",
   // source: "../assets/ajax_100k_3_1_6.json",
   // source: "../assets/fixture_store_104k_3_7_flat_comp.json",
   types: {
@@ -154,19 +154,19 @@ new mar10.Wunderbaum({
         case "qty": // thousands separator
           col.elem.textContent = node.data.qty.toLocaleString();
           break;
-        // case "sale": // checkbox control
-        //   if (e.isNew) {
-        //     col.elem.innerHTML = "<input type='checkbox'>";
-        //   }
-        //   // Cast value to bool, since we don't want tri-state behavior
-        //   util.setValueToElem(col.elem, !!node.data.sale);
-        //   break;
+        case "sale": // checkbox control
+          if (e.isNew) {
+            col.elem.innerHTML = "<input type='checkbox'>";
+          }
+          // Cast value to bool, since we don't want tri-state behavior
+          util.setValueToElem(col.elem, !!node.data.sale);
+          break;
         // case "details": // text control
         //   if (e.isNew) {
         //     col.elem.innerHTML = "<input type='text'>";
         //   }
         //   util.setValueToElem(col.elem, node.data.details);
-        //   break;
+        // break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];
