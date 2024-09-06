@@ -9,16 +9,18 @@ from textwrap import dedent
 sys.path.append(os.path.dirname(__file__))
 
 from generator import (
-    compress_child_list,
     Automatic,
+    ValueRandomizer,
+    compress_child_list,
     DateRangeRandomizer,
     FileFormat,
     generate_tree,
     RangeRandomizer,
     SampleRandomizer,
+    SparseBoolRandomizer,
     TextRandomizer,
-    ValueRandomizer,
 )
+
 
 # ------------------------------------------------------------------------------
 # Fixture: 'store'
@@ -40,13 +42,13 @@ def generate_fixture_store(*, add_html: bool) -> dict:
     column_list = [
         {"id": "*", "title": "Product", "width": "250px"},
         {"id": "author", "title": "Author", "width": "200px"},
-        {"id": "year", "title": "Year", "width": "50px", "classes": "wb-helper-end"},
-        {"id": "qty", "title": "Qty", "width": "50px", "classes": "wb-helper-end"},
-        {"id": "sale", "title": "Sale", "width": "50px", "classes": "wb-helper-center"},
+        {"id": "year", "title": "Year", "width": "60px", "classes": "wb-helper-end"},
+        {"id": "qty", "title": "Qty", "width": "80px", "classes": "wb-helper-end"},
+        {"id": "sale", "title": "Sale", "width": "60px", "classes": "wb-helper-center"},
         {
             "id": "price",
             "title": "Price ($)",
-            "width": "80px",
+            "width": "90px",
             "classes": "wb-helper-end",
         },
         # In order to test horizontal scrolling, we need a fixed or at least minimal width:
@@ -74,14 +76,14 @@ def generate_fixture_store(*, add_html: bool) -> dict:
                 ":count": 10,
                 "title": "$(Noun:plural)",
                 "type": "folder",
-                # "expanded": ValueRandomizer(True, probability=0.05),
+                # "expanded": SparseBoolRandomizer(probability=0.05),
             },
             {
                 # ":count": 10,
                 ":count": RangeRandomizer(70, 130),
                 "title": "$(Adj) $(Noun:plural)",
                 "type": "folder",
-                # "expanded": ValueRandomizer(True, probability=0.3),
+                # "expanded": SparseBoolRandomizer(probability=0.3),
             },
             {
                 # ":count": 10,
@@ -90,10 +92,10 @@ def generate_fixture_store(*, add_html: bool) -> dict:
                 "title": "$(Noun)",
                 "author": TextRandomizer("$(name:middle)"),
                 "type": SampleRandomizer(("book", "computer", "music", "phone")),
-                # "year": RangeRandomizer(-1000, 2022),
                 "year": DateRangeRandomizer(date(2, 1, 1), date(2021, 12, 31)),
-                "qty": RangeRandomizer(0, 1_000_000),
-                "price": RangeRandomizer(0, 10_000),
+                "qty": RangeRandomizer(1, 1_000_000, probability=0.9, none_value=0),
+                "price": RangeRandomizer(0.01, 10_000.0),
+                "sale": SparseBoolRandomizer(probability=0.1),
                 "details": TextRandomizer("$(Verb:s) $(noun:plural) $(adv:#positive)."),
             },
         ]
@@ -153,22 +155,25 @@ def generate_fixture_department(*, add_html: bool) -> dict:
             "title": "Status",
             "id": "state",
             "width": "70px",
-            "html": dedent(
-                """\
+            "html": (
+                dedent(
+                    """\
                 <select tabindex='-1'>
                   <option value=h>Happy</option>
                   <option value=s>Sad</option>
                 </select>
                 """
-            )
-            if add_html
-            else None,
+                )
+                if add_html
+                else None
+            ),
         },
         {
             "title": "Avail",
             "id": "avail",
             "width": "30px",
             "html": "<input type=checkbox tabindex='-1'>" if add_html else None,
+            "sortable": False,
         },
         # {
         #     "title": "Tags",
@@ -184,6 +189,8 @@ def generate_fixture_department(*, add_html: bool) -> dict:
             "width": "*",
             # "width": "300px",
             "html": "<input type=text tabindex='-1'>" if add_html else None,
+            # "menu": True,
+            "sortable": False,
         },
     ]
 
@@ -195,6 +202,7 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 "width": "30px",
                 "classes": "wb-helper-center",
                 "html": "<input type=checkbox tabindex='-1'>" if add_html else None,
+                "sortable": False,
             }
         )
 
@@ -216,7 +224,7 @@ def generate_fixture_department(*, add_html: bool) -> dict:
     # --- Build nested node dictionary ---
     def _person_callback(data):
         # Initialize checkbox values
-        vr = ValueRandomizer(True, probability=0.2)
+        vr = SparseBoolRandomizer(probability=0.2)
         for i in range(1, CB_COUNT + 1):
             key = f"state_{i}"
             val = vr.generate()
@@ -232,13 +240,13 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 ":count": 10,
                 "title": "Dept. for $(Noun:plural) and $(Noun:plural)",
                 "type": "department",
-                # "expanded": ValueRandomizer(True, probability=0.2),
+                # "expanded": SparseBoolRandomizer(probability=0.2),
             },
             {
                 ":count": RangeRandomizer(8, 13),
                 "title": "$(Verb) $(noun:plural)",
                 "type": "role",
-                # "expanded": ValueRandomizer(True, probability=0.3),7
+                # "expanded": SparseBoolRandomizer(probability=0.3),7
             },
             {
                 ":count": RangeRandomizer(0, 22),
@@ -246,7 +254,7 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 "title": "$(name:middle)",
                 "type": "person",
                 "state": SampleRandomizer(("h", "s"), probability=0.3),
-                "avail": ValueRandomizer(True, probability=0.9),
+                "avail": SparseBoolRandomizer(probability=0.9),
                 "age": RangeRandomizer(21, 99),
                 "date": DateRangeRandomizer(
                     date(1970, 1, 1),
@@ -273,13 +281,106 @@ def generate_fixture_department(*, add_html: bool) -> dict:
 
 
 # ------------------------------------------------------------------------------
+# Fixture: 'fmea'
+# ------------------------------------------------------------------------------
+
+
+def generate_fixture_fmea(*, add_html: bool) -> dict:
+
+    # --- Node Types ---
+
+    type_dict = {
+        "function": {"icon": "bi bi-gear", "colspan": True},
+        "failure": {"icon": "bi bi-exclamation-triangle", "colspan": True},
+        "causes": {"icon": "bi bi-tools", "colspan": True},
+        "cause": {"icon": "bi bi-tools"},
+        "effects": {"icon": "bi bi-lightning", "colspan": True, "expanded": True},
+        "effect": {"icon": "bi bi-lightning"},
+    }
+
+    # --- Define Columns ---
+
+    column_list = [
+        {
+            "title": "Title",
+            "id": "*",
+            "width": "250px",
+        },
+    ]
+
+    # --- Compression Hints ---
+
+    key_map = Automatic
+    positional = [
+        # "title",
+        # "type",
+        # "state",
+        # "avail",
+        # "age",
+        # "date",
+        # "remarks",
+    ]
+
+    tree_data = generate_tree(
+        spec_list=[
+            {
+                ":count": 10,
+                "type": "function",
+                "title": ["Deliver $(verb:ing)", "Produce $(noun:plural)"],
+                # "expanded": SparseBoolRandomizer(probability=0.1),
+            },
+            {
+                ":count": RangeRandomizer(8, 13),
+                "type": "failure",
+                "title": ["$(Noun) is $(adj:#negative)", "$(Noun) not $(verb:ing)"],
+                # "expanded": SparseBoolRandomizer(probability=0.3),7
+            },
+            {
+                "title": "Causes",
+                "type": "cause",
+                # ":count": 1,
+                "expanded": True,
+                "colspan": True,
+            },
+            {
+                ":count": RangeRandomizer(0, 22),
+                "type": SampleRandomizer(("cause", "effect")),
+                "title": "$(Noun) $(verb)",
+                # "state": SampleRandomizer(("h", "s"), probability=0.3),
+                # "avail": SparseBoolRandomizer(probability=0.9),
+                # "age": RangeRandomizer(21, 99),
+                # "date": DateRangeRandomizer(
+                #     date(1970, 1, 1),
+                #     date.today(),
+                #     probability=0.6,
+                # ),
+                # "remarks": TextRandomizer(
+                #     "$(Verb:s) $(noun:plural) $(adv:#positive).", probability=0.3
+                # ),
+            },
+        ]
+    )
+
+    tree_data.update(
+        {
+            "types": type_dict,
+            "columns": column_list,
+            "key_map": key_map,
+            "positional": positional,
+            "children": tree_data["child_list"],
+        }
+    )
+    return tree_data
+
+
+# ------------------------------------------------------------------------------
 # Main CLI
 # ------------------------------------------------------------------------------
 
 
 def _size_disp(path: Path) -> str:
     size = path.stat().st_size
-    if size > 500000:
+    if size > 500_000:
         return f"{round(0.000001*size, 2):,} MiB"
     elif size > 3000:
         return f"{round(0.001*size, 2):,} kiB"
@@ -315,15 +416,15 @@ if __name__ == "__main__":
         print(f"Invalid fixture name: {fixture_name!r}. Expected {avail_disp}")
         sys.exit(1)
 
-    res = method(add_html=True)
+    tree_data = method(add_html=True)
 
-    print(f'Generated tree with {res["node_count"]:,} nodes, depth: {res["depth"]}')
-    col_count = len(res["columns"]) if res.get("columns") else 1
+    print(
+        f'Generated tree with {tree_data["node_count"]:,} nodes, depth: {tree_data["depth"]}'
+    )
+    col_count = len(tree_data["columns"]) if tree_data.get("columns") else 1
 
     base_dir = Path(__file__).parent
-    base_name = (
-        f'fixture_{fixture_name}_{res["node_count_disp"]}_{res["depth"]}_{col_count}'
-    )
+    base_name = f'fixture_{fixture_name}_{tree_data["node_count_disp"]}_{tree_data["depth"]}_{col_count}'
 
     print(f"Writing results to  {base_dir}")
 
@@ -335,46 +436,46 @@ if __name__ == "__main__":
     # Write as plain list
     file_name = f"{base_name}_p.json"
     path = base_dir / file_name
-    out = res["child_list"]
+    out = tree_data["child_list"]
     write_json(path, out, debug=DEBUG)
 
     # Extended Standard
     file_name = f"{base_name}.json"
     path = base_dir / file_name
-    out = {"children": res["children"]}
+    out = {"children": tree_data["children"]}
     write_json(path, out, debug=DEBUG)
 
     if col_count:
         file_name = f"{base_name}_c.json"
         path = base_dir / file_name
-        out = {"columns": res["columns"], "children": res["children"]}
+        out = {"columns": tree_data["columns"], "children": tree_data["children"]}
         write_json(path, out, debug=DEBUG)
 
-    if res["types"]:
+    if tree_data["types"]:
         file_name = f"{base_name}_t.json"
         path = base_dir / file_name
-        out = {"types": res["types"], "children": res["children"]}
+        out = {"types": tree_data["types"], "children": tree_data["children"]}
         write_json(path, out, debug=DEBUG)
 
         if col_count:
             file_name = f"{base_name}_t_c.json"
             path = base_dir / file_name
             out = {
-                "types": res["types"],
-                "columns": res["columns"],
-                "children": res["children"],
+                "types": tree_data["types"],
+                "columns": tree_data["columns"],
+                "children": tree_data["children"],
             }
             write_json(path, out, debug=DEBUG)
 
     file_name = f"{base_name}_flat_comp.json"
     path = base_dir / file_name
     out = compress_child_list(
-        deepcopy(res["child_list"]),  # DEEP-COPY, because nodes ar4 modifiec
+        deepcopy(tree_data["child_list"]),  # DEEP-COPY, because nodes ar4 modifiec
         format=FileFormat.flat,
-        types=res["types"],
-        columns=res["columns"],
-        key_map=res["key_map"],
-        positional=res["positional"],
+        types=tree_data["types"],
+        columns=tree_data["columns"],
+        key_map=tree_data["key_map"],
+        positional=tree_data["positional"],
         auto_compress=True,
     )
     write_json(path, out, debug=DEBUG)
@@ -382,12 +483,12 @@ if __name__ == "__main__":
     file_name = f"{base_name}_comp.json"
     path = base_dir / file_name
     out = compress_child_list(
-        res["child_list"],
+        tree_data["child_list"],
         format=FileFormat.nested,
-        types=res["types"],
-        columns=res["columns"],
-        key_map=res["key_map"],
-        positional=res["positional"],
+        types=tree_data["types"],
+        columns=tree_data["columns"],
+        key_map=tree_data["key_map"],
+        positional=tree_data["positional"],
         auto_compress=True,
     )
     write_json(path, out, debug=DEBUG)

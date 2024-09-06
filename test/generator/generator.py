@@ -22,6 +22,32 @@ class Automatic:
     """Argument value that triggers automatic calculation."""
 
 
+#: Preferred mappings for auto-compression (_keyMap)
+RESERVED_SHORT_NAMES = {
+    "title": "t",
+    "type": "y",
+    "children": "c",
+    "key": "k",
+    "refKey": "r",
+    "selected": "s",
+    "expanded": "e",
+}
+
+#: Node properties that are of type bool (or boolean & string).
+#: When parsing, we accept 0 for false and 1 for true for better JSON compression.
+COMPRESSABLE_BOOLS = {
+    "checkbox",
+    "colspan",
+    "expanded",
+    "icon",
+    "iconTooltip",
+    "radiogroup",
+    "selected",
+    "tooltip",
+    "unselectable",
+}
+
+
 # ------------------------------------------------------------------------------
 # Randomizers
 # ------------------------------------------------------------------------------
@@ -29,7 +55,7 @@ class Randomizer(ABC):
     def __init__(self, *, probability: float = None) -> None:
         assert (
             probability is None or 0.0 < probability < 1.0
-        ), f"probality mus be in the range [0.0..1.0] or None: {probability}"
+        ), f"probality must be in the range [0.0 .. 1.0] or None: {probability}"
         self.probability = probability
 
     def _skip_value(self) -> bool:
@@ -47,18 +73,20 @@ class RangeRandomizer(Randomizer):
         min_val: Union[float, int],
         max_val: Union[float, int],
         *,
-        probability=None,
+        probability: float = None,
+        none_value: Any = None,
     ) -> None:
         super().__init__(probability=probability)
         assert type(min_val) is type(max_val)
         self.is_float = type(min_val) is float
         self.min = min_val
         self.max = max_val
+        self.none_value = none_value
         assert self.max > self.min
 
     def generate(self) -> Union[float, int, None]:
         if self._skip_value():
-            return
+            return self.none_value
         if self.is_float:
             return random.uniform(self.min, self.max)
         return random.randrange(self.min, self.max)
@@ -108,10 +136,13 @@ class ValueRandomizer(Randomizer):
         return self.value
 
 
+class SparseBoolRandomizer(ValueRandomizer):
+    def __init__(self, *, probability: float = None) -> None:
+        super().__init__(True, probability=probability)
+
+
 class TextRandomizer(Randomizer):
-    def __init__(
-        self, template: Union[str, list], *, probability: float = None
-    ) -> None:
+    def __init__(self, template: str | list, *, probability: float = None) -> None:
         super().__init__(probability=probability)
         self.template = template
 
@@ -200,14 +231,14 @@ def _make_tree(*, spec_list, parent=None, prefix=""):
 
     spec_list = spec_list.copy()
     spec = spec_list.pop(0).copy()
-    count = resolve_random(spec.pop(":count"))
+    count = resolve_random(spec.pop(":count", 1))
     title = spec.pop("title")
     callback = spec.pop(":callback", None)
 
     for i in range(count):
         i += 1  # 1-based
         p = f"{prefix}.{i}" if prefix else f"{i}"
-        if "$(" in title:
+        if "$(" in title or isinstance(title, list):
             t = fab.get_quote(title)
         else:
             t = title
@@ -231,9 +262,9 @@ def _make_tree(*, spec_list, parent=None, prefix=""):
 def _rounded_number(n: int) -> str:
     if n < 800:
         return str(n)
-    if n < 900000:
-        return f"{round(n / 1000)}k"
-    return f"{round(n / 1000000)}M"
+    if n < 900_000:
+        return f"{round(n / 1_000)}k"
+    return f"{round(n / 1_000_000)}M"
 
 
 # for n in (1, 32, 90, 100, 110, 532, 999, 1000, 1001, 2045, 98000, 101000, 300000):
@@ -284,9 +315,10 @@ def compress_child_list(
     format: FileFormat,
     types: dict = None,
     columns: list = None,
-    key_map: dict = Automatic,
-    positional: list = Automatic,
+    key_map: dict | Automatic = Automatic,
+    positional: list | Automatic = Automatic,
     auto_compress=True,
+    auto_compress_bool: set | None = None,
 ) -> dict:
     """
     Convert a child_list that was created by `generate_tree()`.
@@ -296,19 +328,10 @@ def compress_child_list(
     3. In flat mode
     """
     if type(child_list) is not list:
-        raise RuntimeError(f"Expected JSON list (not {type(child_list)})")
+        raise RuntimeError(f"Expected JSON list (not {child_list!r})")
     #: Available short type names
     avail_short_names = list("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ")
 
-    RESERVED_SHORT_NAMES = {
-        "title": "t",
-        "type": "y",
-        "children": "c",
-        "key": "k",
-        "refKey": "r",
-        "selected": "s",
-        "expanded": "e",
-    }
     for short in RESERVED_SHORT_NAMES.values():
         avail_short_names.remove(short)
 
@@ -354,7 +377,17 @@ def compress_child_list(
                 if attr in RESERVED_SHORT_NAMES:
                     short = RESERVED_SHORT_NAMES[attr]
                 else:
-                    short = avail_short_names.pop(0)
+                    # Try to dreive the short name from first char
+                    first_char_uc = attr[0].upper()
+                    first_char_lc = attr[0].lower()
+                    if first_char_uc in avail_short_names:
+                        short = first_char_uc
+                        avail_short_names.remove(first_char_uc)
+                    elif first_char_lc.lower() in avail_short_names:
+                        short = first_char_lc
+                        avail_short_names.remove(first_char_lc)
+                    else:
+                        short = avail_short_names.pop(0)
                 inverse_key_map[attr] = short
                 key_map[short] = attr
 
@@ -422,7 +455,7 @@ def compress_child_list(
         "columns": columns,
         "_valueMap": {"type": type_list},
         # "_typeList": type_list,
-        "_keyMap": key_map,
+        "_keyMap": inverse_key_map,  # since v0.7.0
         "_positional": positional,
         "children": children,
     }

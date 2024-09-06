@@ -7,6 +7,11 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.11.1: Accept `0`/`1` for known boolean node property values (allowing for
+  more compact JSON sources).
+- v0.11.1: Fix passing `checkbox: 'radio'`.
+- v0.11.1: Fix sorting boolean column values.
+
 - v0.11.0: BREAKING
   Renamed `tree.options.resizableColumns` to `columnsResizable`.
 - v0.11.0: Add support for icon buttons in column headers (menu, sort, filter).

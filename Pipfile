@@ -10,7 +10,7 @@ mkdocs = "*"
 mkdocs-material = "*"
 
 [dev-packages]
-black = "*"
+black = "24.8"
 
 [requires]
 python_version = "3.12"
