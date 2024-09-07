@@ -90,12 +90,16 @@ def generate_random_wb_source(structure_definition: dict):
     """
     Return a randomized tree structure in uncompressed, nested format.
     """
-    # tree = _make_tree(spec_list=spec_list)
+    # Generate a random nutree.TypedTree structure
     tree = build_random_tree(structure_definition)
-    tree.print()
-    if tree.count < 110:
-        tree.print()
+    # tree.print()
+    # if tree.count < 110:
+    #     tree.print()
     # print(f"Generated tree with {len(tree):,} nodes, depth: {tree.calc_height()}")
+
+    # nutree generator uses GenericNodeData as default node type and we rely on it
+    defaults = structure_definition.get("types", {}).get("*", {})
+    assert defaults.get(":factory") in (None, GenericNodeData)
 
     child_list = tree.to_dict_list(mapper=GenericNodeData.serialize_mapper)
     random_struct = {

@@ -56,7 +56,7 @@ tree.print()
 
 from abc import ABC, abstractmethod
 
-from datetime import date, datetime, timedelta
+from datetime import date, datetime, timedelta, timezone
 import random
 from typing import Any, Sequence, Union
 
@@ -188,13 +188,19 @@ class DateRangeRandomizer(Randomizer):
         self.as_js_stamp = as_js_stamp
 
     def generate(self) -> Union[date, None]:
+        # print(self.min, self.max, self.delta_days, self.probability)
         if self._skip_value():
+            # print("SKIP")
             return
         res = self.min + timedelta(days=random.randrange(self.delta_days))
+        # print(res)
         if self.as_js_stamp:
             ONE_DAY_SEC = 24 * 60 * 60
             dt = datetime(res.year, res.month, res.day)
-            stamp_ms = (dt.timestamp() + ONE_DAY_SEC) * 1000.0
+            # print(f"{dt=}")
+            # print(f"{dt=}, {dt.timestamp()=}")
+            dt_utc = dt.replace(tzinfo=timezone.utc)
+            stamp_ms = (dt_utc.timestamp() + ONE_DAY_SEC) * 1000.0
             # print(self.min, self.max, self.delta_days, res, stamp_ms)
             res = stamp_ms
         return res
@@ -300,7 +306,7 @@ def _make_tree(
     for node_type, spec in child_specs.items():
         spec = _merge_specs(node_type, spec, types)
         count = spec.pop(":count", 1)
-        count = _resolve_random(count)
+        count = _resolve_random(count) or 0
         callback = spec.pop(":callback", None)
         factory = spec.pop(":factory", GenericNodeData)
 
