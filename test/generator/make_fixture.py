@@ -10,14 +10,17 @@ sys.path.append(os.path.dirname(__file__))
 
 from generator import (
     Automatic,
-    compress_child_list,
-    DateRangeRandomizer,
     FileFormat,
-    generate_tree,
+    compress_child_list,
+    generate_random_wb_source,
+)
+from tree_generator import (
+    DateRangeRandomizer,
+    GenericNodeData,
     RangeRandomizer,
     SampleRandomizer,
     SparseBoolRandomizer,
-    TextRandomizer,
+    TextRandomizer as Fab,
 )
 
 
@@ -69,7 +72,7 @@ def generate_fixture_store(*, add_html: bool) -> dict:
 
     # --- Build nested node dictionary ---
 
-    tree_data = generate_tree(
+    tree_data = generate_random_wb_source(
         spec_list=[
             {
                 ":count": 10,
@@ -233,7 +236,7 @@ def generate_fixture_department(*, add_html: bool) -> dict:
                 data[key] = val
         return
 
-    tree_data = generate_tree(
+    tree_data = generate_random_wb_source(
         spec_list=[
             {
                 ":count": 10,
@@ -289,9 +292,9 @@ def generate_fixture_fmea(*, add_html: bool) -> dict:
     # --- Node Types ---
 
     type_dict = {
-        "function": {"icon": "bi bi-gear", "colspan": True},
-        "failure": {"icon": "bi bi-exclamation-triangle", "colspan": True},
-        "causes": {"icon": "bi bi-tools", "colspan": True},
+        "function": {"icon": "bi bi-gear"},
+        "failure": {"icon": "bi bi-exclamation-triangle"},
+        "causes": {"icon": "bi bi-tools", "colspan": True, "expanded": True},
         "cause": {"icon": "bi bi-tools"},
         "effects": {"icon": "bi bi-lightning", "colspan": True, "expanded": True},
         "effect": {"icon": "bi bi-lightning"},
@@ -311,65 +314,90 @@ def generate_fixture_fmea(*, add_html: bool) -> dict:
 
     key_map = Automatic
     positional = [
-        # "title",
-        # "type",
+        "title",
+        "type",
         # "state",
         # "avail",
         # "age",
         # "date",
         # "remarks",
     ]
+    structure_definition = {
+        "name": "fmea",
+        #: Types define the default properties of the nodes
+        "types": {
+            #: Default properties for all node types
+            "*": {":factory": GenericNodeData},
+            #: Specific default properties for each node type
+            "function": {},
+            "failure": {},
+            "cause": {},
+            "effect": {},
+            "folder": {},
+        },
+        #: Relations define the possible parent / child relationships between
+        #: node types and optionally override the default properties.
+        "relations": {
+            "__root__": {
+                "function": {
+                    ":count": 10,
+                    "type": "function",
+                    "title": Fab(["Deliver $(verb:ing)", "Produce $(noun:plural)"]),
+                    # "expanded": SparseBoolRandomizer(probability=0.1),
+                    "expanded": True,
+                },
+            },
+            "function": {
+                "failure": {
+                    ":count": RangeRandomizer(1, 3),
+                    "type": "failure",
+                    "title": Fab(
+                        ["$(Noun) is $(adj:#negative)", "$(Noun) not $(verb:ing)"]
+                    ),
+                    # "expanded": SparseBoolRandomizer(probability=0.3),7
+                },
+            },
+            "failure": {
+                "causes": {
+                    ":count": 1,
+                    "type": "causes",
+                    "title": "Causes",
+                },
+                "effects": {
+                    ":count": 1,
+                    "type": "effects",
+                    "title": "Effects",
+                },
+            },
+            "causes": {
+                "cause": {
+                    ":count": RangeRandomizer(1, 3, probability=0.5),
+                    "type": "cause",
+                    "title": Fab("$(Noun:plural) not provided"),
+                },
+            },
+            "effects": {
+                "effect": {
+                    ":count": RangeRandomizer(1, 3),
+                    "type": "effect",
+                    "title": Fab("$(Noun:plural) not provided"),
+                },
+            },
+        },
+    }
 
-    tree_data = generate_tree(
-        spec_list=[
-            {
-                ":count": 10,
-                "type": "function",
-                "title": ["Deliver $(verb:ing)", "Produce $(noun:plural)"],
-                # "expanded": SparseBoolRandomizer(probability=0.1),
-            },
-            {
-                ":count": RangeRandomizer(8, 13),
-                "type": "failure",
-                "title": ["$(Noun) is $(adj:#negative)", "$(Noun) not $(verb:ing)"],
-                # "expanded": SparseBoolRandomizer(probability=0.3),7
-            },
-            {
-                "title": "Causes",
-                "type": "cause",
-                # ":count": 1,
-                "expanded": True,
-                "colspan": True,
-            },
-            {
-                ":count": RangeRandomizer(0, 22),
-                "type": SampleRandomizer(("cause", "effect")),
-                "title": "$(Noun) $(verb)",
-                # "state": SampleRandomizer(("h", "s"), probability=0.3),
-                # "avail": SparseBoolRandomizer(probability=0.9),
-                # "age": RangeRandomizer(21, 99),
-                # "date": DateRangeRandomizer(
-                #     date(1970, 1, 1),
-                #     date.today(),
-                #     probability=0.6,
-                # ),
-                # "remarks": TextRandomizer(
-                #     "$(Verb:s) $(noun:plural) $(adv:#positive).", probability=0.3
-                # ),
-            },
-        ]
-    )
+    random_data = generate_random_wb_source(structure_definition=structure_definition)
 
-    tree_data.update(
+    random_data.update(
         {
             "types": type_dict,
             "columns": column_list,
             "key_map": key_map,
             "positional": positional,
-            "children": tree_data["child_list"],
+            "children": random_data["child_list"],
         }
     )
-    return tree_data
+    return random_data
 
 
 # ------------------------------------------------------------------------------
@@ -396,6 +424,7 @@ def write_json(path: Path, data: dict, *, debug: bool):
 
 
 if __name__ == "__main__":
+
     METHOD_PREFIX = "generate_fixture_"
     METHOD_PREFIX_LEN = len(METHOD_PREFIX)
     ADD_HTML = False
@@ -425,7 +454,7 @@ if __name__ == "__main__":
     )
     col_count = len(tree_data["columns"]) if tree_data.get("columns") else 1
 
-    base_dir = Path(__file__).parent
+    base_dir = Path(__file__).parent.parent / "fixtures"
     base_name = f'fixture_{fixture_name}_{tree_data["node_count_disp"]}_{tree_data["depth"]}_{col_count}'
 
     print(f"Writing results to  {base_dir}")

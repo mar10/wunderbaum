@@ -9,10 +9,11 @@ cd <project_root>/wunderbaum
 pipenv install
 pipenv shell
 cd test/generator
-python -m make_fixture
+python -m make_fixture TYPE
 ```
 e.g.
 ```bash
-python -m make_fixture store
 python -m make_fixture department
+python -m make_fixture fmea
+python -m make_fixture store
 ```

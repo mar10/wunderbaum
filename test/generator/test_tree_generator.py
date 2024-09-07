@@ -2,7 +2,7 @@
 Generic tree generator for test data.
 """
 
-from tree_generator import RangeRandomizer, TextRandomizer, generate_tree
+from tree_generator import RangeRandomizer, TextRandomizer, build_random_tree
 
 
 structure_definition = {
@@ -23,7 +23,7 @@ structure_definition = {
         "__root__": {
             "function": {
                 ":count": 10,
-                "title": TextRandomizer(("{i} Provide $(Noun:plural)",)),
+                "title": TextRandomizer(("{i}: Provide $(Noun:plural)",)),
                 "expanded": True,
             },
         },
@@ -45,5 +45,5 @@ structure_definition = {
         },
     },
 }
-tree = generate_tree(structure_definition)
+tree = build_random_tree(structure_definition)
 tree.print()

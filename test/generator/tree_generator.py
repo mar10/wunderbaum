@@ -1,5 +1,57 @@
 """
-Generate hierachical test data from a structure definition.
+Implements a generator that creates a random tree structure from a specification.
+
+Returns a nutree.TypedTree with random data from a specification.
+
+Example:
+
+```py
+from tree_generator import RangeRandomizer, TextRandomizer, generate_tree
+
+
+structure_definition = {
+    "name": "fmea",
+    #: Types define the default properties of the nodes
+    "types": {
+        #: Default properties for all node types
+        # "*": {":factory": WbNode},
+        #: Specific default properties for each node type
+        "function": {"icon": "bi bi-gear"},
+        "failure": {"icon": "bi bi-exclamation-triangle"},
+        "cause": {"icon": "bi bi-tools"},
+        "effect": {"icon": "bi bi-lightning"},
+    },
+    #: Relations define the possible parent / child relationships between
+    #: node types and optionally override the default properties.
+    "relations": {
+        "__root__": {
+            "function": {
+                ":count": 10,
+                "title": TextRandomizer(("{i}: Provide $(Noun:plural)",)),
+                "expanded": True,
+            },
+        },
+        "function": {
+            "failure": {
+                ":count": RangeRandomizer(1, 3),
+                "title": TextRandomizer("$(Noun:plural) not provided"),
+            },
+        },
+        "failure": {
+            "cause": {
+                ":count": RangeRandomizer(1, 3),
+                "title": TextRandomizer("$(Noun:plural) not provided"),
+            },
+            "effect": {
+                ":count": RangeRandomizer(1, 3),
+                "title": TextRandomizer("$(Noun:plural) not provided"),
+            },
+        },
+    },
+}
+tree = generate_tree(structure_definition)
+tree.print()
+```
 """
 
 from abc import ABC, abstractmethod
@@ -15,27 +67,79 @@ from nutree.typed_tree import TypedTree, TypedNode
 fab = Fabulist()
 
 
-class Automatic:
-    """Argument value that triggers automatic calculation."""
+# ------------------------------------------------------------------------------
+# Generic data object to be used when nutree.Node instances
+# ------------------------------------------------------------------------------
+
+
+class GenericNodeData:
+    """Used as `node.data` instance in nutree.
+
+    Initialized with a dictionary of values. The values can be accessed
+    via the `node.data` attribute like `node.data["KEY"]`.
+    If the Tree is initialized with `shadow_attrs=True`, the values are also
+    available as attributes of the node like `node.KEY`.
+
+    If the tree is serialized, the values are copied to the serialized data.
+
+    Examples:
+
+    ```py
+    node = TypedNode(DictNodeData(a=1, b=2))
+    tree.add_child(node)
+
+    print(node.a)  # 1
+    print(node.data["b"])  # 2
+    ```
+
+    Alternatively, the data can be initialized with a dictionary like this:
+    ```py
+    d = {"a": 1, "b": 2}
+    node = TypedNode(DictNodeData(**d))
+    ```
+
+    See https://github.com/mar10/nutree
+    """
+
+    def __init__(self, **values) -> None:
+        self.values: dict = values
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}<{self.values}>"
+
+    def __getitem__(self, key):
+        return self.values[key]
+
+    @staticmethod
+    def serialize_mapper(nutree_node, data):
+        return nutree_node.data.values.copy()
 
 
 # ------------------------------------------------------------------------------
 # Randomizers
 # ------------------------------------------------------------------------------
 class Randomizer(ABC):
-    def __init__(self, *, probability: float = None) -> None:
+    """
+    Abstract base class for randomizers.
+    Args:
+        probability (float, optional): The probability of using the randomizer.
+            Must be in the range [0.0, 1.0]. Defaults to 1.0.
+    Attributes:
+        probability (float): The probability of using the randomizer.
+    """
+
+    def __init__(self, *, probability: float = 1.0) -> None:
         assert (
-            probability is None or 0.0 < probability < 1.0
-        ), f"probality must be in the range [0.0 .. 1.0] or None: {probability}"
+            probability is None or 0.0 <= probability <= 1.0
+        ), f"probality must be in the range [0.0 .. 1.0]: {probability}"
         self.probability = probability
 
     def _skip_value(self) -> bool:
-        use = self.probability is None or random.random() <= self.probability
+        use = self.probability == 1.0 or random.random() <= self.probability
         return not use
 
     @abstractmethod
-    def generate(self) -> Any:
-        pass
+    def generate(self) -> Any: ...
 
 
 class RangeRandomizer(Randomizer):
@@ -44,7 +148,7 @@ class RangeRandomizer(Randomizer):
         min_val: Union[float, int],
         max_val: Union[float, int],
         *,
-        probability: float = None,
+        probability: float = 1.0,
         none_value: Any = None,
     ) -> None:
         super().__init__(probability=probability)
@@ -70,7 +174,7 @@ class DateRangeRandomizer(Randomizer):
         max_dt: Union[date, int],
         *,
         as_js_stamp=True,
-        probability=None,
+        probability: float = 1.0,
     ) -> None:
         super().__init__(probability=probability)
         if type(max_dt) in (int, float):
@@ -97,7 +201,7 @@ class DateRangeRandomizer(Randomizer):
 
 
 class ValueRandomizer(Randomizer):
-    def __init__(self, value: Any, *, probability: float) -> None:
+    def __init__(self, value: Any, *, probability: float = 1.0) -> None:
         super().__init__(probability=probability)
         self.value = value
 
@@ -108,12 +212,12 @@ class ValueRandomizer(Randomizer):
 
 
 class SparseBoolRandomizer(ValueRandomizer):
-    def __init__(self, *, probability: float = None) -> None:
+    def __init__(self, *, probability: float = 1.0) -> None:
         super().__init__(True, probability=probability)
 
 
 class TextRandomizer(Randomizer):
-    def __init__(self, template: str | list, *, probability: float = None) -> None:
+    def __init__(self, template: str | list, *, probability: float = 1.0) -> None:
         super().__init__(probability=probability)
         self.template = template
 
@@ -125,7 +229,7 @@ class TextRandomizer(Randomizer):
 
 class SampleRandomizer(Randomizer):
     def __init__(
-        self, sample_list: Sequence, *, counts=None, probability: float = None
+        self, sample_list: Sequence, *, counts=None, probability: float = 1.0
     ) -> None:
         super().__init__(probability=probability)
         self.sample_list = sample_list
@@ -145,13 +249,13 @@ class SampleRandomizer(Randomizer):
 #             super().__init__((True, False))
 
 
-def resolve_random(val: Any) -> Any:
+def _resolve_random(val: Any) -> Any:
     if isinstance(val, Randomizer):
         return val.generate()
     return val
 
 
-def resolve_random_dict(d: dict, *, macros: dict = None) -> None:
+def _resolve_random_dict(d: dict, *, macros: dict = None) -> None:
     remove = []
     for key in d.keys():
         val = d[key]
@@ -169,30 +273,6 @@ def resolve_random_dict(d: dict, *, macros: dict = None) -> None:
     for key in remove:
         d.pop(key)
     return
-
-
-# ------------------------------------------------------------------------------
-# Default data object
-# ------------------------------------------------------------------------------
-
-
-class NodeData:
-    """Used as `node.data` instance in nutree.
-
-    This is used as factory class
-
-    See https://github.com/mar10/nutree
-    """
-
-    def __init__(self, **values) -> None:
-        self.values: dict = values
-
-    def __repr__(self):
-        return f"{self.__class__.__name__}<{self.values}>"
-
-    @staticmethod
-    def serialize_mapper(nutree_node, data):
-        return nutree_node.data.copy()
 
 
 # ------------------------------------------------------------------------------
@@ -215,18 +295,14 @@ def _make_tree(
     relations: dict,
     prefix: str,
 ):
-    """Return a nutree.TypedTree with random data from a specification.
-
-    See https://github.com/mar10/nutree
-    """
     child_specs = relations[parent_type]
 
     for node_type, spec in child_specs.items():
         spec = _merge_specs(node_type, spec, types)
         count = spec.pop(":count", 1)
-        count = resolve_random(count)
+        count = _resolve_random(count)
         callback = spec.pop(":callback", None)
-        factory = spec.pop(":factory", NodeData)
+        factory = spec.pop(":factory", GenericNodeData)
 
         for i in range(count):
             i += 1  # 1-based
@@ -235,7 +311,7 @@ def _make_tree(
             # Resolve `Randomizer` values and resolve `{prefix}` and `{i}` macros
             data = spec.copy()
 
-            resolve_random_dict(data, macros={"i": i, "prefix": p})
+            _resolve_random_dict(data, macros={"i": i, "prefix": p})
 
             if callback:
                 callback(data)
@@ -257,14 +333,14 @@ def _make_tree(
     return
 
 
-def generate_tree(structure_def: dict) -> TypedTree:
+def build_random_tree(structure_def: dict) -> TypedTree:
     """
     Return a nutree.TypedTree with random data from a specification.
-
-    See https://github.com/mar10/nutree
     """
     name = structure_def.pop("name", None)
-    tree = TypedTree(name=name)
+
+    tree = TypedTree(name=name, shadow_attrs=True)
+
     types = structure_def.pop("types", {})
     relations = structure_def.pop("relations")
     assert not structure_def, f"found extra data: {structure_def}"
