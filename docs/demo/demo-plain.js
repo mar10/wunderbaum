@@ -18,8 +18,8 @@ new mar10.Wunderbaum({
   // header: "Plain Tree",
   source:
     // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_99k_3_1.json",
-    // "../../test/generator/fixture_fmea_1k_4_1_t.json",
-    "../../test/fixtures/tree_fmea_XL_t_comp.json",
+    // "../../test/fixtures/tree_fmea_XL_t_flat_comp.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
@@ -105,12 +105,12 @@ new mar10.Wunderbaum({
     // User expanded a lazy node for the first time.
     console.log(e.type, e);
     // A typical handler would return a URL that should be fetched:
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     // ... Simulate a long-running request
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject("Epic fail");
-        // resolve({ url: "../assets/ajax-lazy-products.json" });
+        // resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
   },

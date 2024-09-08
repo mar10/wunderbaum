@@ -63,11 +63,11 @@ new mar10.Wunderbaum({
   },
   lazyLoad: function (e) {
     console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-products.json" });
+        resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
   },
