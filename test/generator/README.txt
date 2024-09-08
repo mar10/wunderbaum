@@ -13,7 +13,7 @@ python -m make_fixture TYPE
 ```
 e.g.
 ```bash
-python -m make_fixture department
-python -m make_fixture fmea
-python -m make_fixture store
+python -m make_fixture department_M
+python -m make_fixture fmea_XL
+python -m make_fixture store_XL
 ```

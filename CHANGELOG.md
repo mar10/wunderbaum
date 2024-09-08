@@ -11,6 +11,7 @@ First release.
   more compact JSON sources).
 - v0.11.1: Fix passing `checkbox: 'radio'`.
 - v0.11.1: Fix sorting boolean column values.
+- v0.11.1: Improve random data generation in demos.
 
 - v0.11.0: BREAKING
   Renamed `tree.options.resizableColumns` to `columnsResizable`.

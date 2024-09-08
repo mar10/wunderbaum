@@ -19,7 +19,8 @@ new mar10.Wunderbaum({
   // source: "../assets/ajax_1k_3_54.json",
   // Columns- and types-definition are part of the Ajax response:
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
+    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
+    "../../test/fixtures/tree_department_M_t_c.json",
   debugLevel: 5,
   // header: false,
   connectTopBreadcrumb: document.getElementById("parentPath"),
@@ -69,6 +70,15 @@ new mar10.Wunderbaum({
         resolve({ url: "../assets/ajax-lazy-products.json" });
       }, 1500);
     });
+  },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    } else if (e.command === "menu") {
+      // eslint-disable-next-line no-alert
+      alert("Menu clicked");
+    }
   },
   change: function (e) {
     const info = e.info;

@@ -9,7 +9,7 @@ representing the tree data.
 The available fixtures are:
 - 'store_XL': Generates fixture data for a store tree structure.
 - 'department_M': Generates fixture data for a department tree structure.
-- 'fmea_S': Generates fixture data for a failure mode and effects analysis (FMEA) tree structure.
+- 'fmea_XL': Generates fixture data for a failure mode and effects analysis (FMEA) tree structure.
 
 The naming conventions for the fixture functions are as follows:
 - The name of the fixture function should be prefixed with '_generate_fixture_'.
@@ -23,33 +23,33 @@ Example usage:
     python make_fixture.py store_XL
 
 The generated fixture data is written to JSON files in different formats:
-- fixture_NAME_p.json: 
+- tree_NAME_p.json: 
   Plain list format:
   Each node is represented as a dictionary in a nested list. 
   No compression is applied.
   
-- fixture_NAME_o.json:
+- tree_NAME_o.json:
   Standard format:
   One top-level dictionary with a 'children' key containing a nested list child nodes.
   No compression is applied.
 
-- fixture_NAME_c.json:
+- tree_NAME_c.json:
   Standard format with columns: a 'columns' key containing the column definitions.
   No compression is applied.
 
-- fixture_NAME_t.json:
+- tree_NAME_t.json:
   Standard format with types: a 'types' key containing the node type definitions.
   No compression is applied except for type references.
 
-- fixture_NAME_t_c.json:
+- tree_NAME_t_c.json:
   Standard format with types and columns.
   No compression is applied except for type references.
 
-- fixture_NAME_t_c_comp.json:
+- tree_NAME_t_c_comp.json:
   Standard format with types, columns, and compression:
   The child nodes are compressed using `_valueMap` and `_keyMap` mappings.
 
-- fixture_NAME_t_c_flat_comp.json:
+- tree_NAME_t_c_flat_comp.json:
   Flat parent-referencing list with types, columns, and compression:
   The child nodes are compressed using `_valueMap`, `_keyMap`, and `_positional` 
   mappings.
@@ -85,7 +85,7 @@ from tree_generator import (
 # ------------------------------------------------------------------------------
 # Fixture: 'store'
 # ------------------------------------------------------------------------------
-def _generate_fixture_store_XL(*, add_html: bool) -> dict:
+def _generate_fixture_store_XL() -> dict:
 
     # --- Node Types ---
 
@@ -185,9 +185,9 @@ def _generate_fixture_store_XL(*, add_html: bool) -> dict:
 # ------------------------------------------------------------------------------
 
 
-def _generate_fixture_department_M(*, add_html: bool) -> dict:
+def _generate_fixture_department_M() -> dict:
 
-    CB_COUNT = 0
+    CB_COUNT = 50
 
     # --- Node Types ---
 
@@ -200,64 +200,41 @@ def _generate_fixture_department_M(*, add_html: bool) -> dict:
     # --- Define Columns ---
 
     column_list = [
-        {
-            "title": "Title",
-            "id": "*",
-            "width": "250px",
-        },
+        {"title": "Title", "id": "*", "width": "250px", "sortable": True},
         {
             "title": "Age",
             "id": "age",
             "width": "50px",
-            "html": "<input type=number min=0 tabindex='-1'>" if add_html else None,
+            "html": "<input type=number min=0 tabindex='-1'>",
             "classes": "wb-helper-end",
+            "sortable": True,
         },
         {
             "title": "Date",
             "id": "date",
             "width": "100px",
-            "html": "<input type=date tabindex='-1'>" if add_html else None,
+            "html": '<input type=date tabindex="-1">',
+            "sortable": True,
         },
         {
-            "title": "Status",
-            "id": "state",
+            "title": "Mood",
+            "id": "mood",
             "width": "70px",
-            "html": (
-                dedent(
-                    """\
-                <select tabindex='-1'>
-                  <option value=h>Happy</option>
-                  <option value=s>Sad</option>
-                </select>
+            "html": dedent(
                 """
-                )
-                if add_html
-                else None
+                <select tabindex="-1">
+                    <option value="h">Happy</option>
+                    <option value="s">Sad</option>
+                </select>"""
             ),
+            "sortable": True,
         },
-        {
-            "title": "Avail",
-            "id": "avail",
-            "width": "30px",
-            "html": "<input type=checkbox tabindex='-1'>" if add_html else None,
-            "sortable": False,
-        },
-        # {
-        #     "title": "Tags",
-        #     "id": "tags",
-        #     "width": "100px",
-        #     "html": '<select tabindex="-1" multiple><option value="a">A</option><option value="b">B</option></select>'
-        #     if add_html
-        #     else None,
-        # },
         {
             "title": "Remarks",
             "id": "remarks",
-            "width": "*",
-            # "width": "300px",
-            "html": "<input type=text tabindex='-1'>" if add_html else None,
-            # "menu": True,
-            "sortable": False,
+            "width": "300px",
+            "html": "<input type=text tabindex='-1'>",
+            "sortable": True,
         },
     ]
 
@@ -268,7 +245,7 @@ def _generate_fixture_department_M(*, add_html: bool) -> dict:
                 "id": f"state_{i}",
                 "width": "30px",
                 "classes": "wb-helper-center",
-                "html": "<input type=checkbox tabindex='-1'>" if add_html else None,
+                "html": "<input type=checkbox tabindex='-1'>",
                 "sortable": False,
             }
         )
@@ -362,28 +339,29 @@ def _generate_fixture_department_M(*, add_html: bool) -> dict:
 # ------------------------------------------------------------------------------
 
 
-def _generate_fixture_fmea_S(*, add_html: bool) -> dict:
+def _generate_fixture_fmea_XL() -> dict:
 
     # --- Node Types ---
 
     type_dict = {
         "function": {"icon": "bi bi-gear"},
         "failure": {"icon": "bi bi-exclamation-triangle"},
-        "causes": {"icon": "bi bi-tools", "colspan": True, "expanded": True},
+        "causes": {"icon": "bi bi-tools", "expanded": True},
         "cause": {"icon": "bi bi-tools"},
-        "effects": {"icon": "bi bi-lightning", "colspan": True, "expanded": True},
+        "effects": {"icon": "bi bi-lightning", "expanded": True},
         "effect": {"icon": "bi bi-lightning"},
     }
 
     # --- Define Columns ---
 
-    column_list = [
-        {
-            "title": "Title",
-            "id": "*",
-            "width": "250px",
-        },
-    ]
+    column_list = None
+    # column_list = [
+    #     {
+    #         "title": "Title",
+    #         "id": "*",
+    #         "width": "250px",
+    #     },
+    # ]
 
     # --- Compression Hints ---
 
@@ -396,7 +374,7 @@ def _generate_fixture_fmea_S(*, add_html: bool) -> dict:
         "relations": {
             "__root__": {
                 "function": {
-                    ":count": 10,
+                    ":count": 200,
                     "type": "function",
                     "title": Fab(["Deliver $(verb:ing)", "Produce $(noun:plural)"]),
                     # "expanded": SparseBoolRandomizer(probability=0.1),
@@ -405,7 +383,7 @@ def _generate_fixture_fmea_S(*, add_html: bool) -> dict:
             },
             "function": {
                 "failure": {
-                    ":count": RangeRandomizer(1, 3),
+                    ":count": RangeRandomizer(1, 32),
                     "type": "failure",
                     "title": Fab(
                         ["$(Noun) is $(adj:#negative)", "$(Noun) not $(verb:ing)"]
@@ -427,14 +405,14 @@ def _generate_fixture_fmea_S(*, add_html: bool) -> dict:
             },
             "causes": {
                 "cause": {
-                    ":count": RangeRandomizer(1, 3, probability=0.8),
+                    ":count": RangeRandomizer(1, 35, probability=0.8),
                     "type": "cause",
                     "title": Fab("$(Noun:plural) not provided"),
                 },
             },
             "effects": {
                 "effect": {
-                    ":count": RangeRandomizer(1, 3, probability=0.8),
+                    ":count": RangeRandomizer(1, 35, probability=0.8),
                     "type": "effect",
                     "title": Fab("$(Noun:plural) not provided"),
                 },
@@ -467,7 +445,7 @@ def _size_disp(path: Path) -> str:
         return f"{round(0.000001*size, 2):,} MiB"
     elif size > 3000:
         return f"{round(0.001*size, 2):,} kiB"
-    return f"{size:,}"
+    return f"{size:,} bytes"
 
 
 def _write_json(path: Path, data: dict, *, debug: bool):
@@ -476,16 +454,16 @@ def _write_json(path: Path, data: dict, *, debug: bool):
             json.dump(data, fp, indent=4, separators=(", ", ": "))
         else:
             json.dump(data, fp, indent=None, separators=(",", ":"))
-    print(f"Created {path.name}, {_size_disp(path)}")
+    print(f"Created {path}, {_size_disp(path)}")
 
 
 def main(locals):
     # --- Find all implementation functions (starting with 'generate_fixture_')
     METHOD_PREFIX = "_generate_fixture_"
     METHOD_PREFIX_LEN = len(METHOD_PREFIX)
-    # ADD_HTML = False
     DEBUG = False
-    # DEBUG = True
+    BASE_DIR = Path(__file__).parent.parent / "fixtures"
+    FILE_PREFIX = "tree_"
 
     avail = [
         name[METHOD_PREFIX_LEN:] for name in locals if name.startswith(METHOD_PREFIX)
@@ -504,54 +482,50 @@ def main(locals):
         sys.exit(1)
 
     # --- Call the genreator method
-    random_data = method(add_html=True)
+    random_data = method()
 
-    print(
-        f'Generated tree with {random_data["node_count"]:,} nodes, depth: {random_data["depth"]}'
-    )
-    col_count = len(random_data["columns"]) if random_data.get("columns") else 1
+    col_count = len(random_data["columns"]) if random_data.get("columns") else 0
 
-    base_dir = Path(__file__).parent.parent / "fixtures"
-    # base_name = f'fixture_{fixture_name}_{tree_data["node_count_disp"]}_{tree_data["depth"]}_{col_count}'
-    base_name = f"fixture_{fixture_name}"
+    # base_name = f'{FILE_PREFIX}{fixture_name}_{tree_data["node_count_disp"]}_{tree_data["depth"]}_{col_count}'
+    base_name = f"{FILE_PREFIX}{fixture_name}"
 
-    print(f"Writing results to  {base_dir}")
+    print(f"Writing results to  {BASE_DIR}")
 
     # Remove previous fixtures
-    for fn in base_dir.glob(f"fixture_{fixture_name}_*"):
+    for fn in BASE_DIR.glob(f"{FILE_PREFIX}{fixture_name}_*"):
         fn.unlink()
         print(f"REMOVED {fn}")
 
     # Write as plain list
     file_name = f"{base_name}_p.json"
-    path = base_dir / file_name
+    path = BASE_DIR / file_name
     out = random_data["child_list"]
     _write_json(path, out, debug=DEBUG)
 
     # Extended Standard (object format)
     file_name = f"{base_name}_o.json"
-    path = base_dir / file_name
+    path = BASE_DIR / file_name
     out = {"children": random_data["children"]}
     _write_json(path, out, debug=DEBUG)
 
     if col_count:
         # Extended standard with columns
         file_name = f"{base_name}_c.json"
-        path = base_dir / file_name
+        path = BASE_DIR / file_name
         out = {"columns": random_data["columns"], "children": random_data["children"]}
         _write_json(path, out, debug=DEBUG)
 
     if random_data["types"]:
         # Extended standard with types
         file_name = f"{base_name}_t.json"
-        path = base_dir / file_name
+        path = BASE_DIR / file_name
         out = {"types": random_data["types"], "children": random_data["children"]}
         _write_json(path, out, debug=DEBUG)
 
         if col_count:
             # Extended standard with types and columns
             file_name = f"{base_name}_t_c.json"
-            path = base_dir / file_name
+            path = BASE_DIR / file_name
             out = {
                 "types": random_data["types"],
                 "columns": random_data["columns"],
@@ -559,8 +533,14 @@ def main(locals):
             }
             _write_json(path, out, debug=DEBUG)
 
-    file_name = f"{base_name}_t_c_flat_comp.json"
-    path = base_dir / file_name
+    suffix = ""
+    if random_data["types"]:
+        suffix += "_t"
+    if col_count:
+        suffix += "_c"
+
+    file_name = f"{base_name}{suffix}_flat_comp.json"
+    path = BASE_DIR / file_name
     out = compress_child_list(
         deepcopy(random_data["child_list"]),  # DEEP-COPY, because nodes are modified
         format=FileFormat.flat,
@@ -572,8 +552,8 @@ def main(locals):
     )
     _write_json(path, out, debug=DEBUG)
 
-    file_name = f"{base_name}_t_c_comp.json"
-    path = base_dir / file_name
+    file_name = f"{base_name}{suffix}_comp.json"
+    path = BASE_DIR / file_name
     out = compress_child_list(
         random_data["child_list"],
         format=FileFormat.nested,
@@ -584,6 +564,12 @@ def main(locals):
         auto_compress=True,
     )
     _write_json(path, out, debug=DEBUG)
+
+    print(
+        "Generated tree with {node_count:,} nodes, {col_count} columns, depth: {depth}".format(
+            **random_data, col_count=col_count
+        )
+    )
 
 
 if __name__ == "__main__":

@@ -7,29 +7,13 @@ Example:
 
 ```py
 structure_definition = {
-    "name": "fmea",
-    #: Types define the default properties of the nodes
-    "types": {
-
-        #: Default properties for all node types
-        # "*": {":factory": WbNode},
+    ...
 }
-
 random_tree: nutree.TypedTree = generate_tree(structure_definition)
 ```
 
-See `test_tree_generator.py` for more examples.
-
-We are using a structure definition and nutree.generate_tree instance as input 
-and convert it to a Wunderbaum compliant source object.
-
-The source object is then written to the file system in different formats.
-
-Store as Wunderbaum JSON file in different variants:
-  - nested (uncompressed)
-  - flat (compressed)
-  - flat (compressed, with automatic compression)
-  - ...
+See `make_fixture.py` for more examples.
+See `test_tree_generator.py` for details.
 """
 
 from collections import Counter
@@ -189,7 +173,7 @@ def compress_child_list(
 
     # ----------
     # Pass 1: collect used attribute and type names
-
+    seq = 0
     for parent_idx, node in _iter_dict_pre_order(child_list):
         # Build/update key_map / inverse_key_map
         for attr in node.keys():
@@ -207,8 +191,11 @@ def compress_child_list(
                     elif first_char_lc.lower() in avail_short_names:
                         short = first_char_lc
                         avail_short_names.remove(first_char_lc)
-                    else:
+                    elif avail_short_names:
                         short = avail_short_names.pop(0)
+                    else:  # we are out of single-character short names
+                        seq += 1
+                        short = f"_{seq}"
                 inverse_key_map[attr] = short
                 key_map[short] = attr
 

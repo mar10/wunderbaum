@@ -23,31 +23,7 @@ new mar10.Wunderbaum({
   navigationModeOption: "row",
   source:
     // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-    "../../test/generator/fixture_store_95k_3_7_comp.json",
-  // source: "../assets/ajax_100k_3_1_6.json",
-  // source: "../assets/fixture_store_104k_3_7_flat_comp.json",
-  types: {
-    folder: { colspan: true, checkbox: false },
-    book: { icon: "bi bi-book" },
-    computer: { icon: "bi bi-laptop" },
-    music: { icon: "bi bi-disc" },
-    phone: { icon: "bi bi-phone" },
-  },
-  // columns: [
-  //   { id: "*", title: "Product", width: "250px" },
-  //   { id: "author", title: "Author", width: "200px" },
-  //   { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-  //   { id: "qty", title: "Qty", width: "100px", classes: "wb-helper-end" },
-  //   {
-  //     id: "price",
-  //     title: "Price ($)",
-  //     width: "80px",
-  //     classes: "wb-helper-end",
-  //   },
-  //   // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-  //   { id: "details", title: "Details", width: "*", minWidth: "600px" },
-  // ],
+    "../../test/fixtures/tree_store_XL_t_c_comp.json",
   columnsResizable: true,
   columnsSortable: true,
   dnd: {
