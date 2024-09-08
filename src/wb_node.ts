@@ -2786,10 +2786,17 @@ export class WunderbaumNode {
         av = a.data[propName];
         bv = b.data[propName];
       }
-      if (av == null || av instanceof Boolean) {
+      if (av == null && bv == null) {
+        return 0;
+      }
+      if (av == null) {
+        av = typeof bv === "string" ? "" : 0;
+      } else if (typeof av === "boolean") {
         av = av ? 1 : 0;
       }
-      if (bv == null || bv instanceof Boolean) {
+      if (bv == null) {
+        bv = typeof av === "string" ? "" : 0;
+      } else if (typeof bv === "boolean") {
         bv = bv ? 1 : 0;
       }
       if (caseInsensitive) {
