@@ -143,6 +143,21 @@ class Randomizer(ABC):
 
 
 class RangeRandomizer(Randomizer):
+    """
+    A randomizer class that generates random values within a specified range.
+
+    Args:
+        min_val (Union[float, int]): The minimum value of the range.
+        max_val (Union[float, int]): The maximum value of the range.
+        probability (float, optional): The probability of generating a value. Defaults to 1.0.
+        none_value (Any, optional): The value to return when skipping generation. Defaults to None.
+
+    Returns:
+        Union[float, int, None]: The generated random value, or none_value if generation is skipped.
+    """
+
+    """"""
+
     def __init__(
         self,
         min_val: Union[float, int],
@@ -168,6 +183,16 @@ class RangeRandomizer(Randomizer):
 
 
 class DateRangeRandomizer(Randomizer):
+    """
+    A randomizer class that generates random dates within a specified range.
+
+    Args:
+        min_dt (date): The minimum date of the range.
+        max_dt (Union[date, int]): The maximum date of the range. Pass an integer to specify the number of days from min_dt.
+        as_js_stamp (bool, optional): If True, return the date as a JavaScript timestamp. Defaults to True.
+        probability (float, optional): The probability of generating a value. Defaults to 1.0.
+    """
+
     def __init__(
         self,
         min_dt: date,
@@ -207,7 +232,15 @@ class DateRangeRandomizer(Randomizer):
 
 
 class ValueRandomizer(Randomizer):
-    def __init__(self, value: Any, *, probability: float = 1.0) -> None:
+    """
+    A randomizer class that generates a fixed value with a given probability.
+
+    Args:
+        value (Any): The value to generate.
+        probability (float): The probability of generating a value [0.0 .. 1.0].
+    """
+
+    def __init__(self, value: Any, *, probability: float) -> None:
         super().__init__(probability=probability)
         self.value = value
 
@@ -218,22 +251,20 @@ class ValueRandomizer(Randomizer):
 
 
 class SparseBoolRandomizer(ValueRandomizer):
-    def __init__(self, *, probability: float = 1.0) -> None:
+    """
+    A randomizer class that generates a boolean value with a given probability.
+    If the value is False, it is returned as None.
+    """
+
+    def __init__(self, *, probability: float) -> None:
         super().__init__(True, probability=probability)
 
 
-class TextRandomizer(Randomizer):
-    def __init__(self, template: str | list, *, probability: float = 1.0) -> None:
-        super().__init__(probability=probability)
-        self.template = template
-
-    def generate(self) -> Any:
-        if self._skip_value():
-            return
-        return fab.get_quote(self.template)
-
-
 class SampleRandomizer(Randomizer):
+    """
+    A randomizer class that generates a random value from a sample list.
+    """
+
     def __init__(
         self, sample_list: Sequence, *, counts=None, probability: float = 1.0
     ) -> None:
@@ -253,6 +284,73 @@ class SampleRandomizer(Randomizer):
 #             super().__init__((True, False, None))
 #         else:
 #             super().__init__((True, False))
+
+
+class TextRandomizer(Randomizer):
+    """
+    A randomizer class that generates a random string value from a Fabulist template.
+
+    Uses the [`fabulist`](https://github.com/mar10/fabulist/) library to generate
+    text values.
+
+    Args:
+        template (str | list): A template string or list of strings.
+        probability (float, optional): The probability of generating a value. Defaults to 1.0.
+    """
+
+    def __init__(self, template: str | list, *, probability: float = 1.0) -> None:
+        super().__init__(probability=probability)
+        self.template = template
+
+    def generate(self) -> Any:
+        if self._skip_value():
+            return
+        return fab.get_quote(self.template)
+
+
+class BlindTextRandomizer(Randomizer):
+    """
+    A randomizer class that generates a random lorem ipsum text value from a template.
+
+    Uses the [`fabulist`](https://github.com/mar10/fabulist/) library to generate
+    text values.
+
+    Args:
+        sentence_count (int | tuple, optional): The number of sentences to generate. Defaults to (2, 6).
+        dialect (str, optional): The dialect of the text. Defaults to "ipsum".
+        entropy (int, optional): The entropy of the text. Defaults to 2.
+        keep_first (bool, optional): If True, keep the first sentence. Defaults to False.
+        words_per_sentence (int | tuple, optional): The number of words per sentence. Defaults to (3, 15).
+        probability (float, optional): The probability of generating a value. Defaults to 1.0.
+    """
+
+    def __init__(
+        self,
+        *,
+        sentence_count: int | tuple = (2, 6),
+        dialect: str = "ipsum",
+        entropy: int = 2,
+        keep_first: bool = False,
+        words_per_sentence: int | tuple = (3, 15),
+        probability: float = 1.0,
+    ) -> None:
+        super().__init__(probability=probability)
+        self.sentence_count = sentence_count
+        self.dialect = dialect
+        self.entropy = entropy
+        self.keep_first = keep_first
+        self.words_per_sentence = words_per_sentence
+
+    def generate(self) -> Any:
+        if self._skip_value():
+            return
+        return fab.get_lorem_paragraph(
+            sentence_count=self.sentence_count,
+            dialect=self.dialect,
+            entropy=self.entropy,
+            keep_first=self.keep_first,
+            words_per_sentence=self.words_per_sentence,
+        )
 
 
 def _resolve_random(val: Any) -> Any:

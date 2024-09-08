@@ -79,6 +79,7 @@ from tree_generator import (
     SampleRandomizer,
     SparseBoolRandomizer,
     TextRandomizer as Fab,
+    BlindTextRandomizer as Blind,
 )
 
 
@@ -312,8 +313,11 @@ def _generate_fixture_department_M() -> dict:
                         date.today(),
                         probability=0.6,
                     ),
-                    "remarks": Fab(
-                        "$(Verb:s) $(noun:plural) $(adv:#positive).", probability=0.3
+                    # "remarks": Fab(
+                    #     "$(Verb:s) $(noun:plural) $(adv:#positive).", probability=0.3
+                    # ),
+                    "remarks": Blind(
+                        dialect="ipsum", sentence_count=1, probability=0.3
                     ),
                 },
             },
