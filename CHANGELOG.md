@@ -11,6 +11,7 @@ First release.
   more compact JSON sources).
 - v0.11.1: Fix passing `checkbox: 'radio'`.
 - v0.11.1: Fix sorting boolean and undefined column values.
+- v0.11.1: Prevent editing a status node title.
 - v0.11.1: Improve random data generation in demos.
 
 - v0.11.0: BREAKING

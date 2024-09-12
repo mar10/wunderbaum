@@ -213,6 +213,10 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
     if (!node) {
       return;
     }
+    if (node.isStatusNode()) {
+      node.logWarn("Cannot edit status node.");
+      return;
+    }
     this.tree.logDebug(`startEditTitle(node=${node})`);
     let inputHtml = node._callEvent("edit.beforeEdit");
     if (inputHtml === false) {
