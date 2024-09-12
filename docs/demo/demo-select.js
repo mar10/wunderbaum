@@ -106,7 +106,7 @@ new mar10.Wunderbaum({
   },
   lazyLoad: function (e) {
     return e.util.setTimeoutPromise(() => {
-      return { url: "../assets/ajax-lazy-products.json" };
+      return { url: "../assets/json/ajax-lazy-products.json" };
     }, 4000);
   },
   iconBadge: (e) => {

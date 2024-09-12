@@ -75,7 +75,7 @@ const tree = new Wunderbaum({
   // source: "generator/fixture_department_1k_3_6_comp.json",
   columnsResizable: true,
 
-  // source: "../docs/assets/ajax-tree-products.json",
+  // source: "../docs/assets/json/ajax-tree-products.json",
   // source:
   //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
   // source:
@@ -162,9 +162,9 @@ const tree = new Wunderbaum({
     // mode: "hide",
   },
   lazyLoad: (e) => {
-    // return {url: "../docs/assets/ajax-lazy-products.json"};
+    // return {url: "../docs/assets/json/ajax-lazy-products.json"};
     return util.setTimeoutPromise(() => {
-      return { url: "../docs/assets/ajax-lazy-products.json" };
+      return { url: "../docs/assets/json/ajax-lazy-products.json" };
     }, 1000);
   },
   activate: (e) => {

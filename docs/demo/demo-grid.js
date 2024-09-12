@@ -17,8 +17,7 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
-  // source: "../assets/ajax-tree-editable.json",
-  source: "../assets/ajax-tree-products.json",
+  source: "../assets/json/ajax-tree-products.json",
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
@@ -126,12 +125,12 @@ new mar10.Wunderbaum({
   },
   lazyLoad: function (e) {
     console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        // resolve({ url: "../assets/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
-        resolve({ url: "../assets/ajax-lazy-products.json" });
+        // resolve({ url: "../assets/json/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
+        resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
   },

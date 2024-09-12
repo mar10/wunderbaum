@@ -175,7 +175,9 @@ Note that
 
 - The structure may be nested, e.g. a child node may in turn contain a `children` list.
 - Some reserved attributes names are part of the node data model:<br>
-  `checkbox`, `classes`, `expanded`, `icon`, `iconTooltip`, `key`, `lazy`, `radiogroup`, `refKey`, `selected`, `statusNodeType`, `title`, `tooltip`, `type`, `unselectable`.<br>
+  `checkbox`, `classes`, `expanded`, `icon`, `iconTooltip`, `key`, `lazy`,
+  `radiogroup`, `refKey`, `selected`, `statusNodeType`, `title`, `tooltip`,
+  `type`, `unselectable`.<br>
   They can be accessed as `node.title`, for example,
 
 - All other properties are stored under the _data_ namespace and are accessed
