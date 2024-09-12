@@ -20,10 +20,9 @@ new mar10.Wunderbaum({
   // checkbox: true,
   // fixedCol: true,
   navigationModeOption: "cell",
-  // The JSON only contains a list of nested node dicts:
-  // source: "../assets/json/fixture_department_1k_3_6_p.json",
+  // The JSON only contains a list of nested node dicts (no types or columns):
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_department_M_p.json",
   types: {
     department: { icon: "bi bi-diagram-3", colspan: true },
     role: { icon: "bi bi-microsoft-teams", colspan: true },

@@ -17,7 +17,6 @@ new mar10.Wunderbaum({
   element: document.getElementById("demo-tree"),
   // header: "Plain Tree",
   source:
-    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_99k_3_1.json",
     // "../../test/fixtures/tree_fmea_XL_t_flat_comp.json",
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
   debugLevel: 5,

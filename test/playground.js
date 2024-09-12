@@ -70,17 +70,11 @@ const tree = new Wunderbaum({
       // checkbox: "radio",
     },
   },
-  // source: "generator/ajax_1k_3_54 t_c.json",
-  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
-  // source: "generator/fixture_department_1k_3_6_comp.json",
   columnsResizable: true,
 
-  // source: "../docs/assets/json/ajax-tree-products.json",
+  source: "../docs/assets/json/ajax-tree-products.json",
   // source:
-  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  // source:
-  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // source: "generator/fixture.json",
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
   // source: {
   //   children: [
   //     { title: "a", type: "book", details: "A book", children: [] },
@@ -264,15 +258,15 @@ const tree = new Wunderbaum({
     //   focusTree: true,
     // });
     // e.tree.findFirst("Observe")?.setTooltip("This is a tooltip");
-    const res = e.tree.filterNodes(/^jo[eh]/i, {
-      mode: "hide",
-      hideExpanders: true,
-      // matchBranch: true,
-      // leavesOnly: true,
-      // fuzzy: true,
-      autoExpand: true,
-    });
-    e.tree.log("matches", e.tree.countMatches(), res);
+    // const res = e.tree.filterNodes(/^jo[eh]/i, {
+    //   mode: "hide",
+    //   hideExpanders: true,
+    //   // matchBranch: true,
+    //   // leavesOnly: true,
+    //   // fuzzy: true,
+    //   autoExpand: true,
+    // });
+    // e.tree.log("matches", e.tree.countMatches(), res);
   },
 });
 console.log(`Created  ${tree}`);

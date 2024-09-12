@@ -15,12 +15,11 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // source: "../assets/ajax_1k_3_54.json",
   // Columns- and types-definition are part of the Ajax response:
   source:
-    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
-    "../../test/fixtures/tree_department_M_t_c.json",
+    // "../../test/fixtures/tree_department_M_t_c.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_department_M_t_c_comp.json",
+  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   debugLevel: 5,
   // header: false,
   connectTopBreadcrumb: document.getElementById("parentPath"),

@@ -22,7 +22,6 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "row",
   source:
-    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
     // "../../test/fixtures/tree_store_XL_t_c_comp.json",
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_store_XL_t_c_comp.json",
   columnsResizable: true,
