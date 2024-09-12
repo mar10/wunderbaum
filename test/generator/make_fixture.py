@@ -73,7 +73,7 @@ from generator import (
     compress_child_list,
     generate_random_wb_source,
 )
-from tree_generator import (
+from nutree.tree_generator import (
     DateRangeRandomizer,
     RangeRandomizer,
     SampleRandomizer,

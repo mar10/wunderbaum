@@ -20,7 +20,8 @@ from collections import Counter
 from enum import Enum
 import json
 
-from tree_generator import GenericNodeData, build_random_tree
+from nutree.tree_generator import GenericNodeData
+from nutree.typed_tree import TypedTree
 
 
 class FileFormat(Enum):
@@ -75,7 +76,7 @@ def generate_random_wb_source(structure_definition: dict):
     Return a randomized tree structure in uncompressed, nested format.
     """
     # Generate a random nutree.TypedTree structure
-    tree = build_random_tree(structure_definition)
+    tree = TypedTree.build_random_tree(structure_definition)
     # tree.print()
     # if tree.count < 110:
     #     tree.print()

@@ -4,8 +4,8 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fabulist = "*"
-nutree = "*"
+# fabulist = "*"
+"nutree[all]" = ">=0.9"
 mkdocs = "*"
 mkdocs-material = "*"
 
