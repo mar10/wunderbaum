@@ -814,6 +814,18 @@ export function toBool(
   throw new Error("No default boolean value provided");
 }
 
+/**
+ * Return `val` unless `val` is a number in which case we convert to boolean.
+ * This is useful when a boolean value is stored as a 0/1 (e.g. in JSON) and
+ * we still want to maintain string values. null and undefined are returned as
+ * is. E.g. `checkbox` may be boolean or 'radio'.
+ */
+export function intToBool(
+  val: boolean | number | string | undefined
+): boolean | string | undefined {
+  return typeof val === "number" ? !!val : val;
+}
+
 // /** Check if a string is contained in an Array or Set. */
 // export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
 //   return Array.prototype.includes.call(items, s)

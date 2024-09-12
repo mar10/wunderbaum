@@ -119,7 +119,7 @@ export interface WbNodeData {
   colspan?: boolean;
   expanded?: boolean;
   icon?: IconOption;
-  iconTooltip?: boolean | string;
+  iconTooltip?: TooltipOption;
   key?: string;
   lazy?: boolean;
   /** Make child nodes single-select radio buttons. */
@@ -128,7 +128,7 @@ export interface WbNodeData {
   selected?: boolean;
   statusNodeType?: NodeStatusType;
   title: string;
-  tooltip?: boolean | string;
+  tooltip?: TooltipOption;
   type?: string;
   unselectable?: boolean;
   /** @internal */
@@ -335,8 +335,8 @@ export interface NodeTypeDefinition {
   colspan?: boolean;
   /** Default icon for matching nodes. */
   icon?: IconOption;
-  /** Default icon for matching nodes. */
-  iconTooltip?: string | boolean;
+  /** Default icon tooltip for matching nodes. */
+  iconTooltip?: TooltipOption;
   // and more
   [key: string]: unknown;
 }

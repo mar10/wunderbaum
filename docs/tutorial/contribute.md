@@ -65,8 +65,14 @@ and updates to the demo page.
 
 ### Edit TypeScript sources
 
+install node.js 18+
 Checkout the project from GiHub, then
 
+```bash
+$ cd path/to/project
+$ corepack enable
+$ corepack install
+```
 ```bash
 $ cd path/to/project
 $ yarn

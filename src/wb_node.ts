@@ -83,6 +83,21 @@ const NODE_DICT_PROPS = new Set<string>(NODE_PROPS);
 NODE_DICT_PROPS.delete("_partsel");
 NODE_DICT_PROPS.delete("unselectable");
 
+// /** Node properties that are of type bool (or boolean & string).
+//  *  When parsing, we accept 0 for false and 1 for true for better JSON compression.
+//  */
+// export const NODE_BOOL_PROPS: Set<string> = new Set([
+//   "checkbox",
+//   "colspan",
+//   "expanded",
+//   "icon",
+//   "iconTooltip",
+//   "radiogroup",
+//   "selected",
+//   "tooltip",
+//   "unselectable",
+// ]);
+
 /**
  * A single tree node.
  *
@@ -141,7 +156,9 @@ export class WunderbaumNode {
    */
   public type?: string;
   /** Tooltip definition (`true`: use node's title). */
-  public tooltip?: string | boolean;
+  public tooltip?: TooltipOption;
+  /** Icon tooltip definition (`true`: use node's title). */
+  public iconTooltip?: TooltipOption;
   /** Additional classes added to `div.wb-row`.
    * @see {@link hasClass}, {@link setClass}. */
   public classes: Set<string> | null = null; //new Set<string>();
@@ -171,24 +188,30 @@ export class WunderbaumNode {
 
     this.tree = tree;
     this.parent = parent;
-
     this.key = "" + (data.key ?? ++WunderbaumNode.sequence);
     this.title = "" + (data.title ?? "<" + this.key + ">");
+    this.expanded = !!data.expanded;
+    this.lazy = !!data.lazy;
+
+    // We set the following node properties only if a matching data value is
+    // passed
     data.refKey != null ? (this.refKey = "" + data.refKey) : 0;
     data.type != null ? (this.type = "" + data.type) : 0;
-    this.expanded = data.expanded === true;
-    data.icon != null ? (this.icon = data.icon) : 0;
-    this.lazy = data.lazy === true;
+    data.icon != null ? (this.icon = util.intToBool(data.icon)) : 0;
+    data.tooltip != null ? (this.tooltip = util.intToBool(data.tooltip)) : 0;
+    data.iconTooltip != null
+      ? (this.iconTooltip = util.intToBool(data.iconTooltip))
+      : 0;
     data.statusNodeType != null
       ? (this.statusNodeType = ("" + data.statusNodeType) as NodeStatusType)
       : 0;
     data.colspan != null ? (this.colspan = !!data.colspan) : 0;
 
     // Selection
-    data.checkbox != null ? (this.checkbox = !!data.checkbox) : 0;
+    data.checkbox != null ? util.intToBool(data.checkbox) : 0;
     data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
-    this.selected = data.selected === true;
-    data.unselectable === true ? (this.unselectable = true) : 0;
+    data.selected != null ? (this.selected = !!data.selected) : 0;
+    data.unselectable != null ? (this.unselectable = !!data.unselectable) : 0;
 
     if (data.classes) {
       this.setClass(data.classes);
@@ -1140,9 +1163,9 @@ export class WunderbaumNode {
     // Check for overlapping requests
     if (this._requestId) {
       this.logWarn(
-        `Recursive load request #${requestId} while #${this._requestId} is pending.`
+        `Recursive load request #${requestId} while #${this._requestId} is pending. ` +
+          "The previous request will be ignored."
       );
-      // 	node.debug("Send load request #" + requestId);
     }
     this._requestId = requestId;
 
@@ -2762,6 +2785,19 @@ export class WunderbaumNode {
       } else {
         av = a.data[propName];
         bv = b.data[propName];
+      }
+      if (av == null && bv == null) {
+        return 0;
+      }
+      if (av == null) {
+        av = typeof bv === "string" ? "" : 0;
+      } else if (typeof av === "boolean") {
+        av = av ? 1 : 0;
+      }
+      if (bv == null) {
+        bv = typeof av === "string" ? "" : 0;
+      } else if (typeof bv === "boolean") {
+        bv = bv ? 1 : 0;
       }
       if (caseInsensitive) {
         if (typeof av === "string") {

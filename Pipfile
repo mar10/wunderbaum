@@ -4,13 +4,13 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-fabulist = "*"
-nutree = "*"
+# fabulist = "*"
+"nutree[all]" = ">=0.9"
 mkdocs = "*"
 mkdocs-material = "*"
 
 [dev-packages]
-black = "*"
+black = "24.8"
 
 [requires]
 python_version = "3.12"

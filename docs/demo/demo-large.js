@@ -22,32 +22,9 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "row",
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // "../../test/generator/fixture_store_104k_3_7_flat_comp.json",
-  // source: "../assets/ajax_100k_3_1_6.json",
-  // source: "../assets/fixture_store_104k_3_7_flat_comp.json",
-  types: {
-    folder: { colspan: true, checkbox: false },
-    book: { icon: "bi bi-book" },
-    computer: { icon: "bi bi-laptop" },
-    music: { icon: "bi bi-disc" },
-    phone: { icon: "bi bi-phone" },
-  },
-  // columns: [
-  //   { id: "*", title: "Product", width: "250px" },
-  //   { id: "author", title: "Author", width: "200px" },
-  //   { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-  //   { id: "qty", title: "Qty", width: "100px", classes: "wb-helper-end" },
-  //   {
-  //     id: "price",
-  //     title: "Price ($)",
-  //     width: "80px",
-  //     classes: "wb-helper-end",
-  //   },
-  //   // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-  //   { id: "details", title: "Details", width: "*", minWidth: "600px" },
-  // ],
+    // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
+    // "../../test/fixtures/tree_store_XL_t_c_comp.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_store_XL_t_c_comp.json",
   columnsResizable: true,
   columnsSortable: true,
   dnd: {
@@ -104,11 +81,11 @@ new mar10.Wunderbaum({
   },
   lazyLoad: function (e) {
     console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-products.json" });
+        resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
   },
@@ -154,19 +131,19 @@ new mar10.Wunderbaum({
         case "qty": // thousands separator
           col.elem.textContent = node.data.qty.toLocaleString();
           break;
-        // case "sale": // checkbox control
-        //   if (e.isNew) {
-        //     col.elem.innerHTML = "<input type='checkbox'>";
-        //   }
-        //   // Cast value to bool, since we don't want tri-state behavior
-        //   util.setValueToElem(col.elem, !!node.data.sale);
-        //   break;
+        case "sale": // checkbox control
+          if (e.isNew) {
+            col.elem.innerHTML = "<input type='checkbox'>";
+          }
+          // Cast value to bool, since we don't want tri-state behavior
+          util.setValueToElem(col.elem, !!node.data.sale);
+          break;
         // case "details": // text control
         //   if (e.isNew) {
         //     col.elem.innerHTML = "<input type='text'>";
         //   }
         //   util.setValueToElem(col.elem, node.data.details);
-        //   break;
+        // break;
         default:
           // Assumption: we named column.id === node.data.NAME
           col.elem.textContent = node.data[col.id];

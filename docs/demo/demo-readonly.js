@@ -21,7 +21,7 @@ new mar10.Wunderbaum({
   // fixedCol: true,
   navigationModeOption: "cell",
   // The JSON only contains a list of nested node dicts:
-  // source: "../assets/fixture_department_1k_3_6_p.json",
+  // source: "../assets/json/fixture_department_1k_3_6_p.json",
   source:
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   types: {
