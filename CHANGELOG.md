@@ -13,6 +13,7 @@ First release.
 - v0.11.1: Fix sorting boolean and undefined column values.
 - v0.11.1: Prevent editing a status node title.
 - v0.11.1: Improve random data generation in demos.
+- v0.11.1: Fix drop effect on dragenter.
 
 - v0.11.0: BREAKING
   Renamed `tree.options.resizableColumns` to `columnsResizable`.

@@ -452,7 +452,12 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       }
       this.lastAllowedDropRegions = regionSet;
       this.lastDropEffect = dt.dropEffect;
+
+      const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
       targetNode.setClass("wb-drop-target");
+      targetNode.setClass("wb-drop-over", region === "over");
+      targetNode.setClass("wb-drop-before", region === "before");
+      targetNode.setClass("wb-drop-after", region === "after");
 
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
