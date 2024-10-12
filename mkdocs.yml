@@ -135,6 +135,6 @@ plugins:
 
 extra:
   generator: false  # Added to Copyright instead
-  # analytics:
-  #   provider: google
-  #   property: G-XXXXXXXXXX
+  analytics:
+    provider: google
+    property: G-W8EGCZFQ00
