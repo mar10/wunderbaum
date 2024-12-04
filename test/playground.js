@@ -19,6 +19,7 @@ const tree = new Wunderbaum({
   // checkbox: "radio",
   // checkbox: true,
   id: "Playground",
+  // rowHeightPx: 40,
   // enabled: false,
   fixedCol: true,
   debugLevel: 4,
