@@ -78,17 +78,17 @@ formatting:
 - `wb-helper-disabled` <br>
   Apply disabled style to cell content, i.e. render in a dimmed color.
 - `wb-helper-end` <br>
-  Align cell content to the right (unless `wb-rtl` is set on the cntainer).
+  Align cell content to the right (unless `wb-rtl` is set on the container).
 - `wb-helper-hidden` <br>
   Hide element content.
 - `wb-helper-invalid` <br>
   Apply _invalid_ style to cell content, i.e. render in red.
 - `wb-helper-lazy-expander` <br>
-  Can be used in `iconMaps` .
+  Can be used in `iconMaps` to make a font icon appear colored.
 - `wb-helper-link` <br>
   Apply link style to cell content.
 - `wb-helper-start` <br>
-  Align cell content to the left (unless `wb-rtl` is set on the cntainer).
+  Align cell content to the left (unless `wb-rtl` is set on the container).
 
 ## CSS Variables
 
@@ -106,8 +106,10 @@ for a complete list of all availabe CSS variables.
 
 ## CSS Hacks
 
-?> See also the [Render Tutorial](/tutorial/tutorial_render?id=custom-markup)
-for details on the markup structure and used class names.
+!!! info
+
+    See also the [Render Tutorial](tutorial_render.md?id=custom-markup)
+    for details on the markup structure and used class names.
 
 ```css
 div.wunderbaum {

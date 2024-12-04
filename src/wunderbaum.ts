@@ -3,7 +3,7 @@
  *
  * A treegrid control.
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
@@ -20,38 +20,40 @@ import { DndExtension } from "./wb_ext_dnd";
 import { GridExtension } from "./wb_ext_grid";
 import { ExtensionsDict, WunderbaumExtension } from "./wb_extension_base";
 import {
+  AddChildrenOptions,
+  ApplyCommandOptions,
   ApplyCommandType,
   ChangeType,
   ColumnDefinitionList,
-  ExpandAllOptions,
-  FilterModeType,
-  MatcherCallback,
-  NavModeEnum,
-  NodeStatusType,
-  NodeStringCallback,
-  NodeTypeDefinitionMap,
-  ScrollToOptions,
-  SetActiveOptions,
-  UpdateOptions,
-  SetStatusOptions,
-  NodeRegion,
-  WbEventInfo,
-  ApplyCommandOptions,
-  AddChildrenOptions,
-  VisitRowsOptions,
-  NodeFilterCallback,
-  FilterNodesOptions,
-  RenderFlag,
-  NodeVisitCallback,
-  SortCallback,
-  NodeToDictCallback,
-  WbNodeData,
+  DynamicBoolOption,
   DynamicCheckboxOption,
-  SourceType,
   DynamicIconOption,
   DynamicStringOption,
-  DynamicBoolOption,
+  DynamicTooltipOption,
+  ExpandAllOptions,
+  FilterModeType,
+  FilterNodesOptions,
+  MatcherCallback,
+  NavModeEnum,
+  NodeFilterCallback,
+  NodeRegion,
+  NodeStatusType,
+  NodeStringCallback,
+  NodeToDictCallback,
+  NodeTypeDefinitionMap,
+  NodeVisitCallback,
+  RenderFlag,
+  ScrollToOptions,
+  SetActiveOptions,
   SetColumnOptions,
+  SetStatusOptions,
+  SortByPropertyOptions,
+  SortCallback,
+  SourceType,
+  UpdateOptions,
+  VisitRowsOptions,
+  WbEventInfo,
+  WbNodeData,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -141,10 +143,15 @@ export class Wunderbaum {
   public types: NodeTypeDefinitionMap = {};
   /** List of column definitions. */
   public columns: ColumnDefinitionList = []; // any[] = [];
+  /** Show/hide a checkbox or radiobutton. */
   public checkbox?: DynamicCheckboxOption;
+  /** Show/hide a node icon. */
   public icon?: DynamicIconOption;
+  /** Show/hide a tooltip for the node icon. */
   public iconTooltip?: DynamicStringOption;
-  public tooltip?: DynamicStringOption;
+  /** Show/hide a tooltip. */
+  public tooltip?: DynamicTooltipOption;
+  /** Define a node checkbox as readonly. */
   public unselectable?: DynamicBoolOption;
 
   protected _columnsById: { [key: string]: any } = {};
@@ -165,6 +172,7 @@ export class Wunderbaum {
   // public selectRangeAnchor: WunderbaumNode | null = null;
 
   // --- FILTER ---
+  /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
   public filterMode: FilterModeType = null;
 
   // --- KEYNAV ---
@@ -278,7 +286,7 @@ export class Wunderbaum {
     delete opts.types;
 
     // --- Create Markup
-    this.element = util.elemFromSelector(opts.element) as HTMLDivElement;
+    this.element = util.elemFromSelector<HTMLDivElement>(opts.element)!;
     util.assert(!!this.element, `Invalid 'element' option: ${opts.element}`);
 
     this.element.classList.add("wunderbaum");
@@ -301,9 +309,8 @@ export class Wunderbaum {
 
     // Create header markup, or take it from the existing html
 
-    this.headerElement = this.element.querySelector(
-      "div.wb-header"
-    ) as HTMLDivElement;
+    this.headerElement =
+      this.element.querySelector<HTMLDivElement>("div.wb-header")!;
 
     const wantHeader =
       opts.header == null ? this.columns.length > 1 : !!opts.header;
@@ -315,9 +322,8 @@ export class Wunderbaum {
         "`opts.columns` must not be set if markup already contains a header"
       );
       this.columns = [];
-      const rowElement = this.headerElement.querySelector(
-        "div.wb-row"
-      ) as HTMLDivElement;
+      const rowElement =
+        this.headerElement.querySelector<HTMLDivElement>("div.wb-row")!;
       for (const colDiv of rowElement.querySelectorAll("div")) {
         this.columns.push({
           id: colDiv.dataset.id || `col_${this.columns.length}`,
@@ -340,9 +346,7 @@ export class Wunderbaum {
         </div>`;
 
       if (!wantHeader) {
-        const he = this.element.querySelector(
-          "div.wb-header"
-        ) as HTMLDivElement;
+        const he = this.element.querySelector<HTMLDivElement>("div.wb-header")!;
         he.style.display = "none";
       }
     }
@@ -352,15 +356,15 @@ export class Wunderbaum {
       <div class="wb-list-container">
         <div class="wb-node-list"></div>
       </div>`;
-    this.listContainerElement = this.element.querySelector(
+    this.listContainerElement = this.element.querySelector<HTMLDivElement>(
       "div.wb-list-container"
-    ) as HTMLDivElement;
-    this.nodeListElement = this.listContainerElement.querySelector(
-      "div.wb-node-list"
-    ) as HTMLDivElement;
-    this.headerElement = this.element.querySelector(
-      "div.wb-header"
-    ) as HTMLDivElement;
+    )!;
+    this.nodeListElement =
+      this.listContainerElement.querySelector<HTMLDivElement>(
+        "div.wb-node-list"
+      )!;
+    this.headerElement =
+      this.element.querySelector<HTMLDivElement>("div.wb-header")!;
 
     this.element.classList.toggle("wb-grid", this.columns.length > 1);
 
@@ -420,6 +424,17 @@ export class Wunderbaum {
       this.update(ChangeType.resize);
     });
     this.resizeObserver.observe(this.element);
+
+    util.onEvent(this.element, "click", ".wb-button,.wb-col-icon", (e) => {
+      const info = Wunderbaum.getEventInfo(e);
+      const command = (<HTMLElement>e.target)?.dataset?.command;
+
+      this._callEvent("buttonClick", {
+        event: e,
+        info: info,
+        command: command,
+      });
+    });
 
     util.onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
       const info = Wunderbaum.getEventInfo(e);
@@ -1083,13 +1098,13 @@ export class Wunderbaum {
 
   /** Run code, but defer rendering of viewport until done.
    *
-   * ```
+   * ```js
    * tree.runWithDeferredUpdate(() => {
    *   return someFuncThatWouldUpdateManyNodes();
    * });
    * ```
    */
-  runWithDeferredUpdate(func: () => any, hint = null): void {
+  runWithDeferredUpdate(func: () => any, hint = null): any {
     try {
       this.enableUpdate(false);
       const res = func();
@@ -1608,6 +1623,19 @@ export class Wunderbaum {
     }
   }
 
+  /** Reset column widths to default. @since 0.10.0 */
+  resetColumns() {
+    this.columns.forEach((col) => {
+      delete col.customWidthPx;
+    });
+    this.update(ChangeType.colStructure);
+  }
+
+  // /** Renumber nodes `_nativeIndex`. @see {@link WunderbaumNode.resetNativeChildOrder} */
+  // resetNativeChildOrder(options?: ResetOrderOptions) {
+  //   this.root.resetNativeChildOrder(options);
+  // }
+
   /**
    * Make sure that this node is vertically scrolled into the viewport.
    *
@@ -1789,15 +1817,15 @@ export class Wunderbaum {
    * The render operation is async and debounced unless the `immediate` option
    * is set.
    *
-   * Use {@link WunderbaumNode.update()} if only a single node has changed,
-   * or {@link WunderbaumNode._render()}) to pass special options.
+   * Use {@link WunderbaumNode.update} if only a single node has changed,
+   * or {@link WunderbaumNode._render}) to pass special options.
    */
   update(change: ChangeType, options?: UpdateOptions): void;
 
   /**
    * Update a row to reflect a single node's modification.
    *
-   * @see {@link WunderbaumNode.update()}, {@link WunderbaumNode._render()}
+   * @see {@link WunderbaumNode.update}, {@link WunderbaumNode._render}
    */
   update(
     change: ChangeType,
@@ -1987,9 +2015,18 @@ export class Wunderbaum {
     this.root.sortChildren(cmp, deep);
   }
 
+  /**
+   * Convenience method to implement column sorting.
+   * @see {@link WunderbaumNode.sortByProperty}.
+   * @since 0.11.0
+   */
+  sortByProperty(options: SortByPropertyOptions) {
+    this.root.sortByProperty(options);
+  }
+
   /** Convert tree to an array of plain objects.
    *
-   * @param callback(dict, node) is called for every node, in order to allow
+   * @param callback is called for every node, in order to allow
    *     modifications.
    *     Return `false` to ignore this node or `"skip"` to include this node
    *     without its children.
@@ -2033,7 +2070,7 @@ export class Wunderbaum {
     this._columnsById = {};
     for (const col of columns) {
       this._columnsById[<string>col.id] = col;
-      const cw = col.width;
+      const cw = col.customWidthPx ? `${col.customWidthPx}px` : col.width;
       if (col.id === "*" && col !== col0) {
         throw new Error(
           `Column id '*' must be defined only once: '${col.title}'.`
@@ -2108,6 +2145,12 @@ export class Wunderbaum {
     return modified;
   }
 
+  protected _insertIcon(icon: string, elem: HTMLElement) {
+    const iconElem = document.createElement("i");
+    iconElem.className = icon;
+    elem.appendChild(iconElem);
+  }
+
   /** Create/update header markup from `this.columns` definition.
    * @internal
    */
@@ -2118,6 +2161,7 @@ export class Wunderbaum {
     if (!wantHeader) {
       return;
     }
+    const iconMap = this.iconMap;
     const colCount = this.columns.length;
     const headerRow = this.headerElement.querySelector(".wb-row")!;
     util.assert(headerRow, "Expected a row in header element");
@@ -2138,17 +2182,55 @@ export class Wunderbaum {
         col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
       }
 
-      const title = util.escapeHtml(col.title || col.id);
+      // Add tooltip to column title
       let tooltip = "";
       if (col.tooltip) {
         tooltip = util.escapeTooltip(col.tooltip);
         tooltip = ` title="${tooltip}"`;
       }
-      let resizer = "";
-      if (i < colCount - 1) {
-        resizer = '<span class="wb-col-resizer"></span>';
+      // Add column header icons
+      let addMarkup = "";
+      // NOTE: we use CSS float: right to align icons, so they must be added in
+      // reverse order
+      if (util.toBool(col.menu, this.options.columnsMenu, false)) {
+        const iconClass = "wb-col-icon-menu " + iconMap.colMenu;
+        const icon = `<i data-command=menu class="wb-col-icon ${iconClass}"></i>`;
+        addMarkup += icon;
       }
-      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
+      if (util.toBool(col.sortable, this.options.columnsSortable, false)) {
+        let iconClass = "wb-col-icon-sort " + iconMap.colSortable;
+        if (col.sortOrder) {
+          iconClass += `wb-col-sort-${col.sortOrder}`;
+          iconClass +=
+            col.sortOrder === "asc" ? iconMap.colSortAsc : iconMap.colSortDesc;
+        }
+        const icon = `<i data-command=sort class="wb-col-icon ${iconClass}"></i>`;
+        addMarkup += icon;
+      }
+      if (util.toBool(col.filterable, this.options.columnsFilterable, false)) {
+        colElem.classList.toggle("wb-col-filter", !!col.filterActive);
+        let iconClass = "wb-col-icon-filter " + iconMap.colFilter;
+        if (col.filterActive) {
+          iconClass += iconMap.colFilterActive;
+        }
+        const icon = `<i data-command=filter class="wb-col-icon ${iconClass}"></i>`;
+        addMarkup += icon;
+      }
+      // Add resizer to all but the last column
+      if (i < colCount - 1) {
+        if (util.toBool(col.resizable, this.options.columnsResizable, false)) {
+          addMarkup +=
+            '<span class="wb-col-resizer wb-col-resizer-active"></span>';
+        } else {
+          addMarkup += '<span class="wb-col-resizer"></span>';
+        }
+      }
+
+      // Create column header
+      const title = util.escapeHtml(col.title || col.id);
+      colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${addMarkup}`;
+
+      // Highlight active column
       if (this.isCellNav()) {
         colElem.classList.toggle("wb-active", i === this.activeColIdx);
       }
@@ -2236,6 +2318,10 @@ export class Wunderbaum {
     }
 
     if (this.options.connectTopBreadcrumb) {
+      util.assert(
+        this.options.connectTopBreadcrumb.textContent != null,
+        `Invalid 'connectTopBreadcrumb' option (input element expected).`
+      );
       let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
       path = path ? path + " >" : "";
       this.options.connectTopBreadcrumb.textContent = path;
@@ -2599,12 +2685,21 @@ export class Wunderbaum {
    * FILTER
    * -------------------------------------------------------------------------*/
   /**
-   * Dim or hide nodes.
+   * Dim or hide unmatched nodes.
+   * @param filter a string to match against node titles, or a callback function.
+   * @param options filter options. Defaults to the `tree.options.filter` settings.
+   * @returns the number of nodes that match the filter.
+   * @example
+   * ```ts
+   * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
+   * // or pass a callback
+   * tree.filterNodes((node) => { return node.data.foo === true }, {mode: 'hide'});
+   * ```
    */
   filterNodes(
-    filter: string | NodeFilterCallback,
+    filter: string | RegExp | NodeFilterCallback,
     options: FilterNodesOptions
-  ) {
+  ): number {
     return (this.extensions.filter as FilterExtension).filterNodes(
       filter,
       options
@@ -2612,7 +2707,17 @@ export class Wunderbaum {
   }
 
   /**
+   * Return the number of nodes that match the current filter.
+   * @see {@link Wunderbaum.filterNodes}
+   * @since 0.9.0
+   */
+  countMatches(): number {
+    return (this.extensions.filter as FilterExtension).countMatches();
+  }
+
+  /**
    * Dim or hide whole branches.
+   * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
    */
   filterBranches(
     filter: string | NodeFilterCallback,

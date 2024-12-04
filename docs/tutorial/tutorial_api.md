@@ -1,6 +1,12 @@
 # Tree API
 
-!> This chapter is still under construction.
+!!! warning
+
+    This chapter is still under construction.
+
+!!! note
+
+    See also the [API Reference](https://mar10.github.io/wunderbaum/api/).
 
 This chapter describes different ways to modify the tree model using
 the API.
@@ -56,11 +62,15 @@ parentNode.visit((node) => {
 
 ## Searching
 
-See [Search](/tutorial/tutorial_search.md)
+See [Search and Filter Nodes](tutorial_filter.md).
 
 ## Selection
 
-See ...
+See [Search and Filter Nodes](tutorial_filter.md).
+
+## Sorting
+
+See [Search and Filter Nodes](tutorial_filter.md).
 
 ## Mutation
 
@@ -102,7 +112,7 @@ provides a number of utility methods that are useful when working with trees.
 
 ## Performance Tips
 
-Use `tree.runWithDeferredUpdate()` to avoid multiple updates when changing many
+Use `tree.runWithDeferredUpdate()` to avoid multiple updates while changing many
 nodes at once.
 
 ```js

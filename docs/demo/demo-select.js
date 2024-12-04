@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10, addCssImport */
 /* eslint-env browser */
@@ -106,7 +106,7 @@ new mar10.Wunderbaum({
   },
   lazyLoad: function (e) {
     return e.util.setTimeoutPromise(() => {
-      return { url: "../assets/ajax-lazy-products.json" };
+      return { url: "../assets/json/ajax-lazy-products.json" };
     }, 4000);
   },
   iconBadge: (e) => {

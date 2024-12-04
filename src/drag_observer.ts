@@ -1,14 +1,21 @@
 /*!
  * Wunderbaum - drag_observer
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
 export type DragCallbackArgType = {
   /** "dragstart", "drag", or "dragstop". */
   type: string;
-  /** Original mouse or touch event that triggered the drag event. */
+  /** Original mousedown or touch event that triggered the dragstart event. */
+  startEvent: MouseEvent | TouchEvent;
+  /** Original mouse or touch event that triggered the current drag event.
+   * Note that this is not the same as `startEvent`, but a mousemove in case of
+   * a dragstart threshold.
+   */
   event: MouseEvent | TouchEvent;
+  /** Custom data that was passed to the DragObserver, typically on dragstart. */
+  customData: any;
   /** Element which is currently dragged. */
   dragElem: HTMLElement | null;
   /** Relative horizontal drag distance since start. */
@@ -38,7 +45,16 @@ type DragObserverOptionsType = {
 export class DragObserver {
   protected _handler;
   protected root: EventTarget;
-  protected start = {
+  protected start: {
+    event: MouseEvent | TouchEvent | null;
+    x: number;
+    y: number;
+    altKey: boolean;
+    ctrlKey: boolean;
+    metaKey: boolean;
+    shiftKey: boolean;
+  } = {
+    event: null,
     x: 0,
     y: 0,
     altKey: false,
@@ -48,6 +64,7 @@ export class DragObserver {
   };
   protected dragElem: HTMLElement | null = null;
   protected dragging: boolean = false;
+  protected customData: object = {};
   // TODO: touch events
   protected events = ["mousedown", "mouseup", "mousemove", "keydown"];
   protected opts: DragObserverOptionsType;
@@ -81,10 +98,16 @@ export class DragObserver {
   public stopDrag(cb_event?: DragCallbackArgType): void {
     if (this.dragging && this.opts.dragstop && cb_event) {
       cb_event.type = "dragstop";
-      this.opts.dragstop(cb_event);
+      try {
+        this.opts.dragstop(cb_event);
+      } catch (err) {
+        console.error("dragstop error", err); // eslint-disable-line no-console
+      }
     }
     this.dragElem = null;
     this.dragging = false;
+    this.start.event = null;
+    this.customData = {};
   }
 
   protected handleEvent(e: MouseEvent): boolean | void {
@@ -92,12 +115,17 @@ export class DragObserver {
     const opts = this.opts;
     const cb_event: DragCallbackArgType = {
       type: e.type,
+      startEvent: type === "mousedown" ? e : this.start.event!,
       event: e,
+      customData: this.customData,
       dragElem: this.dragElem,
       dx: e.pageX - this.start.x,
       dy: e.pageY - this.start.y,
       apply: undefined,
     };
+
+    // console.log("handleEvent", type, cb_event);
+
     switch (type) {
       case "keydown":
         this.stopDrag(cb_event);
@@ -120,6 +148,7 @@ export class DragObserver {
             }
           }
         }
+        this.start.event = e;
         this.start.x = e.pageX;
         this.start.y = e.pageY;
         this.start.altKey = e.altKey;

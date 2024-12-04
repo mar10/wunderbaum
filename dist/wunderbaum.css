@@ -1,7 +1,7 @@
 @charset "UTF-8";
 /*!
  * Wunderbaum style sheet (generated from wunderbaum.scss)
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 :root,
@@ -94,6 +94,8 @@ div.wunderbaum div.wb-header {
   position: sticky;
   top: 0;
   z-index: 2;
+  -webkit-user-select: none; /* Safari */
+  user-select: none;
 }
 div.wunderbaum div.wb-header,
 div.wunderbaum div.wb-list-container {
@@ -202,7 +204,19 @@ div.wunderbaum div.wb-header span.wb-col-resizer {
   border: none;
   border-right: 2px solid var(--wb-border-color);
   height: 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+div.wunderbaum div.wb-header span.wb-col-resizer.wb-col-resizer-active {
   cursor: col-resize;
+}
+div.wunderbaum div.wb-header i.wb-col-icon {
+  float: inline-end;
+  padding-left: 2px;
+}
+div.wunderbaum div.wb-header i.wb-col-icon:hover {
+  cursor: pointer;
+  color: var(--wb-focus-border-color);
 }
 div.wunderbaum span.wb-col {
   position: absolute;
@@ -218,6 +232,7 @@ div.wunderbaum span.wb-col:last-of-type {
   border-right: none;
 }
 div.wunderbaum span.wb-node {
+  -webkit-user-select: none;
   user-select: none;
   /* Fix Bootstrap Icon alignment */
 }
@@ -333,6 +348,9 @@ div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row.wb-submatch, div.wu
 div.wunderbaum.wb-ext-filter-dim div.wb-node-list div.wb-row.wb-match, div.wunderbaum.wb-ext-filter-hide div.wb-node-list div.wb-row.wb-match {
   color: var(--wb-node-text-color);
 }
+div.wunderbaum.wb-ext-filter-hide.wb-ext-filter-hide-expanders div.wb-node-list div.wb-row:not(.wb-submatch) i.wb-expander {
+  visibility: hidden;
+}
 div.wunderbaum div.wb-row.wb-drag-source {
   opacity: 0.5;
 }
@@ -435,12 +453,12 @@ div.wunderbaum.wb-checkbox-auto-hide:focus .wb-row.wb-active i.wb-checkbox, div.
 }
 
 .wb-no-select {
-  user-select: none;
   -webkit-user-select: none;
+  user-select: none;
 }
 .wb-no-select span.wb-title {
-  user-select: contain;
   -webkit-user-select: contain;
+  user-select: contain;
 }
 
 /* RTL support */

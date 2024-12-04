@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
 /* eslint-env browser */
@@ -17,8 +17,7 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
-  // source: "../assets/ajax-tree-editable.json",
-  source: "../assets/ajax-tree-products.json",
+  source: "../assets/json/ajax-tree-products.json",
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
@@ -29,9 +28,24 @@ new mar10.Wunderbaum({
   types: {},
   columns: [
     { id: "*", title: "Product", width: "250px" },
-    { id: "author", title: "Author", width: 1, minWidth: "100px" },
-    { id: "year", title: "Year", width: "50px", classes: "wb-helper-end" },
-    { id: "qty", title: "Qty", width: "50px", classes: "wb-helper-end" },
+    {
+      id: "author",
+      title: "Author",
+      width: 1,
+      minWidth: "100px",
+    },
+    {
+      id: "year",
+      title: "Year",
+      width: "50px",
+      classes: "wb-helper-end",
+    },
+    {
+      id: "qty",
+      title: "Qty",
+      width: "50px",
+      classes: "wb-helper-end",
+    },
     {
       id: "price",
       title: "Price ($)",
@@ -41,6 +55,8 @@ new mar10.Wunderbaum({
     // In order to test horizontal scrolling, we need a fixed or at least minimal width:
     { id: "details", title: "Details", width: 3, minWidth: "200px" },
   ],
+  columnsResizable: true,
+  columnsSortable: true,
   dnd: {
     dragStart: (e) => {
       if (e.node.type === "folder") {
@@ -101,14 +117,20 @@ new mar10.Wunderbaum({
     console.log(e.type, e);
     // e.tree.addChildren({ title: "custom1", classes: "wb-error" });
   },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
+  },
   lazyLoad: function (e) {
     console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        // resolve({ url: "../assets/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
-        resolve({ url: "../assets/ajax-lazy-products.json" });
+        // resolve({ url: "../assets/json/ajax-lazy-products.json", params: {foo: 42} , options:{method: "PUT"}});
+        resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
   },

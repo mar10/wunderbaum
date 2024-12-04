@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
 /* eslint-env browser */
@@ -25,10 +25,8 @@ new mar10.Wunderbaum({
 
   // The JSON only contains a list of nested node dicts, but no types or
   // column definitions:
-  // source: "../assets/fixture_department_1k_3_6_p.json",
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_flat_comp.json",
-  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_department_M_p.json",
   types: {
     department: { icon: "bi bi-diagram-3", colspan: true },
     role: { icon: "bi bi-microsoft-teams", colspan: true },
@@ -70,7 +68,7 @@ new mar10.Wunderbaum({
     {
       title: "Avail.",
       id: "avail",
-      width: "70px",
+      width: "80px",
       classes: "wb-helper-center",
       // "html": '<input type=checkbox tabindex="-1">',
     },
@@ -79,8 +77,12 @@ new mar10.Wunderbaum({
       id: "remarks",
       width: "*",
       // "html": "<input type=text tabindex='-1'>",
+
+      menu: true,
     },
   ],
+  columnsResizable: true,
+  columnsSortable: true,
 
   edit: {
     trigger: ["clickActive", "F2"], // "macEnter"],
@@ -111,6 +113,12 @@ new mar10.Wunderbaum({
   init: (e) => {},
   // load: function (e) {
   // },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
+  },
   change: function (e) {
     const util = e.util;
     const node = e.node;

@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
 /* eslint-env browser */
@@ -15,17 +15,18 @@ document.getElementById("demo-info").innerHTML = `
 new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
-  // source: "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // source: "../assets/ajax_1k_3_54.json",
   // Columns- and types-definition are part of the Ajax response:
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_1k_3_54_t_c.json",
+    // "../../test/fixtures/tree_department_M_t_c.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_department_M_t_c_comp.json",
+  // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   debugLevel: 5,
   // header: false,
   connectTopBreadcrumb: document.getElementById("parentPath"),
   // checkbox: true,
   // minExpandLevel: 1,
   fixedCol: true,
+  // columnsResizable: true,
   navigationModeOption: "cell",
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],
@@ -61,13 +62,22 @@ new mar10.Wunderbaum({
   },
   lazyLoad: function (e) {
     console.log(e.type, e);
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         // reject("Epic fail")
-        resolve({ url: "../assets/ajax-lazy-products.json" });
+        resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
+  },
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    } else if (e.command === "menu") {
+      // eslint-disable-next-line no-alert
+      alert("Menu clicked");
+    }
   },
   change: function (e) {
     const info = e.info;

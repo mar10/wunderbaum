@@ -16,7 +16,7 @@ module.exports = (grunt: any) => {
       },
       make_docs: {
         stdin: true, // Allow interactive console
-        cmd: "npm run docs",
+        cmd: "npm run api_docs",
       },
       make_dist: {
         stdin: true, // Allow interactive console
@@ -81,7 +81,7 @@ module.exports = (grunt: any) => {
   // ----------------------------------------------------------------------------
 
   // Load "grunt*" dependencies
-  for (let key in grunt.file.readJSON("package.json").devDependencies) {
+  for (const key in grunt.file.readJSON("package.json").devDependencies) {
     if (key !== "grunt" && key.indexOf("grunt") === 0) {
       grunt.loadNpmTasks(key);
     }

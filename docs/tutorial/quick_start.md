@@ -1,13 +1,13 @@
 # Quick Start
 
-!> Wunderbaum has beta status:<br>
-API, Markup, Stylesheet, etc. are still subject to change.
+!!! note
+
+    Wunderbaum has beta status:<br>
+    API, Markup, Stylesheet, etc. are still subject to change.
 
 A Wunderbaum control is added to a web page by defining a `<div>` tag and
 then create a new _Wunderbaum_ class instance, passing the tag and configuration
 options.
-
-<kbd>index.html</kbd>:
 
 ```html
 <!DOCTYPE html>
@@ -25,10 +25,41 @@ options.
     />
     <script
       defer
-      src="ttps://cdn.jsdelivr.net/npm/wunderbaum@0/dist/wunderbaum.umd.min.js"
+      src="https://cdn.jsdelivr.net/npm/wunderbaum@0/dist/wunderbaum.umd.min.js"
     ></script>
     <!-- Your application code -->
-    <script defer src="main.js"></script>
+    <script>
+      data = [
+        {
+          title: "Node 1",
+          expanded: true,
+          children: [
+            {
+              title: "Node 1.1",
+            },
+            {
+              title: "Node 1.2",
+            },
+          ],
+        },
+        {
+          title: "Node 2",
+        },
+      ];
+
+      document.addEventListener("DOMContentLoaded", (event) => {
+        const tree = new mar10.Wunderbaum({
+          element: document.getElementById("demo-tree"),
+          source: data,
+          init: (e) => {
+            e.tree.setFocus();
+          },
+          activate: (e) => {
+            alert(`Thank you for activating ${e.node}.`);
+          },
+        });
+      });
+    </script>
   </head>
 
   <body>
@@ -42,25 +73,6 @@ options.
 </html>
 ```
 
-Once the page is loaded, initialize the tree control:
-
-<kbd>main.js</kbd>:
-
-```js
-document.addEventListener("DOMContentLoaded", (event) => {
-  const tree = new mar10.Wunderbaum({
-    element: document.getElementById("demo-tree"),
-    source: "get/root/nodes",
-    init: (e) => {
-      e.tree.setFocus();
-    },
-    activate: (e) => {
-      alert(`Thank you for activating ${e.node}.`);
-    },
-  });
-});
-```
-
 ESM modules are also supported:
 
 ```html
@@ -69,8 +81,13 @@ ESM modules are also supported:
 </script>
 ```
 
-?> Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
-Read [migrate](/tutorial/migrate.md) for details and migration hints.
+!!! info
 
-?> See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
-and the [live demo](https://mar10.github.io/wunderbaum/demo/).
+    Wunderbaum is a refactored version of [Fancytree](https://github.com/mar10/fancytree).
+
+    Read [migrate](migrate.md) for details and migration hints.
+
+!!! info
+
+    See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
+    and the [live demo](https://mar10.github.io/wunderbaum/demo/).

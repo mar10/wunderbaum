@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 
 /* global mar10 */
@@ -27,6 +27,7 @@ new mar10.Wunderbaum({
     },
     { id: "description", title: "Details", width: "*" },
   ],
+  columnsResizable: true,
   types: {
     category: { colspan: true },
     electronics: { icon: "bi bi-cpu" },

@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - types
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -12,6 +12,8 @@ import { WunderbaumOptions } from "./wb_options";
 export type TristateType = boolean | undefined;
 /** Show/hide checkbox or display a radiobutton icon instead. */
 export type CheckboxOption = boolean | "radio";
+/** A value that can either be true, false, or undefined. */
+export type SortOrderType = "asc" | "desc" | undefined;
 /** An icon may either be
  * a string-tag that references an entry in the `iconMap` (e.g. `"folderOpen"`)),
  * an HTML string that contains a `<` and is used as-is,
@@ -20,6 +22,8 @@ export type CheckboxOption = boolean | "radio";
  * or a boolean value that indicates if the default icon should be used or hidden.
  */
 export type IconOption = boolean | string;
+/** Show/hide tooltip or display a string. */
+export type TooltipOption = boolean | string;
 
 /*
  * `source` can be a url, an array of nodes, or an object with `url`, ...
@@ -68,11 +72,23 @@ export type BoolOrStringOptionResolver = (
 export type NodeAnyCallback = (node: WunderbaumNode) => any;
 /** A callback that receives a node instance and returns a string value. */
 export type NodeStringCallback = (node: WunderbaumNode) => string;
+/** A callback that receives a node instance and property name returns a value. */
+export type NodePropertyGetterCallback = (
+  node: WunderbaumNode,
+  propName: string
+) => any;
 /** A callback that receives a node instance and returns an iteration modifier. */
 export type NodeVisitCallback = (node: WunderbaumNode) => NodeVisitResponse;
-/** A callback that receives a node instance and returns a string value. */
+/**
+ * Returned by `NodeVisitCallback` to control iteration.
+ * `false` stops iteration, `skip` skips descendants but continues.
+ * All other values continue iteration.
+ */
 export type NodeVisitResponse = "skip" | boolean | void;
-/** A callback that receives a node-data dictionary and a node instance and returns an iteration modifier. */
+/**
+ * A callback that receives a node-data dictionary and a node instance and
+ * returns an iteration modifier.
+ */
 export type NodeToDictCallback = (
   dict: WbNodeData,
   node: WunderbaumNode
@@ -92,6 +108,7 @@ export type DynamicBoolOrStringOption =
   | BoolOrStringOptionResolver;
 export type DynamicCheckboxOption = CheckboxOption | BoolOrStringOptionResolver;
 export type DynamicIconOption = IconOption | BoolOrStringOptionResolver;
+export type DynamicTooltipOption = TooltipOption | BoolOrStringOptionResolver;
 
 // type WithWildcards<T> = T & { [key: string]: unknown };
 /** A plain object (dictionary) that represents a node instance. */
@@ -102,7 +119,7 @@ export interface WbNodeData {
   colspan?: boolean;
   expanded?: boolean;
   icon?: IconOption;
-  iconTooltip?: boolean | string;
+  iconTooltip?: TooltipOption;
   key?: string;
   lazy?: boolean;
   /** Make child nodes single-select radio buttons. */
@@ -111,7 +128,7 @@ export interface WbNodeData {
   selected?: boolean;
   statusNodeType?: NodeStatusType;
   title: string;
-  tooltip?: boolean | string;
+  tooltip?: TooltipOption;
   type?: string;
   unselectable?: boolean;
   /** @internal */
@@ -259,6 +276,12 @@ export interface WbSelectEventType extends WbNodeEventType {
   flag: boolean;
 }
 
+export interface WbButtonClickEventType extends WbTreeEventType {
+  info: WbEventInfo;
+  /** The associated command, e.g. 'menu', 'sort', 'filter', ... */
+  command: string;
+}
+
 export interface WbRenderEventType extends WbNodeEventType {
   /**
    * True if the node's markup was not yet created. In this case the render
@@ -312,8 +335,8 @@ export interface NodeTypeDefinition {
   colspan?: boolean;
   /** Default icon for matching nodes. */
   icon?: IconOption;
-  /** Default icon for matching nodes. */
-  iconTooltip?: string | boolean;
+  /** Default icon tooltip for matching nodes. */
+  iconTooltip?: TooltipOption;
   // and more
   [key: string]: unknown;
 }
@@ -345,14 +368,59 @@ export interface ColumnDefinition {
    * Default: `4px`.
    */
   minWidth?: string | number;
+  /** Allow user to resize the column.
+   * @default false (or global tree option `columnsSortable`)
+   * @see {@link WunderbaumOptions.columnsResizable}.
+   * @since 0.10.0
+   */
+  resizable?: boolean;
+  /** Optional custom column width when user resized by mouse drag.
+   * Default: unset.
+   */
+  customWidthPx?: number;
+  /** Display a 'filter' button in the column header. Default: false. <br>
+   * Note: The actual filtering must be implemented in the `buttonClick()` event.
+   * @default false (or global tree option `columnsFilterable`)
+   * @since 0.11.0
+   */
+  filterable?: boolean;
+  /** .
+   * Default: inactive. <br>
+   * Note: The actual filtering must be implemented in the `buttonClick()` event.
+   */
+  filterActive?: boolean;
+  /** Display a 'sort' button in the column header. Default: false. <br>
+   * Note: The actual sorting must be implemented in the `buttonClick()` event.
+   * @default false (or global tree option `columnsSortable`)
+   * @see {@link WunderbaumOptions.columnsSortable}.
+   * @since 0.11.0
+   */
+  sortable?: boolean;
+  /** Optional custom column sort orde when user clicked the sort icon.
+   * Default: unset, e.g. not sorted. <br>
+   * Note: The actual sorting must be implemented in the `buttonClick()` event.
+   * @since 0.11.0
+   */
+  sortOrder?: SortOrderType;
+  /** Display a menu icon that may open a context menu for this column.
+   * Note: The actual functionality must be implemented in the `buttonClick()` event.
+   * @default false (or global tree option `columnsMenu`)
+   * @see {@link WunderbaumOptions.columnsMenu}.
+   * @since 0.11.0
+   */
+  menu?: boolean;
   /** Optional class names that are added to all `span.wb-col` header AND data
-   * elements of that column.
+   * elements of that column. Separate multiple classes with space.
    */
   classes?: string;
   /** If `headerClasses` is a set, it will be used for the header element only
    * (unlike `classes`, which is used for body and header cells).
+   * Separate multiple classes with space.
    */
   headerClasses?: string;
+  // /** A list of icon definitions added to the column header.
+  //  */
+  // headerIcons?: string;
   /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
   /** @internal */
@@ -442,7 +510,7 @@ export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
 
 /**
- * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
+ * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
  */
 export enum ChangeType {
   /** Re-render the whole viewport, headers, and all rows. */
@@ -471,7 +539,7 @@ export enum RenderFlag {
   scroll = "scroll",
 }
 
-/** Possible values for {@link WunderbaumNode.setStatus()}. */
+/** Possible values for {@link WunderbaumNode.setStatus}. */
 export enum NodeStatusType {
   ok = "ok",
   loading = "loading",
@@ -503,7 +571,7 @@ export enum NavModeEnum {
  * METHOD OPTIONS TYPES
  * ---------------------------------------------------------------------------*/
 
-/** Possible values for {@link WunderbaumNode.addChildren()}. */
+/** Possible values for {@link WunderbaumNode.addChildren}. */
 export interface AddChildrenOptions {
   /** Insert children before this node (or index)
    * @default undefined or null:  append as last child
@@ -519,12 +587,12 @@ export interface AddChildrenOptions {
   _level?: number;
 }
 
-/** Possible values for {@link Wunderbaum.applyCommand()} and {@link WunderbaumNode.applyCommand()}. */
+/** Possible values for {@link Wunderbaum.applyCommand} and {@link WunderbaumNode.applyCommand}. */
 export interface ApplyCommandOptions {
   [key: string]: unknown;
 }
 
-/** Possible values for {@link Wunderbaum.expandAll()} and {@link WunderbaumNode.expandAll()}. */
+/** Possible values for {@link Wunderbaum.expandAll} and {@link WunderbaumNode.expandAll}. */
 export interface ExpandAllOptions {
   /** Restrict expand level @default 99 */
   depth?: number;
@@ -536,18 +604,34 @@ export interface ExpandAllOptions {
   keepActiveNodeVisible?: boolean;
 }
 
-/** Possible values for {@link Wunderbaum.filterNodes()} and {@link Wunderbaum.filterBranches()}. */
+/**
+ * Possible option values for {@link Wunderbaum.filterNodes}.
+ * The defaults are inherited from the tree instances ´tree.options.filter`
+ * settings (see also {@link FilterOptionsType}).
+ */
 export interface FilterNodesOptions {
-  mode?: string;
-  leavesOnly?: boolean;
-  fuzzy?: boolean;
-  highlight?: boolean;
-  hideExpanders?: boolean;
+  /** Expand all branches that contain matches while filtered @default false */
   autoExpand?: boolean;
-  noData?: boolean;
+  /** Whether to implicitly match all children of matched nodes @default false */
+  matchBranch?: boolean;
+  /** Match single characters in order, e.g. 'fb' will match 'FooBar' @default false */
+  fuzzy?: boolean;
+  /**Hide expanders if all child nodes are hidden by filter @default false */
+  hideExpanders?: boolean;
+  /** Highlight matches by wrapping inside `<mark>` tags.
+   * Does not work for filter callbacks.
+   *  @default true
+   */
+  highlight?: boolean;
+  /** Match end nodes only @default false */
+  leavesOnly?: boolean;
+  /** Grayout unmatched nodes (pass 'hide' to remove instead) @default 'dim' */
+  mode?: FilterModeType;
+  /** Display a 'no data' status node if result is empty @default true */
+  noData?: boolean | string;
 }
 
-/** Possible values for {@link WunderbaumNode.makeVisible()}. */
+/** Possible values for {@link WunderbaumNode.makeVisible}. */
 export interface MakeVisibleOptions {
   /** Do not animate expand (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -557,7 +641,7 @@ export interface MakeVisibleOptions {
   noEvents?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.navigate()}. */
+/** Possible values for {@link WunderbaumNode.navigate}. */
 export interface NavigateOptions {
   /** Activate the new node (otherwise focus only). @default true */
   activate?: boolean;
@@ -565,7 +649,7 @@ export interface NavigateOptions {
   event?: Event;
 }
 
-/** Possible values for {@link WunderbaumNode._render()}. */
+/** Possible values for {@link WunderbaumNode._render}. */
 export interface RenderOptions {
   /** Which parts need update? @default ChangeType.data */
   change?: ChangeType;
@@ -583,7 +667,7 @@ export interface RenderOptions {
   resizeCols?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.scrollIntoView()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.scrollIntoView} `options` argument. */
 export interface ScrollIntoViewOptions {
   /** Do not animate (currently not implemented). @default false */
   noAnimation?: boolean;
@@ -595,7 +679,7 @@ export interface ScrollIntoViewOptions {
   ofsY?: number;
 }
 
-/** Possible values for {@link Wunderbaum.scrollTo()} `options` argument. */
+/** Possible values for {@link Wunderbaum.scrollTo} `options` argument. */
 export interface ScrollToOptions extends ScrollIntoViewOptions {
   /** Which node to scroll into the viewport.*/
   node: WunderbaumNode;
@@ -615,7 +699,7 @@ export interface SetActiveOptions {
   focusTree?: boolean;
   /** Optional original event that will be passed to the (de)activate handler. */
   event?: Event;
-  /** Also call {@link Wunderbaum.setColumn()}. */
+  /** Also call {@link Wunderbaum.setColumn}. */
   colIdx?: number | string;
   /**
    * Focus embedded input control of the grid cell if any (requires colIdx >= 0).
@@ -625,7 +709,7 @@ export interface SetActiveOptions {
   edit?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setColumn()} `options` argument. */
+/** Possible values for {@link Wunderbaum.setColumn} `options` argument. */
 export interface SetColumnOptions {
   /**
    * Focus embedded input control of the grid cell if any .
@@ -651,7 +735,7 @@ export interface SetExpandedOptions {
   scrollIntoView?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.update()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.update} `options` argument. */
 export interface UpdateOptions {
   /** Force immediate redraw instead of throttled/async mode. @default false */
   immediate?: boolean;
@@ -659,7 +743,7 @@ export interface UpdateOptions {
   // removeMarkup?: boolean;
 }
 
-/** Possible values for {@link WunderbaumNode.setSelected()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setSelected} `options` argument. */
 export interface SetSelectedOptions {
   /** Ignore restrictions, e.g. (`unselectable`). @default false */
   force?: boolean;
@@ -673,7 +757,7 @@ export interface SetSelectedOptions {
   callback?: NodeSelectCallback;
 }
 
-/** Possible values for {@link WunderbaumNode.setStatus()} `options` argument. */
+/** Possible values for {@link WunderbaumNode.setStatus} `options` argument. */
 export interface SetStatusOptions {
   /** Displayed as status node title. */
   message?: string;
@@ -681,7 +765,57 @@ export interface SetStatusOptions {
   details?: string;
 }
 
-/** Options passed to {@link Wunderbaum.visitRows()}. */
+/**
+ * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
+ */
+export interface ResetOrderOptions {
+  /** Sort descendants recursively. @default true */
+  recursive?: boolean;
+  /** The name of the node property that will be renumbered.
+   * @default `_nativeIndex`.
+   */
+  propName?: string;
+}
+
+/**
+ * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
+ */
+export interface SortByPropertyOptions {
+  /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
+  colId?: string;
+  /** The name of the node property that will be used for sorting.
+   * @default use the `colId` as property name.
+   */
+  propName?: string;
+  // /** If defined, this callback is used to extract the value to be sorted. */
+  // vallueGetter?: NodePropertyGetterCallback;
+  /** Sort order. @default Use value from column definition (rotated).*/
+  order?: SortOrderType;
+  /**
+   * Sort by this property if order is `undefined`.
+   * See also {@link WunderbaumNode.resetNativeChildOrder}.
+   * @default `_nativeIndex`.
+   */
+  nativeOrderPropName?: string;
+  /** Sort string values case insensitive. @default false */
+  caseInsensitive?: boolean;
+  /** Sort descendants recursively. @default true */
+  deep?: boolean;
+  // /** Rotate sort order (asc -> desc -> none) before sorting. @default false */
+  // rotateOrder?: boolean;
+  /**
+   * Rotate sort order (asc -> desc -> none) before sorting.
+   * Update the sort icons in the column header
+   * Note:
+   * Sorting is done in-place. There is no 'unsorted' state, but we can
+   * call `setCurrentSortOrder()` to renumber the `node._sortIdx` property,
+   * which will be used as sort key, when `order` is `undefined`.
+   * @default false
+   */
+  updateColInfo?: boolean;
+}
+
+/** Options passed to {@link Wunderbaum.visitRows}. */
 export interface VisitRowsOptions {
   /** Skip filtered nodes and children of collapsed nodes. @default false */
   includeHidden?: boolean;
@@ -699,6 +833,12 @@ export interface VisitRowsOptions {
 /* -----------------------------------------------------------------------------
  * wb_ext_filter
  * ---------------------------------------------------------------------------*/
+/**
+ * Passed as tree options to configure default filtering behavior.
+ *
+ * @see {@link Wunderbaum.filterNodes}
+ * @see {@link FilterNodesOptions}
+ */
 export type FilterOptionsType = {
   /**
    * Element or selector of an input control for filter query strings
@@ -710,53 +850,7 @@ export type FilterOptionsType = {
    * @default true
    */
   autoApply?: boolean;
-  /**
-   * Expand all branches that contain matches while filtered
-   * @default false
-   */
-  autoExpand?: boolean;
-  /**
-   * Show a badge with number of matching child nodes near parent icons
-   * @default true
-   */
-  counter?: boolean;
-  /**
-   * Match single characters in order, e.g. 'fb' will match 'FooBar'
-   * @default false
-   */
-  fuzzy?: boolean;
-  /**
-   * Hide counter badge if parent is expanded
-   * @default true
-   */
-  hideExpandedCounter?: boolean;
-  /**
-   * Hide expanders if all child nodes are hidden by filter
-   * @default false;
-   */
-  hideExpanders?: boolean;
-  /**
-   * Highlight matches by wrapping inside <mark> tags
-   * @default true
-   */
-  highlight?: boolean;
-  /**
-   * Match end nodes only
-   * @default false
-   */
-  leavesOnly?: boolean;
-  /**
-   * Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
-   * @default 'dim'
-   */
-  mode?: FilterModeType;
-  /**
-   * Display a 'no data' status node if result is empty (hide-mode only).
-   * Pass false to simply show an empy pane, or pass a string to customize the message.
-   * @default true
-   */
-  noData?: boolean | string;
-};
+} & FilterNodesOptions;
 
 /* -----------------------------------------------------------------------------
  * wb_ext_edit
@@ -1000,7 +1094,7 @@ export type DndOptionsType = {
   //  */
   // setTextTypeJson: boolean;
   /**
-   * Optional callback passed to `toDict` on dragStart @since 2.38
+   * Optional callback passed to `toDict` on dragStart
    * @default null
    * @category Callback
    */

@@ -1,4 +1,4 @@
-# Search and Filter
+# Search and Filter Nodes
 
 Wunderbaum supports different ways to search and filter nodes:
 
@@ -33,7 +33,9 @@ nodeList = node.findAll((n) => {
 });
 ```
 
-?> See also the [API tutorial](tutorial/tutorial_api) for more details.
+!!! info
+
+    See also the [API tutorial](tutorial_api.md) for more details.
 
 ## Filtering
 
@@ -45,9 +47,11 @@ First, define the filter options in the tree options:
 const tree = new Wunderbaum({
   ...
   filter: {
+    autoApply: true, // Re-apply last filter if lazy data is loaded
     mode: "hide",
     ...
   },
+  ...
 });
 ```
 
@@ -58,18 +62,94 @@ Following options are available (see also
 const tree = new Wunderbaum({
   ...
   filter: {
-    mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
     autoApply: true, // Re-apply last filter if lazy data is loaded
     autoExpand: false, // Expand all branches that contain matches while filtered
+    matchBranch: false, // Whether to implicitly match all children of matched nodes
     connectInput: null, // Element or selector of an input control for filter query strings
-    counter: true, // Show a badge with number of matching child nodes near parent icons
     fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
-    hideExpandedCounter: true, // Hide counter badge if parent is expanded
     hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
     highlight: true, // Highlight matches by wrapping inside <mark> tags
     leavesOnly: false, // Match end nodes only
+    mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
     noData: true, // Display a 'no data' status node if result is empty
   },
+  ...
+});
+```
+
+### Filter Nodes
+
+The `filterNodes()` method can be used to apply a filter to the tree. It accepts
+a string, a regular expression, or a function as a filter pattern:
+
+```js
+// Strings are matched against the node titles (contains, case insensitive)
+tree.filterNodes("Joe");
+// Regular expressions are matched against the node titles
+// E.g. fin titles that start with 'joe' or 'joh' (case insensitive)
+tree.filterNodes(/^jo[eh]/i);
+// Functions are called with the node as an argument and can test for any
+// condition
+tree.filterNodes((node) => {
+  return node.data.price >= 99;
+});
+```
+
+Additional options can be passed as a second argument to override the default
+`tree.filter` settings:
+
+```js
+tree.filterNodes("Joe", { mode: "hide" });
+```
+
+See
+[FilterNodesOptions](https://mar10.github.io/wunderbaum/api/types/types.FilterNodesOptions.html)):
+
+Examples
+
+```js
+// Match all nodes with a title that does contain 'Joe' (case insensitive) and
+// dim the rest:
+tree.filterNodes("Joe");
+// Match all nodes with a title that does contain 'Joe' (case insensitive) and
+// hide the rest:
+tree.filterNodes("Joe", { mode: "hide" });
+// Match all nodes with a custom property 'age' > 30:
+tree.filterNodes((node) => {
+  return node.data.age <= 30;
+});
+// Match  all nodes with a a title that contains 'foo' or 'fox':
+const re = /.*fo[ox].*/i;
+tree.filterNodes((node) => {
+  return re.test(node.title);
+});
+```
+
+!!! info
+
+    A filter callback may return a boolean value, or the string values 'skip' or
+    'branch'. The latter will skip or match the node and all its descendants. <br>
+    Note that highlighting matches is not supported for function filters.
+
+### Display Count of Matches as Badges
+
+Show a badge with number of matching child nodes near parent icons.
+If no matchin children exist or the node is expanded, the badge is hidden.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    const node = e.node;
+    if (node.children?.length > 0 && !node.expanded && node.subMatchCount > 0) {
+      return {
+        badge: node.subMatchCount,
+        badgeTooltip: `${node.subMatchCount} matches`,
+        badgeClass: "match-count",
+      };
+    }
+  },
+  ...
 });
 ```
 
@@ -120,12 +200,51 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
-and enter some text in the _Filter_ control at the top.
+!!! info
+
+    See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
+    and enter some text in the _Filter_ control at the top.
+
+### Add a Filter Button to the Column Header
+
+Add a filter button to the column header to toggle the filter mode:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    {
+      title: "Title",
+      filterable: true,
+    },
+    ...
+  ],
+  buttonClick: (e) => {
+    tree.log(e.type, e);
+
+    if (e.command === "filter") {
+
+      // ... <open a filter dialog or toggle the filter mode> ...
+
+      // Update the button state
+      e.info.colDef.filterActive = !e.info.colDef.filterActive;
+      tree.update("colStructure");
+    }
+  },
+  ...
+});
+```
 
 ### Related Methods
 
-- `util.foo()`
+- `tree.clearFilter()`
+- `tree.countMatches()`
+- `tree.filterNodes()`
+- `tree.findAll()`
+- `tree.findFirst()`
+- `tree.iconBadge()`
+- `tree.isFilterActive()`
+- `tree.updateFilter()`
 
 ### Related CSS Rules
 
@@ -144,19 +263,4 @@ and enter some text in the _Filter_ control at the top.
     }
   }
 }
-```
-
-### Code Hacks
-
-```js
-
-```
-
-### Related Tree Options
-
-```js
-const tree = new Wunderbaum({
-  // --- Common Options ---
-  ...
-});
 ```

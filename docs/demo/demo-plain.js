@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
 /* eslint-env browser */
@@ -17,7 +17,8 @@ new mar10.Wunderbaum({
   element: document.getElementById("demo-tree"),
   // header: "Plain Tree",
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_99k_3_1.json",
+    // "../../test/fixtures/tree_fmea_XL_t_flat_comp.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
   debugLevel: 5,
   connectTopBreadcrumb: document.getElementById("parentPath"),
   checkbox: true,
@@ -103,12 +104,12 @@ new mar10.Wunderbaum({
     // User expanded a lazy node for the first time.
     console.log(e.type, e);
     // A typical handler would return a URL that should be fetched:
-    // return { url: "../assets/ajax-lazy-products.json" };
+    // return { url: "../assets/json/ajax-lazy-products.json" };
     // ... Simulate a long-running request
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         reject("Epic fail");
-        // resolve({ url: "../assets/ajax-lazy-products.json" });
+        // resolve({ url: "../assets/json/ajax-lazy-products.json" });
       }, 1500);
     });
   },

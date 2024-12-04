@@ -1,6 +1,8 @@
 # Grid
 
-?> See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
+!!! info
+
+    See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
 
 Wunderbaum works as a treegrid out of the box if we specify column definitions. <br>
 In a treegrid, there is also general support for embedded input elements
@@ -17,7 +19,9 @@ Create HTML controls in the `render(e)` callback and implement the
 
 ## Column Definitions
 
-?> Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
+!!! info
+
+    Column definitions are required to turn a plain Wunderbaum tree into a treegrid.
 
 A list of column definitions is specified in the `columns` option.
 `title` and `id` are required. `width` is optional, but recommended.
@@ -48,7 +52,7 @@ const tree = new Wunderbaum({
       id: "price",
       title: "Price ($)",
       width: "80px",
-      classes: "wb-helper-end",
+      classes: "wb-helper-end",  // (1)
     },
     { id: "details", title: "Details", width: "*" },
   ],
@@ -56,9 +60,14 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See also
-[ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
-for details.
+1.  This classes are added to all header and row cells of that column.
+    In this case: right align the content of the column.
+
+!!! info
+
+    See also
+    [ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
+    for details.
 
 ## Rendering
 
@@ -146,8 +155,10 @@ const tree = new Wunderbaum({
 });
 ```
 
-?> See the [Edit Tutorial](/tutorial/tutorial_edit.md) for examples how to render
-embedded controls.
+!!! info
+
+    See the [Edit Tutorial](tutorial_edit.md) for examples how to render
+    embedded controls.
 
 ## Editing
 
@@ -159,7 +170,9 @@ by default. Instead we have to
 2. Implement the `change(e)` callback to update the node data when the user
    has finished editing a cell.
 
-?> See the [Edit Tutorial](/tutorial/tutorial_edit.md) for details.
+!!! info
+
+    See the [Edit Tutorial](tutorial_edit.md) for details.
 
 ## Navigation
 
@@ -167,11 +180,15 @@ A treegrid can have one of two navigation modes. We can toggle using the keyboar
 
 Row Mode ↔ Cell-Nav Mode
 
-?> See the [Keyboard Tutorial](/tutorial/tutorial_keyboard.md) for details.
+!!! info
+
+    See the [Keyboard Tutorial](tutorial_keyboard.md) for details.
 
 ## Configuration and Customization
 
-!> Todo.
+!!! note
+
+    Todo.
 
 ### Related Tree Options
 
@@ -217,4 +234,54 @@ tree.columns.push({
   width: "100px",
 });
 tree.update("colStructure");
+```
+
+#### Add a Menu Button to the Column Header
+
+Add a filter button to the column header to toggle the filter mode:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    {
+      title: "Title",
+      menu: true,
+      ...
+    },
+    ...
+  ],
+  buttonClick: (e) => {
+    if (e.command === "menu") {
+      alert("Open menu...");
+    }
+  },
+  ...
+});
+```
+
+#### Add a Sort Button to the Column Header
+
+Add a sort button to the column header and handle click events to toggle
+the order:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    {
+      title: "Title",
+      sortable: true, // or set in column definition
+      ...
+    },
+    ...
+  ],
+  columnsSortable: true, // or set in column definition
+  buttonClick: (e) => {
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
+  },
+  ...
+});
 ```

@@ -8,13 +8,18 @@
 type Procedure = (...args: any[]) => any;
 
 type DebounceOptions = {
+  /** Specify invoking on the leading edge of the timeout. @default false */
   leading?: boolean;
+  /** The maximum time `func` is allowed to be delayed before it's invoked.*/
   maxWait?: number;
+  /**  Specify invoking on the trailing edge of the timeout. @default true */
   trailing?: boolean;
 };
 
 type ThrottleOptions = {
+  /** Specify invoking on the leading edge of the timeout. @default true */
   leading?: boolean;
+  /**  Specify invoking on the trailing edge of the timeout. @default true */
   trailing?: boolean;
 };
 
@@ -107,13 +112,7 @@ function isObject(value: any) {
  * @param {number} [wait=0]
  *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
  *  used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=false]
- *  Specify invoking on the leading edge of the timeout.
- * @param {number} [options.maxWait]
- *  The maximum time `func` is allowed to be delayed before it's invoked.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
+ * @param [options={}] The options object.
  * @returns {Function} Returns the new debounced function.
  * @example
  *
@@ -325,11 +324,7 @@ export function debounce<F extends Procedure>(
  * @param {number} [wait=0]
  *  The number of milliseconds to throttle invocations to; if omitted,
  *  `requestAnimationFrame` is used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=true]
- *  Specify invoking on the leading edge of the timeout.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
+ * @param [options={}] The options object.
  * @returns {Function} Returns the new throttled function.
  * @example
  *

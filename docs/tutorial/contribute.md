@@ -17,10 +17,13 @@ There are many ways how you can help:
 
 Issues can be reported in the [bug tracker](https://github.com/mar10/wunderbaum/issues).
 
-?> Try your best to make fixing as easy as possible.
-Do not assume that bugs are fixed, just because they are reported:
-Please understand that issues are likely to be closed, if they are hard to
-reproduce. <br>
+!!! info
+
+    Try your best to make fixing as easy as possible.
+    Do not assume that bugs are fixed, just because they are reported:
+    Please understand that issues are likely to be closed, if they are hard to
+    reproduce.
+
 A bug report should contain:
 
 - A short description of the problem.
@@ -45,9 +48,11 @@ Do not forget to add an entry to the `CHANGELOG.md`.
 Features can be requested and discussed in the [bug tracker](https://github.com/mar10/wunderbaum/issues),
 or - often more adequate - in the [discussion forum](https://github.com/mar10/wunderbaum/discussions).
 
-?> Please understand that feature requests sometimes are rejected due to the lack
-of resources, or because they do not fit into the _greater plan_ or paradigm.<br>
-This does not mean that the proposal is bad, so do not feel offended.
+!!! info
+
+    Please understand that feature requests sometimes are rejected due to the lack
+    of resources, or because they do not fit into the _greater plan_ or paradigm.<br>
+    This does not mean that the proposal is bad, so do not feel offended.
 
 If you plan to contribute a feature via a
 [pull request](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/about-pull-requests)
@@ -58,27 +63,95 @@ and updates to the demo page.
 
 ## Development
 
+### Edit TypeScript sources
+
+install node.js 18+
 Checkout the project from GiHub, then
 
+```bash
+$ cd path/to/project
+$ corepack enable
+$ corepack install
+```
 ```bash
 $ cd path/to/project
 $ yarn
 $ yarn dev
 ```
 
-you can now edit the files in `.../wunderbaum/src` folder.
+You can now edit the files in `.../wunderbaum/src` folder.
 TypeScript and SCSS files are automatically transpiled to the `.../wunderbaum/build` folder.
 
-Reformat according to the style guide, generate API documentation, run unit tests,
-build, or compile a version using these commands:
+Reformat according to the style guide, run unit tests, build, or compile a
+version using these commands:
 
 ```bash
 $ yarn format
-$ yarn docsify
-$ yarn docs
 $ yarn test
+```
+
+!!! note
+
+    Don't forget to call `yarn format` regularly and before committing:
+    Formatting errors will be rejected by the CI pipeline.
+
+### Edit Documentation
+
+The documentation is written in Markdown and can be found in the `docs` folder.
+
+The User Guide is generated using [MkDocs](https://www.mkdocs.org/) and the
+API documentation is generated using [TypeDoc](https://typedoc.org/).
+
+**API Documentation**
+
+The API reference is generated from the TypeScript sources by TypeDoc and the
+resulting files are stored in the `docs/api` folder.
+
+This is done by the build script or manually by running:
+
+```bash
+$ yarn api_docs
+```
+
+**User Guide**
+
+The user guide (i.e. tutorial) is written in Markdown and can be found in the
+`docs/tutorial` folder.
+It is rendered to HTML using MkDocs by a GitHub action and published as GitHub
+pages every time we commit.
+
+!!! note
+
+    In order to generate the User Guide documentation locally, we need to have
+    [Python](https://www.python.org/) and
+    [pipenv](https://pipenv.pypa.io/en/stable/index.html) installed.
+
+    Then install the required packages:
+
+    ```bash
+    $ cd path/to/project
+    $ pipenv install
+    ```
+
+Run the following command to start the MkDocs server:
+
+```bash
+$ yarn dev_mkdocs
+```
+
+You can now edit files in the `docs/tutorial` folder and see the changes in the
+browser.
+
+### Release
+
+For a local test build, run the following commands:
+
+```bash
 $ yarn build
 ```
 
-Don't forget to call `yarn format` regularly and before committing:
-Formatting errors will be rejected by the CI pipeline.
+A new version is released by creating a new tag in the format `vX.Y.Z` and
+
+```bash
+$ grunt yabs:release:patch
+```

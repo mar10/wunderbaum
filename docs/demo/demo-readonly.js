@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
 /* eslint-env browser */
@@ -20,10 +20,9 @@ new mar10.Wunderbaum({
   // checkbox: true,
   // fixedCol: true,
   navigationModeOption: "cell",
-  // The JSON only contains a list of nested node dicts:
-  // source: "../assets/fixture_department_1k_3_6_p.json",
+  // The JSON only contains a list of nested node dicts (no types or columns):
   source:
-    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
+    "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_department_M_p.json",
   types: {
     department: { icon: "bi bi-diagram-3", colspan: true },
     role: { icon: "bi bi-microsoft-teams", colspan: true },
@@ -31,7 +30,7 @@ new mar10.Wunderbaum({
   },
   columns: [
     { title: "Title", id: "*", width: "250px" },
-    { title: "Age", id: "age", width: "40px", classes: "wb-helper-end" },
+    { title: "Age", id: "age", width: "60px", classes: "wb-helper-end" },
     { title: "Date", id: "date", width: "90px", classes: "wb-helper-end" },
     {
       title: "Status",
@@ -42,15 +41,23 @@ new mar10.Wunderbaum({
     {
       title: "Avail.",
       id: "avail",
-      width: "50px",
+      width: "60px",
       classes: "wb-helper-center",
     },
     { title: "Remarks", id: "remarks", width: "*" },
   ],
+  columnsResizable: true,
+  columnsSortable: true,
   filter: {
     connectInput: "input#filterQuery",
   },
   init: (e) => {},
+  buttonClick: function (e) {
+    console.log(e.type, e);
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    }
+  },
   render: function (e) {
     // console.log(e.type, e.isNew, e);
     const node = e.node;

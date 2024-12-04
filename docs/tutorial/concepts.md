@@ -14,11 +14,11 @@ This document describes some general concepts of Wunderbaum.
 - Robust, consistent handling of parallel, asynchronous behavior.
 - Built-in support for
   <!-- [aria](https://www.w3.org/TR/wai-aria-1.1/), -->
-  [drag and drop](/tutorial/tutorial_dnd.md),
-  [editing](/tutorial/tutorial_edit.md),
-  [filtering](/tutorial/tutorial_filter.md),
-  [multi-selection](/tutorial/tutorial_select.md).
-- Fully [controllable using the keyboard](/tutorial/tutorial_keyboard.md).
+  [drag and drop](tutorial_dnd.md),
+  [editing](tutorial_edit.md),
+  [filtering](tutorial_filter.md),
+  [multi-selection](tutorial_select.md).
+- Fully [controllable using the keyboard](tutorial_keyboard.md).
 - Framework agnostic.
 - Good documentation.
 <!-- - Decent test coverage. -->

@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - ext-edit
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -211,6 +211,10 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
     const select = this.getPluginOption("select");
 
     if (!node) {
+      return;
+    }
+    if (node.isStatusNode()) {
+      node.logWarn("Cannot edit status node.");
       return;
     }
     this.tree.logDebug(`startEditTitle(node=${node})`);

@@ -7,6 +7,40 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.11.1: Accept `0`/`1` for known boolean node property values (allowing for
+  more compact JSON sources).
+- v0.11.1: Fix passing `checkbox: 'radio'`.
+- v0.11.1: Fix sorting boolean and undefined column values.
+- v0.11.1: Prevent editing a status node title.
+- v0.11.1: Improve random data generation in demos.
+- v0.11.1: Fix drop effect on dragenter.
+
+- v0.11.0: BREAKING
+  Renamed `tree.options.resizableColumns` to `columnsResizable`.
+- v0.11.0: Add support for icon buttons in column headers (menu, sort, filter).
+- v0.11.0: Add `tree.options.columnsSortable` and `ColumnDefinition.sortable`.
+- v0.11.0: Add `tree.options.columnsFilerable` and `ColumnDefinition.filterable`.
+- v0.11.0: Add `tree.options.columnsMenu` and `ColumnDefinition.menu`.
+- v0.11.0: Add `tree.sortByProperty()`.
+- v0.11.0: Add `util.rotate()`.
+- v0.11.0: Migrate documentation from docsify to MkDocs.
+
+- v0.10.1: Fix column resizer for Edge.
+
+- v0.10.0: Add `tree.options.resizableColumns` and `ColumnDefinition.resizable`.
+- v0.10.0: Add `tree.resetColumns()`.
+
+- v0.9.0: DEPRECATE `tree.filterBranches()`:
+  use `tree.filterNodes(..., {matchBranch: true})` instead.
+- v0.9.0: Allow to pass a RegEx to filterNodes()
+- v0.9.0: Add `tree.countMatches()` method.
+- v0.9.0: Add `node.hasFocus()` method.
+- v0.9.0: Fix `tree.filter.hideExpanders` option.
+- v0.9.0: Drop `tree.filter.count` and `hideExpandedCounter` options in favor of
+  `tree.iconBadge` (see tutorial for an example).
+
+- v0.8.4: Fix #90: Add tooltip functionality to node titles.
+
 - v0.8.3: Fix #84: After editing a node title a javascript error
   "Cannot read properties of null (reading '\_render')" occurs (Chromium).
 

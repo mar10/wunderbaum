@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - util
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -144,7 +144,7 @@ export function documentReadyPromise(): Promise<void> {
  * Iterate over Object properties or array elements.
  *
  * @param obj `Object`, `Array` or null
- * @param callback(index, item) called for every item.
+ * @param callback called for every item.
  *  `this` also contains the item.
  *  Return `false` to stop the iteration.
  */
@@ -521,7 +521,7 @@ export function isArray(obj: any) {
   return Array.isArray(obj);
 }
 
-/** Return true if `obj` is of type `Object` and has no propertied. */
+/** Return true if `obj` is of type `Object` and has no properties. */
 export function isEmptyObject(obj: any) {
   return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
@@ -542,7 +542,7 @@ export function noop(...args: any[]): any {}
 /**
  * Bind one or more event handlers directly to an [EventTarget](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget).
  *
- * @param element EventTarget or selector
+ * @param rootTarget EventTarget or selector
  * @param eventNames
  * @param handler
  */
@@ -563,7 +563,7 @@ export function onEvent(
  * });
  * ```
  *
- * @param element EventTarget or selector
+ * @param rootTarget EventTarget or selector
  * @param eventNames
  * @param selector
  * @param handler
@@ -746,6 +746,12 @@ export function getOption(
   return value ?? defaultValue;
 }
 
+/** Return the next value from a list of values (rotating). @since 0.11 */
+export function rotate(value: any, values: any[]): any {
+  const idx = values.indexOf(value);
+  return values[(idx + 1) % values.length];
+}
+
 /** Convert an Array or space-separated string to a Set. */
 export function toSet(val: any): Set<string> {
   if (val instanceof Set) {
@@ -762,6 +768,62 @@ export function toSet(val: any): Set<string> {
     return new Set<string>(val);
   }
   throw new Error("Cannot convert to Set<string>: " + val);
+}
+
+/** Convert a pixel string to number.
+ * We accept a number or a string like '123px'. If undefined, the first default
+ * value that is a number or a string ending with 'px' is returned.
+ *
+ * Example:
+ * ```js
+ * let x = undefined;
+ * let y = "123px";
+ * const width = util.toPixel(x, y, 100);  // returns 123
+ * ```
+ */
+export function toPixel(
+  ...defaults: (string | number | undefined | null)[]
+): number {
+  for (const d of defaults) {
+    if (typeof d === "number") {
+      return d;
+    }
+    if (typeof d === "string" && d.endsWith("px")) {
+      return parseInt(d, 10);
+    }
+    assert(d == null, `Expected a number or string like '123px': ${d}`);
+  }
+  throw new Error(`Expected a string like '123px': ${defaults}`);
+}
+
+/** Return the the boolean value of the first non-null element.
+ * Example:
+ * ```js
+ * const opts = { flag: true };
+ * const value = util.toBool(opts.foo, opts.flag, false);  // returns true
+ * ```
+ */
+export function toBool(
+  ...boolDefaults: (boolean | undefined | null)[]
+): boolean {
+  for (const d of boolDefaults) {
+    if (d != null) {
+      return !!d;
+    }
+  }
+  throw new Error("No default boolean value provided");
+}
+
+/**
+ * Return `val` unless `val` is a number in which case we convert to boolean.
+ * This is useful when a boolean value is stored as a 0/1 (e.g. in JSON) and
+ * we still want to maintain string values. null and undefined are returned as
+ * is. E.g. `checkbox` may be boolean or 'radio'.
+ */
+export function intToBool(
+  val: boolean | number | string | undefined
+): boolean | string | undefined {
+  return typeof val === "number" ? !!val : val;
 }
 
 // /** Check if a string is contained in an Array or Set. */

@@ -76,13 +76,7 @@ function isObject(value) {
  * @param {number} [wait=0]
  *  The number of milliseconds to delay; if omitted, `requestAnimationFrame` is
  *  used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=false]
- *  Specify invoking on the leading edge of the timeout.
- * @param {number} [options.maxWait]
- *  The maximum time `func` is allowed to be delayed before it's invoked.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
+ * @param [options={}] The options object.
  * @returns {Function} Returns the new debounced function.
  * @example
  *
@@ -260,11 +254,7 @@ function debounce(func, wait = 0, options = {}) {
  * @param {number} [wait=0]
  *  The number of milliseconds to throttle invocations to; if omitted,
  *  `requestAnimationFrame` is used (if available).
- * @param {Object} [options={}] The options object.
- * @param {boolean} [options.leading=true]
- *  Specify invoking on the leading edge of the timeout.
- * @param {boolean} [options.trailing=true]
- *  Specify invoking on the trailing edge of the timeout.
+ * @param [options={}] The options object.
  * @returns {Function} Returns the new throttled function.
  * @example
  *
@@ -297,8 +287,8 @@ function throttle(func, wait = 0, options = {}) {
 
 /*!
  * Wunderbaum - util
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -421,7 +411,7 @@ function documentReadyPromise() {
  * Iterate over Object properties or array elements.
  *
  * @param obj `Object`, `Array` or null
- * @param callback(index, item) called for every item.
+ * @param callback called for every item.
  *  `this` also contains the item.
  *  Return `false` to stop the iteration.
  */
@@ -774,7 +764,7 @@ function extend(...args) {
 function isArray(obj) {
     return Array.isArray(obj);
 }
-/** Return true if `obj` is of type `Object` and has no propertied. */
+/** Return true if `obj` is of type `Object` and has no properties. */
 function isEmptyObject(obj) {
     return Object.keys(obj).length === 0 && obj.constructor === Object;
 }
@@ -930,6 +920,11 @@ function getOption(opts, name, defaultValue = undefined) {
     // Use value from value options dict, fallback do default
     return value !== null && value !== void 0 ? value : defaultValue;
 }
+/** Return the next value from a list of values (rotating). @since 0.11 */
+function rotate(value, values) {
+    const idx = values.indexOf(value);
+    return values[(idx + 1) % values.length];
+}
 /** Convert an Array or space-separated string to a Set. */
 function toSet(val) {
     if (val instanceof Set) {
@@ -946,6 +941,44 @@ function toSet(val) {
         return new Set(val);
     }
     throw new Error("Cannot convert to Set<string>: " + val);
+}
+/** Convert a pixel string to number.
+ * We accept a number or a string like '123px'. If undefined, the first default
+ * value that is a number or a string ending with 'px' is returned.
+ *
+ * Example:
+ * ```js
+ * let x = undefined;
+ * let y = "123px";
+ * const width = util.toPixel(x, y, 100);  // returns 123
+ * ```
+ */
+function toPixel(...defaults) {
+    for (const d of defaults) {
+        if (typeof d === "number") {
+            return d;
+        }
+        if (typeof d === "string" && d.endsWith("px")) {
+            return parseInt(d, 10);
+        }
+        assert(d == null, `Expected a number or string like '123px': ${d}`);
+    }
+    throw new Error(`Expected a string like '123px': ${defaults}`);
+}
+/** Return the the boolean value of the first non-null element.
+ * Example:
+ * ```js
+ * const opts = { flag: true };
+ * const value = util.toBool(opts.foo, opts.flag, false);  // returns true
+ * ```
+ */
+function toBool(...boolDefaults) {
+    for (const d of boolDefaults) {
+        if (d != null) {
+            return !!d;
+        }
+    }
+    throw new Error("No default boolean value provided");
 }
 // /** Check if a string is contained in an Array or Set. */
 // export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
@@ -1083,11 +1116,14 @@ var util = /*#__PURE__*/Object.freeze({
     noop: noop,
     onEvent: onEvent,
     overrideMethod: overrideMethod,
+    rotate: rotate,
     setElemDisplay: setElemDisplay,
     setTimeoutPromise: setTimeoutPromise,
     setValueToElem: setValueToElem,
     sleep: sleep,
     throttle: throttle,
+    toBool: toBool,
+    toPixel: toPixel,
     toSet: toSet,
     toggleCheckbox: toggleCheckbox,
     type: type
@@ -1095,11 +1131,11 @@ var util = /*#__PURE__*/Object.freeze({
 
 /*!
  * Wunderbaum - types
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
- * Possible values for {@link WunderbaumNode.update()} and {@link Wunderbaum.update()}.
+ * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
  */
 var ChangeType;
 (function (ChangeType) {
@@ -1128,7 +1164,7 @@ var RenderFlag;
     RenderFlag["redraw"] = "redraw";
     RenderFlag["scroll"] = "scroll";
 })(RenderFlag || (RenderFlag = {}));
-/** Possible values for {@link WunderbaumNode.setStatus()}. */
+/** Possible values for {@link WunderbaumNode.setStatus}. */
 var NodeStatusType;
 (function (NodeStatusType) {
     NodeStatusType["ok"] = "ok";
@@ -1159,8 +1195,8 @@ var NavModeEnum;
 
 /*!
  * Wunderbaum - wb_extension_base
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1218,8 +1254,8 @@ class WunderbaumExtension {
 
 /*!
  * Wunderbaum - ext-filter
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1228,16 +1264,15 @@ const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
 class FilterExtension extends WunderbaumExtension {
     constructor(tree) {
         super(tree, "filter", {
-            connectInput: null,
-            autoApply: true,
-            autoExpand: false,
-            counter: true,
-            fuzzy: false,
-            hideExpandedCounter: true,
-            hideExpanders: false,
-            highlight: true,
-            leavesOnly: false,
-            mode: "dim",
+            autoApply: true, // Re-apply last filter if lazy data is loaded
+            autoExpand: false, // Expand all branches that contain matches while filtered
+            matchBranch: false, // Whether to implicitly match all children of matched nodes
+            connectInput: null, // Element or selector of an input control for filter query strings
+            fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
+            hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
+            highlight: true, // Highlight matches by wrapping inside <mark> tags
+            leavesOnly: false, // Match end nodes only
+            mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
             noData: true, // Display a 'no data' status node if result is empty
         });
         this.lastFilterArgs = null;
@@ -1247,6 +1282,7 @@ class FilterExtension extends WunderbaumExtension {
         const connectInput = this.getPluginOption("connectInput");
         if (connectInput) {
             this.queryInput = elemFromSelector(connectInput);
+            assert(this.queryInput, `Invalid 'filter.connectInput' option: ${connectInput}.`);
             onEvent(this.queryInput, "input", debounce((e) => {
                 // this.tree.log("query", e);
                 this.filterNodes(this.queryInput.value.trim(), {});
@@ -1263,33 +1299,38 @@ class FilterExtension extends WunderbaumExtension {
                 break;
         }
     }
-    _applyFilterNoUpdate(filter, branchMode, _opts) {
+    _applyFilterNoUpdate(filter, _opts) {
         return this.tree.runWithDeferredUpdate(() => {
-            return this._applyFilterImpl(filter, branchMode, _opts);
+            return this._applyFilterImpl(filter, _opts);
         });
     }
-    _applyFilterImpl(filter, branchMode, _opts) {
-        let match, temp, count = 0;
+    _applyFilterImpl(filter, _opts) {
+        let //temp,
+        count = 0;
         const start = Date.now();
         const tree = this.tree;
         const treeOpts = tree.options;
-        // escapeTitles = treeOpts.escapeTitles,
         const prevAutoCollapse = treeOpts.autoCollapse;
+        // Use default options from `tree.options.filter`, but allow to override them
         const opts = extend({}, treeOpts.filter, _opts);
         const hideMode = opts.mode === "hide";
-        const leavesOnly = !!opts.leavesOnly && !branchMode;
+        const matchBranch = !!opts.matchBranch;
+        const leavesOnly = !!opts.leavesOnly && !matchBranch;
+        let filterRegExp;
+        let highlightRegExp;
         // Default to 'match title substring (case insensitive)'
-        if (typeof filter === "string") {
+        if (typeof filter === "string" || filter instanceof RegExp) {
             if (filter === "") {
                 tree.logInfo("Passing an empty string as a filter is handled as clearFilter().");
                 this.clearFilter();
-                return;
+                return 0;
             }
             if (opts.fuzzy) {
+                assert(typeof filter === "string", "fuzzy filter must be a string");
                 // See https://codereview.stackexchange.com/questions/23899/faster-javascript-fuzzy-string-matching-function/23905#23905
                 // and http://www.quora.com/How-is-the-fuzzy-search-algorithm-in-Sublime-Text-designed
                 // and http://www.dustindiaz.com/autocomplete-fuzzy-matching
-                match = filter
+                const matchReString = filter
                     .split("")
                     // Escaping the `filter` will not work because,
                     // it gets further split into individual characters. So,
@@ -1300,12 +1341,21 @@ class FilterExtension extends WunderbaumExtension {
                     // the character
                     return a + "([^" + b + "]*)" + b;
                 }, "");
+                filterRegExp = new RegExp(matchReString, "i");
+                // highlightRegExp = new RegExp(escapeRegex(filter), "gi");
+            }
+            else if (filter instanceof RegExp) {
+                filterRegExp = filter;
+                highlightRegExp = filter;
             }
             else {
-                match = escapeRegex(filter); // make sure a '.' is treated literally
+                const matchReString = escapeRegex(filter); // make sure a '.' is treated literally
+                filterRegExp = new RegExp(matchReString, "i");
+                highlightRegExp = new RegExp(matchReString, "gi");
             }
-            const re = new RegExp(match, "i");
-            const reHighlight = new RegExp(escapeRegex(filter), "gi");
+            tree.logDebug(`Filtering nodes by '${filterRegExp}'`);
+            // const re = new RegExp(match, "i");
+            // const reHighlight = new RegExp(escapeRegex(filter), "gi");
             filter = (node) => {
                 if (!node.title) {
                     return false;
@@ -1313,34 +1363,25 @@ class FilterExtension extends WunderbaumExtension {
                 // let text = escapeTitles ? node.title : extractHtmlText(node.title);
                 const text = node.title;
                 // `.match` instead of `.test` to get the capture groups
-                const res = text.match(re);
+                // const res = text.match(filterRegExp);
+                const res = filterRegExp.exec(text);
                 if (res && opts.highlight) {
-                    // if (escapeTitles) {
+                    let highlightString;
                     if (opts.fuzzy) {
-                        temp = _markFuzzyMatchedChars(text, res, true);
+                        highlightString = _markFuzzyMatchedChars(text, res, true);
                     }
                     else {
                         // #740: we must not apply the marks to escaped entity names, e.g. `&quot;`
                         // Use some exotic characters to mark matches:
-                        temp = text.replace(reHighlight, function (s) {
+                        highlightString = text.replace(highlightRegExp, function (s) {
                             return START_MARKER + s + END_MARKER;
                         });
                     }
                     // now we can escape the title...
-                    node.titleWithHighlight = escapeHtml(temp)
+                    node.titleWithHighlight = escapeHtml(highlightString)
                         // ... and finally insert the desired `<mark>` tags
                         .replace(RE_START_MARKER, "<mark>")
                         .replace(RE_END_MARTKER, "</mark>");
-                    // } else {
-                    //   if (opts.fuzzy) {
-                    //     node.titleWithHighlight = _markFuzzyMatchedChars(text, res);
-                    //   } else {
-                    //     node.titleWithHighlight = text.replace(reHighlight, function (s) {
-                    //       return "<mark>" + s + "</mark>";
-                    //     });
-                    //   }
-                    // }
-                    // node.debug("filter", escapeTitles, text, node.titleWithHighlight);
                 }
                 return !!res;
             };
@@ -1377,7 +1418,7 @@ class FilterExtension extends WunderbaumExtension {
                 return "skip";
             }
             let matchedByBranch = false;
-            if ((branchMode || res === "branch") && node.parent.match) {
+            if ((matchBranch || res === "branch") && node.parent.match) {
                 res = true;
                 matchedByBranch = true;
             }
@@ -1409,20 +1450,35 @@ class FilterExtension extends WunderbaumExtension {
             }
         }
         // Redraw whole tree
-        tree.logInfo(`Filter '${match}' found ${count} nodes in ${Date.now() - start} ms.`);
+        tree.logDebug(`Filter '${filter}' found ${count} nodes in ${Date.now() - start} ms.`);
         return count;
     }
     /**
      * [ext-filter] Dim or hide nodes.
      */
     filterNodes(filter, options) {
-        return this._applyFilterNoUpdate(filter, false, options);
+        return this._applyFilterNoUpdate(filter, options);
     }
     /**
      * [ext-filter] Dim or hide whole branches.
+     * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
      */
     filterBranches(filter, options) {
-        return this._applyFilterNoUpdate(filter, true, options);
+        assert(options.matchBranch === undefined, "filterBranches() is deprecated.");
+        options.matchBranch = true;
+        return this._applyFilterNoUpdate(filter, options);
+    }
+    /**
+     * [ext-filter] Return the number of matched nodes.
+     */
+    countMatches() {
+        let n = 0;
+        this.tree.visit((node) => {
+            if (node.match && !node.statusNodeType) {
+                n++;
+            }
+        });
+        return n;
     }
     /**
      * [ext-filter] Re-apply current filter.
@@ -1523,8 +1579,8 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 
 /*!
  * Wunderbaum - ext-keynav
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1887,8 +1943,8 @@ class KeynavExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - ext-logger
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1929,8 +1985,8 @@ class LoggerExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - common
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -1948,6 +2004,8 @@ const ICON_WIDTH = 20;
 const TITLE_SPAN_PAD_Y = 7;
 /** Render row markup for N nodes above and below the visible viewport. */
 const RENDER_MAX_PREFETCH = 5;
+/** Minimum column width if not set otherwise. */
+const DEFAULT_MIN_COL_WIDTH = 4;
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
  */
@@ -1983,6 +2041,15 @@ const iconMaps = {
         folderOpen: "bi bi-folder2-open",
         folderLazy: "bi bi-folder-symlink",
         doc: "bi bi-file-earmark",
+        colSortable: "bi bi-chevron-expand",
+        // colSortable: "bi bi-arrow-down-up",
+        // colSortAsc: "bi bi-chevron-down",
+        // colSortDesc: "bi bi-chevron-up",
+        colSortAsc: "bi bi-arrow-down",
+        colSortDesc: "bi bi-arrow-up",
+        colFilter: "bi bi-filter-circle",
+        colFilterActive: "bi bi-filter-circle-fill wb-helper-invalid",
+        colMenu: "bi bi-three-dots-vertical",
     },
     fontawesome6: {
         error: "fa-solid fa-triangle-exclamation",
@@ -2001,16 +2068,22 @@ const iconMaps = {
         folderOpen: "fa-regular fa-folder-open",
         folderLazy: "fa-solid fa-folder-plus",
         doc: "fa-regular fa-file",
+        colSortable: "fa-solid fa-fw fa-sort",
+        colSortAsc: "fa-solid fa-fw fa-sort-up",
+        colSortDesc: "fa-solid fa-fw fa-sort-down",
+        colFilter: "fa-solid fa-fw fa-filter",
+        colFilterActive: "fa-solid fa-fw fa-filter wb-helper-invalid",
+        colMenu: "fa-solid fa-fw fa-ellipsis-v",
     },
 };
 /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
 const RESERVED_TREE_SOURCE_KEYS = new Set([
-    "_format",
-    "_keyMap",
-    "_positional",
-    "_typeList",
-    "_valueMap",
-    "_version",
+    "_format", // reserved for future use
+    "_keyMap", // Used for compressed data format
+    "_positional", // Used for compressed data format
+    "_typeList", // Used for compressed data format @deprecated
+    "_valueMap", // Used for compressed data format
+    "_version", // reserved for future use
     "children",
     "columns",
     "types",
@@ -2038,8 +2111,8 @@ const KEY_TO_ACTION_DICT = {
     Home: "firstCol",
     "Control+End": "last",
     "Control+Home": "first",
-    "Meta+ArrowDown": "last",
-    "Meta+ArrowUp": "first",
+    "Meta+ArrowDown": "last", // macOs
+    "Meta+ArrowUp": "first", // macOs
     "*": "expandAll",
     Multiply: "expandAll",
     PageDown: "pageDown",
@@ -2049,7 +2122,7 @@ const KEY_TO_ACTION_DICT = {
 };
 /** Return a callback that returns true if the node title matches the string
  * or regular expression.
- * @see {@link WunderbaumNode.findAll()}
+ * @see {@link WunderbaumNode.findAll}
  */
 function makeNodeTitleMatcher(match) {
     if (match instanceof RegExp) {
@@ -2252,44 +2325,44 @@ function decompressSourceData(source) {
 
 /*!
  * Wunderbaum - ext-dnd
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
     constructor(tree) {
         super(tree, "dnd", {
-            autoExpandMS: 1500,
+            autoExpandMS: 1500, // Expand nodes after n milliseconds of hovering
             // dropMarkerInsertOffsetX: -16, // Additional offset for drop-marker with hitMode = "before"/"after"
             // dropMarkerOffsetX: -24, // Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
             // #1021 `document.body` is not available yet
             // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
-            multiSource: false,
-            effectAllowed: "all",
-            dropEffectDefault: "move",
-            guessDropEffect: true,
-            preventForeignNodes: false,
-            preventLazyParents: true,
-            preventNonNodes: false,
-            preventRecursion: true,
-            preventSameParent: false,
-            preventVoidMoves: true,
-            serializeClipboardData: true,
-            scroll: true,
-            scrollSensitivity: 20,
+            multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
+            effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+            dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (override in drag, dragOver).
+            guessDropEffect: true, // Calculate from `effectAllowed` and modifier keys)
+            preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
+            preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes
+            preventNonNodes: false, // Prevent dropping items other than Wunderbaum tree nodes
+            preventRecursion: true, // Prevent dropping nodes on own descendants
+            preventSameParent: false, // Prevent dropping nodes under same direct parent
+            preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
+            serializeClipboardData: true, // Serialize node data to dataTransfer object
+            scroll: true, // Enable auto-scrolling while dragging
+            scrollSensitivity: 20, // Active top/bottom margin in pixel
             // scrollnterval: 50, // Generate event every 50 ms
-            scrollSpeed: 5,
+            scrollSpeed: 5, // Scroll pixel per 50 ms
             // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
-            sourceCopyHook: null,
+            sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
             // Events (drag support)
-            dragStart: null,
-            drag: null,
-            dragEnd: null,
+            dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
+            drag: null, // Callback(sourceNode, data)
+            dragEnd: null, // Callback(sourceNode, data)
             // Events (drop support)
-            dragEnter: null,
-            dragOver: null,
-            dragExpand: null,
-            drop: null,
+            dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
+            dragOver: null, // Callback(targetNode, data)
+            dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
+            drop: null, // Callback(targetNode, data)
             dragLeave: null, // Callback(targetNode, data)
         });
         // public dropMarkerElem?: HTMLElement;
@@ -2697,8 +2770,8 @@ class DndExtension extends WunderbaumExtension {
 
 /*!
  * Wunderbaum - drag_observer
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2706,6 +2779,7 @@ class DndExtension extends WunderbaumExtension {
 class DragObserver {
     constructor(opts) {
         this.start = {
+            event: null,
             x: 0,
             y: 0,
             altKey: false,
@@ -2715,6 +2789,7 @@ class DragObserver {
         };
         this.dragElem = null;
         this.dragging = false;
+        this.customData = {};
         // TODO: touch events
         this.events = ["mousedown", "mouseup", "mousemove", "keydown"];
         if (!opts.root) {
@@ -2742,22 +2817,32 @@ class DragObserver {
     stopDrag(cb_event) {
         if (this.dragging && this.opts.dragstop && cb_event) {
             cb_event.type = "dragstop";
-            this.opts.dragstop(cb_event);
+            try {
+                this.opts.dragstop(cb_event);
+            }
+            catch (err) {
+                console.error("dragstop error", err); // eslint-disable-line no-console
+            }
         }
         this.dragElem = null;
         this.dragging = false;
+        this.start.event = null;
+        this.customData = {};
     }
     handleEvent(e) {
         const type = e.type;
         const opts = this.opts;
         const cb_event = {
             type: e.type,
+            startEvent: type === "mousedown" ? e : this.start.event,
             event: e,
+            customData: this.customData,
             dragElem: this.dragElem,
             dx: e.pageX - this.start.x,
             dy: e.pageY - this.start.y,
             apply: undefined,
         };
+        // console.log("handleEvent", type, cb_event);
         switch (type) {
             case "keydown":
                 this.stopDrag(cb_event);
@@ -2782,6 +2867,7 @@ class DragObserver {
                         }
                     }
                 }
+                this.start.event = e;
                 this.start.x = e.pageX;
                 this.start.y = e.pageY;
                 this.start.altKey = e.altKey;
@@ -2833,8 +2919,8 @@ class DragObserver {
 
 /*!
  * Wunderbaum - ext-grid
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2843,11 +2929,43 @@ class GridExtension extends WunderbaumExtension {
         });
         this.observer = new DragObserver({
             root: window.document,
-            selector: "span.wb-col-resizer",
+            selector: "span.wb-col-resizer-active",
             thresh: 4,
             // throttle: 400,
             dragstart: (e) => {
-                return this.tree.element.contains(e.dragElem);
+                const info = Wunderbaum.getEventInfo(e.startEvent);
+                const colDef = info.colDef;
+                const allow = colDef &&
+                    this.tree.element.contains(e.dragElem) &&
+                    toBool(colDef.resizable, tree.options.columnsResizable, false);
+                // this.tree.log("dragstart", colDef, e, info);
+                this.tree.element.classList.toggle("wb-col-resizing", !!allow);
+                info.colElem.classList.toggle("wb-col-resizing", !!allow);
+                // We start dagging, so we remember the actual width in *pixels*
+                // (which may be 'auto' or '100%').
+                // Since we we re-create the markup on each update, we also cannot store
+                // the original event or DOM element, but only the colDef object.
+                if (allow) {
+                    // Store initial target column infos in customData
+                    e.customData.colDef = colDef;
+                    e.customData.orgCustomWidthPx = colDef.customWidthPx;
+                    const curWidthPx = Number.parseInt(info.colElem.style.width, 10);
+                    e.customData.orgWidthPx = curWidthPx;
+                    // Set custom width to current width, so that we can modify it
+                    colDef.customWidthPx = curWidthPx;
+                    // this.tree.log(
+                    //   `dragstart customWidthPx=${colDef.customWidthPx}`,
+                    //   e,
+                    //   info
+                    // );
+                    this.tree.update(ChangeType.colStructure);
+                    // this.tree.log(
+                    //   `dragstart 2 customWidthPx=${colDef.customWidthPx}`,
+                    //   e,
+                    //   info
+                    // );
+                }
+                return allow;
             },
             drag: (e) => {
                 // TODO: throttle
@@ -2861,17 +2979,39 @@ class GridExtension extends WunderbaumExtension {
     init() {
         super.init();
     }
+    /**
+     * Hanldes drag and sragstop events for column resizing.
+     */
     handleDrag(e) {
-        const info = Wunderbaum.getEventInfo(e.event);
-        // this.tree.options.
-        this.tree.log(`${e.type}(${e.dx})`, e, info);
+        const custom = e.customData;
+        const colDef = custom.colDef;
+        // this.tree.log(`${e.type} (dx=${e.dx})`, e, info);
+        if (e.type === "dragstop" || e.type === "drag") {
+            this.tree.element.classList.remove("wb-col-resizing");
+            // info.colElem!.classList.remove("wb-col-resizing");
+            if (e.apply || e.type === "drag") {
+                const minWidth = toPixel(colDef.minWidth, DEFAULT_MIN_COL_WIDTH);
+                const newWidth = Math.max(minWidth, custom.orgWidthPx + e.dx);
+                colDef.customWidthPx = newWidth;
+                // this.tree.log(
+                //   `${e.type} minWidth=${minWidth}, newWidth=${newWidth}`,
+                //   colDef
+                // );
+            }
+            else {
+                // Drag was cancelled
+                this.tree.log("Column resize cancelled", e);
+                colDef.customWidthPx = custom.orgCustomWidthPx; // Restore original width or undefined
+            }
+            this.tree.update(ChangeType.colStructure);
+        }
     }
 }
 
 /*!
  * Wunderbaum - deferred
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -2923,8 +3063,8 @@ class Deferred {
 
 /*!
  * Wunderbaum - wunderbaum_node
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -2967,6 +3107,12 @@ class WunderbaumNode {
          * @see Use {@link setKey} to modify.
          */
         this.refKey = undefined;
+        /**
+         * Array of child nodes (null for leaf nodes).
+         * For lazy nodes, this is `null` or ùndefined` until the children are loaded
+         * and leaf nodes may be `[]` (empty array).
+         * @see {@link hasChildren}, {@link addChildren}, {@link lazy}.
+         */
         this.children = null;
         /** Additional classes added to `div.wb-row`.
          * @see {@link hasClass}, {@link setClass}. */
@@ -3073,7 +3219,8 @@ class WunderbaumNode {
      * ```
      */
     _callEvent(type, extra) {
-        return this.tree._callEvent(type, extend({
+        var _a;
+        return (_a = this.tree) === null || _a === void 0 ? void 0 : _a._callEvent(type, extend({
             node: this,
             typeInfo: this.type ? this.tree.types[this.type] : {},
         }, extra));
@@ -3235,7 +3382,7 @@ class WunderbaumNode {
         const minExpandLevel = this.tree.options.minExpandLevel;
         const { depth = 99, loadLazy, force, keepActiveNodeVisible = true, } = options !== null && options !== void 0 ? options : {};
         const expandOpts = {
-            scrollIntoView: false,
+            scrollIntoView: false, // don't scroll very node on iteration
             force: force,
             loadLazy: loadLazy,
         };
@@ -3503,7 +3650,7 @@ class WunderbaumNode {
     }
     /** Return a string representing the hierachical node path, e.g. "a/b/c".
      * @param includeSelf
-     * @param node property name or callback
+     * @param part property name or callback
      * @param separator
      */
     getPath(includeSelf = true, part = "title", separator = "/") {
@@ -3552,6 +3699,10 @@ class WunderbaumNode {
     /** Return true if node has className set. */
     hasClass(className) {
         return this.classes ? this.classes.has(className) : false;
+    }
+    /** Return true if node ist the currently focused node. @since 0.9.0 */
+    hasFocus() {
+        return this.tree.focusNode === this;
     }
     /** Return true if this node is the currently active tree node. */
     isActive() {
@@ -3618,7 +3769,7 @@ class WunderbaumNode {
     }
     /** Return true if _this_ node is currently in edit-title mode.
      *
-     * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+     * See {@link WunderbaumNode.startEditTitle}.
      */
     isEditingTitle() {
         return this.tree._callMethod("edit.isEditingTitle", this);
@@ -3771,6 +3922,8 @@ class WunderbaumNode {
         if (tree.options.selectMode === "hier") {
             this.fixSelection3FromEndNodes();
         }
+        // Allow to un-sort nodes after sorting
+        this.resetNativeChildOrder();
         this._callEvent("load");
     }
     async _fetchWithOptions(source) {
@@ -4432,6 +4585,10 @@ class WunderbaumNode {
         else {
             titleSpan.textContent = this.title; // TODO: this triggers scroll events
         }
+        const tooltip = this.getOption("tooltip", false);
+        if (tooltip) {
+            titleSpan.title = tooltip === true ? this.title : tooltip;
+        }
         // NOTE: At least on Safari, this render call triggers a scroll event
         // probably when a focused input is replaced.
         if (preventScroll) {
@@ -4643,8 +4800,8 @@ class WunderbaumNode {
      *
      * The result is compatible with node.addChildren().
      *
-     * @param include child nodes
-     * @param callback(dict, node) is called for every node, in order to allow
+     * @param recursive include child nodes
+     * @param callback is called for every node, in order to allow
      *     modifications.
      *     Return `false` to ignore this node or `"skip"` to include this node
      *     without its children.
@@ -4710,7 +4867,7 @@ class WunderbaumNode {
      *
      * @param name name of the option property (on node and tree)
      * @param defaultValue return this if nothing else matched
-     * {@link Wunderbaum.getOption|Wunderbaum.getOption()}
+     * {@link Wunderbaum.getOption|Wunderbaum.getOption}
      */
     getOption(name, defaultValue) {
         const tree = this.tree;
@@ -4746,7 +4903,7 @@ class WunderbaumNode {
         return value !== null && value !== void 0 ? value : defaultValue;
     }
     /** Make sure that this node is visible in the viewport.
-     * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo()}
+     * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo}
      */
     async scrollIntoView(options) {
         const opts = Object.assign({ node: this }, options);
@@ -4885,9 +5042,9 @@ class WunderbaumNode {
      * and column content. It can be reduced to 'ChangeType.status' if only
      * active/focus/selected state has changed.
      *
-     * This method will eventually call  {@link WunderbaumNode._render()} with
+     * This method will eventually call  {@link WunderbaumNode._render} with
      * default options, but may be more consistent with the tree's
-     * {@link Wunderbaum.update()} API.
+     * {@link Wunderbaum.update} API.
      */
     update(change = ChangeType.data) {
         assert(change === ChangeType.status || change === ChangeType.data, `Invalid change type ${change}`);
@@ -5186,6 +5343,11 @@ class WunderbaumNode {
         this.update();
         // this.triggerModify("rename"); // TODO
     }
+    /** Set the node tooltip. */
+    setTooltip(tooltip) {
+        this.tooltip = tooltip;
+        this.update();
+    }
     _sortChildren(cmp, deep) {
         const cl = this.children;
         if (!cl) {
@@ -5210,6 +5372,80 @@ class WunderbaumNode {
         this._sortChildren(cmp || nodeTitleSorter, deep);
         this.tree.update(ChangeType.structure);
         // this.triggerModify("sort"); // TODO
+    }
+    /**
+     * Renumber nodes `_nativeIndex`. This is useful to allow to restore the
+     * order after sorting a column.
+     * This method is automatically called after loading new child nodes.
+     * @since 0.11.0
+     */
+    resetNativeChildOrder(options) {
+        const { recursive = true, propName = "_nativeIndex" } = options !== null && options !== void 0 ? options : {};
+        if (this.children) {
+            this.children.forEach((child, i) => {
+                child.data[propName] = i;
+                if (recursive && child.children) {
+                    child.resetNativeChildOrder(options);
+                }
+            });
+        }
+    }
+    /**
+     * Convenience method to implement column sorting.
+     * @since 0.11.0
+     */
+    sortByProperty(options) {
+        var _a, _b, _c;
+        const { caseInsensitive = true, deep = true, nativeOrderPropName = "_nativeIndex", updateColInfo = false, } = options;
+        let order;
+        let colDef;
+        if (updateColInfo) {
+            colDef = this.tree["_columnsById"][options.colId];
+            assert(colDef, `Invalid colId specified: ${options.colId}`);
+            order =
+                (_a = options.order) !== null && _a !== void 0 ? _a : rotate(colDef.sortOrder, ["asc", "desc", undefined]);
+            for (const col of this.tree.columns) {
+                col.sortOrder = col === colDef ? order : undefined;
+            }
+            this.tree.update(ChangeType.colStructure);
+        }
+        else {
+            order = (_b = options.order) !== null && _b !== void 0 ? _b : "asc";
+        }
+        let propName = (_c = options.propName) !== null && _c !== void 0 ? _c : (options.colId || "");
+        if (propName === "*") {
+            propName = "title";
+        }
+        if (order == null) {
+            propName = nativeOrderPropName;
+            order = "asc";
+        }
+        this.logDebug(`sortByProperty(), propName=${propName}, ${order}`, options);
+        assert(propName, "No property name specified");
+        const cmp = (a, b) => {
+            let av, bv;
+            if (NODE_DICT_PROPS.has(propName)) {
+                av = a[propName];
+                bv = b[propName];
+            }
+            else {
+                av = a.data[propName];
+                bv = b.data[propName];
+            }
+            if (caseInsensitive) {
+                if (typeof av === "string") {
+                    av = av.toLowerCase();
+                }
+                if (typeof bv === "string") {
+                    bv = bv.toLowerCase();
+                }
+            }
+            if (order === "desc") {
+                return av === bv ? 0 : av > bv ? -1 : 1;
+            }
+            return av === bv ? 0 : av > bv ? 1 : -1;
+        };
+        return this.sortChildren(cmp, deep);
     }
     /**
      * Trigger `modifyChild` event on a parent to signal that a child was modified.
@@ -5291,8 +5527,9 @@ class WunderbaumNode {
      * Stop iteration, if fn() returns false.<br>
      * Return false if iteration was stopped.
      *
-     * @param {function} fn the callback function.
+     * @param callback the callback function.
      *     Return false to stop iteration.
+     * @param includeSelf include this node in the iteration.
      */
     visitSiblings(callback, includeSelf = false) {
         const ac = this.parent.children;
@@ -5317,8 +5554,8 @@ WunderbaumNode.sequence = 0;
 
 /*!
  * Wunderbaum - ext-edit
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
- * v0.8.2, Sat, 17 Feb 2024 07:32:06 GMT (https://github.com/mar10/wunderbaum)
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5327,11 +5564,11 @@ class EditExtension extends WunderbaumExtension {
             debounce: 100,
             minlength: 1,
             maxlength: null,
-            trigger: [],
+            trigger: [], //["clickActive", "F2", "macEnter"],
             trim: true,
             select: true,
-            slowClickDelay: 1000,
-            validity: true,
+            slowClickDelay: 1000, // Handle 'clickActive' only if last click is less than this old (0: always)
+            validity: true, //"Please enter a title",
             // --- Events ---
             // (note: there is also the `tree.change` event.)
             beforeEdit: null,
@@ -5538,6 +5775,7 @@ class EditExtension extends WunderbaumExtension {
      * @param opts.canKeepOpen
      */
     _stopEditTitle(apply, options) {
+        var _a;
         options !== null && options !== void 0 ? options : (options = {});
         const focusElem = document.activeElement;
         let newValue = focusElem ? getValueFromElem(focusElem) : null;
@@ -5565,6 +5803,7 @@ class EditExtension extends WunderbaumExtension {
                 inputElem: focusElem,
                 inputValid: focusElem.checkValidity(),
             }).then((value) => {
+                var _a;
                 const errMsg = focusElem.validationMessage;
                 if (validity && errMsg && value !== false) {
                     // Handler called 'inputElem.setCustomValidity()' to signal error
@@ -5579,7 +5818,7 @@ class EditExtension extends WunderbaumExtension {
                 node === null || node === void 0 ? void 0 : node.setTitle(newValue);
                 // NOTE: At least on Safari, this render call triggers a scroll event
                 // probably because the focused input is replaced.
-                this.curEditNode._render({ preventScroll: true });
+                (_a = this.curEditNode) === null || _a === void 0 ? void 0 : _a._render({ preventScroll: true });
                 this.curEditNode = null;
                 this.relatedNode = null;
                 this.tree.setFocus(); // restore focus that was in the input element
@@ -5594,7 +5833,7 @@ class EditExtension extends WunderbaumExtension {
             // Discard the embedded `<input>`
             // NOTE: At least on Safari, this render call triggers a scroll event
             // probably because the focused input is replaced.
-            this.curEditNode._render({ preventScroll: true });
+            (_a = this.curEditNode) === null || _a === void 0 ? void 0 : _a._render({ preventScroll: true });
             this.curEditNode = null;
             this.relatedNode = null;
             // We discarded the <input>, so we have to acquire keyboard focus again
@@ -5643,12 +5882,12 @@ class EditExtension extends WunderbaumExtension {
  *
  * A treegrid control.
  *
- * Copyright (c) 2021-2023, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.8.2
- * @date Sat, 17 Feb 2024 07:32:06 GMT
+ * @version v0.11.0
+ * @date Sun, 04 Aug 2024 15:35:53 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -5710,6 +5949,7 @@ class Wunderbaum {
         // /** @internal */
         // public selectRangeAnchor: WunderbaumNode | null = null;
         // --- FILTER ---
+        /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
         this.filterMode = null;
         // --- KEYNAV ---
         /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
@@ -5724,10 +5964,10 @@ class Wunderbaum {
         this.lastClickTime = 0;
         const opts = (this.options = extend({
             id: null,
-            source: null,
-            element: null,
-            debugLevel: DEFAULT_DEBUGLEVEL,
-            header: null,
+            source: null, // URL for GET/PUT, Ajax options, or callback
+            element: null, // <div class="wunderbaum">
+            debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
+            header: null, // Show/hide header (pass bool or string)
             // headerHeightPx: ROW_HEIGHT,
             rowHeightPx: ROW_HEIGHT,
             iconMap: "bootstrap",
@@ -5742,10 +5982,10 @@ class Wunderbaum {
             emptyChildListExpandable: false,
             // updateThrottleWait: 200,
             skeleton: false,
-            connectTopBreadcrumb: null,
-            selectMode: "multi",
+            connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+            selectMode: "multi", // SelectModeType
             // --- KeyNav ---
-            navigationModeOption: null,
+            navigationModeOption: null, // NavModeEnum.startRow,
             quicksearch: true,
             // --- Events ---
             iconBadge: null,
@@ -5817,7 +6057,8 @@ class Wunderbaum {
         // Attach tree instance to <div>
         this.element._wb_tree = this;
         // Create header markup, or take it from the existing html
-        this.headerElement = this.element.querySelector("div.wb-header");
+        this.headerElement =
+            this.element.querySelector("div.wb-header");
         const wantHeader = opts.header == null ? this.columns.length > 1 : !!opts.header;
         if (this.headerElement) {
             // User existing header markup to define `this.columns`
@@ -5854,8 +6095,10 @@ class Wunderbaum {
         <div class="wb-node-list"></div>
       </div>`;
         this.listContainerElement = this.element.querySelector("div.wb-list-container");
-        this.nodeListElement = this.listContainerElement.querySelector("div.wb-node-list");
-        this.headerElement = this.element.querySelector("div.wb-header");
+        this.nodeListElement =
+            this.listContainerElement.querySelector("div.wb-node-list");
+        this.headerElement =
+            this.element.querySelector("div.wb-header");
         this.element.classList.toggle("wb-grid", this.columns.length > 1);
         this._initExtensions();
         // --- apply initial options
@@ -5912,6 +6155,16 @@ class Wunderbaum {
             this.update(ChangeType.resize);
         });
         this.resizeObserver.observe(this.element);
+        onEvent(this.element, "click", ".wb-button,.wb-col-icon", (e) => {
+            var _a, _b;
+            const info = Wunderbaum.getEventInfo(e);
+            const command = (_b = (_a = e.target) === null || _a === void 0 ? void 0 : _a.dataset) === null || _b === void 0 ? void 0 : _b.command;
+            this._callEvent("buttonClick", {
+                event: e,
+                info: info,
+                command: command,
+            });
+        });
         onEvent(this.nodeListElement, "click", "div.wb-row", (e) => {
             const info = Wunderbaum.getEventInfo(e);
             const node = info.node;
@@ -6492,7 +6745,7 @@ class Wunderbaum {
     }
     /** Run code, but defer rendering of viewport until done.
      *
-     * ```
+     * ```js
      * tree.runWithDeferredUpdate(() => {
      *   return someFuncThatWouldUpdateManyNodes();
      * });
@@ -6970,6 +7223,17 @@ class Wunderbaum {
             console.warn(this.toString(), ...args); // eslint-disable-line no-console
         }
     }
+    /** Reset column widths to default. @since 0.10.0 */
+    resetColumns() {
+        this.columns.forEach((col) => {
+            delete col.customWidthPx;
+        });
+        this.update(ChangeType.colStructure);
+    }
+    // /** Renumber nodes `_nativeIndex`. @see {@link WunderbaumNode.resetNativeChildOrder} */
+    // resetNativeChildOrder(options?: ResetOrderOptions) {
+    //   this.root.resetNativeChildOrder(options);
+    // }
     /**
      * Make sure that this node is vertically scrolled into the viewport.
      *
@@ -7284,9 +7548,17 @@ class Wunderbaum {
     sortChildren(cmp = nodeTitleSorter, deep = false) {
         this.root.sortChildren(cmp, deep);
     }
+    /**
+     * Convenience method to implement column sorting.
+     * @see {@link WunderbaumNode.sortByProperty}.
+     * @since 0.11.0
+     */
+    sortByProperty(options) {
+        this.root.sortByProperty(options);
+    }
     /** Convert tree to an array of plain objects.
      *
-     * @param callback(dict, node) is called for every node, in order to allow
+     * @param callback is called for every node, in order to allow
      *     modifications.
      *     Return `false` to ignore this node or `"skip"` to include this node
      *     without its children.
@@ -7327,7 +7599,7 @@ class Wunderbaum {
         this._columnsById = {};
         for (const col of columns) {
             this._columnsById[col.id] = col;
-            const cw = col.width;
+            const cw = col.customWidthPx ? `${col.customWidthPx}px` : col.width;
             if (col.id === "*" && col !== col0) {
                 throw new Error(`Column id '*' must be defined only once: '${col.title}'.`);
             }
@@ -7397,6 +7669,11 @@ class Wunderbaum {
         // }
         return modified;
     }
+    _insertIcon(icon, elem) {
+        const iconElem = document.createElement("i");
+        iconElem.className = icon;
+        elem.appendChild(iconElem);
+    }
     /** Create/update header markup from `this.columns` definition.
      * @internal
      */
@@ -7407,6 +7684,7 @@ class Wunderbaum {
         if (!wantHeader) {
             return;
         }
+        const iconMap = this.iconMap;
         const colCount = this.columns.length;
         const headerRow = this.headerElement.querySelector(".wb-row");
         assert(headerRow, "Expected a row in header element");
@@ -7425,17 +7703,54 @@ class Wunderbaum {
             else {
                 col.classes ? colElem.classList.add(...col.classes.split(" ")) : 0;
             }
-            const title = escapeHtml(col.title || col.id);
+            // Add tooltip to column title
             let tooltip = "";
             if (col.tooltip) {
                 tooltip = escapeTooltip(col.tooltip);
                 tooltip = ` title="${tooltip}"`;
             }
-            let resizer = "";
-            if (i < colCount - 1) {
-                resizer = '<span class="wb-col-resizer"></span>';
+            // Add column header icons
+            let addMarkup = "";
+            // NOTE: we use CSS float: right to align icons, so they must be added in
+            // reverse order
+            if (toBool(col.menu, this.options.columnsMenu, false)) {
+                const iconClass = "wb-col-icon-menu " + iconMap.colMenu;
+                const icon = `<i data-command=menu class="wb-col-icon ${iconClass}"></i>`;
+                addMarkup += icon;
             }
-            colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${resizer}`;
+            if (toBool(col.sortable, this.options.columnsSortable, false)) {
+                let iconClass = "wb-col-icon-sort " + iconMap.colSortable;
+                if (col.sortOrder) {
+                    iconClass += `wb-col-sort-${col.sortOrder}`;
+                    iconClass +=
+                        col.sortOrder === "asc" ? iconMap.colSortAsc : iconMap.colSortDesc;
+                }
+                const icon = `<i data-command=sort class="wb-col-icon ${iconClass}"></i>`;
+                addMarkup += icon;
+            }
+            if (toBool(col.filterable, this.options.columnsFilterable, false)) {
+                colElem.classList.toggle("wb-col-filter", !!col.filterActive);
+                let iconClass = "wb-col-icon-filter " + iconMap.colFilter;
+                if (col.filterActive) {
+                    iconClass += iconMap.colFilterActive;
+                }
+                const icon = `<i data-command=filter class="wb-col-icon ${iconClass}"></i>`;
+                addMarkup += icon;
+            }
+            // Add resizer to all but the last column
+            if (i < colCount - 1) {
+                if (toBool(col.resizable, this.options.columnsResizable, false)) {
+                    addMarkup +=
+                        '<span class="wb-col-resizer wb-col-resizer-active"></span>';
+                }
+                else {
+                    addMarkup += '<span class="wb-col-resizer"></span>';
+                }
+            }
+            // Create column header
+            const title = escapeHtml(col.title || col.id);
+            colElem.innerHTML = `<span class="wb-col-title"${tooltip}>${title}</span>${addMarkup}`;
+            // Highlight active column
             if (this.isCellNav()) {
                 colElem.classList.toggle("wb-active", i === this.activeColIdx);
             }
@@ -7514,6 +7829,7 @@ class Wunderbaum {
             // console.profileEnd(`_updateViewportImmediately()`)
         }
         if (this.options.connectTopBreadcrumb) {
+            assert(this.options.connectTopBreadcrumb.textContent != null, `Invalid 'connectTopBreadcrumb' option (input element expected).`);
             let path = (_a = this.getTopmostVpNode(true)) === null || _a === void 0 ? void 0 : _a.getPath(false, "title", " > ");
             path = path ? path + " >" : "";
             this.options.connectTopBreadcrumb.textContent = path;
@@ -7834,13 +8150,31 @@ class Wunderbaum {
      * FILTER
      * -------------------------------------------------------------------------*/
     /**
-     * Dim or hide nodes.
+     * Dim or hide unmatched nodes.
+     * @param filter a string to match against node titles, or a callback function.
+     * @param options filter options. Defaults to the `tree.options.filter` settings.
+     * @returns the number of nodes that match the filter.
+     * @example
+     * ```ts
+     * tree.filterNodes("foo", {mode: 'dim', fuzzy: true});
+     * // or pass a callback
+     * tree.filterNodes((node) => { return node.data.foo === true }, {mode: 'hide'});
+     * ```
      */
     filterNodes(filter, options) {
         return this.extensions.filter.filterNodes(filter, options);
     }
     /**
+     * Return the number of nodes that match the current filter.
+     * @see {@link Wunderbaum.filterNodes}
+     * @since 0.9.0
+     */
+    countMatches() {
+        return this.extensions.filter.countMatches();
+    }
+    /**
      * Dim or hide whole branches.
+     * @deprecated Use {@link filterNodes} instead and set `options.matchBranch: true`.
      */
     filterBranches(filter, options) {
         return this.extensions.filter.filterBranches(filter, options);
@@ -7866,7 +8200,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.8.2"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.11.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 

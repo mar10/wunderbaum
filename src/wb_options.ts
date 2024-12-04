@@ -1,11 +1,10 @@
 /*!
  * Wunderbaum - utils
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
 import {
-  WbCancelableEventResultType,
   ColumnDefinitionList,
   DndOptionsType,
   DynamicBoolOption,
@@ -21,12 +20,15 @@ import {
   NodeTypeDefinitionMap,
   SelectModeType,
   WbActivateEventType,
+  WbButtonClickEventType,
+  WbCancelableEventResultType,
   WbChangeEventType,
   WbClickEventType,
   WbDeactivateEventType,
   WbErrorEventType,
   WbExpandEventType,
   WbIconBadgeCallback,
+  WbIconBadgeEventResultType,
   WbInitEventType,
   WbKeydownEventType,
   WbNodeData,
@@ -35,7 +37,6 @@ import {
   WbRenderEventType,
   WbSelectEventType,
   WbTreeEventType,
-  WbIconBadgeEventResultType,
 } from "./types";
 
 /**
@@ -217,6 +218,30 @@ export interface WunderbaumOptions {
    * Default: false
    */
   fixedCol?: boolean;
+  /**
+   * Default value for ColumnDefinition.filterable option.
+   * Default: false
+   * @since 0.11.0
+   */
+  columnsFilterable?: boolean;
+  /**
+   * Default value for ColumnDefinition.menu option.
+   * Default: false
+   * @since 0.11.0
+   */
+  columnsMenu?: boolean;
+  /**
+   * Default value for ColumnDefinition.resizable option.
+   * Default: false
+   * @since 0.10.0
+   */
+  columnsResizable?: boolean;
+  /**
+   * Default value for ColumnDefinition.sortable option.
+   * Default: false
+   * @since 0.11.0
+   */
+  columnsSortable?: boolean;
 
   // --- Selection ---
   /**
@@ -266,11 +291,15 @@ export interface WunderbaumOptions {
    */
   beforeExpand?: (e: WbExpandEventType) => WbCancelableEventResultType;
   /**
-   *
    * Return `false` to prevent default handling, i.e. (de)selecting the node.
    * @category Callback
    */
   beforeSelect?: (e: WbSelectEventType) => WbCancelableEventResultType;
+  /**
+   * Return `false` to prevent default handling, i.e. (de)selecting the node.
+   * @category Callback
+   */
+  buttonClick?: (e: WbButtonClickEventType) => void;
   /**
    *
    * @category Callback

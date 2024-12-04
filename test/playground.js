@@ -25,38 +25,45 @@ const tree = new Wunderbaum({
   debugLevel: 4,
   // minExpandLevel: 1,
   emptyChildListExpandable: true,
+  // tooltip: (e) => {
+  //   return `${e.node.title} (${e.node.children?.length || 0})`;
+  // },
   // autoCollapse: true,
   header: true, //"Playground",
+  // iconMap: "fontawesome6",
   // navigationModeOption: "cell",
   // scrollIntoViewOnExpandClick: false,
   // showSpinner: true,
 
-  // columns: [
-  //   { title: "test", id: "*", width: "200px" },
-  //   // {
-  //   //   title: "Fav",
-  //   //   id: "favorite",
-  //   //   width: "30px",
-  //   //   classes: "wb-helper-center",
-  //   //   html: "<input type=checkbox tabindex='-1'>",
-  //   // },
-  //   {
-  //     title: "Details",
-  //     id: "details",
-  //     width: "100px",
-  //     html: "<input type=text tabindex='-1' autocomplete=off>",
-  //     headerClasses: "wb-helper-center",
-  //     // headerClasses: "",
-  //     classes: "wb-helper-end",
-  //   },
-  //   // { title: "Mode", id: "mode", width: "100px" },
-  //   {
-  //     title: "Date",
-  //     id: "date",
-  //     width: "100px",
-  //     html: "<input type=date tabindex='-1'>",
-  //   },
-  // ],
+  columns: [
+    { title: "test", id: "*", width: "200px" },
+    // {
+    //   title: "Fav",
+    //   id: "favorite",
+    //   width: "30px",
+    //   classes: "wb-helper-center",
+    //   html: "<input type=checkbox tabindex='-1'>",
+    // },
+    {
+      title: "Details",
+      id: "details",
+      width: "100px",
+      html: "<input type=text tabindex='-1' autocomplete=off>",
+      headerClasses: "wb-helper-center",
+      sortable: true,
+      filterable: true,
+      menu: true,
+      // headerClasses: "",
+      classes: "wb-helper-end",
+    },
+    // { title: "Mode", id: "mode", width: "100px" },
+    {
+      title: "Date",
+      id: "date",
+      width: "100px",
+      html: "<input type=date tabindex='-1'>",
+    },
+  ],
   types: {
     book: { icon: "bi bi-book", classes: "extra-book-class" },
     folder: {
@@ -64,15 +71,11 @@ const tree = new Wunderbaum({
       // checkbox: "radio",
     },
   },
-  // source: "generator/ajax_1k_3_54 t_c.json",
-  // source: "generator/fixture_department_1k_3_6_flat_comp.json",
-  source: "generator/fixture_department_1k_3_6_comp.json",
-  // source: "../docs/assets/ajax-tree-products.json",
+  columnsResizable: true,
+
+  source: "../docs/assets/json/ajax-tree-products.json",
   // source:
-  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_store_104k_3_7_flat_comp.json",
-  // source:
-  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/ajax_100k_3_1_6.json",
-  // source: "generator/fixture.json",
+  //   "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
   // source: {
   //   children: [
   //     { title: "a", type: "book", details: "A book", children: [] },
@@ -150,10 +153,13 @@ const tree = new Wunderbaum({
       }
     },
   },
+  filter: {
+    // mode: "hide",
+  },
   lazyLoad: (e) => {
-    // return {url: "../docs/assets/ajax-lazy-products.json"};
+    // return {url: "../docs/assets/json/ajax-lazy-products.json"};
     return util.setTimeoutPromise(() => {
-      return { url: "../docs/assets/ajax-lazy-products.json" };
+      return { url: "../docs/assets/json/ajax-lazy-products.json" };
     }, 1000);
   },
   activate: (e) => {
@@ -161,6 +167,23 @@ const tree = new Wunderbaum({
   },
   click: (e) => {
     tree.log(e.type, e);
+  },
+  buttonClick: (e) => {
+    tree.log(e.type, e);
+
+    if (e.command === "filter") {
+      // ... <open a filter dialog or toggle the filter mode> ...
+
+      // Update the button state
+      e.info.colDef.filterActive = !e.info.colDef.filterActive;
+      tree.update("colStructure");
+    }
+    if (e.command === "sort") {
+      e.tree.sortByProperty({ colId: e.info.colId, updateColInfo: true });
+    } else if (e.command === "menu") {
+      // eslint-disable-next-line no-alert
+      alert("Open menu...");
+    }
   },
   deactivate: (e) => {},
   discard: (e) => {},
@@ -230,11 +253,21 @@ const tree = new Wunderbaum({
   //   }
   // },
   init: (e) => {
-    e.tree.findFirst("Anthony Ross")?.setActive(true, {
-      colIdx: "*",
-      edit: true,
-      focusTree: true,
-    });
+    // e.tree.findFirst("Anthony Ross")?.setActive(true, {
+    //   colIdx: "*",
+    //   edit: true,
+    //   focusTree: true,
+    // });
+    // e.tree.findFirst("Observe")?.setTooltip("This is a tooltip");
+    // const res = e.tree.filterNodes(/^jo[eh]/i, {
+    //   mode: "hide",
+    //   hideExpanders: true,
+    //   // matchBranch: true,
+    //   // leavesOnly: true,
+    //   // fuzzy: true,
+    //   autoExpand: true,
+    // });
+    // e.tree.log("matches", e.tree.countMatches(), res);
   },
 });
 console.log(`Created  ${tree}`);

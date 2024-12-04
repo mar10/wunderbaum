@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - common
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -26,6 +26,8 @@ export const TITLE_SPAN_PAD_Y = 7;
 export const RENDER_MAX_PREFETCH = 5;
 /** Skip rendering new rows when we have at least N nodes rendeed above and below the viewport. */
 export const RENDER_MIN_PREFETCH = 5;
+/** Minimum column width if not set otherwise. */
+export const DEFAULT_MIN_COL_WIDTH = 4;
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
  */
@@ -62,6 +64,15 @@ export const iconMaps: { [key: string]: { [key: string]: string } } = {
     folderOpen: "bi bi-folder2-open",
     folderLazy: "bi bi-folder-symlink",
     doc: "bi bi-file-earmark",
+    colSortable: "bi bi-chevron-expand",
+    // colSortable: "bi bi-arrow-down-up",
+    // colSortAsc: "bi bi-chevron-down",
+    // colSortDesc: "bi bi-chevron-up",
+    colSortAsc: "bi bi-arrow-down",
+    colSortDesc: "bi bi-arrow-up",
+    colFilter: "bi bi-filter-circle",
+    colFilterActive: "bi bi-filter-circle-fill wb-helper-invalid",
+    colMenu: "bi bi-three-dots-vertical",
   },
   fontawesome6: {
     error: "fa-solid fa-triangle-exclamation",
@@ -80,6 +91,12 @@ export const iconMaps: { [key: string]: { [key: string]: string } } = {
     folderOpen: "fa-regular fa-folder-open",
     folderLazy: "fa-solid fa-folder-plus",
     doc: "fa-regular fa-file",
+    colSortable: "fa-solid fa-fw fa-sort",
+    colSortAsc: "fa-solid fa-fw fa-sort-up",
+    colSortDesc: "fa-solid fa-fw fa-sort-down",
+    colFilter: "fa-solid fa-fw fa-filter",
+    colFilterActive: "fa-solid fa-fw fa-filter wb-helper-invalid",
+    colMenu: "fa-solid fa-fw fa-ellipsis-v",
   },
 };
 
@@ -147,7 +164,7 @@ export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
 
 /** Return a callback that returns true if the node title matches the string
  * or regular expression.
- * @see {@link WunderbaumNode.findAll()}
+ * @see {@link WunderbaumNode.findAll}
  */
 export function makeNodeTitleMatcher(match: string | RegExp): MatcherCallback {
   if (match instanceof RegExp) {

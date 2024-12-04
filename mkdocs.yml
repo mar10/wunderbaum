@@ -1,0 +1,140 @@
+site_name: Wunderbaum
+site_url: https://mar10.github.io/wunderbaum/
+repo_url: https://github.com/mar10/wunderbaum
+
+# site_description: Set the site description. This will add a meta tag to the generated HTML header.
+
+site_author: Martin Wendt
+copyright: |
+  Copyright © 2021-2024 Martin Wendt, 
+  Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
+
+# remote_branch: gh-pages
+# remote_name: origin
+
+theme:
+  name: material
+  locale: en
+  include_sidebar: true
+  logo: assets/tree_logo_32.png
+  favicon: assets/favicon/favicon.ico
+  features:
+    - content.code.annotate
+    - content.code.copy
+
+    - header.autohide
+    
+    # - navigation.anchors
+    - navigation.bottom
+    - navigation.breadcrumbs
+    # - navigation.edit_url 
+    - navigation.expand
+    - navigation.footer
+    - navigation.indexes
+    # - navigation.meta
+    - navigation.path
+    - navigation.prev_next
+    # - navigation.scrollspy
+    # - navigation.search
+    - navigation.sections
+    - navigation.tabs
+    - navigation.tabs.sticky
+    # - navigation.toc
+    - navigation.top
+    - navigation.tracking 
+
+    - toc.follow 
+    # - toc.integrate 
+
+  palette:
+
+    # Palette toggle for automatic mode
+    - media: "(prefers-color-scheme)"
+      toggle:
+        icon: material/brightness-auto
+        name: Switch to light mode
+
+    # Palette toggle for light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default 
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  
+exclude_docs: |
+  .*
+  /templates/
+  /unittest/
+
+nav:
+  - "User Guide":
+      - index.md
+      - "Quick start": "tutorial/quick_start.md"
+      - "Initialization": "tutorial/tutorial_initialize.md"
+      - "Data Formats": "tutorial/tutorial_source.md"
+      - Features:
+          - "Render": "tutorial/tutorial_render.md"
+          - "Styling": "tutorial/tutorial_styling.md"
+          - "Grid": "tutorial/tutorial_grid.md"
+          - "Edit": "tutorial/tutorial_edit.md"
+          - "Drag'n'Drop": "tutorial/tutorial_dnd.md"
+          - "Select": "tutorial/tutorial_select.md"
+          - "Events": "tutorial/tutorial_events.md"
+          - "Filter": "tutorial/tutorial_filter.md"
+          - "Keyboard": "tutorial/tutorial_keyboard.md"
+          - "API": "tutorial/tutorial_api.md"
+      - "Concepts": "tutorial/concepts.md"
+      - "Migration": "tutorial/migrate.md"
+      - "Contribute": "tutorial/contribute.md"
+
+  - "API Reference": "https://mar10.github.io/wunderbaum/api/index.html"
+  - "Online Demos": "https://mar10.github.io/wunderbaum/demo/"
+  - "Changelog": "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md"
+
+# not_in_nav: |
+#   /private.md
+
+validation:
+  omitted_files: warn
+  absolute_links: warn # Or 'relative_to_docs' 
+  unrecognized_links: warn
+  anchors: warn 
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      use_pygments: true
+      # auto_title: true
+      # linenums: true
+      pygments_lang_class: true
+  - pymdownx.magiclink
+
+  - toc:
+      permalink: "#"
+      # baselevel: 2
+      # separator: "_"
+
+plugins:
+  - search
+  # - sitemap
+
+extra:
+  generator: false  # Added to Copyright instead
+  analytics:
+    provider: google
+    property: G-W8EGCZFQ00

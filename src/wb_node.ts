@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - wunderbaum_node
- * Copyright (c) 2021-2023, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -9,44 +9,49 @@ import * as util from "./util";
 import { Wunderbaum } from "./wunderbaum";
 import {
   AddChildrenOptions,
-  InsertNodeType,
   ApplyCommandOptions,
   ApplyCommandType,
   ChangeType,
+  CheckboxOption,
+  ColumnDefinition,
   ColumnEventInfoMap,
   ExpandAllOptions,
+  IconOption,
+  InsertNodeType,
   MakeVisibleOptions,
   MatcherCallback,
   NavigateOptions,
   NodeAnyCallback,
   NodeStatusType,
   NodeStringCallback,
+  NodeToDictCallback,
   NodeVisitCallback,
   NodeVisitResponse,
   RenderOptions,
+  ResetOrderOptions,
   ScrollIntoViewOptions,
   SetActiveOptions,
   SetExpandedOptions,
   SetSelectedOptions,
   SetStatusOptions,
+  SortByPropertyOptions,
   SortCallback,
-  NodeToDictCallback,
-  WbNodeData,
-  TristateType,
-  CheckboxOption,
-  IconOption,
+  SortOrderType,
   SourceType,
+  TooltipOption,
+  TristateType,
+  WbNodeData,
 } from "./types";
 
 import {
+  decompressSourceData,
   ICON_WIDTH,
   KEY_TO_ACTION_DICT,
   makeNodeTitleMatcher,
-  RESERVED_TREE_SOURCE_KEYS,
-  TITLE_SPAN_PAD_Y,
-  TEST_IMG,
-  decompressSourceData,
   nodeTitleSorter,
+  RESERVED_TREE_SOURCE_KEYS,
+  TEST_IMG,
+  TITLE_SPAN_PAD_Y,
 } from "./common";
 import { Deferred } from "./deferred";
 
@@ -77,6 +82,21 @@ const NODE_DICT_PROPS = new Set<string>(NODE_PROPS);
 NODE_DICT_PROPS.delete("_partsel");
 NODE_DICT_PROPS.delete("unselectable");
 
+// /** Node properties that are of type bool (or boolean & string).
+//  *  When parsing, we accept 0 for false and 1 for true for better JSON compression.
+//  */
+// export const NODE_BOOL_PROPS: Set<string> = new Set([
+//   "checkbox",
+//   "colspan",
+//   "expanded",
+//   "icon",
+//   "iconTooltip",
+//   "radiogroup",
+//   "selected",
+//   "tooltip",
+//   "unselectable",
+// ]);
+
 /**
  * A single tree node.
  *
@@ -102,12 +122,26 @@ export class WunderbaumNode {
    * @see Use {@link setKey} to modify.
    */
   public readonly refKey: string | undefined = undefined;
+  /**
+   * Array of child nodes (null for leaf nodes).
+   * For lazy nodes, this is `null` or ùndefined` until the children are loaded
+   * and leaf nodes may be `[]` (empty array).
+   * @see {@link hasChildren}, {@link addChildren}, {@link lazy}.
+   */
   public children: WunderbaumNode[] | null = null;
+  /** Render a checkbox or radio button @see {@link selected}. */
   public checkbox?: CheckboxOption;
+  /** If true, this node's children are considerd radio buttons.
+   * @see {@link isRadio}.
+   */
   public radiogroup?: boolean;
   /** If true, (in grid mode) no cells are rendered, except for the node title.*/
   public colspan?: boolean;
+  /** Icon definition. */
   public icon?: IconOption;
+  /** Lazy loading flag.
+   * @see {@link isLazy}, {@link isLoaded}, {@link isUnloaded}.
+   */
   public lazy?: boolean;
   /** Expansion state.
    * @see {@link isExpandable}, {@link isExpanded}, {@link setExpanded}. */
@@ -116,8 +150,14 @@ export class WunderbaumNode {
    * @see {@link isSelected}, {@link setSelected}, {@link toggleSelected}. */
   public selected?: boolean;
   public unselectable?: boolean;
+  /** Node type (used for styling).
+   * @see {@link Wunderbaum.types}.
+   */
   public type?: string;
-  public tooltip?: string | boolean;
+  /** Tooltip definition (`true`: use node's title). */
+  public tooltip?: TooltipOption;
+  /** Icon tooltip definition (`true`: use node's title). */
+  public iconTooltip?: TooltipOption;
   /** Additional classes added to `div.wb-row`.
    * @see {@link hasClass}, {@link setClass}. */
   public classes: Set<string> | null = null; //new Set<string>();
@@ -147,24 +187,30 @@ export class WunderbaumNode {
 
     this.tree = tree;
     this.parent = parent;
-
     this.key = "" + (data.key ?? ++WunderbaumNode.sequence);
     this.title = "" + (data.title ?? "<" + this.key + ">");
+    this.expanded = !!data.expanded;
+    this.lazy = !!data.lazy;
+
+    // We set the following node properties only if a matching data value is
+    // passed
     data.refKey != null ? (this.refKey = "" + data.refKey) : 0;
     data.type != null ? (this.type = "" + data.type) : 0;
-    this.expanded = data.expanded === true;
-    data.icon != null ? (this.icon = data.icon) : 0;
-    this.lazy = data.lazy === true;
+    data.icon != null ? (this.icon = util.intToBool(data.icon)) : 0;
+    data.tooltip != null ? (this.tooltip = util.intToBool(data.tooltip)) : 0;
+    data.iconTooltip != null
+      ? (this.iconTooltip = util.intToBool(data.iconTooltip))
+      : 0;
     data.statusNodeType != null
       ? (this.statusNodeType = ("" + data.statusNodeType) as NodeStatusType)
       : 0;
     data.colspan != null ? (this.colspan = !!data.colspan) : 0;
 
     // Selection
-    data.checkbox != null ? (this.checkbox = !!data.checkbox) : 0;
+    data.checkbox != null ? util.intToBool(data.checkbox) : 0;
     data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
-    this.selected = data.selected === true;
-    data.unselectable === true ? (this.unselectable = true) : 0;
+    data.selected != null ? (this.selected = !!data.selected) : 0;
+    data.unselectable != null ? (this.unselectable = !!data.unselectable) : 0;
 
     if (data.classes) {
       this.setClass(data.classes);
@@ -244,7 +290,7 @@ export class WunderbaumNode {
    * ```
    */
   _callEvent(type: string, extra?: any): any {
-    return this.tree._callEvent(
+    return this.tree?._callEvent(
       type,
       util.extend(
         {
@@ -725,13 +771,13 @@ export class WunderbaumNode {
   }
   /** Return a string representing the hierachical node path, e.g. "a/b/c".
    * @param includeSelf
-   * @param node property name or callback
+   * @param part property name or callback
    * @param separator
    */
   getPath(
-    includeSelf = true,
+    includeSelf: boolean = true,
     part: keyof WunderbaumNode | NodeAnyCallback = "title",
-    separator = "/"
+    separator: string = "/"
   ) {
     // includeSelf = includeSelf !== false;
     // part = part || "title";
@@ -783,6 +829,11 @@ export class WunderbaumNode {
   /** Return true if node has className set. */
   hasClass(className: string): boolean {
     return this.classes ? this.classes.has(className) : false;
+  }
+
+  /** Return true if node ist the currently focused node. @since 0.9.0 */
+  hasFocus(): boolean {
+    return this.tree.focusNode === this;
   }
 
   /** Return true if this node is the currently active tree node. */
@@ -856,7 +907,7 @@ export class WunderbaumNode {
 
   /** Return true if _this_ node is currently in edit-title mode.
    *
-   * See {@link Wunderbaum.startEditTitle} to check if any node is currently edited.
+   * See {@link WunderbaumNode.startEditTitle}.
    */
   isEditingTitle(): boolean {
     return this.tree._callMethod("edit.isEditingTitle", this);
@@ -1047,6 +1098,8 @@ export class WunderbaumNode {
     if (tree.options.selectMode === "hier") {
       this.fixSelection3FromEndNodes();
     }
+    // Allow to un-sort nodes after sorting
+    this.resetNativeChildOrder();
 
     this._callEvent("load");
   }
@@ -1109,9 +1162,9 @@ export class WunderbaumNode {
     // Check for overlapping requests
     if (this._requestId) {
       this.logWarn(
-        `Recursive load request #${requestId} while #${this._requestId} is pending.`
+        `Recursive load request #${requestId} while #${this._requestId} is pending. ` +
+          "The previous request will be ignored."
       );
-      // 	node.debug("Send load request #" + requestId);
     }
     this._requestId = requestId;
 
@@ -1791,6 +1844,11 @@ export class WunderbaumNode {
     } else {
       titleSpan.textContent = this.title; // TODO: this triggers scroll events
     }
+    const tooltip = this.getOption("tooltip", false);
+    if (tooltip) {
+      titleSpan.title = tooltip === true ? this.title : tooltip;
+    }
+
     // NOTE: At least on Safari, this render call triggers a scroll event
     // probably when a focused input is replaced.
     if (preventScroll) {
@@ -2011,8 +2069,8 @@ export class WunderbaumNode {
    *
    * The result is compatible with node.addChildren().
    *
-   * @param include child nodes
-   * @param callback(dict, node) is called for every node, in order to allow
+   * @param recursive include child nodes
+   * @param callback is called for every node, in order to allow
    *     modifications.
    *     Return `false` to ignore this node or `"skip"` to include this node
    *     without its children.
@@ -2080,7 +2138,7 @@ export class WunderbaumNode {
    *
    * @param name name of the option property (on node and tree)
    * @param defaultValue return this if nothing else matched
-   * {@link Wunderbaum.getOption|Wunderbaum.getOption()}
+   * {@link Wunderbaum.getOption|Wunderbaum.getOption}
    */
   getOption(name: string, defaultValue?: any) {
     const tree = this.tree;
@@ -2119,7 +2177,7 @@ export class WunderbaumNode {
   }
 
   /** Make sure that this node is visible in the viewport.
-   * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo()}
+   * @see {@link Wunderbaum.scrollTo|Wunderbaum.scrollTo}
    */
   async scrollIntoView(options?: ScrollIntoViewOptions) {
     const opts = Object.assign({ node: this }, options);
@@ -2273,9 +2331,9 @@ export class WunderbaumNode {
    * and column content. It can be reduced to 'ChangeType.status' if only
    * active/focus/selected state has changed.
    *
-   * This method will eventually call  {@link WunderbaumNode._render()} with
+   * This method will eventually call  {@link WunderbaumNode._render} with
    * default options, but may be more consistent with the tree's
-   * {@link Wunderbaum.update()} API.
+   * {@link Wunderbaum.update} API.
    */
   update(change: ChangeType = ChangeType.data) {
     util.assert(
@@ -2621,6 +2679,12 @@ export class WunderbaumNode {
     // this.triggerModify("rename"); // TODO
   }
 
+  /** Set the node tooltip. */
+  setTooltip(tooltip: TooltipOption): void {
+    this.tooltip = tooltip;
+    this.update();
+  }
+
   _sortChildren(cmp: SortCallback, deep: boolean): void {
     const cl = this.children;
 
@@ -2650,6 +2714,106 @@ export class WunderbaumNode {
     this._sortChildren(cmp || nodeTitleSorter, deep);
     this.tree.update(ChangeType.structure);
     // this.triggerModify("sort"); // TODO
+  }
+
+  /**
+   * Renumber nodes `_nativeIndex`. This is useful to allow to restore the
+   * order after sorting a column.
+   * This method is automatically called after loading new child nodes.
+   * @since 0.11.0
+   */
+  resetNativeChildOrder(options?: ResetOrderOptions) {
+    const { recursive = true, propName = "_nativeIndex" } = options ?? {};
+
+    if (this.children) {
+      this.children.forEach((child, i) => {
+        child.data[propName] = i;
+        if (recursive && child.children) {
+          child.resetNativeChildOrder(options);
+        }
+      });
+    }
+  }
+
+  /**
+   * Convenience method to implement column sorting.
+   * @since 0.11.0
+   */
+  sortByProperty(options: SortByPropertyOptions) {
+    const {
+      caseInsensitive = true,
+      deep = true,
+      nativeOrderPropName = "_nativeIndex",
+      updateColInfo = false,
+    } = options;
+
+    let order: SortOrderType;
+    let colDef: ColumnDefinition | null;
+
+    if (updateColInfo) {
+      colDef = this.tree["_columnsById"][options.colId!];
+      util.assert(colDef, `Invalid colId specified: ${options.colId}`);
+      order =
+        options.order ??
+        util.rotate(colDef!.sortOrder, ["asc", "desc", undefined]);
+
+      for (const col of this.tree.columns) {
+        col.sortOrder = col === colDef ? order : undefined;
+      }
+
+      this.tree.update(ChangeType.colStructure);
+    } else {
+      order = options.order ?? "asc";
+    }
+
+    let propName = options.propName ?? (options.colId || "");
+    if (propName === "*") {
+      propName = "title";
+    }
+    if (order == null) {
+      propName = nativeOrderPropName;
+      order = "asc";
+    }
+    this.logDebug(`sortByProperty(), propName=${propName}, ${order}`, options);
+    util.assert(propName, "No property name specified");
+
+    const cmp = (a: WunderbaumNode, b: WunderbaumNode) => {
+      let av, bv;
+      if (NODE_DICT_PROPS.has(<string>propName)) {
+        av = a[propName as keyof WunderbaumNode];
+        bv = b[propName as keyof WunderbaumNode];
+      } else {
+        av = a.data[propName];
+        bv = b.data[propName];
+      }
+      if (av == null && bv == null) {
+        return 0;
+      }
+      if (av == null) {
+        av = typeof bv === "string" ? "" : 0;
+      } else if (typeof av === "boolean") {
+        av = av ? 1 : 0;
+      }
+      if (bv == null) {
+        bv = typeof av === "string" ? "" : 0;
+      } else if (typeof bv === "boolean") {
+        bv = bv ? 1 : 0;
+      }
+      if (caseInsensitive) {
+        if (typeof av === "string") {
+          av = av.toLowerCase();
+        }
+        if (typeof bv === "string") {
+          bv = bv.toLowerCase();
+        }
+      }
+      if (order === "desc") {
+        return av === bv ? 0 : av > bv ? -1 : 1;
+      }
+      return av === bv ? 0 : av > bv ? 1 : -1;
+    };
+
+    return this.sortChildren(cmp, deep);
   }
 
   /**
@@ -2750,8 +2914,9 @@ export class WunderbaumNode {
    * Stop iteration, if fn() returns false.<br>
    * Return false if iteration was stopped.
    *
-   * @param {function} fn the callback function.
+   * @param callback the callback function.
    *     Return false to stop iteration.
+   * @param includeSelf include this node in the iteration.
    */
   visitSiblings(
     callback: (node: WunderbaumNode) => boolean | void,
