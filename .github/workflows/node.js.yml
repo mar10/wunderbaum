@@ -15,16 +15,19 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-      - name: Use Node.js
+      - name: Enable Corepack
+        run: corepack enable
+      - name: Use Node.js 22.x
         uses: actions/setup-node@v4
         with:
           node-version: "22.x"
-      # - run: npm ci
-      # - run: yarn --frozen-lockfile
-      # - run: npm install
-      # - run: npm install -g grunt-cli
-      # - run: npm run build --if-present
-      # - run: npm run test
-      - run: yarn install
+          cache: "yarn"
+      - name: Install dependencies
+        run: yarn install --immutable
       - run: yarn install grunt-cli
-      - run: yarn test
+      - name: Run lint
+        run: yarn lint
+      - name: Run tests
+        run: yarn test
+    # - name: Run build
+    #   run: yarn build
