@@ -23,7 +23,8 @@ jobs:
           node-version: "22.x"
           cache: "yarn"
       - name: Install dependencies
-        run: yarn install --immutable
+        run: yarn install
+        # run: yarn install --immutable
       - run: yarn install grunt-cli
       - name: Run lint
         run: yarn lint
