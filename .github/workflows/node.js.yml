@@ -25,7 +25,7 @@ jobs:
       - name: Install dependencies
         run: yarn install
         # run: yarn install --immutable
-      - run: yarn install grunt-cli
+      - run: yarn add grunt-cli
       - name: Run lint
         run: yarn lint
       - name: Run tests
