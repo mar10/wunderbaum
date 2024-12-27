@@ -293,7 +293,7 @@ declare module "util" {
      */
     export function extend(...args: any[]): any;
     /** Return true if `obj` is of type `array`. */
-    export function isArray(obj: any): boolean;
+    export function isArray(obj: any): obj is any[];
     /** Return true if `obj` is of type `Object` and has no properties. */
     export function isEmptyObject(obj: any): boolean;
     /** Return true if `obj` is of type `function`. */
@@ -396,6 +396,13 @@ declare module "util" {
      * ```
      */
     export function toBool(...boolDefaults: (boolean | undefined | null)[]): boolean;
+    /**
+     * Return `val` unless `val` is a number in which case we convert to boolean.
+     * This is useful when a boolean value is stored as a 0/1 (e.g. in JSON) and
+     * we still want to maintain string values. null and undefined are returned as
+     * is. E.g. `checkbox` may be boolean or 'radio'.
+     */
+    export function intToBool(val: boolean | number | string | undefined): boolean | string | undefined;
     /** Return a canonical string representation for an object's type (e.g. 'array', 'number', ...). */
     export function type(obj: any): string;
     /**
@@ -424,7 +431,7 @@ declare module "common" {
     /**
      * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
      */
-    export const ROW_HEIGHT = 22;
+    export const DEFAULT_ROW_HEIGHT = 22;
     /**
      * Fixed width of node icons in pixel. Must match the SCSS variable `$icon-outer-width`.
      */
@@ -588,7 +595,9 @@ declare module "wb_node" {
          */
         type?: string;
         /** Tooltip definition (`true`: use node's title). */
-        tooltip?: string | boolean;
+        tooltip?: TooltipOption;
+        /** Icon tooltip definition (`true`: use node's title). */
+        iconTooltip?: TooltipOption;
         /** Additional classes added to `div.wb-row`.
          * @see {@link hasClass}, {@link setClass}. */
         classes: Set<string> | null;
@@ -1552,7 +1561,7 @@ declare module "types" {
         colspan?: boolean;
         expanded?: boolean;
         icon?: IconOption;
-        iconTooltip?: boolean | string;
+        iconTooltip?: TooltipOption;
         key?: string;
         lazy?: boolean;
         /** Make child nodes single-select radio buttons. */
@@ -1561,7 +1570,7 @@ declare module "types" {
         selected?: boolean;
         statusNodeType?: NodeStatusType;
         title: string;
-        tooltip?: boolean | string;
+        tooltip?: TooltipOption;
         type?: string;
         unselectable?: boolean;
         /** @internal */
@@ -1737,8 +1746,8 @@ declare module "types" {
         colspan?: boolean;
         /** Default icon for matching nodes. */
         icon?: IconOption;
-        /** Default icon for matching nodes. */
-        iconTooltip?: string | boolean;
+        /** Default icon tooltip for matching nodes. */
+        iconTooltip?: TooltipOption;
         [key: string]: unknown;
     }
     export type NodeTypeDefinitionMap = {

@@ -288,7 +288,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -980,6 +980,15 @@ function toBool(...boolDefaults) {
     }
     throw new Error("No default boolean value provided");
 }
+/**
+ * Return `val` unless `val` is a number in which case we convert to boolean.
+ * This is useful when a boolean value is stored as a 0/1 (e.g. in JSON) and
+ * we still want to maintain string values. null and undefined are returned as
+ * is. E.g. `checkbox` may be boolean or 'radio'.
+ */
+function intToBool(val) {
+    return typeof val === "number" ? !!val : val;
+}
 // /** Check if a string is contained in an Array or Set. */
 // export function isAnyOf(s: string, items: Array<string>|Set<string>): boolean {
 //   return Array.prototype.includes.call(items, s)
@@ -1108,6 +1117,7 @@ var util = /*#__PURE__*/Object.freeze({
     extractHtmlText: extractHtmlText,
     getOption: getOption,
     getValueFromElem: getValueFromElem,
+    intToBool: intToBool,
     isArray: isArray,
     isEmptyObject: isEmptyObject,
     isFunction: isFunction,
@@ -1132,7 +1142,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
@@ -1196,7 +1206,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1255,7 +1265,7 @@ class WunderbaumExtension {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1580,7 +1590,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1944,7 +1954,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1984,15 +1994,614 @@ class LoggerExtension extends WunderbaumExtension {
 }
 
 /*!
+ * Wunderbaum - ext-dnd
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ */
+const nodeMimeType = "application/x-wunderbaum-node";
+class DndExtension extends WunderbaumExtension {
+    constructor(tree) {
+        super(tree, "dnd", {
+            autoExpandMS: 1500, // Expand nodes after n milliseconds of hovering
+            // dropMarkerInsertOffsetX: -16, // Additional offset for drop-marker with hitMode = "before"/"after"
+            // dropMarkerOffsetX: -24, // Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
+            // #1021 `document.body` is not available yet
+            // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
+            multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
+            effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
+            dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (override in drag, dragOver).
+            guessDropEffect: true, // Calculate from `effectAllowed` and modifier keys)
+            preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
+            preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes
+            preventNonNodes: false, // Prevent dropping items other than Wunderbaum tree nodes
+            preventRecursion: true, // Prevent dropping nodes on own descendants
+            preventSameParent: false, // Prevent dropping nodes under same direct parent
+            preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
+            serializeClipboardData: true, // Serialize node data to dataTransfer object
+            scroll: true, // Enable auto-scrolling while dragging
+            scrollSensitivity: 20, // Active top/bottom margin in pixel
+            // scrollnterval: 50, // Generate event every 50 ms
+            scrollSpeed: 5, // Scroll pixel per 50 ms
+            // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
+            sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
+            // Events (drag support)
+            dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
+            drag: null, // Callback(sourceNode, data)
+            dragEnd: null, // Callback(sourceNode, data)
+            // Events (drop support)
+            dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
+            dragOver: null, // Callback(targetNode, data)
+            dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
+            drop: null, // Callback(targetNode, data)
+            dragLeave: null, // Callback(targetNode, data)
+        });
+        // public dropMarkerElem?: HTMLElement;
+        this.srcNode = null;
+        this.lastTargetNode = null;
+        this.lastEnterStamp = 0;
+        this.lastAllowedDropRegions = null;
+        this.lastDropEffect = null;
+        this.lastDropRegion = false;
+        this.currentScrollDir = 0;
+        this.applyScrollDirThrottled = throttle(this._applyScrollDir, 50);
+    }
+    init() {
+        super.init();
+        // Store the current scroll parent, which may be the tree
+        // container, any enclosing div, or the document.
+        // #761: scrollParent() always needs a container child
+        // $temp = $("<span>").appendTo(this.$container);
+        // this.$scrollParent = $temp.scrollParent();
+        // $temp.remove();
+        const tree = this.tree;
+        const dndOpts = tree.options.dnd;
+        // Enable drag support if dragStart() is specified:
+        if (dndOpts.dragStart) {
+            onEvent(tree.element, "dragstart drag dragend", this.onDragEvent.bind(this));
+        }
+        // Enable drop support if dragEnter() is specified:
+        if (dndOpts.dragEnter) {
+            onEvent(tree.element, "dragenter dragover dragleave drop", this.onDropEvent.bind(this));
+        }
+    }
+    /** Cleanup classes after target node is no longer hovered. */
+    _leaveNode() {
+        // We remove the marker on dragenter from the previous target:
+        const ltn = this.lastTargetNode;
+        this.lastEnterStamp = 0;
+        if (ltn) {
+            ltn.setClass("wb-drop-target wb-drop-over wb-drop-after wb-drop-before", false);
+            this.lastTargetNode = null;
+        }
+    }
+    /** */
+    unifyDragover(res) {
+        if (res === false) {
+            return false;
+        }
+        else if (res instanceof Set) {
+            return res.size > 0 ? res : false;
+        }
+        else if (res === true) {
+            return new Set(["over", "before", "after"]);
+        }
+        else if (typeof res === "string" || isArray(res)) {
+            res = toSet(res);
+            return res.size > 0 ? res : false;
+        }
+        throw new Error("Unsupported drop region definition: " + res);
+    }
+    /**
+     * Calculates the drop region based on the drag event and the allowed drop regions.
+     */
+    _calcDropRegion(e, allowed) {
+        const rowHeight = this.tree.options.rowHeightPx;
+        const dy = e.offsetY;
+        if (!allowed) {
+            return false;
+        }
+        else if (allowed.size === 3) {
+            return dy < 0.25 * rowHeight
+                ? "before"
+                : dy > 0.75 * rowHeight
+                    ? "after"
+                    : "over";
+        }
+        else if (allowed.size === 1 && allowed.has("over")) {
+            return "over";
+        }
+        else {
+            // Only 'before' and 'after':
+            return dy > rowHeight / 2 ? "after" : "before";
+        }
+        // return "over";
+    }
+    /**
+     * Guess drop effect (copy/link/move) using opinionated conventions.
+     *
+     * Default: dnd.dropEffectDefault
+     */
+    _guessDropEffect(e) {
+        // const nativeDropEffect = e.dataTransfer?.dropEffect;
+        var _a;
+        // if (nativeDropEffect && nativeDropEffect !== "none") {
+        //   return nativeDropEffect;
+        // }
+        const dndOpts = this.treeOpts.dnd;
+        const ea = (_a = dndOpts.effectAllowed) !== null && _a !== void 0 ? _a : "all";
+        const canCopy = ["all", "copy", "copyLink", "copyMove"].includes(ea);
+        const canLink = ["all", "link", "copyLink", "linkMove"].includes(ea);
+        const canMove = ["all", "move", "copyMove", "linkMove"].includes(ea);
+        let res = dndOpts.dropEffectDefault;
+        if (dndOpts.guessDropEffect) {
+            if (isMac) {
+                if (e.altKey && canCopy) {
+                    res = "copy";
+                }
+                if (e.metaKey && canMove) {
+                    res = "move"; // command key
+                }
+                if (e.altKey && e.metaKey && canLink) {
+                    res = "link";
+                }
+            }
+            else {
+                if (e.ctrlKey && canCopy) {
+                    res = "copy";
+                }
+                if (e.shiftKey && canMove) {
+                    res = "move";
+                }
+                if (e.altKey && canLink) {
+                    res = "link";
+                }
+            }
+        }
+        return res;
+    }
+    /** Don't allow void operation ('drop on self').*/
+    _isVoidDrop(targetNode, srcNode, dropRegion) {
+        // this.tree.logDebug(
+        //   `_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`
+        // );
+        // TODO: should be checked on  move only
+        if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
+            return false;
+        }
+        if ((dropRegion === "before" && targetNode === srcNode.getNextSibling()) ||
+            (dropRegion === "after" && targetNode === srcNode.getPrevSibling())) {
+            // this.tree.logDebug("Prevented before/after self");
+            return true;
+        }
+        // Don't allow dropping nodes on own parent (or self)
+        return srcNode === targetNode || srcNode.parent === targetNode;
+    }
+    /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
+    _applyScrollDir() {
+        if (this.isDragging() && this.currentScrollDir) {
+            const dndOpts = this.tree.options.dnd;
+            const sp = this.tree.element; // scroll parent
+            const scrollTop = sp.scrollTop;
+            if (this.currentScrollDir < 0) {
+                sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+            }
+            else if (this.currentScrollDir > 0) {
+                sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
+            }
+        }
+    }
+    /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
+    _autoScroll(viewportY) {
+        const tree = this.tree;
+        const dndOpts = tree.options.dnd;
+        const sensitivity = dndOpts.scrollSensitivity;
+        const sp = tree.element; // scroll parent
+        const headerHeight = tree.headerElement.clientHeight; // May be 0
+        // const height = sp.clientHeight - headerHeight;
+        // const height = sp.offsetHeight + headerHeight;
+        const height = sp.offsetHeight;
+        const scrollTop = sp.scrollTop;
+        // tree.logDebug(
+        //   `autoScroll: height=${height}, scrollTop=${scrollTop}, viewportY=${viewportY}`
+        // );
+        this.currentScrollDir = 0;
+        if (scrollTop > 0 &&
+            viewportY > 0 &&
+            viewportY <= sensitivity + headerHeight) {
+            // Mouse in top 20px area: scroll up
+            // sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
+            this.currentScrollDir = -1;
+        }
+        else if (scrollTop < sp.scrollHeight - height &&
+            viewportY >= height - sensitivity) {
+            // Mouse in bottom 20px area: scroll down
+            // sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
+            this.currentScrollDir = +1;
+        }
+        if (this.currentScrollDir) {
+            this.applyScrollDirThrottled();
+        }
+        return sp.scrollTop - scrollTop;
+    }
+    /** Return true if a drag operation currently in progress. */
+    isDragging() {
+        return !!this.srcNode;
+    }
+    /**
+     * Handle dragstart, drag and dragend events for the source node.
+     */
+    onDragEvent(e) {
+        var _a;
+        // const tree = this.tree;
+        const dndOpts = this.treeOpts.dnd;
+        const srcNode = Wunderbaum.getNode(e);
+        if (!srcNode) {
+            this.tree.logWarn(`onDragEvent.${e.type}: no node`);
+            return;
+        }
+        if (["dragstart", "dragend"].includes(e.type)) {
+            this.tree.logDebug(`onDragEvent.${e.type} srcNode: ${srcNode}`, e);
+        }
+        // --- dragstart ---
+        if (e.type === "dragstart") {
+            // Set a default definition of allowed effects
+            e.dataTransfer.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
+            if (srcNode.isEditingTitle()) {
+                srcNode.logDebug("Prevented dragging node in edit mode.");
+                e.preventDefault();
+                return false;
+            }
+            // Let user cancel the drag operation, override effectAllowed, etc.:
+            const res = srcNode._callEvent("dnd.dragStart", { event: e });
+            if (!res) {
+                e.preventDefault();
+                return false;
+            }
+            const nodeData = srcNode.toDict(true, (n) => {
+                // We don't want to re-use the key on drop:
+                n._orgKey = n.key;
+                delete n.key;
+            });
+            nodeData._treeId = srcNode.tree.id;
+            if (dndOpts.serializeClipboardData) {
+                if (typeof dndOpts.serializeClipboardData === "function") {
+                    e.dataTransfer.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData, srcNode));
+                }
+                else {
+                    e.dataTransfer.setData(nodeMimeType, JSON.stringify(nodeData));
+                }
+            }
+            // e.dataTransfer!.setData("text/html", $(node.span).html());
+            if (!((_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.types.includes("text/plain"))) {
+                e.dataTransfer.setData("text/plain", srcNode.title);
+            }
+            this.srcNode = srcNode;
+            setTimeout(() => {
+                // Decouple this call, so the CSS is applied to the node, but not to
+                // the system generated drag image
+                srcNode.setClass("wb-drag-source");
+            }, 0);
+            // --- drag ---
+        }
+        else if (e.type === "drag") {
+            if (dndOpts.drag) {
+                srcNode._callEvent("dnd.drag", { event: e });
+            }
+            // --- dragend ---
+        }
+        else if (e.type === "dragend") {
+            srcNode.setClass("wb-drag-source", false);
+            this.srcNode = null;
+            if (this.lastTargetNode) {
+                this._leaveNode();
+            }
+            srcNode._callEvent("dnd.dragEnd", { event: e });
+        }
+        return true;
+    }
+    /**
+     * Handle dragenter, dragover, dragleave, drop events.
+     */
+    onDropEvent(e) {
+        var _a;
+        // const isLink = event.dataTransfer.types.includes("text/uri-list");
+        const srcNode = this.srcNode;
+        const srcTree = srcNode ? srcNode.tree : null;
+        const targetNode = Wunderbaum.getNode(e);
+        const dndOpts = this.treeOpts.dnd;
+        const dt = e.dataTransfer;
+        const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
+        /** Helper to log a message if predicate is false. */
+        const _t = (pred, msg) => {
+            if (pred) {
+                this.tree.log(`Prevented drop operation (${msg}).`);
+            }
+            return pred;
+        };
+        if (!targetNode) {
+            this._leaveNode();
+            return;
+        }
+        if (["drop"].includes(e.type)) {
+            this.tree.logDebug(`onDropEvent.${e.type} targetNode: ${targetNode}, ea: ${dt === null || dt === void 0 ? void 0 : dt.effectAllowed}, ` +
+                `de: ${dt === null || dt === void 0 ? void 0 : dt.dropEffect}, cy: ${e.offsetY}, r: ${dropRegion}, srcNode: ${srcNode}`, e);
+        }
+        // --- dragenter ---
+        if (e.type === "dragenter") {
+            // this.tree.logWarn(` onDropEvent.${e.type} targetNode: ${targetNode}`, e);
+            this.lastAllowedDropRegions = null;
+            // `dragleave` is not reliable with event delegation, so we generate it
+            // from dragenter:
+            if (this.lastTargetNode && this.lastTargetNode !== targetNode) {
+                this._leaveNode();
+            }
+            this.lastTargetNode = targetNode;
+            this.lastEnterStamp = Date.now();
+            if (
+            // Don't drop on status node:
+            _t(targetNode.isStatusNode(), "is status node") ||
+                // Prevent dropping nodes from different Wunderbaum trees:
+                _t(dndOpts.preventForeignNodes && targetNode.tree !== srcTree, "preventForeignNodes") ||
+                // Prevent dropping items on unloaded lazy Wunderbaum tree nodes:
+                _t(dndOpts.preventLazyParents && !targetNode.isLoaded(), "preventLazyParents") ||
+                // Prevent dropping items other than Wunderbaum tree nodes:
+                _t(dndOpts.preventNonNodes && !srcNode, "preventNonNodes") ||
+                // Prevent dropping nodes on own descendants:
+                _t(dndOpts.preventRecursion && (srcNode === null || srcNode === void 0 ? void 0 : srcNode.isAncestorOf(targetNode)), "preventRecursion") ||
+                // Prevent dropping nodes under same direct parent:
+                _t(dndOpts.preventSameParent &&
+                    srcNode &&
+                    targetNode.parent === srcNode.parent, "preventSameParent") ||
+                // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
+                _t(dndOpts.preventVoidMoves && targetNode === srcNode, "preventVoidMoves")) {
+                dt.dropEffect = "none";
+                // this.tree.log("Prevented drop operation");
+                return true; // Prevent drop operation
+            }
+            // User may return a set of regions (or `false` to prevent drop)
+            // Figure out a drop effect (copy/link/move) using opinated conventions.
+            dt.dropEffect = this._guessDropEffect(e) || "none";
+            let regionSet = targetNode._callEvent("dnd.dragEnter", {
+                event: e,
+                sourceNode: srcNode,
+            });
+            //
+            regionSet = this.unifyDragover(regionSet);
+            if (!regionSet) {
+                dt.dropEffect = "none";
+                return true; // Prevent drop operation
+            }
+            this.lastAllowedDropRegions = regionSet;
+            this.lastDropEffect = dt.dropEffect;
+            const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
+            targetNode.setClass("wb-drop-target");
+            targetNode.setClass("wb-drop-over", region === "over");
+            targetNode.setClass("wb-drop-before", region === "before");
+            targetNode.setClass("wb-drop-after", region === "after");
+            e.preventDefault(); // Allow drop (Drop operation is denied by default)
+            return false;
+            // --- dragover ---
+        }
+        else if (e.type === "dragover") {
+            const viewportY = e.clientY - this.tree.element.offsetTop;
+            this._autoScroll(viewportY);
+            dt.dropEffect = this._guessDropEffect(e) || "none";
+            targetNode._callEvent("dnd.dragOver", { event: e, sourceNode: srcNode });
+            const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
+            this.lastDropRegion = region;
+            this.lastDropEffect = dt.dropEffect;
+            if (dndOpts.autoExpandMS > 0 &&
+                targetNode.isExpandable(true) &&
+                !targetNode._isLoading &&
+                Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS &&
+                targetNode._callEvent("dnd.dragExpand", {
+                    event: e,
+                    sourceNode: srcNode,
+                }) !== false) {
+                targetNode.setExpanded();
+            }
+            if (!region || this._isVoidDrop(targetNode, srcNode, region)) {
+                return; // We already rejected in dragenter
+            }
+            targetNode.setClass("wb-drop-over", region === "over");
+            targetNode.setClass("wb-drop-before", region === "before");
+            targetNode.setClass("wb-drop-after", region === "after");
+            e.preventDefault(); // Allow drop (Drop operation is denied by default)
+            return false;
+            // --- dragleave ---
+        }
+        else if (e.type === "dragleave") {
+            // NOTE: we cannot trust this event, since it is always fired,
+            // Instead we remove the marker on dragenter
+            targetNode._callEvent("dnd.dragLeave", { event: e, sourceNode: srcNode });
+            // --- drop ---
+        }
+        else if (e.type === "drop") {
+            e.stopPropagation(); // prevent browser from opening links?
+            e.preventDefault(); // #69 prevent iOS browser from opening links
+            this._leaveNode();
+            const region = this.lastDropRegion;
+            let nodeData = (_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData(nodeMimeType);
+            nodeData = nodeData ? JSON.parse(nodeData) : null;
+            const srcNode = this.srcNode;
+            const lastDropEffect = this.lastDropEffect;
+            setTimeout(() => {
+                // Decouple this call, because drop actions may prevent the dragend event
+                // from being fired on some browsers
+                targetNode._callEvent("dnd.drop", {
+                    event: e,
+                    region: region,
+                    suggestedDropMode: region === "over" ? "appendChild" : region,
+                    suggestedDropEffect: lastDropEffect,
+                    // suggestedDropEffect: e.dataTransfer?.dropEffect,
+                    sourceNode: srcNode,
+                    sourceNodeData: nodeData,
+                });
+            }, 10);
+        }
+        return false;
+    }
+}
+
+/*!
+ * Wunderbaum - drag_observer
+ * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ */
+/**
+ * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
+ */
+class DragObserver {
+    constructor(opts) {
+        this.start = {
+            event: null,
+            x: 0,
+            y: 0,
+            altKey: false,
+            ctrlKey: false,
+            metaKey: false,
+            shiftKey: false,
+        };
+        this.dragElem = null;
+        this.dragging = false;
+        this.customData = {};
+        // TODO: touch events
+        this.events = ["mousedown", "mouseup", "mousemove", "keydown"];
+        if (!opts.root) {
+            throw new Error("Missing `root` option.");
+        }
+        this.opts = Object.assign({ thresh: 5 }, opts);
+        this.root = opts.root;
+        this._handler = this.handleEvent.bind(this);
+        this.events.forEach((type) => {
+            this.root.addEventListener(type, this._handler);
+        });
+    }
+    /** Unregister all event listeners. */
+    disconnect() {
+        this.events.forEach((type) => {
+            this.root.removeEventListener(type, this._handler);
+        });
+    }
+    getDragElem() {
+        return this.dragElem;
+    }
+    isDragging() {
+        return this.dragging;
+    }
+    stopDrag(cb_event) {
+        if (this.dragging && this.opts.dragstop && cb_event) {
+            cb_event.type = "dragstop";
+            try {
+                this.opts.dragstop(cb_event);
+            }
+            catch (err) {
+                console.error("dragstop error", err); // eslint-disable-line no-console
+            }
+        }
+        this.dragElem = null;
+        this.dragging = false;
+        this.start.event = null;
+        this.customData = {};
+    }
+    handleEvent(e) {
+        const type = e.type;
+        const opts = this.opts;
+        const cb_event = {
+            type: e.type,
+            startEvent: type === "mousedown" ? e : this.start.event,
+            event: e,
+            customData: this.customData,
+            dragElem: this.dragElem,
+            dx: e.pageX - this.start.x,
+            dy: e.pageY - this.start.y,
+            apply: undefined,
+        };
+        // console.log("handleEvent", type, cb_event);
+        switch (type) {
+            case "keydown":
+                this.stopDrag(cb_event);
+                break;
+            case "mousedown":
+                if (this.dragElem) {
+                    this.stopDrag(cb_event);
+                    break;
+                }
+                if (opts.selector) {
+                    let elem = e.target;
+                    if (elem.matches(opts.selector)) {
+                        this.dragElem = elem;
+                    }
+                    else {
+                        elem = elem.closest(opts.selector);
+                        if (elem) {
+                            this.dragElem = elem;
+                        }
+                        else {
+                            break; // no event delegation selector matched
+                        }
+                    }
+                }
+                this.start.event = e;
+                this.start.x = e.pageX;
+                this.start.y = e.pageY;
+                this.start.altKey = e.altKey;
+                this.start.ctrlKey = e.ctrlKey;
+                this.start.metaKey = e.metaKey;
+                this.start.shiftKey = e.shiftKey;
+                break;
+            case "mousemove":
+                // TODO: debounce/throttle?
+                // TODO: horizontal mode: ignore if dx unchanged
+                if (!this.dragElem) {
+                    break;
+                }
+                if (!this.dragging) {
+                    if (opts.thresh) {
+                        const dist2 = cb_event.dx * cb_event.dx + cb_event.dy * cb_event.dy;
+                        if (dist2 < opts.thresh * opts.thresh) {
+                            break;
+                        }
+                    }
+                    cb_event.type = "dragstart";
+                    if (opts.dragstart(cb_event) === false) {
+                        this.stopDrag(cb_event);
+                        break;
+                    }
+                    this.dragging = true;
+                }
+                if (this.dragging && this.opts.drag) {
+                    cb_event.type = "drag";
+                    this.opts.drag(cb_event);
+                }
+                break;
+            case "mouseup":
+                if (!this.dragging) {
+                    this.stopDrag(cb_event);
+                    break;
+                }
+                if (e.button === 0) {
+                    cb_event.apply = true;
+                }
+                else {
+                    cb_event.apply = false;
+                }
+                this.stopDrag(cb_event);
+                break;
+        }
+    }
+}
+
+/*!
  * Wunderbaum - common
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
  * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
  */
-const ROW_HEIGHT = 22;
+const DEFAULT_ROW_HEIGHT = 22;
 /**
  * Fixed width of node icons in pixel. Must match the SCSS variable `$icon-outer-width`.
  */
@@ -2324,603 +2933,9 @@ function decompressSourceData(source) {
 }
 
 /*!
- * Wunderbaum - ext-dnd
- * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
- */
-const nodeMimeType = "application/x-wunderbaum-node";
-class DndExtension extends WunderbaumExtension {
-    constructor(tree) {
-        super(tree, "dnd", {
-            autoExpandMS: 1500, // Expand nodes after n milliseconds of hovering
-            // dropMarkerInsertOffsetX: -16, // Additional offset for drop-marker with hitMode = "before"/"after"
-            // dropMarkerOffsetX: -24, // Absolute position offset for .fancytree-drop-marker relatively to ..fancytree-title (icon/img near a node accepting drop)
-            // #1021 `document.body` is not available yet
-            // dropMarkerParent: "body", // Root Container used for drop marker (could be a shadow root)
-            multiSource: false, // true: Drag multiple (i.e. selected) nodes. Also a callback() is allowed
-            effectAllowed: "all", // Restrict the possible cursor shapes and modifier operations (can also be set in the dragStart event)
-            dropEffectDefault: "move", // Default dropEffect ('copy', 'link', or 'move') when no modifier is pressed (override in drag, dragOver).
-            guessDropEffect: true, // Calculate from `effectAllowed` and modifier keys)
-            preventForeignNodes: false, // Prevent dropping nodes from different Wunderbaum trees
-            preventLazyParents: true, // Prevent dropping items on unloaded lazy Wunderbaum tree nodes
-            preventNonNodes: false, // Prevent dropping items other than Wunderbaum tree nodes
-            preventRecursion: true, // Prevent dropping nodes on own descendants
-            preventSameParent: false, // Prevent dropping nodes under same direct parent
-            preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
-            serializeClipboardData: true, // Serialize node data to dataTransfer object
-            scroll: true, // Enable auto-scrolling while dragging
-            scrollSensitivity: 20, // Active top/bottom margin in pixel
-            // scrollnterval: 50, // Generate event every 50 ms
-            scrollSpeed: 5, // Scroll pixel per 50 ms
-            // setTextTypeJson: false, // Allow dragging of nodes to different IE windows
-            sourceCopyHook: null, // Optional callback passed to `toDict` on dragStart @since 2.38
-            // Events (drag support)
-            dragStart: null, // Callback(sourceNode, data), return true, to enable dnd drag
-            drag: null, // Callback(sourceNode, data)
-            dragEnd: null, // Callback(sourceNode, data)
-            // Events (drop support)
-            dragEnter: null, // Callback(targetNode, data), return true, to enable dnd drop
-            dragOver: null, // Callback(targetNode, data)
-            dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
-            drop: null, // Callback(targetNode, data)
-            dragLeave: null, // Callback(targetNode, data)
-        });
-        // public dropMarkerElem?: HTMLElement;
-        this.srcNode = null;
-        this.lastTargetNode = null;
-        this.lastEnterStamp = 0;
-        this.lastAllowedDropRegions = null;
-        this.lastDropEffect = null;
-        this.lastDropRegion = false;
-        this.currentScrollDir = 0;
-        this.applyScrollDirThrottled = throttle(this._applyScrollDir, 50);
-    }
-    init() {
-        super.init();
-        // Store the current scroll parent, which may be the tree
-        // container, any enclosing div, or the document.
-        // #761: scrollParent() always needs a container child
-        // $temp = $("<span>").appendTo(this.$container);
-        // this.$scrollParent = $temp.scrollParent();
-        // $temp.remove();
-        const tree = this.tree;
-        const dndOpts = tree.options.dnd;
-        // Enable drag support if dragStart() is specified:
-        if (dndOpts.dragStart) {
-            onEvent(tree.element, "dragstart drag dragend", this.onDragEvent.bind(this));
-        }
-        // Enable drop support if dragEnter() is specified:
-        if (dndOpts.dragEnter) {
-            onEvent(tree.element, "dragenter dragover dragleave drop", this.onDropEvent.bind(this));
-        }
-    }
-    /** Cleanup classes after target node is no longer hovered. */
-    _leaveNode() {
-        // We remove the marker on dragenter from the previous target:
-        const ltn = this.lastTargetNode;
-        this.lastEnterStamp = 0;
-        if (ltn) {
-            ltn.setClass("wb-drop-target wb-drop-over wb-drop-after wb-drop-before", false);
-            this.lastTargetNode = null;
-        }
-    }
-    /** */
-    unifyDragover(res) {
-        if (res === false) {
-            return false;
-        }
-        else if (res instanceof Set) {
-            return res.size > 0 ? res : false;
-        }
-        else if (res === true) {
-            return new Set(["over", "before", "after"]);
-        }
-        else if (typeof res === "string" || isArray(res)) {
-            res = toSet(res);
-            return res.size > 0 ? res : false;
-        }
-        throw new Error("Unsupported drop region definition: " + res);
-    }
-    /**
-     * Calculates the drop region based on the drag event and the allowed drop regions.
-     */
-    _calcDropRegion(e, allowed) {
-        const dy = e.offsetY;
-        if (!allowed) {
-            return false;
-        }
-        else if (allowed.size === 3) {
-            return dy < 0.25 * ROW_HEIGHT
-                ? "before"
-                : dy > 0.75 * ROW_HEIGHT
-                    ? "after"
-                    : "over";
-        }
-        else if (allowed.size === 1 && allowed.has("over")) {
-            return "over";
-        }
-        else {
-            // Only 'before' and 'after':
-            return dy > ROW_HEIGHT / 2 ? "after" : "before";
-        }
-        // return "over";
-    }
-    /**
-     * Guess drop effect (copy/link/move) using opinionated conventions.
-     *
-     * Default: dnd.dropEffectDefault
-     */
-    _guessDropEffect(e) {
-        // const nativeDropEffect = e.dataTransfer?.dropEffect;
-        var _a;
-        // if (nativeDropEffect && nativeDropEffect !== "none") {
-        //   return nativeDropEffect;
-        // }
-        const dndOpts = this.treeOpts.dnd;
-        const ea = (_a = dndOpts.effectAllowed) !== null && _a !== void 0 ? _a : "all";
-        const canCopy = ["all", "copy", "copyLink", "copyMove"].includes(ea);
-        const canLink = ["all", "link", "copyLink", "linkMove"].includes(ea);
-        const canMove = ["all", "move", "copyMove", "linkMove"].includes(ea);
-        let res = dndOpts.dropEffectDefault;
-        if (dndOpts.guessDropEffect) {
-            if (isMac) {
-                if (e.altKey && canCopy) {
-                    res = "copy";
-                }
-                if (e.metaKey && canMove) {
-                    res = "move"; // command key
-                }
-                if (e.altKey && e.metaKey && canLink) {
-                    res = "link";
-                }
-            }
-            else {
-                if (e.ctrlKey && canCopy) {
-                    res = "copy";
-                }
-                if (e.shiftKey && canMove) {
-                    res = "move";
-                }
-                if (e.altKey && canLink) {
-                    res = "link";
-                }
-            }
-        }
-        return res;
-    }
-    /** Don't allow void operation ('drop on self').*/
-    _isVoidDrop(targetNode, srcNode, dropRegion) {
-        // this.tree.logDebug(
-        //   `_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`
-        // );
-        // TODO: should be checked on  move only
-        if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
-            return false;
-        }
-        if ((dropRegion === "before" && targetNode === srcNode.getNextSibling()) ||
-            (dropRegion === "after" && targetNode === srcNode.getPrevSibling())) {
-            // this.tree.logDebug("Prevented before/after self");
-            return true;
-        }
-        // Don't allow dropping nodes on own parent (or self)
-        return srcNode === targetNode || srcNode.parent === targetNode;
-    }
-    /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
-    _applyScrollDir() {
-        if (this.isDragging() && this.currentScrollDir) {
-            const dndOpts = this.tree.options.dnd;
-            const sp = this.tree.element; // scroll parent
-            const scrollTop = sp.scrollTop;
-            if (this.currentScrollDir < 0) {
-                sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
-            }
-            else if (this.currentScrollDir > 0) {
-                sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
-            }
-        }
-    }
-    /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
-    _autoScroll(viewportY) {
-        const tree = this.tree;
-        const dndOpts = tree.options.dnd;
-        const sensitivity = dndOpts.scrollSensitivity;
-        const sp = tree.element; // scroll parent
-        const headerHeight = tree.headerElement.clientHeight; // May be 0
-        // const height = sp.clientHeight - headerHeight;
-        // const height = sp.offsetHeight + headerHeight;
-        const height = sp.offsetHeight;
-        const scrollTop = sp.scrollTop;
-        // tree.logDebug(
-        //   `autoScroll: height=${height}, scrollTop=${scrollTop}, viewportY=${viewportY}`
-        // );
-        this.currentScrollDir = 0;
-        if (scrollTop > 0 &&
-            viewportY > 0 &&
-            viewportY <= sensitivity + headerHeight) {
-            // Mouse in top 20px area: scroll up
-            // sp.scrollTop = Math.max(0, scrollTop - dndOpts.scrollSpeed);
-            this.currentScrollDir = -1;
-        }
-        else if (scrollTop < sp.scrollHeight - height &&
-            viewportY >= height - sensitivity) {
-            // Mouse in bottom 20px area: scroll down
-            // sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
-            this.currentScrollDir = +1;
-        }
-        if (this.currentScrollDir) {
-            this.applyScrollDirThrottled();
-        }
-        return sp.scrollTop - scrollTop;
-    }
-    /** Return true if a drag operation currently in progress. */
-    isDragging() {
-        return !!this.srcNode;
-    }
-    /**
-     * Handle dragstart, drag and dragend events for the source node.
-     */
-    onDragEvent(e) {
-        var _a;
-        // const tree = this.tree;
-        const dndOpts = this.treeOpts.dnd;
-        const srcNode = Wunderbaum.getNode(e);
-        if (!srcNode) {
-            this.tree.logWarn(`onDragEvent.${e.type}: no node`);
-            return;
-        }
-        if (["dragstart", "dragend"].includes(e.type)) {
-            this.tree.logDebug(`onDragEvent.${e.type} srcNode: ${srcNode}`, e);
-        }
-        // --- dragstart ---
-        if (e.type === "dragstart") {
-            // Set a default definition of allowed effects
-            e.dataTransfer.effectAllowed = dndOpts.effectAllowed; //"copyMove"; // "all";
-            if (srcNode.isEditingTitle()) {
-                srcNode.logDebug("Prevented dragging node in edit mode.");
-                e.preventDefault();
-                return false;
-            }
-            // Let user cancel the drag operation, override effectAllowed, etc.:
-            const res = srcNode._callEvent("dnd.dragStart", { event: e });
-            if (!res) {
-                e.preventDefault();
-                return false;
-            }
-            const nodeData = srcNode.toDict(true, (n) => {
-                // We don't want to re-use the key on drop:
-                n._orgKey = n.key;
-                delete n.key;
-            });
-            nodeData._treeId = srcNode.tree.id;
-            if (dndOpts.serializeClipboardData) {
-                if (typeof dndOpts.serializeClipboardData === "function") {
-                    e.dataTransfer.setData(nodeMimeType, dndOpts.serializeClipboardData(nodeData, srcNode));
-                }
-                else {
-                    e.dataTransfer.setData(nodeMimeType, JSON.stringify(nodeData));
-                }
-            }
-            // e.dataTransfer!.setData("text/html", $(node.span).html());
-            if (!((_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.types.includes("text/plain"))) {
-                e.dataTransfer.setData("text/plain", srcNode.title);
-            }
-            this.srcNode = srcNode;
-            setTimeout(() => {
-                // Decouple this call, so the CSS is applied to the node, but not to
-                // the system generated drag image
-                srcNode.setClass("wb-drag-source");
-            }, 0);
-            // --- drag ---
-        }
-        else if (e.type === "drag") {
-            if (dndOpts.drag) {
-                srcNode._callEvent("dnd.drag", { event: e });
-            }
-            // --- dragend ---
-        }
-        else if (e.type === "dragend") {
-            srcNode.setClass("wb-drag-source", false);
-            this.srcNode = null;
-            if (this.lastTargetNode) {
-                this._leaveNode();
-            }
-            srcNode._callEvent("dnd.dragEnd", { event: e });
-        }
-        return true;
-    }
-    /**
-     * Handle dragenter, dragover, dragleave, drop events.
-     */
-    onDropEvent(e) {
-        var _a;
-        // const isLink = event.dataTransfer.types.includes("text/uri-list");
-        const srcNode = this.srcNode;
-        const srcTree = srcNode ? srcNode.tree : null;
-        const targetNode = Wunderbaum.getNode(e);
-        const dndOpts = this.treeOpts.dnd;
-        const dt = e.dataTransfer;
-        const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
-        /** Helper to log a message if predicate is false. */
-        const _t = (pred, msg) => {
-            if (pred) {
-                this.tree.log(`Prevented drop operation (${msg}).`);
-            }
-            return pred;
-        };
-        if (!targetNode) {
-            this._leaveNode();
-            return;
-        }
-        if (["drop"].includes(e.type)) {
-            this.tree.logDebug(`onDropEvent.${e.type} targetNode: ${targetNode}, ea: ${dt === null || dt === void 0 ? void 0 : dt.effectAllowed}, ` +
-                `de: ${dt === null || dt === void 0 ? void 0 : dt.dropEffect}, cy: ${e.offsetY}, r: ${dropRegion}, srcNode: ${srcNode}`, e);
-        }
-        // --- dragenter ---
-        if (e.type === "dragenter") {
-            // this.tree.logWarn(` onDropEvent.${e.type} targetNode: ${targetNode}`, e);
-            this.lastAllowedDropRegions = null;
-            // `dragleave` is not reliable with event delegation, so we generate it
-            // from dragenter:
-            if (this.lastTargetNode && this.lastTargetNode !== targetNode) {
-                this._leaveNode();
-            }
-            this.lastTargetNode = targetNode;
-            this.lastEnterStamp = Date.now();
-            if (
-            // Don't drop on status node:
-            _t(targetNode.isStatusNode(), "is status node") ||
-                // Prevent dropping nodes from different Wunderbaum trees:
-                _t(dndOpts.preventForeignNodes && targetNode.tree !== srcTree, "preventForeignNodes") ||
-                // Prevent dropping items on unloaded lazy Wunderbaum tree nodes:
-                _t(dndOpts.preventLazyParents && !targetNode.isLoaded(), "preventLazyParents") ||
-                // Prevent dropping items other than Wunderbaum tree nodes:
-                _t(dndOpts.preventNonNodes && !srcNode, "preventNonNodes") ||
-                // Prevent dropping nodes on own descendants:
-                _t(dndOpts.preventRecursion && (srcNode === null || srcNode === void 0 ? void 0 : srcNode.isAncestorOf(targetNode)), "preventRecursion") ||
-                // Prevent dropping nodes under same direct parent:
-                _t(dndOpts.preventSameParent &&
-                    srcNode &&
-                    targetNode.parent === srcNode.parent, "preventSameParent") ||
-                // Don't allow void operation ('drop on self'): TODO: should be checked on  move only
-                _t(dndOpts.preventVoidMoves && targetNode === srcNode, "preventVoidMoves")) {
-                dt.dropEffect = "none";
-                // this.tree.log("Prevented drop operation");
-                return true; // Prevent drop operation
-            }
-            // User may return a set of regions (or `false` to prevent drop)
-            // Figure out a drop effect (copy/link/move) using opinated conventions.
-            dt.dropEffect = this._guessDropEffect(e) || "none";
-            let regionSet = targetNode._callEvent("dnd.dragEnter", {
-                event: e,
-                sourceNode: srcNode,
-            });
-            //
-            regionSet = this.unifyDragover(regionSet);
-            if (!regionSet) {
-                dt.dropEffect = "none";
-                return true; // Prevent drop operation
-            }
-            this.lastAllowedDropRegions = regionSet;
-            this.lastDropEffect = dt.dropEffect;
-            targetNode.setClass("wb-drop-target");
-            e.preventDefault(); // Allow drop (Drop operation is denied by default)
-            return false;
-            // --- dragover ---
-        }
-        else if (e.type === "dragover") {
-            const viewportY = e.clientY - this.tree.element.offsetTop;
-            this._autoScroll(viewportY);
-            dt.dropEffect = this._guessDropEffect(e) || "none";
-            targetNode._callEvent("dnd.dragOver", { event: e, sourceNode: srcNode });
-            const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
-            this.lastDropRegion = region;
-            this.lastDropEffect = dt.dropEffect;
-            if (dndOpts.autoExpandMS > 0 &&
-                targetNode.isExpandable(true) &&
-                !targetNode._isLoading &&
-                Date.now() - this.lastEnterStamp > dndOpts.autoExpandMS &&
-                targetNode._callEvent("dnd.dragExpand", {
-                    event: e,
-                    sourceNode: srcNode,
-                }) !== false) {
-                targetNode.setExpanded();
-            }
-            if (!region || this._isVoidDrop(targetNode, srcNode, region)) {
-                return; // We already rejected in dragenter
-            }
-            targetNode.setClass("wb-drop-over", region === "over");
-            targetNode.setClass("wb-drop-before", region === "before");
-            targetNode.setClass("wb-drop-after", region === "after");
-            e.preventDefault(); // Allow drop (Drop operation is denied by default)
-            return false;
-            // --- dragleave ---
-        }
-        else if (e.type === "dragleave") {
-            // NOTE: we cannot trust this event, since it is always fired,
-            // Instead we remove the marker on dragenter
-            targetNode._callEvent("dnd.dragLeave", { event: e, sourceNode: srcNode });
-            // --- drop ---
-        }
-        else if (e.type === "drop") {
-            e.stopPropagation(); // prevent browser from opening links?
-            e.preventDefault(); // #69 prevent iOS browser from opening links
-            this._leaveNode();
-            const region = this.lastDropRegion;
-            let nodeData = (_a = e.dataTransfer) === null || _a === void 0 ? void 0 : _a.getData(nodeMimeType);
-            nodeData = nodeData ? JSON.parse(nodeData) : null;
-            const srcNode = this.srcNode;
-            const lastDropEffect = this.lastDropEffect;
-            setTimeout(() => {
-                // Decouple this call, because drop actions may prevent the dragend event
-                // from being fired on some browsers
-                targetNode._callEvent("dnd.drop", {
-                    event: e,
-                    region: region,
-                    suggestedDropMode: region === "over" ? "appendChild" : region,
-                    suggestedDropEffect: lastDropEffect,
-                    // suggestedDropEffect: e.dataTransfer?.dropEffect,
-                    sourceNode: srcNode,
-                    sourceNodeData: nodeData,
-                });
-            }, 10);
-        }
-        return false;
-    }
-}
-
-/*!
- * Wunderbaum - drag_observer
- * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
- */
-/**
- * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
- */
-class DragObserver {
-    constructor(opts) {
-        this.start = {
-            event: null,
-            x: 0,
-            y: 0,
-            altKey: false,
-            ctrlKey: false,
-            metaKey: false,
-            shiftKey: false,
-        };
-        this.dragElem = null;
-        this.dragging = false;
-        this.customData = {};
-        // TODO: touch events
-        this.events = ["mousedown", "mouseup", "mousemove", "keydown"];
-        if (!opts.root) {
-            throw new Error("Missing `root` option.");
-        }
-        this.opts = Object.assign({ thresh: 5 }, opts);
-        this.root = opts.root;
-        this._handler = this.handleEvent.bind(this);
-        this.events.forEach((type) => {
-            this.root.addEventListener(type, this._handler);
-        });
-    }
-    /** Unregister all event listeners. */
-    disconnect() {
-        this.events.forEach((type) => {
-            this.root.removeEventListener(type, this._handler);
-        });
-    }
-    getDragElem() {
-        return this.dragElem;
-    }
-    isDragging() {
-        return this.dragging;
-    }
-    stopDrag(cb_event) {
-        if (this.dragging && this.opts.dragstop && cb_event) {
-            cb_event.type = "dragstop";
-            try {
-                this.opts.dragstop(cb_event);
-            }
-            catch (err) {
-                console.error("dragstop error", err); // eslint-disable-line no-console
-            }
-        }
-        this.dragElem = null;
-        this.dragging = false;
-        this.start.event = null;
-        this.customData = {};
-    }
-    handleEvent(e) {
-        const type = e.type;
-        const opts = this.opts;
-        const cb_event = {
-            type: e.type,
-            startEvent: type === "mousedown" ? e : this.start.event,
-            event: e,
-            customData: this.customData,
-            dragElem: this.dragElem,
-            dx: e.pageX - this.start.x,
-            dy: e.pageY - this.start.y,
-            apply: undefined,
-        };
-        // console.log("handleEvent", type, cb_event);
-        switch (type) {
-            case "keydown":
-                this.stopDrag(cb_event);
-                break;
-            case "mousedown":
-                if (this.dragElem) {
-                    this.stopDrag(cb_event);
-                    break;
-                }
-                if (opts.selector) {
-                    let elem = e.target;
-                    if (elem.matches(opts.selector)) {
-                        this.dragElem = elem;
-                    }
-                    else {
-                        elem = elem.closest(opts.selector);
-                        if (elem) {
-                            this.dragElem = elem;
-                        }
-                        else {
-                            break; // no event delegation selector matched
-                        }
-                    }
-                }
-                this.start.event = e;
-                this.start.x = e.pageX;
-                this.start.y = e.pageY;
-                this.start.altKey = e.altKey;
-                this.start.ctrlKey = e.ctrlKey;
-                this.start.metaKey = e.metaKey;
-                this.start.shiftKey = e.shiftKey;
-                break;
-            case "mousemove":
-                // TODO: debounce/throttle?
-                // TODO: horizontal mode: ignore if dx unchanged
-                if (!this.dragElem) {
-                    break;
-                }
-                if (!this.dragging) {
-                    if (opts.thresh) {
-                        const dist2 = cb_event.dx * cb_event.dx + cb_event.dy * cb_event.dy;
-                        if (dist2 < opts.thresh * opts.thresh) {
-                            break;
-                        }
-                    }
-                    cb_event.type = "dragstart";
-                    if (opts.dragstart(cb_event) === false) {
-                        this.stopDrag(cb_event);
-                        break;
-                    }
-                    this.dragging = true;
-                }
-                if (this.dragging && this.opts.drag) {
-                    cb_event.type = "drag";
-                    this.opts.drag(cb_event);
-                }
-                break;
-            case "mouseup":
-                if (!this.dragging) {
-                    this.stopDrag(cb_event);
-                    break;
-                }
-                if (e.button === 0) {
-                    cb_event.apply = true;
-                }
-                else {
-                    cb_event.apply = false;
-                }
-                this.stopDrag(cb_event);
-                break;
-        }
-    }
-}
-
-/*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -3011,7 +3026,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -3064,7 +3079,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3092,6 +3107,20 @@ const NODE_PROPS = new Set([
 const NODE_DICT_PROPS = new Set(NODE_PROPS);
 NODE_DICT_PROPS.delete("_partsel");
 NODE_DICT_PROPS.delete("unselectable");
+// /** Node properties that are of type bool (or boolean & string).
+//  *  When parsing, we accept 0 for false and 1 for true for better JSON compression.
+//  */
+// export const NODE_BOOL_PROPS: Set<string> = new Set([
+//   "checkbox",
+//   "colspan",
+//   "expanded",
+//   "icon",
+//   "iconTooltip",
+//   "radiogroup",
+//   "selected",
+//   "tooltip",
+//   "unselectable",
+// ]);
 /**
  * A single tree node.
  *
@@ -3133,20 +3162,26 @@ class WunderbaumNode {
         this.parent = parent;
         this.key = "" + ((_a = data.key) !== null && _a !== void 0 ? _a : ++WunderbaumNode.sequence);
         this.title = "" + ((_b = data.title) !== null && _b !== void 0 ? _b : "<" + this.key + ">");
+        this.expanded = !!data.expanded;
+        this.lazy = !!data.lazy;
+        // We set the following node properties only if a matching data value is
+        // passed
         data.refKey != null ? (this.refKey = "" + data.refKey) : 0;
         data.type != null ? (this.type = "" + data.type) : 0;
-        this.expanded = data.expanded === true;
-        data.icon != null ? (this.icon = data.icon) : 0;
-        this.lazy = data.lazy === true;
+        data.icon != null ? (this.icon = intToBool(data.icon)) : 0;
+        data.tooltip != null ? (this.tooltip = intToBool(data.tooltip)) : 0;
+        data.iconTooltip != null
+            ? (this.iconTooltip = intToBool(data.iconTooltip))
+            : 0;
         data.statusNodeType != null
             ? (this.statusNodeType = ("" + data.statusNodeType))
             : 0;
         data.colspan != null ? (this.colspan = !!data.colspan) : 0;
         // Selection
-        data.checkbox != null ? (this.checkbox = !!data.checkbox) : 0;
+        data.checkbox != null ? intToBool(data.checkbox) : 0;
         data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
-        this.selected = data.selected === true;
-        data.unselectable === true ? (this.unselectable = true) : 0;
+        data.selected != null ? (this.selected = !!data.selected) : 0;
+        data.unselectable != null ? (this.unselectable = !!data.unselectable) : 0;
         if (data.classes) {
             this.setClass(data.classes);
         }
@@ -3975,8 +4010,8 @@ class WunderbaumNode {
         let elap = 0, elapLoad = 0, elapProcess = 0;
         // Check for overlapping requests
         if (this._requestId) {
-            this.logWarn(`Recursive load request #${requestId} while #${this._requestId} is pending.`);
-            // 	node.debug("Send load request #" + requestId);
+            this.logWarn(`Recursive load request #${requestId} while #${this._requestId} is pending. ` +
+                "The previous request will be ignored.");
         }
         this._requestId = requestId;
         // const timerLabel = tree.logTime(this + ".load()");
@@ -4456,6 +4491,7 @@ class WunderbaumNode {
     _render_markup(opts) {
         const tree = this.tree;
         const treeOptions = tree.options;
+        const rowHeight = treeOptions.rowHeightPx;
         const checkbox = this.getOption("checkbox");
         const columns = tree.columns;
         const level = this.getLevel();
@@ -4470,7 +4506,7 @@ class WunderbaumNode {
         assert(!this.isRootNode(), "Root node not allowed");
         rowDiv = document.createElement("div");
         rowDiv.classList.add("wb-row");
-        rowDiv.style.top = this._rowIdx * ROW_HEIGHT + "px";
+        rowDiv.style.top = this._rowIdx * rowHeight + "px";
         this._rowElem = rowDiv;
         // Attach a node reference to the DOM Element:
         rowDiv._wb_node = this;
@@ -5432,6 +5468,21 @@ class WunderbaumNode {
                 av = a.data[propName];
                 bv = b.data[propName];
             }
+            if (av == null && bv == null) {
+                return 0;
+            }
+            if (av == null) {
+                av = typeof bv === "string" ? "" : 0;
+            }
+            else if (typeof av === "boolean") {
+                av = av ? 1 : 0;
+            }
+            if (bv == null) {
+                bv = typeof av === "string" ? "" : 0;
+            }
+            else if (typeof bv === "boolean") {
+                bv = bv ? 1 : 0;
+            }
             if (caseInsensitive) {
                 if (typeof av === "string") {
                     av = av.toLowerCase();
@@ -5555,7 +5606,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.0, Sun, 04 Aug 2024 15:35:53 GMT (https://github.com/mar10/wunderbaum)
+ * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5717,6 +5768,10 @@ class EditExtension extends WunderbaumExtension {
         const validity = this.getPluginOption("validity");
         const select = this.getPluginOption("select");
         if (!node) {
+            return;
+        }
+        if (node.isStatusNode()) {
+            node.logWarn("Cannot edit status node.");
             return;
         }
         this.tree.logDebug(`startEditTitle(node=${node})`);
@@ -5886,8 +5941,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.11.0
- * @date Sun, 04 Aug 2024 15:35:53 GMT
+ * @version v0.11.1
+ * @date Fri, 27 Dec 2024 22:58:06 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -5969,7 +6024,7 @@ class Wunderbaum {
             debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
             header: null, // Show/hide header (pass bool or string)
             // headerHeightPx: ROW_HEIGHT,
-            rowHeightPx: ROW_HEIGHT,
+            rowHeightPx: DEFAULT_ROW_HEIGHT,
             iconMap: "bootstrap",
             columns: null,
             types: null,
@@ -6053,6 +6108,10 @@ class Wunderbaum {
         this.element.classList.add("wunderbaum");
         if (!this.element.getAttribute("tabindex")) {
             this.element.tabIndex = 0;
+        }
+        if (opts.rowHeightPx !== DEFAULT_ROW_HEIGHT) {
+            this.element.style.setProperty("--wb-row-outer-height", opts.rowHeightPx + "px");
+            this.element.style.setProperty("--wb-row-inner-height", opts.rowHeightPx - 2 + "px");
         }
         // Attach tree instance to <div>
         this.element._wb_tree = this;
@@ -6463,31 +6522,33 @@ class Wunderbaum {
     }
     /** Return the topmost visible node in the viewport. */
     getTopmostVpNode(complete = true) {
+        const rowHeight = this.options.rowHeightPx;
         const gracePx = 1; // ignore subpixel scrolling
         const scrollParent = this.element;
         // const headerHeight = this.headerElement.clientHeight;  // May be 0
         const scrollTop = scrollParent.scrollTop; // + headerHeight;
         let topIdx;
         if (complete) {
-            topIdx = Math.ceil((scrollTop - gracePx) / ROW_HEIGHT);
+            topIdx = Math.ceil((scrollTop - gracePx) / rowHeight);
         }
         else {
-            topIdx = Math.floor(scrollTop / ROW_HEIGHT);
+            topIdx = Math.floor(scrollTop / rowHeight);
         }
         return this._getNodeByRowIdx(topIdx);
     }
     /** Return the lowest visible node in the viewport. */
     getLowestVpNode(complete = true) {
+        const rowHeight = this.options.rowHeightPx;
         const scrollParent = this.element;
         const headerHeight = this.headerElement.clientHeight; // May be 0
         const scrollTop = scrollParent.scrollTop;
         const clientHeight = scrollParent.clientHeight - headerHeight;
         let bottomIdx;
         if (complete) {
-            bottomIdx = Math.floor((scrollTop + clientHeight) / ROW_HEIGHT) - 1;
+            bottomIdx = Math.floor((scrollTop + clientHeight) / rowHeight) - 1;
         }
         else {
-            bottomIdx = Math.ceil((scrollTop + clientHeight) / ROW_HEIGHT) - 1;
+            bottomIdx = Math.ceil((scrollTop + clientHeight) / rowHeight) - 1;
         }
         bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
         return this._getNodeByRowIdx(bottomIdx);
@@ -6919,8 +6980,9 @@ class Wunderbaum {
      * @param includeHidden Not yet implemented
      */
     findRelatedNode(node, where, includeHidden = false) {
+        const rowHeight = this.options.rowHeightPx;
         let res = null;
-        const pageSize = Math.floor(this.listContainerElement.clientHeight / ROW_HEIGHT);
+        const pageSize = Math.floor(this.listContainerElement.clientHeight / rowHeight);
         switch (where) {
             case "parent":
                 if (node.parent && node.parent.parent) {
@@ -7243,6 +7305,7 @@ class Wunderbaum {
     scrollTo(nodeOrOpts) {
         const PADDING = 2; // leave some pixels between viewport bounds
         let node;
+        // WunderbaumNode;
         let options;
         if (nodeOrOpts instanceof WunderbaumNode) {
             node = nodeOrOpts;
@@ -7252,14 +7315,15 @@ class Wunderbaum {
             node = options.node;
         }
         assert(node && node._rowIdx != null, `Invalid node: ${node}`);
+        const rowHeight = this.options.rowHeightPx;
         const scrollParent = this.element;
         const headerHeight = this.headerElement.clientHeight; // May be 0
         const scrollTop = scrollParent.scrollTop;
         const vpHeight = scrollParent.clientHeight;
-        const rowTop = node._rowIdx * ROW_HEIGHT + headerHeight;
+        const rowTop = node._rowIdx * rowHeight + headerHeight;
         const vpTop = headerHeight;
         const vpRowTop = rowTop - scrollTop;
-        const vpRowBottom = vpRowTop + ROW_HEIGHT;
+        const vpRowBottom = vpRowTop + rowHeight;
         const topNode = options === null || options === void 0 ? void 0 : options.topNode;
         // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts , options);
         let newScrollTop = null;
@@ -7268,7 +7332,7 @@ class Wunderbaum {
             else {
                 // Node is below viewport
                 // this.log("Below viewport");
-                newScrollTop = rowTop + ROW_HEIGHT - vpHeight + PADDING; // leave some pixels between viewport bounds
+                newScrollTop = rowTop + rowHeight - vpHeight + PADDING; // leave some pixels between viewport bounds
             }
         }
         else {
@@ -7881,19 +7945,19 @@ class Wunderbaum {
         // this.log("_updateRows", opts)
         options = Object.assign({ newNodesOnly: false }, options);
         const newNodesOnly = !!options.newNodesOnly;
-        const row_height = ROW_HEIGHT;
-        const vp_height = this.element.clientHeight;
+        const rowHeight = this.options.rowHeightPx;
+        const vpHeight = this.element.clientHeight;
         const prefetch = RENDER_MAX_PREFETCH;
         // const grace_prefetch = RENDER_MAX_PREFETCH - RENDER_MIN_PREFETCH;
         const ofs = this.element.scrollTop;
-        let startIdx = Math.max(0, ofs / row_height - prefetch);
+        let startIdx = Math.max(0, ofs / rowHeight - prefetch);
         startIdx = Math.floor(startIdx);
         // Make sure start is always even, so the alternating row colors don't
         // change when scrolling:
         if (startIdx % 2) {
             startIdx--;
         }
-        let endIdx = Math.max(0, (ofs + vp_height) / row_height + prefetch);
+        let endIdx = Math.max(0, (ofs + vpHeight) / rowHeight + prefetch);
         endIdx = Math.ceil(endIdx);
         // this.debug("render", opts);
         const obsoleteNodes = new Set();
@@ -7922,21 +7986,21 @@ class Wunderbaum {
             else if (rowDiv && newNodesOnly) {
                 obsoleteNodes.delete(node);
                 // no need to update existing node markup
-                rowDiv.style.top = idx * ROW_HEIGHT + "px";
+                rowDiv.style.top = idx * rowHeight + "px";
                 prevElem = rowDiv;
             }
             else {
                 obsoleteNodes.delete(node);
                 // Create new markup
                 if (rowDiv) {
-                    rowDiv.style.top = idx * ROW_HEIGHT + "px";
+                    rowDiv.style.top = idx * rowHeight + "px";
                 }
                 node._render({ top: top, after: prevElem });
                 // node.log("render", top, prevElem, "=>", node._rowElem);
                 prevElem = node._rowElem;
             }
             idx++;
-            top += row_height;
+            top += rowHeight;
         });
         this.treeRowCount = idx;
         for (const n of obsoleteNodes) {
@@ -8200,7 +8264,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.11.0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.11.1"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 
