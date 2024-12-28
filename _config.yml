@@ -1,0 +1,5 @@
+theme: jekyll-theme-slate
+title: Wunderbaum
+description: A [Type|Java]Script [tree|grid|treegrid] control.
+show_downloads: true  # ["true" or "false" to indicate whether to provide a download URL]
+# google_analytics: Ich Ich Ich [Your Google Analytics tracking ID]
