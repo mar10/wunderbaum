@@ -97,12 +97,4 @@ module.exports = (grunt: any) => {
   ]);
   grunt.registerTask("ci", ["test_dev"]); // Called by 'npm test'
   grunt.registerTask("default", ["test_dev"]);
-
-  if (parseInt(process.env.TRAVIS_PULL_REQUEST!, 10) > 0) {
-    // saucelab keys do not work on forks
-    // http://support.saucelabs.com/entries/25614798
-    grunt.registerTask("travis", ["test_dev"]);
-  } else {
-    grunt.registerTask("travis", ["test_dev"]); // , "sauce"]
-  }
 };
