@@ -40,5 +40,14 @@ jobs:
           ls -l
           ls -l docs
           ls -l docs/unittest
+          ls -l docs/demo
 
       - run: mkdocs gh-deploy --force
+
+      - name: list dir
+        run: |
+          pwd
+          ls -l
+          ls -l docs
+          ls -l docs/unittest
+          ls -l docs/demo
