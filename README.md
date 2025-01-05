@@ -7,11 +7,11 @@
 [![Released with: grunt-yabs](https://img.shields.io/badge/released%20with-grunt--yabs-yellowgreen)](https://github.com/mar10/grunt-yabs)
 [![StackOverflow: wunderbaum](https://img.shields.io/badge/StackOverflow-wunderbaum-blue.svg)](https://stackoverflow.com/questions/tagged/wunderbaum)
 
-> A modern tree/treegrid control for the web. <br>
-> Designated successor of [Fancytree](https://github.com/mar10/fancytree).
->
-> Status _beta_:<br>
-> API, Markup, Stylesheet, etc. are still subject to change.
+> A modern tree/treegrid control for the web.
+
+Designated successor of [Fancytree](https://github.com/mar10/fancytree).<br>
+See the [upgrade guide](https://mar10.github.io/wunderbaum/tutorial/migrate/#what-has-changed)
+for details.
 
 [![Demo](https://mar10.github.io/wunderbaum/assets/teaser_2.png)](https://mar10.github.io/wunderbaum/demo/)
 
