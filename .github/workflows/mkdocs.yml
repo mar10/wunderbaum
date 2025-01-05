@@ -33,6 +33,12 @@ jobs:
       - run: pip install mkdocs-material
 
       - name: Copy unit tests to docs
-        run: cp test/unit/*.* docs/unittest
+        run: |
+          pwd
+          ls -l
+          cp -v test/unit/*.* docs/unittest
+          ls -l
+          ls -l docs
+          ls -l docs/unittest
 
       - run: mkdocs gh-deploy --force
