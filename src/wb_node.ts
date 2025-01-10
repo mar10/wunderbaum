@@ -2199,7 +2199,7 @@ export class WunderbaumNode {
     const colIdx = options?.colIdx; // Default: null
     const edit = options?.edit; // Default: false
 
-    util.assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
+    // util.assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
     util.assert(!edit || colIdx != null, "edit requires colIdx");
 
     if (!noEvents) {
