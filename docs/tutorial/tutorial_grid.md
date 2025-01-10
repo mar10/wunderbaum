@@ -1,5 +1,11 @@
 # Grid
 
+!!! abstract "TL;DR"
+
+    Wunderbaum implements native support for treegrids (in fact, a plain tree
+    is only a special case). <br>
+    Rendering and editing of grid cells requires custom event handlers.
+
 !!! info
 
     See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).

@@ -1,5 +1,9 @@
 # Edit Nodes and Columns
 
+!!! abstract "TL;DR"
+
+    Wunderbaum implements renaming of nodes and editing grid cells.
+
 Editing is supported in two different ways:
 
 1. There is direct support for renaming nodes, i.e. editing the node title.

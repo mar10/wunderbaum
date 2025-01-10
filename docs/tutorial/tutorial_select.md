@@ -1,6 +1,8 @@
 # Selection
 
-Wunderbaum supports hierarchical selection, and radio-groups.
+!!! abstract "TL;DR"
+
+    Wunderbaum supports hierarchical selection, and radio-groups.
 
 ### Related Tree Options
 

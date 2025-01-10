@@ -1,5 +1,10 @@
 # Keyboard Navigation
 
+!!! abstract "TL;DR"
+
+    Wunderbaum tree and treegrid is navigable using keyboard shortcuts.
+    Different navigation modes are available.
+
 The option `keyboard: true` enables standard keyboard navigation.
 
 !!! info
@@ -63,8 +68,8 @@ are present, always the whole row is highlighted.
     <td colspan=2 align=center><kbd>Enter</kbd></td>
     <td>
       If node is active and expandable: toggle expansion.<br>
-      <b>Note:</b> 
-      Behaves as alias for <kbd>F2</kbd> on macOS if <i>edit.trigger</i> option list 
+      <b>Note:</b>
+      Behaves as alias for <kbd>F2</kbd> on macOS if <i>edit.trigger</i> option list
       contains "macEnter".<br>
     </td>
   </tr>
@@ -101,7 +106,7 @@ are present, always the whole row is highlighted.
     <td><kbd>Ctrl</kbd> + <kbd>Arrow&hellip;</kbd></td>
     <td><kbd>⌘</kbd> + <kbd>Arrow&hellip;</kbd></td>
     <td>
-      Same as plain <kbd>Arrow&hellip;</kbd>, but only sets the focus, even if 
+      Same as plain <kbd>Arrow&hellip;</kbd>, but only sets the focus, even if
       <i>autoActivate</i> option is on.
     </td>
   </tr>
@@ -123,7 +128,7 @@ are present, always the whole row is highlighted.
     <td><kbd>PageUp</kbd></td>
     <td><kbd>Fn</kbd> + <kbd>ArrowUp</kbd></td>
     <td>
-      Select top row in viewport or scroll one page upwards if we are already 
+      Select top row in viewport or scroll one page upwards if we are already
       at the top.
     </td>
   </tr>
@@ -131,7 +136,7 @@ are present, always the whole row is highlighted.
     <td><kbd>PageDown</kbd></td>
     <td><kbd>Fn</kbd> + <kbd>ArrowDown</kbd></td>
     <td>
-      Select bottom row in viewport or scroll one page down if we are already 
+      Select bottom row in viewport or scroll one page down if we are already
       at the bottom.
     </td>
   </tr>
@@ -181,7 +186,7 @@ we can focus that control and edit its content.
   </tr>
   <tr>
     <td colspan=2 align=center>
-      <kbd>Tab</kbd>, 
+      <kbd>Tab</kbd>,
       <kbd>Shift</kbd> + <kbd>Tab</kbd>
     </td>
     <td>
@@ -191,7 +196,7 @@ we can focus that control and edit its content.
   <tr>
     <td colspan=2 align=center><kbd>Escape</kbd></td>
     <td>
-      If the focus is inside an embedded <code>&lt;input&gt;</code> element: 
+      If the focus is inside an embedded <code>&lt;input&gt;</code> element:
       discard changes and set focus to the outer cell.<br>
       Otherwise switch to &rarr;<b>Row Mode</b>.
     </td>
@@ -207,18 +212,18 @@ we can focus that control and edit its content.
     <td colspan=2 align=center><kbd>Enter</kbd></td>
     <td>
       If on the first column and node is expandable: toggle expansion.<br>
-      If the cell contains an embedded <code>&lt;input&gt;</code> element: 
+      If the cell contains an embedded <code>&lt;input&gt;</code> element:
       set focus into that input control.<br>
       If the input control already had the focus, accept the entered data.<br>
-      <b>Note:</b> 
-      <kbd>Enter</kbd> behaves as alias for <kbd>F2</kbd> on macOS if the 
+      <b>Note:</b>
+      <kbd>Enter</kbd> behaves as alias for <kbd>F2</kbd> on macOS if the
       <i>edit.trigger</i> option list contains "macEnter".
     </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
     <td>
-      If the cell contains an embedded <code>&lt;input&gt;</code> element: 
+      If the cell contains an embedded <code>&lt;input&gt;</code> element:
       start editing its value.
     </td>
   </tr>
@@ -243,7 +248,7 @@ we can focus that control and edit its content.
     <td><kbd>PageUp</kbd></td>
     <td><kbd>Fn</kbd> + <kbd>ArrowUp</kbd></td>
     <td>
-      Select top cell in viewport or scroll one page upwards if we are already 
+      Select top cell in viewport or scroll one page upwards if we are already
       at the top.
     </td>
   </tr>
@@ -251,7 +256,7 @@ we can focus that control and edit its content.
     <td><kbd>PageDown</kbd></td>
     <td><kbd>Fn</kbd> + <kbd>ArrowDown</kbd></td>
     <td>
-      Select bottom cell in viewport or scroll one page down if we are already 
+      Select bottom cell in viewport or scroll one page down if we are already
       at the bottom.
     </td>
   </tr>

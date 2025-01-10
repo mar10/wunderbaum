@@ -1,5 +1,11 @@
 # Custom Rendering
 
+!!! abstract "TL;DR"
+
+    Wunderbaum is rendered as nested `<div>`/`<span>` element structure.
+    It can be customized by applying CSS styles. <br>
+    Node icons are created from customizable icon fonts.
+
 This chapter describes different ways to customize the appearance of the tree.
 
 !!! info

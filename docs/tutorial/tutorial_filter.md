@@ -1,8 +1,13 @@
 # Search and Filter Nodes
 
-Wunderbaum supports different ways to search and filter nodes:
+!!! abstract "TL;DR"
+
+    Wunderbaum supports different ways to search and filter nodes.
+
+This page describes how searching and filtering can be enabled:
 
 1. **Search** allows to find nodes by title patterns or arbitrary conditions.
+
 2. **Filter** is a more powerful feature that can hide or dim nodes that do not
    match a given search pattern or condition. It can also highlight matching
    title parts.

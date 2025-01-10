@@ -1,5 +1,9 @@
 # Tree API
 
+!!! abstract "TL;DR"
+
+    Wunderbaum offers an extensive, object oriented API.
+
 !!! warning
 
     This chapter is still under construction.
