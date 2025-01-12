@@ -10,6 +10,8 @@ First release.
 - v0.12.0: Add `deep`, `resetLazy`, and `collapseOthers` options to
   `node.` and `tree.expandAll()`.
 - v0.12.0: Add `resetLazy` options to `tree.setExpanded(false, ...)`.
+- v0.12.0: Fix [#107](https://github.com/mar10/wunderbaum/issues/107)
+  Double click on expander is calling .setExpanded() twice.
 - v0.12.0: Fix [#108](https://github.com/mar10/wunderbaum/issues/108)
   Exception when clicking a cell in rowmode.
 - v0.12.0: Fix [#109](https://github.com/mar10/wunderbaum/issues/109)
