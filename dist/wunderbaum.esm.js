@@ -288,7 +288,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -1142,7 +1142,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
@@ -1206,7 +1206,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1265,7 +1265,7 @@ class WunderbaumExtension {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1590,7 +1590,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -1954,7 +1954,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -1996,7 +1996,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2446,7 +2446,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2595,7 +2595,7 @@ class DragObserver {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -2935,7 +2935,7 @@ function decompressSourceData(source) {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -3026,7 +3026,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -3079,7 +3079,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3411,54 +3411,65 @@ class WunderbaumNode {
     startEditTitle() {
         this.tree._callMethod("edit.startEditTitle", this);
     }
-    /** Call `setExpanded()` on all descendant nodes. */
+    /**
+     * Call `setExpanded()` on all descendant nodes.
+     *
+     * @param flag true to expand, false to collapse.
+     * @param options Additional options.
+     * @see {@link Wunderbaum.expandAll}
+     * @see {@link WunderbaumNode.setExpanded}
+     */
     async expandAll(flag = true, options) {
         const tree = this.tree;
-        const minExpandLevel = this.tree.options.minExpandLevel;
-        const { depth = 99, loadLazy, force, keepActiveNodeVisible = true, } = options !== null && options !== void 0 ? options : {};
+        const { collapseOthers, deep, depth, force, keepActiveNodeVisible = true, loadLazy, resetLazy, } = options !== null && options !== void 0 ? options : {};
+        // limit expansion level to `depth` (or tree.minExpandLevel). Default: unlimited
+        const treeLevel = this.tree.options.minExpandLevel || null; // 0 -> null
+        const minLevel = depth !== null && depth !== void 0 ? depth : (force ? null : treeLevel);
         const expandOpts = {
-            scrollIntoView: false, // don't scroll very node on iteration
+            deep: deep,
             force: force,
             loadLazy: loadLazy,
+            resetLazy: resetLazy,
+            scrollIntoView: false, // don't scroll every node while iterating
         };
-        // this.logInfo(`expandAll(${flag})`);
+        this.logInfo(`expandAll(${flag}, depth=${depth}, minLevel=${minLevel})`);
+        assert(!(flag && deep != null && !collapseOthers), "Expanding with `deep` option is not supported (implied by the `depth` option).");
         // Expand all direct children in parallel:
         async function _iter(n, level) {
             var _a;
-            // n.logInfo(`  _iter(${level})`);
-            if (level === 0) {
-                return;
-            }
-            // if (!flag && minExpandLevel && !force && n.getLevel() <= minExpandLevel) {
-            //   return; // Do not collapse until minExpandLevel
-            // }
-            const level_1 = level == null ? null : level - 1;
+            // n.logInfo(`  _iter(level=${level})`);
             const promises = [];
             (_a = n.children) === null || _a === void 0 ? void 0 : _a.forEach((cn) => {
                 if (flag) {
-                    if (!cn.expanded && (cn.children || (loadLazy && cn.lazy))) {
+                    if (!cn.expanded &&
+                        (minLevel == null || level < minLevel) &&
+                        (cn.children || (loadLazy && cn.lazy))) {
                         // Node is collapsed and may be expanded (i.e. has children or is lazy)
                         // Expanding may be async, so we store the promise.
                         // Also the recursion is delayed until expansion finished.
                         const p = cn.setExpanded(true, expandOpts);
                         promises.push(p);
-                        p.then(async () => {
-                            await _iter(cn, level_1);
-                        });
+                        if (depth == null) {
+                            p.then(async () => {
+                                await _iter(cn, level + 1);
+                            });
+                        }
                     }
                     else {
                         // We don't expand the node, but still visit descendants.
                         // There we may find lazy nodes, so we
-                        promises.push(_iter(cn, level_1));
+                        promises.push(_iter(cn, level + 1));
                     }
                 }
                 else {
                     // Collapsing is always synchronous, so no promises required
-                    if (!minExpandLevel || force || cn.getLevel() > minExpandLevel) {
-                        // Do not collapse until minExpandLevel
+                    // Do not collapse until minExpandLevel
+                    if (minLevel == null || level >= minLevel) {
                         cn.setExpanded(false, expandOpts);
                     }
-                    _iter(cn, level_1); // recursion, even if cn was already collapsed
+                    if ((minLevel != null && level < minLevel) || deep) {
+                        _iter(cn, level + 1); // recursion, even if cn was already collapsed
+                    }
                 }
             });
             return new Promise((resolve) => {
@@ -3467,10 +3478,15 @@ class WunderbaumNode {
                 });
             });
         }
-        const tag = tree.logTime(`${this}.expandAll(${flag})`);
+        const tag = tree.logTime(`${this}.expandAll(${flag}, depth=${depth})`);
         try {
             tree.enableUpdate(false);
-            await _iter(this, depth);
+            await _iter(this, 0);
+            if (collapseOthers) {
+                assert(flag, "Option `collapseOthers` requires flag=true");
+                assert(minLevel != null, "Option `collapseOthers` requires `depth` or `minExpandLevel`");
+                this.expandAll(false, { depth: minLevel });
+            }
         }
         finally {
             tree.enableUpdate(true);
@@ -4959,7 +4975,7 @@ class WunderbaumNode {
         const orgEvent = options === null || options === void 0 ? void 0 : options.event; // Default: null
         const colIdx = options === null || options === void 0 ? void 0 : options.colIdx; // Default: null
         const edit = options === null || options === void 0 ? void 0 : options.edit; // Default: false
-        assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
+        // util.assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
         assert(!edit || colIdx != null, "edit requires colIdx");
         if (!noEvents) {
             if (flag) {
@@ -5013,7 +5029,7 @@ class WunderbaumNode {
      * Expand or collapse this node.
      */
     async setExpanded(flag = true, options) {
-        const { force, scrollIntoView, immediate } = options !== null && options !== void 0 ? options : {};
+        const { force, scrollIntoView, immediate, resetLazy } = options !== null && options !== void 0 ? options : {};
         const sendEvents = !(options === null || options === void 0 ? void 0 : options.noEvents); // Default: send events
         if (!flag &&
             this.isExpanded() &&
@@ -5035,6 +5051,9 @@ class WunderbaumNode {
         }
         if (flag && this.lazy && this.children == null) {
             await this.loadLazy();
+        }
+        else if (!flag && resetLazy && this.lazy && this.children) {
+            this.resetLazy();
         }
         this.expanded = flag;
         const updateOpts = { immediate: immediate };
@@ -5606,7 +5625,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
- * v0.11.1, Fri, 27 Dec 2024 22:58:06 GMT (https://github.com/mar10/wunderbaum)
+ * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -5941,8 +5960,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.11.1
- * @date Fri, 27 Dec 2024 22:58:06 GMT
+ * @version v0.12.0
+ * @date Sun, 12 Jan 2025 10:51:41 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -6275,7 +6294,10 @@ class Wunderbaum {
                 false) {
                 return false;
             }
-            if (node && info.colIdx === 0 && node.isExpandable()) {
+            if (node &&
+                info.colIdx === 0 &&
+                node.isExpandable() &&
+                info.region !== NodeRegion.expander) {
                 this._callMethod("edit._stopEditTitle");
                 node.setExpanded(!node.isExpanded());
             }
@@ -8264,7 +8286,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.11.1"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.12.0"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 

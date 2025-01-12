@@ -681,7 +681,14 @@ declare module "wb_node" {
         setClass(className: string | string[] | Set<string>, flag?: boolean): void;
         /** Start editing this node's title. */
         startEditTitle(): void;
-        /** Call `setExpanded()` on all descendant nodes. */
+        /**
+         * Call `setExpanded()` on all descendant nodes.
+         *
+         * @param flag true to expand, false to collapse.
+         * @param options Additional options.
+         * @see {@link Wunderbaum.expandAll}
+         * @see {@link WunderbaumNode.setExpanded}
+         */
         expandAll(flag?: boolean, options?: ExpandAllOptions): Promise<void>;
         /**
          * Find all descendant nodes that match condition (excluding self).
@@ -1955,12 +1962,34 @@ declare module "types" {
     }
     /** Possible values for {@link Wunderbaum.expandAll} and {@link WunderbaumNode.expandAll}. */
     export interface ExpandAllOptions {
-        /** Restrict expand level @default 99 */
-        depth?: number;
         /** Expand and load lazy nodes @default false  */
         loadLazy?: boolean;
-        /** Ignore `minExpandLevel` option @default false */
+        /** Unload lazily loaded children if any (if collapsing). @default false */
+        resetLazy?: boolean;
+        /** Ignore tree's `minExpandLevel` option @default false */
         force?: boolean;
+        /** Restrict expand level.
+         * Pass 0 to make only toplevel nodes visible, 1 to expand one level deeper, etc.
+         * @default unset (unlimited)
+         */
+        depth?: number;
+        /**
+         * Also collapse child nodes beyond the `depth` level.
+         * Otherwise only the `depth` level is collapsed and the expand state of the
+         * descendants is retained.
+         * Only in combination with collapse and `depth`.
+         * Expanding with `deep` option is not supported as recursion depth implied by
+         * the `depth` option. However a `deep` option will be considered if
+         * `collapseOthers` is set.
+         * @default false
+         */
+        deep?: boolean;
+        /**
+         * Expand up to level=depth and collapse all other branches.
+         * Only in combination with `flag == true`, `depth > 0`.
+         * @default false
+         */
+        collapseOthers?: boolean;
         /** Keep active node visible @default true */
         keepActiveNodeVisible?: boolean;
     }
@@ -2071,7 +2100,7 @@ declare module "types" {
     }
     /** Possible values for {@link WunderbaumNode.setExpanded} `options` argument. */
     export interface SetExpandedOptions {
-        /** Ignore {@link WunderbaumOptions.minExpandLevel}. @default false */
+        /** Ignore {@link WunderbaumOptions}.minExpandLevel. @default false */
         force?: boolean;
         /** Immediately update viewport (async otherwise). @default false */
         immediate?: boolean;
@@ -2079,6 +2108,8 @@ declare module "types" {
         noAnimation?: boolean;
         /** Do not send events. @default false */
         noEvents?: boolean;
+        /** Unload lazily loaded children if any (if collapsing). @default false */
+        resetLazy?: boolean;
         /** Scroll up to bring expanded nodes into viewport. @default false */
         scrollIntoView?: boolean;
     }
