@@ -498,7 +498,12 @@ export class Wunderbaum {
       ) {
         return false;
       }
-      if (node && info.colIdx === 0 && node.isExpandable()) {
+      if (
+        node &&
+        info.colIdx === 0 &&
+        node.isExpandable() &&
+        info.region !== NodeRegion.expander
+      ) {
         this._callMethod("edit._stopEditTitle");
         node.setExpanded(!node.isExpanded());
       }
