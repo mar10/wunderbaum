@@ -6,7 +6,7 @@
     is only a special case). <br>
     Rendering and editing of grid cells requires custom event handlers.
 
-!!! info
+!!! info "See also"
 
     See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable).
 

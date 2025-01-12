@@ -110,7 +110,7 @@ for a complete list of all availabe CSS variables.
 
 ## CSS Hacks
 
-!!! info
+!!! info "See also"
 
     See also the [Render Tutorial](tutorial_render.md?id=custom-markup)
     for details on the markup structure and used class names.

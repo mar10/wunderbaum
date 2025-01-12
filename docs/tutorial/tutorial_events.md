@@ -54,7 +54,7 @@ e = {
 }
 ```
 
-!!! info
+!!! info "See also"
 
     See also the overview of available functions of the
     [utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).

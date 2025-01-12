@@ -93,7 +93,7 @@ These are events are sent in a typical drag and drop operation:
 
 ## Related Tree Options
 
-!!! info
+!!! info "See also"
 
     See also the [API Documentation for DnD options](https://mar10.github.io/wunderbaum/api/types/types.DndOptionsType.html)
     and the [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain).

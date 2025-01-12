@@ -8,7 +8,7 @@
 
     This chapter is still under construction.
 
-!!! note
+!!! info "See also"
 
     See also the [API Reference](https://mar10.github.io/wunderbaum/api/).
 

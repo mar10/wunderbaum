@@ -7,7 +7,7 @@
 
 The option `keyboard: true` enables standard keyboard navigation.
 
-!!! info
+!!! info "See also"
 
     See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-editable)
     and use the keyboard to navigate, expand, and edit grid cells.

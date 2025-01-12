@@ -38,7 +38,7 @@ nodeList = node.findAll((n) => {
 });
 ```
 
-!!! info
+!!! info "See also"
 
     See also the [API tutorial](tutorial_api.md) for more details.
 
@@ -205,7 +205,7 @@ const tree = new Wunderbaum({
 });
 ```
 
-!!! info
+!!! info "See also"
 
     See also a [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain)
     and enter some text in the _Filter_ control at the top.

@@ -24,7 +24,7 @@ const tree = new Wunderbaum({
 });
 ```
 
-!!! info
+!!! info "See also"
 
     See also the [Selection Example](https://mar10.github.io/wunderbaum/demo/#demo-select).
 

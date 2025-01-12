@@ -200,7 +200,7 @@ Note that
 
 ### Handling External Data Formats
 
-!!! info
+!!! info "See also"
 
     See also [Example with source](https://mar10.github.io/wunderbaum/demo/#demo-custom)
     that queries the [Fake Store API](https://fakestoreapi.com).
