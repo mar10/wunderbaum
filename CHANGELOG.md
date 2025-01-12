@@ -7,8 +7,13 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.11.2: Fix [#108](https://github.com/mar10/wunderbaum/issues/108)
-  Exception when clicking a cell in rowmode
+- v0.12.0: Add `deep`, `resetLazy`, and `collapseOthers` options to
+  `node.` and `tree.expandAll()`.
+- v0.12.0: Add `resetLazy` options to `tree.setExpanded(false, ...)`.
+- v0.12.0: Fix [#108](https://github.com/mar10/wunderbaum/issues/108)
+  Exception when clicking a cell in rowmode.
+- v0.12.0: Fix [#109](https://github.com/mar10/wunderbaum/issues/109)
+  expandAll: 'depth' option ignored when flag is set to false.
 
 - v0.11.1: Accept `0`/`1` for known boolean node property values (allowing for
   more compact JSON sources).
