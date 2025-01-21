@@ -2437,7 +2437,8 @@ export class WunderbaumNode {
       case undefined:
         changed = this.selected || !this._partsel;
         this.selected = false;
-        this._partsel = true;
+        // #110: end nodess cannot have a `_partsel` flag
+        this._partsel = this.hasChildren() ? true : false;
         break;
       default:
         util.error(`Invalid state: ${state}`);
