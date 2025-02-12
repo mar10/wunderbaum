@@ -113,6 +113,14 @@ export interface WunderbaumOptions {
   skeleton?: boolean;
   /**
    * Translation map for some system messages.
+   * Default:
+   * ```js
+   * strings: {
+   *   loading: "Loading...",
+   *   loadError: "Error",
+   *   noData: "No data",
+   * }
+   * ```
    */
   strings?: any; //[key: string] string;
   /**

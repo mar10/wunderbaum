@@ -370,8 +370,7 @@ export class Wunderbaum {
     // --- Load initial data
     if (opts.source) {
       if (opts.showSpinner) {
-        this.nodeListElement.innerHTML =
-          "<progress class='spinner'>loading...</progress>";
+        this.nodeListElement.innerHTML = `<progress class='spinner'>${opts.strings.loading}</progress>`;
       }
       this.load(opts.source)
         .then(() => {
