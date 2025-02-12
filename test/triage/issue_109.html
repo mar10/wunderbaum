@@ -1,0 +1,80 @@
+<html>
+
+<head>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@latest/dist/wunderbaum.css">
+    <style>
+    </style>
+</head>
+
+<body>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll()">
+        Expand all</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 0})">
+        Expand depth=0</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 1})">
+        Expand depth=1</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 1, deep:true})">
+        Expand depth=1, deep</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 2})">
+        Expand depth=2</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 0, collapseOthers:true})">
+        Expand depth=0, collapse others</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 1, collapseOthers:true})">
+        Expand depth=1, collapse others</button>
+    <button
+        onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(true, {depth: 1, collapseOthers:true, deep:true})">
+        Expand depth=1, collapse others, deep</button>
+    <br>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(false)">
+        Collapse all</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(false, {depth: 0})">
+        Collapse depth=0</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(false, {depth: 1})">
+        Collapse depth=1</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(false, {depth: 1, deep:true})">
+        Collapse depth=1, deep</button>
+    <button onclick="mar10.Wunderbaum.getTree('#demo-tree').expandAll(false, {depth: 2})">
+        Collapse depth=2</button>
+
+    <div id="demo-tree" class="wb-skeleton wb-initializing"></div>
+    <!-- <script src="https://cdn.jsdelivr.net/gh/mar10/wunderbaum@latest/dist/wunderbaum.umd.min.js"></script> -->
+    <script src="../../build/wunderbaum.umd.js"></script>
+    <script>
+        new mar10.Wunderbaum({
+            id: "demo",
+            element: document.getElementById("demo-tree"),
+            source:
+                // "../../test/fixtures/tree_fmea_XL_t_flat_comp.json",
+                "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
+            // source: {
+            //     children: [
+            //         {
+            //             title: "Level 1",
+            //             expanded: true,
+            //             children: [
+            //                 {
+            //                     title: "Level 2",
+            //                     expanded: true,
+            //                     children: [
+            //                         {
+            //                             title: "Level 3",
+            //                             expanded: true,
+            //                             children: [
+            //                                 {
+            //                                     title: "Level 4"
+            //                                 }
+            //                             ]
+            //                         }
+            //                     ]
+            //                 }
+            //             ]
+            //         }
+            //     ]
+            // },
+            debugLevel: 5
+        });
+    </script>
+</body>
+
+</html>

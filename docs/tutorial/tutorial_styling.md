@@ -1,5 +1,9 @@
 # Styling
 
+!!! abstract "TL;DR"
+
+    Common CSS classes allow custom styling and effects.
+
 ## Feature Classes
 
 We can add special classes to the tree's `<div>` container in order to enable
@@ -106,7 +110,7 @@ for a complete list of all availabe CSS variables.
 
 ## CSS Hacks
 
-!!! info
+!!! info "See also"
 
     See also the [Render Tutorial](tutorial_render.md?id=custom-markup)
     for details on the markup structure and used class names.

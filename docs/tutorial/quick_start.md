@@ -87,7 +87,7 @@ ESM modules are also supported:
 
     Read [migrate](migrate.md) for details and migration hints.
 
-!!! info
+!!! info "See also"
 
     See also the [API Documentation](https://mar10.github.io/wunderbaum/api/)
     and the [live demo](https://mar10.github.io/wunderbaum/demo/).

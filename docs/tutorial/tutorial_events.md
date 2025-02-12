@@ -1,8 +1,11 @@
 # Event Handling
 
-The interactive behavior of Wunderbaum is controlled by a set of event handlers.
-These are defined as properties of the tree object, and are called by the tree
-whenever a certain event occurs.
+!!! abstract "TL;DR"
+
+    The interactive behavior of Wunderbaum is controlled by a set of event handlers.
+
+Event handlers are callback functions that are passes as options of the tree object,
+and are called whenever a certain event occurs:
 
 ```js
 const tree = new mar10.Wunderbaum({
@@ -51,7 +54,7 @@ e = {
 }
 ```
 
-!!! info
+!!! info "See also"
 
     See also the overview of available functions of the
     [utility module](https://mar10.github.io/wunderbaum/api/modules/util.html).
@@ -111,7 +114,7 @@ Common event handlers include:
   <small>- <i>node event</i></small>
 </dt> <dd>
   The `change(e)` callback is called when the user has finished editing a cell.
-  More precisely, it is called when the embedded <i>input</i>, <i>select</i>, 
+  More precisely, it is called when the embedded <i>input</i>, <i>select</i>,
   or <i>textarea</i> element fired a <i>change</i> event.
 </dd>
 
@@ -120,7 +123,7 @@ Common event handlers include:
   <small>- <i>node event</i></small>
 </dt> <dd>
   `e.node` was clicked. <br>
-  Return `false` to prevent default behavior, e.g. expand/collapse, 
+  Return `false` to prevent default behavior, e.g. expand/collapse,
   (de)selection, or activation.
 </dd>
 
@@ -195,7 +198,7 @@ Common event handlers include:
   `e.node` is about to be rendered. We can add a badge to the icon cell here. <br>
   Returns <a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html">WbIconBadgeEventResultType</a>.
 </dd>
-  
+
 <dt>
   <code>init(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbInitEventType.html">WbInitEventType</a>)</code>
   <small>- <i>tree event</i></small>
@@ -282,3 +285,26 @@ Common event handlers include:
 </dd>
 
 </dl>
+
+## Register Custom events
+
+To register a custom event, we can use event delegation.
+For example, to handle a `contextmenu` event on a row, we can add an event listener to the `body` element. This would allow to prevent the default context menu, or to show a custom context menu. <br>
+The `getNode()` utility method can be used to retrieve the node object that
+corresponds to the clicked row:
+
+```html
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.body.addEventListener("contextmenu", function (event) {
+      if (event.target.closest("div.wb-row")) {
+        const node = mar10.Wunderbaum.getNode(event);
+        node.logInfo("received contextmenu event");
+
+        // Optionally prevent the default context menu:
+        event.preventDefault();
+      }
+    });
+  });
+</script>
+```

@@ -1,6 +1,8 @@
 # Selection
 
-Wunderbaum supports hierarchical selection, and radio-groups.
+!!! abstract "TL;DR"
+
+    Wunderbaum supports hierarchical selection, and radio-groups.
 
 ### Related Tree Options
 
@@ -22,7 +24,7 @@ const tree = new Wunderbaum({
 });
 ```
 
-!!! info
+!!! info "See also"
 
     See also the [Selection Example](https://mar10.github.io/wunderbaum/demo/#demo-select).
 

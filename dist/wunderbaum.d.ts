@@ -293,7 +293,7 @@ declare module "util" {
      */
     export function extend(...args: any[]): any;
     /** Return true if `obj` is of type `array`. */
-    export function isArray(obj: any): boolean;
+    export function isArray(obj: any): obj is any[];
     /** Return true if `obj` is of type `Object` and has no properties. */
     export function isEmptyObject(obj: any): boolean;
     /** Return true if `obj` is of type `function`. */
@@ -396,6 +396,13 @@ declare module "util" {
      * ```
      */
     export function toBool(...boolDefaults: (boolean | undefined | null)[]): boolean;
+    /**
+     * Return `val` unless `val` is a number in which case we convert to boolean.
+     * This is useful when a boolean value is stored as a 0/1 (e.g. in JSON) and
+     * we still want to maintain string values. null and undefined are returned as
+     * is. E.g. `checkbox` may be boolean or 'radio'.
+     */
+    export function intToBool(val: boolean | number | string | undefined): boolean | string | undefined;
     /** Return a canonical string representation for an object's type (e.g. 'array', 'number', ...). */
     export function type(obj: any): string;
     /**
@@ -424,7 +431,7 @@ declare module "common" {
     /**
      * Fixed height of a row in pixel. Must match the SCSS variable `$row-outer-height`.
      */
-    export const ROW_HEIGHT = 22;
+    export const DEFAULT_ROW_HEIGHT = 22;
     /**
      * Fixed width of node icons in pixel. Must match the SCSS variable `$icon-outer-width`.
      */
@@ -588,7 +595,9 @@ declare module "wb_node" {
          */
         type?: string;
         /** Tooltip definition (`true`: use node's title). */
-        tooltip?: string | boolean;
+        tooltip?: TooltipOption;
+        /** Icon tooltip definition (`true`: use node's title). */
+        iconTooltip?: TooltipOption;
         /** Additional classes added to `div.wb-row`.
          * @see {@link hasClass}, {@link setClass}. */
         classes: Set<string> | null;
@@ -672,7 +681,14 @@ declare module "wb_node" {
         setClass(className: string | string[] | Set<string>, flag?: boolean): void;
         /** Start editing this node's title. */
         startEditTitle(): void;
-        /** Call `setExpanded()` on all descendant nodes. */
+        /**
+         * Call `setExpanded()` on all descendant nodes.
+         *
+         * @param flag true to expand, false to collapse.
+         * @param options Additional options.
+         * @see {@link Wunderbaum.expandAll}
+         * @see {@link WunderbaumNode.setExpanded}
+         */
         expandAll(flag?: boolean, options?: ExpandAllOptions): Promise<void>;
         /**
          * Find all descendant nodes that match condition (excluding self).
@@ -1552,7 +1568,7 @@ declare module "types" {
         colspan?: boolean;
         expanded?: boolean;
         icon?: IconOption;
-        iconTooltip?: boolean | string;
+        iconTooltip?: TooltipOption;
         key?: string;
         lazy?: boolean;
         /** Make child nodes single-select radio buttons. */
@@ -1561,7 +1577,7 @@ declare module "types" {
         selected?: boolean;
         statusNodeType?: NodeStatusType;
         title: string;
-        tooltip?: boolean | string;
+        tooltip?: TooltipOption;
         type?: string;
         unselectable?: boolean;
         /** @internal */
@@ -1737,8 +1753,8 @@ declare module "types" {
         colspan?: boolean;
         /** Default icon for matching nodes. */
         icon?: IconOption;
-        /** Default icon for matching nodes. */
-        iconTooltip?: string | boolean;
+        /** Default icon tooltip for matching nodes. */
+        iconTooltip?: TooltipOption;
         [key: string]: unknown;
     }
     export type NodeTypeDefinitionMap = {
@@ -1946,12 +1962,34 @@ declare module "types" {
     }
     /** Possible values for {@link Wunderbaum.expandAll} and {@link WunderbaumNode.expandAll}. */
     export interface ExpandAllOptions {
-        /** Restrict expand level @default 99 */
-        depth?: number;
         /** Expand and load lazy nodes @default false  */
         loadLazy?: boolean;
-        /** Ignore `minExpandLevel` option @default false */
+        /** Unload lazily loaded children if any (if collapsing). @default false */
+        resetLazy?: boolean;
+        /** Ignore tree's `minExpandLevel` option @default false */
         force?: boolean;
+        /** Restrict expand level.
+         * Pass 0 to make only toplevel nodes visible, 1 to expand one level deeper, etc.
+         * @default unset (unlimited)
+         */
+        depth?: number;
+        /**
+         * Also collapse child nodes beyond the `depth` level.
+         * Otherwise only the `depth` level is collapsed and the expand state of the
+         * descendants is retained.
+         * Only in combination with collapse and `depth`.
+         * Expanding with `deep` option is not supported as recursion depth implied by
+         * the `depth` option. However a `deep` option will be considered if
+         * `collapseOthers` is set.
+         * @default false
+         */
+        deep?: boolean;
+        /**
+         * Expand up to level=depth and collapse all other branches.
+         * Only in combination with `flag == true`, `depth > 0`.
+         * @default false
+         */
+        collapseOthers?: boolean;
         /** Keep active node visible @default true */
         keepActiveNodeVisible?: boolean;
     }
@@ -2062,7 +2100,7 @@ declare module "types" {
     }
     /** Possible values for {@link WunderbaumNode.setExpanded} `options` argument. */
     export interface SetExpandedOptions {
-        /** Ignore {@link WunderbaumOptions.minExpandLevel}. @default false */
+        /** Ignore {@link WunderbaumOptions}.minExpandLevel. @default false */
         force?: boolean;
         /** Immediately update viewport (async otherwise). @default false */
         immediate?: boolean;
@@ -2070,6 +2108,8 @@ declare module "types" {
         noAnimation?: boolean;
         /** Do not send events. @default false */
         noEvents?: boolean;
+        /** Unload lazily loaded children if any (if collapsing). @default false */
+        resetLazy?: boolean;
         /** Scroll up to bring expanded nodes into viewport. @default false */
         scrollIntoView?: boolean;
     }

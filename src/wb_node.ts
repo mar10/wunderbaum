@@ -50,7 +50,6 @@ import {
   makeNodeTitleMatcher,
   nodeTitleSorter,
   RESERVED_TREE_SOURCE_KEYS,
-  ROW_HEIGHT,
   TEST_IMG,
   TITLE_SPAN_PAD_Y,
 } from "./common";
@@ -471,58 +470,78 @@ export class WunderbaumNode {
     this.tree._callMethod("edit.startEditTitle", this);
   }
 
-  /** Call `setExpanded()` on all descendant nodes. */
+  /**
+   * Call `setExpanded()` on all descendant nodes.
+   *
+   * @param flag true to expand, false to collapse.
+   * @param options Additional options.
+   * @see {@link Wunderbaum.expandAll}
+   * @see {@link WunderbaumNode.setExpanded}
+   */
   async expandAll(flag: boolean = true, options?: ExpandAllOptions) {
     const tree = this.tree;
-    const minExpandLevel = this.tree.options.minExpandLevel;
     const {
-      depth = 99,
-      loadLazy,
+      collapseOthers,
+      deep,
+      depth,
       force,
       keepActiveNodeVisible = true,
+      loadLazy,
+      resetLazy,
     } = options ?? {};
-
+    // limit expansion level to `depth` (or tree.minExpandLevel). Default: unlimited
+    const treeLevel = this.tree.options.minExpandLevel || null; // 0 -> null
+    const minLevel = depth ?? (force ? null : treeLevel);
     const expandOpts = {
-      scrollIntoView: false, // don't scroll very node on iteration
+      deep: deep,
       force: force,
       loadLazy: loadLazy,
+      resetLazy: resetLazy,
+      scrollIntoView: false, // don't scroll every node while iterating
     };
 
-    // this.logInfo(`expandAll(${flag})`);
+    this.logInfo(`expandAll(${flag}, depth=${depth}, minLevel=${minLevel})`);
+
+    util.assert(
+      !(flag && deep != null && !collapseOthers),
+      "Expanding with `deep` option is not supported (implied by the `depth` option)."
+    );
+
     // Expand all direct children in parallel:
-    async function _iter(n: WunderbaumNode, level: number | null) {
-      // n.logInfo(`  _iter(${level})`);
-      if (level === 0) {
-        return;
-      }
-      // if (!flag && minExpandLevel && !force && n.getLevel() <= minExpandLevel) {
-      //   return; // Do not collapse until minExpandLevel
-      // }
-      const level_1 = level == null ? null : level - 1;
+    async function _iter(n: WunderbaumNode, level: number) {
+      // n.logInfo(`  _iter(level=${level})`);
       const promises: Promise<unknown>[] = [];
       n.children?.forEach((cn) => {
         if (flag) {
-          if (!cn.expanded && (cn.children || (loadLazy && cn.lazy))) {
+          if (
+            !cn.expanded &&
+            (minLevel == null || level < minLevel) &&
+            (cn.children || (loadLazy && cn.lazy))
+          ) {
             // Node is collapsed and may be expanded (i.e. has children or is lazy)
             // Expanding may be async, so we store the promise.
             // Also the recursion is delayed until expansion finished.
             const p = cn.setExpanded(true, expandOpts);
             promises.push(p);
-            p.then(async () => {
-              await _iter(cn, level_1);
-            });
+            if (depth == null) {
+              p.then(async () => {
+                await _iter(cn, level + 1);
+              });
+            }
           } else {
             // We don't expand the node, but still visit descendants.
             // There we may find lazy nodes, so we
-            promises.push(_iter(cn, level_1));
+            promises.push(_iter(cn, level + 1));
           }
         } else {
           // Collapsing is always synchronous, so no promises required
-          if (!minExpandLevel || force || cn.getLevel() > minExpandLevel) {
-            // Do not collapse until minExpandLevel
+          // Do not collapse until minExpandLevel
+          if (minLevel == null || level >= minLevel) {
             cn.setExpanded(false, expandOpts);
           }
-          _iter(cn, level_1); // recursion, even if cn was already collapsed
+          if ((minLevel != null && level < minLevel) || deep) {
+            _iter(cn, level + 1); // recursion, even if cn was already collapsed
+          }
         }
       });
       return new Promise((resolve) => {
@@ -532,10 +551,20 @@ export class WunderbaumNode {
       });
     }
 
-    const tag = tree.logTime(`${this}.expandAll(${flag})`);
+    const tag = tree.logTime(`${this}.expandAll(${flag}, depth=${depth})`);
     try {
       tree.enableUpdate(false);
-      await _iter(this, depth);
+
+      await _iter(this, 0);
+
+      if (collapseOthers) {
+        util.assert(flag, "Option `collapseOthers` requires flag=true");
+        util.assert(
+          minLevel != null,
+          "Option `collapseOthers` requires `depth` or `minExpandLevel`"
+        );
+        this.expandAll(false, { depth: minLevel! });
+      }
     } finally {
       tree.enableUpdate(true);
       tree.logTimeEnd(tag);
@@ -1683,6 +1712,7 @@ export class WunderbaumNode {
   protected _render_markup(opts: RenderOptions) {
     const tree = this.tree;
     const treeOptions = tree.options;
+    const rowHeight = treeOptions.rowHeightPx!;
     const checkbox = this.getOption("checkbox");
     const columns = tree.columns;
     const level = this.getLevel();
@@ -1704,7 +1734,7 @@ export class WunderbaumNode {
     rowDiv = document.createElement("div");
     rowDiv.classList.add("wb-row");
 
-    rowDiv.style.top = this._rowIdx! * ROW_HEIGHT + "px";
+    rowDiv.style.top = this._rowIdx! * rowHeight + "px";
 
     this._rowElem = rowDiv;
 
@@ -2199,7 +2229,7 @@ export class WunderbaumNode {
     const colIdx = options?.colIdx; // Default: null
     const edit = options?.edit; // Default: false
 
-    util.assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
+    // util.assert(!colIdx || tree.isCellNav(), "colIdx requires cellNav");
     util.assert(!edit || colIdx != null, "edit requires colIdx");
 
     if (!noEvents) {
@@ -2257,7 +2287,7 @@ export class WunderbaumNode {
    * Expand or collapse this node.
    */
   async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
-    const { force, scrollIntoView, immediate } = options ?? {};
+    const { force, scrollIntoView, immediate, resetLazy } = options ?? {};
     const sendEvents = !options?.noEvents; // Default: send events
     if (
       !flag &&
@@ -2284,6 +2314,8 @@ export class WunderbaumNode {
     }
     if (flag && this.lazy && this.children == null) {
       await this.loadLazy();
+    } else if (!flag && resetLazy && this.lazy && this.children) {
+      this.resetLazy();
     }
     this.expanded = flag;
     const updateOpts = { immediate: immediate };
@@ -2405,7 +2437,8 @@ export class WunderbaumNode {
       case undefined:
         changed = this.selected || !this._partsel;
         this.selected = false;
-        this._partsel = true;
+        // #110: end nodess cannot have a `_partsel` flag
+        this._partsel = this.hasChildren() ? true : false;
         break;
       default:
         util.error(`Invalid state: ${state}`);

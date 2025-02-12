@@ -1,5 +1,11 @@
 # Data Formats
 
+!!! abstract "TL;DR"
+
+    The node structure is defined as nested object structure.
+    It is typically loaded via Ajax in JSON format. <br>
+    Type- and attibute-maps allow for compact transfer.
+
 Some examples of how the data should be formatted in JSON.
 
 ## Nested List Format

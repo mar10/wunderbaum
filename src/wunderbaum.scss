@@ -4,6 +4,8 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 // @use "sass:meta";
+@use "sass:color";
+@use "sass:list";
 
 // ----------------------------------------------------------------------------
 // --- Define default colors and settings
@@ -22,26 +24,26 @@ $alternate-row-color-hover: #f3f3f3; //#f7fcfe;
 $focus-border-color: #275dc5;
 
 // derived
-$drop-source-color: adjust-color($node-text-color, $lightness: 50%);
-$drop-target-color: adjust-color($bg-highlight-color, $lightness: 40%);
-$dim-color: adjust-color($node-text-color, $lightness: 20%);
-$error-background-color: adjust-color($error-color, $lightness: 45%);
+$drop-source-color: color.adjust($node-text-color, $lightness: 50%);
+$drop-target-color: color.adjust($bg-highlight-color, $lightness: 40%);
+$dim-color: color.adjust($node-text-color, $lightness: 20%);
+$error-background-color: color.adjust($error-color, $lightness: 45%);
 // @debug $dim-color;
-$hover-color: adjust-color($bg-highlight-color, $lightness: 48%); // #f7f7f7;
+$hover-color: color.adjust($bg-highlight-color, $lightness: 48%); // #f7f7f7;
 $hover-border-color: $hover-color;
 $grid-color: #dedede;
 $active-color: #e5f3fb;
-$active-cell-color: adjust-color($bg-highlight-color, $lightness: 20%);
+$active-cell-color: color.adjust($bg-highlight-color, $lightness: 20%);
 $active-border-color: #70c0e7;
 $active-hover-color: #dceff8;
 $active-hover-border-color: $bg-highlight-color;
 $active-column-color: $hover-color;
-$active-header-column-color: adjust-color($header-color, $lightness: -10%);
-$active-color-grayscale: grayscale($active-color);
-$active-border-color-grayscale: grayscale($active-border-color);
-$active-hover-color-grayscale: grayscale($active-hover-color);
-$active-cell-color-grayscale: grayscale($active-cell-color);
-$grid-color-grayscale: grayscale($grid-color);
+$active-header-column-color: color.adjust($header-color, $lightness: -10%);
+$active-color-grayscale: color.grayscale($active-color);
+$active-border-color-grayscale: color.grayscale($active-border-color);
+$active-hover-color-grayscale: color.grayscale($active-hover-color);
+$active-cell-color-grayscale: color.grayscale($active-cell-color);
+$grid-color-grayscale: color.grayscale($grid-color);
 // @debug $active-header-column-color;
 $filter-dim-color: #dedede;
 $filter-submatch-color: #868581;
@@ -696,10 +698,10 @@ div.wunderbaum {
 
   /* Colorize indentation levels. */
   &.wb-rainbow {
-    @for $i from 1 through length($level-rainbow) {
-      i.wb-expander:nth-child(#{length($level-rainbow)}n + #{$i}),
-      i.wb-indent:nth-child(#{length($level-rainbow)}n + #{$i}) {
-        background: nth($level-rainbow, $i);
+    @for $i from 1 through list.length($level-rainbow) {
+      i.wb-expander:nth-child(#{list.length($level-rainbow)}n + #{$i}),
+      i.wb-indent:nth-child(#{list.length($level-rainbow)}n + #{$i}) {
+        background: list.nth($level-rainbow, $i);
       }
     }
   }

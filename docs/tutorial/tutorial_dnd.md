@@ -1,5 +1,11 @@
 # Drag and Drop
 
+!!! abstract "TL;DR"
+
+    Wunderbaum implements drag and drop according to the native HTML protocol.
+    This allows interaction between different tree instances, browsers, and
+    even native applcations.
+
 Wunderbaum supports drag and drop of nodes within the tree and between trees.
 It is also possible to drag nodes from the tree to other elements on the page or
 vice versa. Even cross-window drag and drop is supported. <br>
@@ -87,7 +93,7 @@ These are events are sent in a typical drag and drop operation:
 
 ## Related Tree Options
 
-!!! info
+!!! info "See also"
 
     See also the [API Documentation for DnD options](https://mar10.github.io/wunderbaum/api/types/types.DndOptionsType.html)
     and the [live demo](https://mar10.github.io/wunderbaum/demo/#demo-plain).

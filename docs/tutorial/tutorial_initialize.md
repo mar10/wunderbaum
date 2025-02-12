@@ -1,5 +1,15 @@
 # Loading and Initialization
 
+!!! abstract "TL;DR"
+
+    Wunderbaum is included on a page and initialized by instantiating a
+    Wunderbaum object with custom options.
+
+## Preparation
+
+We need to include the library, stylesheets, and fonts as a precondition. <br>
+See [Quick Start](quick_start.md) for details.
+
 ## Passing Options
 
 There are many more options and callbacks available. Here are some of the
@@ -190,7 +200,7 @@ Note that
 
 ### Handling External Data Formats
 
-!!! info
+!!! info "See also"
 
     See also [Example with source](https://mar10.github.io/wunderbaum/demo/#demo-custom)
     that queries the [Fake Store API](https://fakestoreapi.com).

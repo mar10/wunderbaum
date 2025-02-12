@@ -1,8 +1,14 @@
 # Custom Rendering
 
+!!! abstract "TL;DR"
+
+    Wunderbaum is rendered as nested `<div>`/`<span>` element structure.
+    It can be customized by applying CSS styles. <br>
+    Node icons are created from customizable icon fonts.
+
 This chapter describes different ways to customize the appearance of the tree.
 
-!!! info
+!!! info "See also"
 
     See also the [Grid Tutorial](tutorial_grid.md) for rendering of
     grid cell content and [Edit Tutorial](tutorial_grid.md) for rendering
@@ -20,7 +26,7 @@ div.wunderbaum.wb-grid.wb-cell-mode div.wb-row.wb-active span.wb-col.wb-active {
 }
 ```
 
-!!! info
+!!! info "See also"
 
     See the [Styling Tutorial](tutorial_styling.md) for details.
 
@@ -187,7 +193,7 @@ div.wunderbaum span.wb-badge.selection-count {
 }
 ```
 
-!!! info
+!!! info "See also"
 
     See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
     and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html).

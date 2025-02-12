@@ -8,11 +8,11 @@ __pycache__
 /build
 /node_modules
 /site/
-/test/fixtures
 /test/triage
 docs/tutorial/FT_*.md
 playwright-report/
 test-results/
+/test/fixtures
 test/issue_*.*
 /.yarn
 .pnp.cjs
