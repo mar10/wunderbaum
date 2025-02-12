@@ -2380,8 +2380,9 @@ export class Wunderbaum {
     // this.debug("render", opts);
     const obsoleteNodes = new Set<WunderbaumNode>();
     this.nodeListElement.childNodes.forEach((elem) => {
-      const tr = elem as HTMLTableRowElement;
-      obsoleteNodes.add((<any>tr)._wb_node);
+      if ((<any>elem)._wb_node) {
+        obsoleteNodes.add((<any>elem)._wb_node);
+      }
     });
 
     let idx = 0;

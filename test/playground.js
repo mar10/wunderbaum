@@ -32,7 +32,7 @@ const tree = new Wunderbaum({
   // iconMap: "fontawesome6",
   // navigationModeOption: "cell",
   // scrollIntoViewOnExpandClick: false,
-  // showSpinner: true,
+  showSpinner: true,
 
   columns: [
     { title: "test", id: "*", width: "200px" },
