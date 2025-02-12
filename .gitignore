@@ -14,3 +14,6 @@ docs/tutorial/FT_*.md
 playwright-report/
 test-results/
 test/issue_*.*
+/.yarn
+.pnp.cjs
+.pnp.loader.mjs
