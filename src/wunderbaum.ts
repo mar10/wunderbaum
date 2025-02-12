@@ -319,7 +319,7 @@ export class Wunderbaum {
       // User existing header markup to define `this.columns`
       util.assert(
         !this.columns,
-        "`opts.columns` must not be set if markup already contains a header"
+        "`opts.columns` must not be set if table markup already contains a header"
       );
       this.columns = [];
       const rowElement =
