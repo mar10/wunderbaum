@@ -319,7 +319,7 @@ export class Wunderbaum {
       // User existing header markup to define `this.columns`
       util.assert(
         !this.columns,
-        "`opts.columns` must not be set if markup already contains a header"
+        "`opts.columns` must not be set if table markup already contains a header"
       );
       this.columns = [];
       const rowElement =
@@ -380,8 +380,7 @@ export class Wunderbaum {
     // --- Load initial data
     if (opts.source) {
       if (opts.showSpinner) {
-        this.nodeListElement.innerHTML =
-          "<progress class='spinner'>loading...</progress>";
+        this.nodeListElement.innerHTML = `<progress class='spinner'>${opts.strings.loading}</progress>`;
       }
       this.load(opts.source)
         .then(() => {
@@ -2400,8 +2399,9 @@ export class Wunderbaum {
     // this.debug("render", opts);
     const obsoleteNodes = new Set<WunderbaumNode>();
     this.nodeListElement.childNodes.forEach((elem) => {
-      const tr = elem as HTMLTableRowElement;
-      obsoleteNodes.add((<any>tr)._wb_node);
+      if ((<any>elem)._wb_node) {
+        obsoleteNodes.add((<any>elem)._wb_node);
+      }
     });
 
     let idx = 0;
