@@ -125,14 +125,14 @@ export class Wunderbaum {
   protected _focusNode: WunderbaumNode | null = null;
 
   /** Currently active node if any.
-   * Use @link {WunderbaumNode.setActive|setActive} to modify.
+   * Use {@link WunderbaumNode.setActive|setActive} to modify.
    */
   public get activeNode() {
     // Check for deleted node, i.e. node.tree === null
     return this._activeNode?.tree ? this._activeNode : null;
   }
   /** Current node hat has keyboard focus if any.
-   * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+   * Use {@link WunderbaumNode.setFocus|setFocus()} to modify.
    */
   public get focusNode() {
     // Check for deleted node, i.e. node.tree === null
@@ -380,8 +380,7 @@ export class Wunderbaum {
     // --- Load initial data
     if (opts.source) {
       if (opts.showSpinner) {
-        this.nodeListElement.innerHTML =
-          "<progress class='spinner'>loading...</progress>";
+        this.nodeListElement.innerHTML = `<progress class='spinner'>${opts.strings.loading}</progress>`;
       }
       this.load(opts.source)
         .then(() => {
@@ -2400,8 +2399,9 @@ export class Wunderbaum {
     // this.debug("render", opts);
     const obsoleteNodes = new Set<WunderbaumNode>();
     this.nodeListElement.childNodes.forEach((elem) => {
-      const tr = elem as HTMLTableRowElement;
-      obsoleteNodes.add((<any>tr)._wb_node);
+      if ((<any>elem)._wb_node) {
+        obsoleteNodes.add((<any>elem)._wb_node);
+      }
     });
 
     let idx = 0;

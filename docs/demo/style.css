@@ -22,7 +22,8 @@ ul {
 }
 
 body {
-  font-family: "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
+  font-family:
+    "Segoe UI", Candara, "Bitstream Vera Sans", "DejaVu Sans",
     "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
   background-color: var(--bg-color-dark);
   color: var(--font-color);

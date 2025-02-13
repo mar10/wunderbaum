@@ -7,5 +7,6 @@
   },
   "explorer.excludeGitIgnore": false,
   "editor.formatOnSave": true,
-  "black-formatter.importStrategy": "fromEnvironment"
+  "black-formatter.importStrategy": "fromEnvironment",
+  "eslint.useFlatConfig": true
 }
