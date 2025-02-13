@@ -127,8 +127,7 @@ new mar10.Wunderbaum({
   },
   select: function (e) {
     console.log(e.type, e, e.tree.getSelectedNodes());
-    document.getElementById(
-      "tree-info-custom"
-    ).textContent = `Selected: ${e.tree.getSelectedNodes(true)}`;
+    document.getElementById("tree-info-custom").textContent =
+      `Selected: ${e.tree.getSelectedNodes(true)}`;
   },
 });
