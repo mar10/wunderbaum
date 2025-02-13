@@ -285,3 +285,26 @@ Common event handlers include:
 </dd>
 
 </dl>
+
+## Register Custom events
+
+To register a custom event, we can use event delegation.
+For example, to handle a `contextmenu` event on a row, we can add an event listener to the `body` element. This would allow to prevent the default context menu, or to show a custom context menu. <br>
+The `getNode()` utility method can be used to retrieve the node object that
+corresponds to the clicked row:
+
+```html
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    document.body.addEventListener("contextmenu", function (event) {
+      if (event.target.closest("div.wb-row")) {
+        const node = mar10.Wunderbaum.getNode(event);
+        node.logInfo("received contextmenu event");
+
+        // Optionally prevent the default context menu:
+        event.preventDefault();
+      }
+    });
+  });
+</script>
+```

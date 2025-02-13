@@ -6,7 +6,7 @@ repo_url: https://github.com/mar10/wunderbaum
 
 site_author: Martin Wendt
 copyright: |
-  Copyright © 2021-2024 Martin Wendt, 
+  Copyright © 2021-2024 Martin Wendt,
   Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
 
 # remote_branch: gh-pages
@@ -23,11 +23,11 @@ theme:
     - content.code.copy
 
     - header.autohide
-    
+
     # - navigation.anchors
     - navigation.bottom
     - navigation.breadcrumbs
-    # - navigation.edit_url 
+    # - navigation.edit_url
     - navigation.expand
     - navigation.footer
     - navigation.indexes
@@ -41,10 +41,10 @@ theme:
     - navigation.tabs.sticky
     # - navigation.toc
     - navigation.top
-    - navigation.tracking 
+    - navigation.tracking
 
-    - toc.follow 
-    # - toc.integrate 
+    - toc.follow
+    # - toc.integrate
 
   palette:
 
@@ -56,7 +56,7 @@ theme:
 
     # Palette toggle for light mode
     - media: "(prefers-color-scheme: light)"
-      scheme: default 
+      scheme: default
       toggle:
         icon: material/brightness-7
         name: Switch to dark mode
@@ -68,11 +68,6 @@ theme:
         icon: material/brightness-4
         name: Switch to system preference
 
-markdown_extensions:
-  - admonition
-  - pymdownx.details
-  - pymdownx.superfences
-  
 exclude_docs: |
   .*
   /templates/
@@ -108,9 +103,9 @@ nav:
 
 validation:
   omitted_files: warn
-  absolute_links: warn # Or 'relative_to_docs' 
+  absolute_links: warn # Or 'relative_to_docs'
   unrecognized_links: warn
-  anchors: warn 
+  anchors: warn
 
 markdown_extensions:
   - admonition
