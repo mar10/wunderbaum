@@ -125,14 +125,14 @@ export class Wunderbaum {
   protected _focusNode: WunderbaumNode | null = null;
 
   /** Currently active node if any.
-   * Use @link {WunderbaumNode.setActive|setActive} to modify.
+   * Use {@link WunderbaumNode.setActive|setActive} to modify.
    */
   public get activeNode() {
     // Check for deleted node, i.e. node.tree === null
     return this._activeNode?.tree ? this._activeNode : null;
   }
   /** Current node hat has keyboard focus if any.
-   * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+   * Use {@link WunderbaumNode.setFocus|setFocus()} to modify.
    */
   public get focusNode() {
     // Check for deleted node, i.e. node.tree === null
