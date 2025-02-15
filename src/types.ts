@@ -145,7 +145,7 @@ export interface WbNodeData {
   lazy?: boolean;
   /** Make child nodes single-select radio buttons. */
   radiogroup?: boolean;
-  /** Node's reference key. Unlike {@link WunderbaumOptions.key}, this value
+  /** Node's reference key. Unlike {@link WunderbaumNode.key}, this value
    * may be non-unique. Nodes within the tree that share the same refKey are considered
    * clones.
    */
