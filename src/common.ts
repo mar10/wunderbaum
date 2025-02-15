@@ -36,8 +36,11 @@ export const TEST_IMG = new RegExp(/\.|\//);
 // export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
 /**
- * Default node icons.
- * Requires bootstrap icons https://icons.getbootstrap.com
+ * Default node icons for icon libraries
+ *
+ *  - 'bootstrap': {@link https://icons.getbootstrap.com}
+ *  - 'fontawesome6' {@link https://fontawesome.com/icons}
+ *
  */
 export const iconMaps: { [key: string]: { [key: string]: string } } = {
   bootstrap: {
