@@ -1,7 +1,7 @@
 /**
  * Demo code for Wunderbaum (https://github.com/mar10/wunderbaum).
  *
- * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
  */
 
 /* global mar10 */
@@ -9,7 +9,7 @@
 /* eslint-disable no-console */
 
 document.getElementById("demo-info").innerHTML = `
-Convert and consume data from a custom endpoint 
+Convert and consume data from a custom endpoint
 (<a href="https://fakestoreapi.com/" target="_blank">Fake Store API</a>).
 `;
 
