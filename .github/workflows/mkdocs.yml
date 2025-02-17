@@ -32,6 +32,8 @@ jobs:
 
       - run: pip install mkdocs-material
 
+      - run: mkdocs gh-deploy --force
+
       - name: Copy unit tests to docs
         run: |
           pwd
@@ -41,8 +43,6 @@ jobs:
           ls -l docs
           ls -l docs/unittest
           ls -l docs/demo
-
-      - run: mkdocs gh-deploy --force
 
       - name: list dir
         run: |
