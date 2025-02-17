@@ -39,9 +39,7 @@ jobs:
           git fetch
           git checkout gh-pages
           git checkout main -- docs/unittest
-          ls -al
           mv docs/unittest unittest
-          rm -d docs
           ls -al
           git add unittest
           git commit -m "Add '/docs/unittest' folder from 'main' branch to /unittest"
