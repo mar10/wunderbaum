@@ -34,15 +34,18 @@ jobs:
 
       - run: mkdocs gh-deploy --force
 
-      - name: Copy unit tests to docs
+      - name: Commit 'd' folder to 'gh-pages'
         run: |
-          pwd
-          ls -l
-          cp -v test/unit/*.* docs/unittest
-          ls -l
-          ls -l docs
-          ls -l docs/unittest
-          ls -l docs/demo
+          git fetch
+          git checkout gh-pages
+          git checkout main -- docs/unittest
+          ls -al
+          mv docs/unittest unittest
+          rm docs
+          ls -al
+          git add unittest
+          git commit -m "Add '/docs/unittest' folder from 'main' branch to /unittest"
+          git push origin gh-pages
 
       - name: list dir
         run: |
@@ -50,4 +53,5 @@ jobs:
           ls -l
           ls -l docs
           ls -l docs/unittest
+          ls -l unittest
           ls -l docs/demo
