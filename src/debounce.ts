@@ -1,4 +1,9 @@
 /*!
+ * Wunderbaum - debounce.ts
+ * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
+ */
+/*
  * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
  * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
  * Modified for TypeScript type annotations.
