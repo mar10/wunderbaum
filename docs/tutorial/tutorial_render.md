@@ -193,6 +193,48 @@ div.wunderbaum span.wb-badge.selection-count {
 }
 ```
 
+You can display badge images and other custom elements like this:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    if (e.node.data.badgeIconPath) {
+      const badgeSpan = document.createElement("span");
+      badgeSpan.className = "tree-badge-icon";
+      const badgeImg = document.createElement("img");
+      badgeImg.src = e.node.data.badgeIconPath;
+      badgeSpan.appendChild(badgeImg);
+      return badgeSpan;
+    }
+  },
+  ...
+});
+```
+
+```css
+div.wunderbaum span.tree-badge-icon {
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  left: -0.6rem;
+  padding: 0.2em 0.3rem 0.1em 0.3rem;
+  font-size: 60%;
+  font-weight: 200;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+div.wunderbaum span.tree-badge-icon img {
+  width: 12px;
+  height: 12px;
+}
+```
+
+
 !!! info "See also"
 
     See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
