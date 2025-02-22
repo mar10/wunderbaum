@@ -1,8 +1,8 @@
 declare module "debounce" {
     /*!
-     * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
-     * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
-     * Modified for TypeScript type annotations.
+     * Wunderbaum - debounce.ts
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     type Procedure = (...args: any[]) => any;
     type DebounceOptions = {
@@ -130,7 +130,7 @@ declare module "debounce" {
 declare module "util" {
     /*!
      * Wunderbaum - util
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     /** @module util */
@@ -422,7 +422,7 @@ declare module "util" {
 declare module "common" {
     /*!
      * Wunderbaum - common
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { MatcherCallback, SourceObjectType } from "types";
@@ -452,8 +452,11 @@ declare module "common" {
      */
     export const TEST_IMG: RegExp;
     /**
-     * Default node icons.
-     * Requires bootstrap icons https://icons.getbootstrap.com
+     * Default node icons for icon libraries
+     *
+     *  - 'bootstrap': {@link https://icons.getbootstrap.com}
+     *  - 'fontawesome6' {@link https://fontawesome.com/icons}
+     *
      */
     export const iconMaps: {
         [key: string]: {
@@ -496,7 +499,7 @@ declare module "common" {
 declare module "deferred" {
     /*!
      * Wunderbaum - deferred
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     type PromiseCallbackType = (val: any) => void;
@@ -1112,7 +1115,7 @@ declare module "wb_node" {
 declare module "wb_options" {
     /*!
      * Wunderbaum - utils
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbButtonClickEventType, WbCancelableEventResultType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbIconBadgeEventResultType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType } from "types";
@@ -1190,6 +1193,14 @@ declare module "wb_options" {
         skeleton?: boolean;
         /**
          * Translation map for some system messages.
+         * Default:
+         * ```js
+         * strings: {
+         *   loading: "Loading...",
+         *   loadError: "Error",
+         *   noData: "No data",
+         * }
+         * ```
          */
         strings?: any;
         /**
@@ -1475,7 +1486,7 @@ declare module "wb_options" {
 declare module "types" {
     /*!
      * Wunderbaum - types
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { WunderbaumNode } from "wb_node";
@@ -1494,7 +1505,7 @@ declare module "types" {
      * or a boolean value that indicates if the default icon should be used or hidden.
      */
     export type IconOption = boolean | string;
-    /** Show/hide tooltip or display a string. */
+    /** Show/hide default tooltip or display a string. */
     export type TooltipOption = boolean | string;
     export interface SourceAjaxType {
         url: string;
@@ -1548,7 +1559,10 @@ declare module "types" {
      * returns an iteration modifier.
      */
     export type NodeToDictCallback = (dict: WbNodeData, node: WunderbaumNode) => NodeVisitResponse;
-    /** A callback that receives a node instance and returns a string value. */
+    /**
+     * A callback that receives a node instance and may returnsa `false` to prevent
+     * (de)selection.
+     */
     export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
     /**
      * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
@@ -1562,23 +1576,56 @@ declare module "types" {
     export type DynamicTooltipOption = TooltipOption | BoolOrStringOptionResolver;
     /** A plain object (dictionary) that represents a node instance. */
     export interface WbNodeData {
+        /** Defines if the `selected` state is displayed as checkbox, radio button,
+         * or hidden.
+         * Defaults to {@link WunderbaumOptions.checkbox}.
+         */
         checkbox?: CheckboxOption;
+        /** Optional list of child nodes.
+         * If `children` is an empty array, the node is considered a leaf.
+         * If `lazy` is true and `children is undefined or null, the node, is
+         * considered unloaded. Otherwise, the node is considered a leaf.
+         */
         children?: Array<WbNodeData>;
+        /** Additional classes that are added to `<div class='wb-row'>`. */
         classes?: string;
+        /** Only show title in a single, merged column. */
         colspan?: boolean;
+        /** Expand this node. */
         expanded?: boolean;
+        /** Defaults to standard icons (doc, folder, folderOpen, ...)
+         * from {@link WunderbaumOptions.iconMap}.
+         * Can be overridden by {@link WunderbaumOptions.icon}.
+         */
         icon?: IconOption;
+        /** Tooltip for the node icon only. Defaults to {@link WunderbaumOptions.iconTooltip}. */
         iconTooltip?: TooltipOption;
+        /** The node's key. Must be unique for the whole tree. Defaults to a sequence number. */
         key?: string;
+        /** If true (and children are undefined or null), the node is considered lazy
+         * and {@link WunderbaumOptions.lazyLoad} is called when expanded.
+         */
         lazy?: boolean;
         /** Make child nodes single-select radio buttons. */
         radiogroup?: boolean;
+        /** Node's reference key. Unlike {@link WunderbaumNode.key}, this value
+         * may be non-unique. Nodes within the tree that share the same refKey are considered
+         * clones.
+         */
         refKey?: string;
+        /** The node's selection status, typically displayed as a checkbox. */
         selected?: boolean;
+        /** The node's status, typically displayed as merged single row.
+         * @see {@link Wunderbaum.setStatus}
+         */
         statusNodeType?: NodeStatusType;
+        /** The node's title. Will be html escaped to prevent XSS. */
         title: string;
+        /** Pass true to set node tooltip to the node's title. Defaults to {@link WunderbaumOptions.tooltip}. */
         tooltip?: TooltipOption;
+        /** Inherit shared settings from the matching entry in {@link WunderbaumOptions.types}. */
         type?: string;
+        /** Set to `true` to prevent selection. Defaults to {@link WunderbaumOptions.unselectable}. */
         unselectable?: boolean;
         /** @internal */
         _treeId?: string;
@@ -1910,6 +1957,7 @@ declare module "types" {
         /** Vertical scroll event. Update the 'top' property of all rows. */
         scroll = "scroll"
     }
+    /** @internal */
     export enum RenderFlag {
         clearMarkup = "clearMarkup",
         header = "header",
@@ -1936,9 +1984,13 @@ declare module "types" {
     }
     /** Initial navigation mode and possible transition. */
     export enum NavModeEnum {
-        startRow = "startRow",// Start with row mode, but allow cell-nav mode
-        cell = "cell",// Cell-nav mode only
-        startCell = "startCell",// Start in cell-nav mode, but allow row mode
+        /** Start with row mode, but allow cell-nav mode */
+        startRow = "startRow",
+        /** Cell-nav mode only */
+        cell = "cell",
+        /** Start in cell-nav mode, but allow row mode */
+        startCell = "startCell",
+        /** Row mode only */
         row = "row"
     }
     /** Possible values for {@link WunderbaumNode.addChildren}. */
@@ -2510,7 +2562,7 @@ declare module "wb_ext_filter" {
 declare module "wb_ext_keynav" {
     /*!
      * Wunderbaum - ext-keynav
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { KeynavOptionsType } from "types";
@@ -2526,7 +2578,7 @@ declare module "wb_ext_keynav" {
 declare module "wb_ext_logger" {
     /*!
      * Wunderbaum - ext-logger
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { LoggerOptionsType } from "types";
@@ -2590,7 +2642,7 @@ declare module "wb_ext_dnd" {
 declare module "drag_observer" {
     /*!
      * Wunderbaum - drag_observer
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     export type DragCallbackArgType = {
@@ -2659,7 +2711,7 @@ declare module "drag_observer" {
 declare module "wb_ext_grid" {
     /*!
      * Wunderbaum - ext-grid
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { Wunderbaum } from "wunderbaum";
@@ -2679,7 +2731,7 @@ declare module "wb_ext_grid" {
 declare module "wb_ext_edit" {
     /*!
      * Wunderbaum - ext-edit
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
     import { Wunderbaum } from "wunderbaum";
@@ -2718,7 +2770,7 @@ declare module "wunderbaum" {
      *
      * A treegrid control.
      *
-     * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
+     * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
      * https://github.com/mar10/wunderbaum
      *
      * Released under the MIT license.
@@ -2770,11 +2822,11 @@ declare module "wunderbaum" {
         protected _activeNode: WunderbaumNode | null;
         protected _focusNode: WunderbaumNode | null;
         /** Currently active node if any.
-         * Use @link {WunderbaumNode.setActive|setActive} to modify.
+         * Use {@link WunderbaumNode.setActive|setActive} to modify.
          */
         get activeNode(): WunderbaumNode;
         /** Current node hat has keyboard focus if any.
-         * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+         * Use {@link WunderbaumNode.setFocus|setFocus()} to modify.
          */
         get focusNode(): WunderbaumNode;
         /** Shared properties, referenced by `node.type`. */
