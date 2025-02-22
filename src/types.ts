@@ -93,7 +93,10 @@ export type NodeToDictCallback = (
   dict: WbNodeData,
   node: WunderbaumNode
 ) => NodeVisitResponse;
-/** A callback that receives a node instance and returns a string value. */
+/**
+ * A callback that receives a node instance and may returnsa `false` to prevent
+ * (de)selection.
+ */
 export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
 
 /**

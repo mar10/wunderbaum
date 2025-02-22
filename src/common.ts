@@ -208,10 +208,12 @@ export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
 /**
  * Convert 'flat' to 'nested' format.
  *
- *  Flat node entry format:
- *    [PARENT_ID, [POSITIONAL_ARGS]]
- *  or
- *    [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
+ * Flat node entry format:
+ *    [PARENT_IDX, {KEY_VALUE_ARGS}]
+ * or, if N _positional re defined:
+ *    [PARENT_IDX, POSITIONAL_ARG_1, POSITIONAL_ARG_2, ..., POSITIONAL_ARG_N]
+ * Even if _positional additional are defined, KEY_VALUE_ARGS can be appended:
+ *    [PARENT_IDX, POSITIONAL_ARG_1, ..., {KEY_VALUE_ARGS}]
  *
  * 1. Parent-referencing list is converted to a list of nested dicts with
  *    optional `children` properties.
@@ -219,11 +221,12 @@ export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
  */
 function unflattenSource(source: SourceObjectType): void {
   const { _format, _keyMap = {}, _positional = [], children } = source;
+  const _positionalCount = _positional.length;
 
   if (_format !== "flat") {
     throw new Error(`Expected source._format: "flat", but got ${_format}`);
   }
-  if (_positional && _positional.includes("children")) {
+  if (_positionalCount && _positional.includes("children")) {
     throw new Error(
       `source._positional must not include "children": ${_positional}`
     );
@@ -239,7 +242,7 @@ function unflattenSource(source: SourceObjectType): void {
       longToShort[value] = key;
     }
   }
-  const positionalShort = _positional.map((e: string) => longToShort[e]);
+  const positionalShort = _positional.map((e: string) => longToShort[e] ?? e);
   const newChildren: SourceListType = [];
   const keyToNodeMap: { [key: string]: number } = {};
   const indexToNodeMap: { [key: number]: any } = {};
@@ -250,21 +253,33 @@ function unflattenSource(source: SourceObjectType): void {
     // Node entry format:
     //   [PARENT_ID, [POSITIONAL_ARGS]]
     // or
-    //   [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
-    const [parentId, args, kwargs = {}] = <any>nodeTuple;
+    //   [PARENT_ID, POSITIONAL_ARG_1, POSITIONAL_ARG_2, ..., {KEY_VALUE_ARGS}]
+    let kwargs;
+    const [parentId, ...args] = <any>nodeTuple;
+    if (args.length === _positionalCount) {
+      kwargs = {};
+    } else if (args.length === _positionalCount + 1) {
+      kwargs = args.pop();
+      if (typeof kwargs !== "object") {
+        throw new Error(
+          `unflattenSource: Expected dict as last tuple element: ${nodeTuple}`
+        );
+      }
+    } else {
+      throw new Error(`unflattenSource: unexpected tuple length: ${nodeTuple}`);
+    }
 
     // Free up some memory as we go
     nodeTuple[1] = null;
     if (nodeTuple[2] != null) {
       nodeTuple[2] = null;
     }
-    // console.log("flatten", parentId, args, kwargs)
-
     // We keep `kwargs` as our new node definition. Then we add all positional
     // values to this object:
     args.forEach((val: string, positionalIdx: number) => {
       kwargs[positionalShort[positionalIdx]] = val;
     });
+    args.length = 0;
 
     // Find the parent node. `null` means 'toplevel'. PARENT_ID may be the numeric
     // index of the source.children list. If PARENT_ID is a string, we search

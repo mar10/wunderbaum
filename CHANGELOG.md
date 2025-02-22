@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.12.1: Fix flat source format for positional args.
+
 - v0.12.0: Add `deep`, `resetLazy`, and `collapseOthers` options to
   `node.` and `tree.expandAll()`.
 - v0.12.0: Add `resetLazy` options to `tree.setExpanded(false, ...)`.
