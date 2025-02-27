@@ -193,7 +193,52 @@ div.wunderbaum span.wb-badge.selection-count {
 }
 ```
 
-You can display badge images and other custom elements like this:
+You can also use e.g. "data" to control the badge and display an image instead of text.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    if (e.node.data.badgeIcon) {
+      return {
+        badge: "",
+        badgeClass: "wb-my-special-icon-" + e.node.data.badgeIcon
+      };
+    }
+  },
+  ...
+});
+```
+
+```css
+span.wb-my-special-icon-alert {
+	background-color: white !important;
+	background-image: url('img/alert.svg');
+	width: 12px;
+	height: 12px;
+}
+```
+
+
+
+!!! info "See also"
+
+    See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
+    and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html).
+
+<!-- ### Related Tree Options
+
+### Related Methods
+
+- `util.toggleCheckbox()`
+
+### Related CSS Rules
+
+### Code Hacks
+
+#### Custom badge content
+
+If needed, you can use completely custom elements like this:
 
 ```js
 const tree = new Wunderbaum({
@@ -232,28 +277,4 @@ div.wunderbaum span.tree-badge-icon img {
   width: 12px;
   height: 12px;
 }
-```
-
-
-!!! info "See also"
-
-    See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
-    and [WbIconBadgeEventResultType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventResultType.html).
-
-<!-- ### Related Tree Options
-
-### Related Methods
-
-- `util.toggleCheckbox()`
-
-### Related CSS Rules
-
-### Code Hacks
-
-```js
-
-``` -->
-
-```
-
 ```
