@@ -19,6 +19,7 @@ import {
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
+  TranslationsType,
   WbActivateEventType,
   WbButtonClickEventType,
   WbCancelableEventResultType,
@@ -119,10 +120,11 @@ export interface WunderbaumOptions {
    *   loading: "Loading...",
    *   loadError: "Error",
    *   noData: "No data",
+   *   queryResult: "Matched ${match} of ${total} nodes.",
    * }
    * ```
    */
-  strings?: any; //[key: string] string;
+  strings?: TranslationsType; //[key: string] string;
   /**
    * 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
    * Default: 3 (4 in local debug environment)

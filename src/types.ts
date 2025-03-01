@@ -607,6 +607,13 @@ export enum NavModeEnum {
   row = "row",
 }
 
+/** */
+export type TranslationsType = {
+  loading: "Loading...";
+  loadError: "Error";
+  noData: "No data";
+  queryResult: "Matched ${match} of ${total} nodes.";
+};
 /* -----------------------------------------------------------------------------
  * METHOD OPTIONS TYPES
  * ---------------------------------------------------------------------------*/
