@@ -20,7 +20,7 @@ new mar10.Wunderbaum({
     // "../../test/fixtures/tree_fmea_XL_t_flat_comp.json",
     "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/tree_fmea_XL_t_flat_comp.json",
   debugLevel: 5,
-  connectTopBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: "output#parentPath",
   checkbox: true,
   // minExpandLevel: 1,
   types: {},

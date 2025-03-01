@@ -210,10 +210,10 @@ export class Wunderbaum {
         emptyChildListExpandable: false,
         // updateThrottleWait: 200,
         skeleton: false,
-        connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+        connectTopBreadcrumb: null,
         selectMode: "multi", // SelectModeType
         // --- KeyNav ---
-        navigationModeOption: null, // NavModeEnum.startRow,
+        navigationModeOption: null, // NavModeEnum,
         quicksearch: true,
         // --- Events ---
         iconBadge: null,
@@ -771,7 +771,10 @@ export class Wunderbaum {
     return <WunderbaumNode>node!;
   }
 
-  /** Return the topmost visible node in the viewport. */
+  /** Return the topmost visible node in the viewport.
+   * @param complete If `false`, the node is considered visible if at least one
+   * pixel is visible.
+   */
   getTopmostVpNode(complete = true) {
     const rowHeight = this.options.rowHeightPx!;
     const gracePx = 1; // ignore subpixel scrolling
@@ -2328,13 +2331,24 @@ export class Wunderbaum {
     }
 
     if (this.options.connectTopBreadcrumb) {
+      const breadcrumb = util.elemFromSelector(
+        this.options.connectTopBreadcrumb
+      )!;
       util.assert(
-        this.options.connectTopBreadcrumb.textContent != null,
-        `Invalid 'connectTopBreadcrumb' option (input element expected).`
+        breadcrumb && breadcrumb.innerHTML != null,
+        `Invalid 'connectTopBreadcrumb' option (writable element expected).`
       );
-      let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
-      path = path ? path + " >" : "";
-      this.options.connectTopBreadcrumb.textContent = path;
+      const parts = [];
+      const topmost = this.getTopmostVpNode(true);
+      for (let n = topmost; n; n = n.parent) {
+        parts.unshift(
+          `<i class='bi bi-folder'></i> ` + util.escapeHtml(n.title)
+        );
+      }
+      const path = parts.join(" » ") || "&nbsp;";
+      // let path = this.getTopmostVpNode(true)?.getPath(false, "title", " » ");
+      // path = path ? path + " »" : "&nbsp;";
+      breadcrumb.innerHTML = path;
     }
     this._callEvent("update");
   }

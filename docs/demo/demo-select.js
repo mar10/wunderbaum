@@ -98,7 +98,7 @@ new mar10.Wunderbaum({
     },
   ],
   debugLevel: 5,
-  connectTopBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: "output#parentPath",
 
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:

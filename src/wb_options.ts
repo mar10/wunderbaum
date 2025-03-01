@@ -178,10 +178,10 @@ export interface WunderbaumOptions {
    */
   adjustHeight?: boolean;
   /**
-   * HTMLElement that receives the top nodes breadcrumb.
+   * HTMLElement or selector that receives the top nodes breadcrumb.
    * Default: undefined
    */
-  connectTopBreadcrumb?: HTMLElement;
+  connectTopBreadcrumb?: HTMLElement | string;
   /**
    * Default:  NavModeEnum.startRow
    */
