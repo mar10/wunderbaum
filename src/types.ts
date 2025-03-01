@@ -472,6 +472,21 @@ export interface ColumnDefinition {
 export type ColumnDefinitionList = Array<ColumnDefinition>;
 
 /**
+ * Used by {@link Wunderbaum.getState} and {@link Wunderbaum.setState}.
+ */
+export interface TreeStateDefinition {
+  /** The active node's key if any. */
+  activeKey: string | null;
+  /** The active column index if any. */
+  activeColIdx: number | null;
+  /** List of selected node's keys. */
+  selectedKeys: Array<string> | undefined;
+  /** List of expanded node's keys. */
+  expandedKeys: Array<string> | undefined;
+  /** List of checked node's keys. */
+}
+
+/**
  * Column information (passed to the `render` event).
  */
 export interface ColumnEventInfo {
@@ -691,6 +706,22 @@ export interface FilterNodesOptions {
   mode?: FilterModeType;
   /** Display a 'no data' status node if result is empty @default true */
   noData?: boolean | string;
+}
+
+/** Possible values for {@link Wunderbaum.getState}. */
+export interface GetStateOptions {
+  // /** Include the activated key. @default true */
+  // activeKey?: boolean;
+  /** Include the expanded keys. @default true */
+  expandedKeys?: boolean;
+  /** Include the selected keys. @default true */
+  selectedKeys?: boolean;
+}
+
+/** Possible values for {@link Wunderbaum.setState}. */
+export interface SetStateOptions {
+  /** Recursively load lazy nodes as needed. @default false */
+  expandLazy?: boolean;
 }
 
 /** Possible values for {@link WunderbaumNode.makeVisible}. */
