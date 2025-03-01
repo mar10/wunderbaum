@@ -33,6 +33,7 @@ import {
   ExpandAllOptions,
   FilterModeType,
   FilterNodesOptions,
+  GetStateOptions,
   MatcherCallback,
   NavModeEnum,
   NodeFilterCallback,
@@ -46,10 +47,12 @@ import {
   ScrollToOptions,
   SetActiveOptions,
   SetColumnOptions,
+  SetStateOptions,
   SetStatusOptions,
   SortByPropertyOptions,
   SortCallback,
   SourceType,
+  TreeStateDefinition,
   UpdateOptions,
   VisitRowsOptions,
   WbEventInfo,
@@ -1814,6 +1817,53 @@ export class Wunderbaum {
   /* Set or remove keyboard focus to the tree container. @internal */
   _setFocusNode(node: WunderbaumNode | null) {
     this._focusNode = node;
+  }
+
+  /** Return the current selection/expansion/activation status. */
+  getState(options: GetStateOptions): TreeStateDefinition {
+    let expandedKeys = undefined;
+    if (options.expandedKeys !== false) {
+      expandedKeys = [];
+      for (const node of this) {
+        if (node.expanded) {
+          expandedKeys.push(node.key);
+        }
+      }
+    }
+
+    const state: TreeStateDefinition = {
+      activeKey: this.activeNode?.key ?? null,
+      activeColIdx: this.activeColIdx,
+      selectedKeys:
+        options.selectedKeys === false
+          ? undefined
+          : this.getSelectedNodes().flatMap((n) => n.key),
+      expandedKeys: expandedKeys,
+    };
+    return state;
+  }
+
+  /** Apply selection/expansion/activation status. */
+  setState(state: TreeStateDefinition, options: SetStateOptions) {
+    this.runWithDeferredUpdate(() => {
+      if (state.selectedKeys) {
+        this.selectAll(false);
+        for (const key of state.selectedKeys) {
+          this.findKey(key)?.setSelected(true);
+        }
+      }
+      if (state.expandedKeys) {
+        for (const key of state.expandedKeys) {
+          this.findKey(key)?.setExpanded(true);
+        }
+      }
+      if (state.activeKey) {
+        this.setActiveNode(state.activeKey);
+      }
+      if (state.activeColIdx != null) {
+        this.setColumn(state.activeColIdx);
+      }
+    });
   }
 
   /**
