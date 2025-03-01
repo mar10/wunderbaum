@@ -227,6 +227,7 @@ export class Wunderbaum {
           loading: "Loading...",
           // loading: "Loading&hellip;",
           noData: "No data",
+          queryResult: "Matched ${match} of ${total} nodes.",
         },
       },
       options

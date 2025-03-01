@@ -252,6 +252,10 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     tree.logDebug(
       `Filter '${filter}' found ${count} nodes in ${Date.now() - start} ms.`
     );
+    const info = treeOpts.strings?.queryResult
+      .replace("${match}", "" + count) //this.countMatches())
+      .replace("${count}", "" + tree.count());
+    tree.log(info);
     return count;
   }
 
