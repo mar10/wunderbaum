@@ -374,11 +374,24 @@ export class Wunderbaum {
 
     this.element.classList.toggle("wb-grid", this.columns.length > 1);
 
-    this.breadcrumb = util.elemFromSelector(this.options.connectTopBreadcrumb)!;
-    util.assert(
-      !this.breadcrumb || this.breadcrumb.innerHTML != null,
-      `Invalid 'connectTopBreadcrumb' option: ${this.breadcrumb}.`
-    );
+    if (this.options.connectTopBreadcrumb) {
+      this.breadcrumb = util.elemFromSelector(
+        this.options.connectTopBreadcrumb
+      )!;
+      util.assert(
+        !this.breadcrumb || this.breadcrumb.innerHTML != null,
+        `Invalid 'connectTopBreadcrumb' option: ${this.breadcrumb}.`
+      );
+      this.breadcrumb.addEventListener("click", (e) => {
+        // const node = Wunderbaum.getNode(e)!;
+        const elem = e.target as HTMLElement;
+        if (elem && elem.matches("a.wb-breadcrumb")) {
+          const node = this.keyMap.get(elem.dataset.key!);
+          node?.setActive();
+          e.preventDefault();
+        }
+      });
+    }
     this._initExtensions();
 
     // --- apply initial options
@@ -2285,7 +2298,7 @@ export class Wunderbaum {
   ): HTMLElement | null {
     const iconMap = this.iconMap;
     let iconElem;
-    let icon = this.getOption("icon");
+    let icon = node.getOption("icon");
     if (node._errorInfo) {
       icon = iconMap.error;
     } else if (node._isLoading && showLoading) {
@@ -2362,13 +2375,23 @@ export class Wunderbaum {
   private _updateTopBreadcrumb() {
     const breadcrumb = this.breadcrumb!;
     const topmost = this.getTopmostVpNode(true);
-    breadcrumb.innerHTML = "";
-    for (const n of topmost.getParentList(false, false)) {
-      const icon = this._createNodeIcon(n, false, false);
-      if (icon) {
-        breadcrumb.append(icon, " ");
+    const parentList = topmost?.getParentList(false, false);
+    if (parentList?.length) {
+      breadcrumb.innerHTML = "";
+      for (const n of topmost.getParentList(false, false)) {
+        const icon = this._createNodeIcon(n, false, false);
+        if (icon) {
+          breadcrumb.append(icon, " ");
+        }
+        const part = document.createElement("a");
+        part.textContent = n.title;
+        part.href = "#";
+        part.classList.add("wb-breadcrumb");
+        part.dataset.key = n.key;
+        breadcrumb.append(part, " » ");
       }
-      breadcrumb.append(n.title, " » ");
+    } else {
+      breadcrumb.innerHTML = "&nbsp;";
     }
   }
 
