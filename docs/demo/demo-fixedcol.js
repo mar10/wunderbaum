@@ -22,7 +22,7 @@ new mar10.Wunderbaum({
   // "https://cdn.jsdelivr.net/gh/mar10/assets@master/wunderbaum/fixture_department_1k_3_6_p.json",
   debugLevel: 5,
   // header: false,
-  connectTopBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: "output#parentPath",
   // checkbox: true,
   // minExpandLevel: 1,
   fixedCol: true,

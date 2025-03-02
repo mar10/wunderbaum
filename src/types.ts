@@ -173,6 +173,32 @@ export interface WbNodeData {
   [key: string]: unknown;
 }
 
+/** A plain object (dictionary) that defines node icons. */
+export interface IconMapType {
+  error: string;
+  loading: string;
+  noData: string;
+  expanderExpanded: string;
+  expanderCollapsed: string;
+  expanderLazy: string;
+  checkChecked: string;
+  checkUnchecked: string;
+  checkUnknown: string;
+  radioChecked: string;
+  radioUnchecked: string;
+  radioUnknown: string;
+  folder: string;
+  folderOpen: string;
+  folderLazy: string;
+  doc: string;
+  colSortable: string;
+  colSortAsc: string;
+  colSortDesc: string;
+  colFilter: string;
+  colFilterActive: string;
+  colMenu: string;
+  [key: string]: string;
+}
 /* -----------------------------------------------------------------------------
  * EVENT CALLBACK TYPES
  * ---------------------------------------------------------------------------*/
