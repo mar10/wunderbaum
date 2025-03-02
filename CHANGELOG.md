@@ -8,6 +8,8 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - feature/breadcrumb-improvements: connectTopBreadcrumb can be a selector
+- feature/breadcrumb-improvements: Breadcrumb shows node icons
+- feature/breadcrumb-improvements: Breadcrumb parts can be clicked (activate parent)
 
 - v0.13.0: Add `tree.countUnique()` method.
 
