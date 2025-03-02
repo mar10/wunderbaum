@@ -1618,91 +1618,19 @@ export class WunderbaumNode {
   }
 
   protected _createIcon(
-    iconMap: any,
     parentElem: HTMLElement,
     replaceChild: HTMLElement | null,
     showLoading: boolean
   ): HTMLElement | null {
-    let iconSpan;
-    let icon = this.getOption("icon");
-    if (this._errorInfo) {
-      icon = iconMap.error;
-    } else if (this._isLoading && showLoading) {
-      // Status nodes, or nodes without expander (< minExpandLevel) should
-      // display the 'loading' status with the i.wb-icon span
-      icon = iconMap.loading;
-    }
-    if (icon === false) {
-      return null; // explicitly disabled: don't try default icons
-    }
-    if (typeof icon === "string") {
-      // Callback returned an icon definition
-      // icon = icon.trim()
-    } else if (this.statusNodeType) {
-      icon = (<any>iconMap)[this.statusNodeType];
-    } else if (this.expanded) {
-      icon = iconMap.folderOpen;
-    } else if (this.children) {
-      icon = iconMap.folder;
-    } else if (this.lazy) {
-      icon = iconMap.folderLazy;
-    } else {
-      icon = iconMap.doc;
-    }
-
-    // this.log("_createIcon: " + icon);
-    if (!icon) {
-      iconSpan = document.createElement("i");
-      iconSpan.className = "wb-icon";
-    } else if (icon.indexOf("<") >= 0) {
-      // HTML
-      iconSpan = util.elemFromHtml(icon);
-    } else if (TEST_IMG.test(icon)) {
-      // Image URL
-      iconSpan = util.elemFromHtml(
-        `<i class="wb-icon" style="background-image: url('${icon}');">`
-      );
-    } else {
-      // Class name
-      iconSpan = document.createElement("i");
-      iconSpan.className = "wb-icon " + icon;
-    }
-    if (replaceChild) {
-      parentElem.replaceChild(iconSpan, replaceChild);
-    } else {
-      parentElem.appendChild(iconSpan);
-    }
-
-    // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
-
-    const cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
-    let badge = null;
-    if (cbRes != null && cbRes !== false) {
-      let classes = "";
-      let tooltip = "";
-      if (util.isPlainObject(cbRes)) {
-        badge = "" + cbRes.badge;
-        classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
-        tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
-      } else if (typeof cbRes === "number") {
-        badge = "" + cbRes;
+    const iconElem = this.tree._createNodeIcon(this, showLoading, true);
+    if (iconElem) {
+      if (replaceChild) {
+        parentElem.replaceChild(iconElem, replaceChild);
       } else {
-        badge = cbRes; // string or HTMLSpanElement
-      }
-      if (typeof badge === "string") {
-        badge = util.elemFromHtml(
-          `<span class="wb-badge${classes}"${tooltip}>${util.escapeHtml(
-            badge
-          )}</span>`
-        );
-      }
-      if (badge) {
-        iconSpan.append(<HTMLSpanElement>badge);
+        parentElem.appendChild(iconElem);
       }
     }
-
-    // this.log("_createIcon: ", iconSpan);
-    return iconSpan;
+    return iconElem;
   }
 
   /**
@@ -1773,12 +1701,7 @@ export class WunderbaumNode {
 
     // Render the icon (show a 'loading' icon if we do not have an expander that
     // we would prefer).
-    const iconSpan = this._createIcon(
-      tree.iconMap,
-      nodeElem,
-      null,
-      !expanderSpan
-    );
+    const iconSpan = this._createIcon(nodeElem, null, !expanderSpan);
     if (iconSpan) {
       ofsTitlePx += ICON_WIDTH;
     }
@@ -2029,7 +1952,7 @@ export class WunderbaumNode {
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
       const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
       if (iconSpan) {
-        this._createIcon(tree.iconMap, nodeElem, iconSpan, !expanderSpan);
+        this._createIcon(nodeElem, iconSpan, !expanderSpan);
       }
     }
     // Adjust column width

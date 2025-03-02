@@ -19,7 +19,7 @@ new mar10.Wunderbaum({
   element: document.getElementById("demo-tree"),
   source: "../assets/json/ajax-tree-products.json",
   debugLevel: 5,
-  connectTopBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: "output#parentPath",
   checkbox: true,
   minExpandLevel: 1,
   // fixedCol: true,
