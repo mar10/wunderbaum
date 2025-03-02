@@ -13,6 +13,7 @@ import {
   DynamicIconOption,
   EditOptionsType,
   FilterOptionsType,
+  IconMapType,
   // GridOptionsType,
   // KeynavOptionsType,
   // LoggerOptionsType,
@@ -157,7 +158,7 @@ export interface WunderbaumOptions {
    * Note: the icon font must be loaded separately.
    * Default: "bootstrap"
    */
-  iconMap?: string | { [key: string]: string };
+  iconMap?: string | IconMapType;
   /**
    * Collapse siblings when a node is expanded.
    * Default: false

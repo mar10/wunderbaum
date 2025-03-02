@@ -4,7 +4,12 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { MatcherCallback, SourceListType, SourceObjectType } from "./types";
+import {
+  IconMapType,
+  MatcherCallback,
+  SourceListType,
+  SourceObjectType,
+} from "./types";
 import * as util from "./util";
 import { WunderbaumNode } from "./wb_node";
 
@@ -42,7 +47,7 @@ export const TEST_IMG = new RegExp(/\.|\//);
  *  - 'fontawesome6' {@link https://fontawesome.com/icons}
  *
  */
-export const iconMaps: { [key: string]: { [key: string]: string } } = {
+export const iconMaps: { [key: string]: IconMapType } = {
   bootstrap: {
     error: "bi bi-exclamation-triangle",
     // loading: "bi bi-hourglass-split wb-busy",
