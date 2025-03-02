@@ -7,7 +7,7 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.13.0: Add support for prev/next-match
+- feature/next-match: Filter: Add support for prev/next-match
 
 - v0.12.1: Fix flat source format for positional args.
 
