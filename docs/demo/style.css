@@ -27,7 +27,7 @@ body {
     "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
   background-color: var(--bg-color-dark);
   color: var(--font-color);
-  /* `<!DOCTYPE html>` switches to standard mode, which would define 
+  /* `<!DOCTYPE html>` switches to standard mode, which would define
   100% as content height. We want 100% to interpreted as viewport height: */
   height: 100%;
   /* prevent scrollbars, which would break `100vh` */
@@ -116,7 +116,7 @@ div.wunderbaum:focus-visible {
 
 div#demo-tree {
   /* fill parent container */
-  height: calc(100% - 12px);
+  height: calc(100% - 18px);
   /* Leave some space for the blue focus outline*/
   /* padding: 5px;  */
 }
@@ -173,10 +173,10 @@ output.tree-version {
 }
 
 output#parentPath:not(.hidden) {
-  font-size: 60%;
+  font-size: 80%;
   display: block;
   padding: 1px 3px;
-  height: 12px;
+  height: 18px;
   background-color: var(--bg-color-light);
 }
 
