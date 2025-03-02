@@ -13,6 +13,7 @@ import {
   onEvent,
 } from "./util";
 import {
+  FilterConnectType,
   FilterNodesOptions,
   FilterOptionsType,
   NodeFilterCallback,
@@ -29,7 +30,11 @@ const RE_START_MARKER = new RegExp(escapeRegex(START_MARKER), "g");
 const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
 
 export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
-  public queryInput?: HTMLInputElement;
+  public queryInput: HTMLInputElement | null = null;
+  public prevButton: HTMLElement | null = null;
+  public nextButton: HTMLButtonElement | HTMLAnchorElement | null = null;
+  public modeButton: HTMLButtonElement | HTMLAnchorElement | null = null;
+  public matchInfoElem: HTMLElement | null = null;
   public lastFilterArgs: IArguments | null = null;
 
   constructor(tree: Wunderbaum) {
@@ -37,7 +42,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       autoApply: true, // Re-apply last filter if lazy data is loaded
       autoExpand: false, // Expand all branches that contain matches while filtered
       matchBranch: false, // Whether to implicitly match all children of matched nodes
-      connectInput: null, // Element or selector of an input control for filter query strings
+      connect: null, // Element or selector of an input control for filter query strings
       fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
       hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
       highlight: true, // Highlight matches by wrapping inside <mark> tags
@@ -49,18 +54,45 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 
   init() {
     super.init();
-    const connectInput = this.getPluginOption("connectInput");
-    if (connectInput) {
-      this.queryInput = elemFromSelector(connectInput) as HTMLInputElement;
-      assert(
-        this.queryInput,
-        `Invalid 'filter.connectInput' option: ${connectInput}.`
-      );
+    const tree = this.tree;
+    const connect: FilterConnectType = this.getPluginOption("connect");
+    if (connect) {
+      this.queryInput = elemFromSelector(connect.inputElem);
+      if (!this.queryInput) {
+        throw new Error(
+          `Invalid 'filter.connect' option: ${connect.inputElem}.`
+        );
+      }
+      this.prevButton = elemFromSelector(connect.prevButton!);
+      this.nextButton = elemFromSelector(connect.nextButton!);
+      this.modeButton = elemFromSelector(connect.modeButton!);
+      this.matchInfoElem = elemFromSelector(connect.matchInfoElem!);
+      if (this.prevButton) {
+        onEvent(this.prevButton, "click", () => {
+          tree.findRelatedNode(
+            tree.getActiveNode() || tree.getFirstChild()!,
+            "prevMatch"
+          );
+        });
+      }
+      if (this.nextButton) {
+        onEvent(this.nextButton, "click", () => {
+          tree.findRelatedNode(
+            tree.getActiveNode() || tree.getFirstChild()!,
+            "nextMatch"
+          );
+        });
+      }
+      if (this.modeButton) {
+        onEvent(this.modeButton, "click", () => {
+          throw new Error("Not implemented");
+        });
+      }
       onEvent(
         this.queryInput,
         "input",
         debounce((e) => {
-          // this.tree.log("query", e);
+          // tree.log("query", e);
           this.filterNodes(this.queryInput!.value.trim(), {});
         }, 700)
       );
@@ -72,7 +104,8 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     super.setPluginOption(name, value);
     switch (name) {
       case "mode":
-        this.tree.filterMode = value === "hide" ? "hide" : "dim";
+        this.tree.filterMode =
+          value === "hide" ? "hide" : value === "mark" ? "mark" : "dim";
         this.tree.updateFilter();
         break;
     }

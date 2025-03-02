@@ -34,6 +34,7 @@ import {
   FilterModeType,
   FilterNodesOptions,
   MatcherCallback,
+  NavigationType,
   NavModeEnum,
   NodeFilterCallback,
   NodeRegion,
@@ -227,7 +228,7 @@ export class Wunderbaum {
           loading: "Loading...",
           // loading: "Loading&hellip;",
           noData: "No data",
-          queryResult: "Matched ${match} of ${total} nodes.",
+          queryResult: "Matched ${match} of ${count} nodes.",
         },
       },
       options
@@ -973,9 +974,11 @@ export class Wunderbaum {
       case "first":
       case "last":
       case "left":
+      case "nextMatch":
       case "pageDown":
       case "pageUp":
       case "parent":
+      case "prevMatch":
       case "right":
       case "up":
         return node.navigate(cmd);
@@ -1298,7 +1301,11 @@ export class Wunderbaum {
    *   e.g. `$.ui.keyCode.LEFT` = 'left'.
    * @param includeHidden Not yet implemented
    */
-  findRelatedNode(node: WunderbaumNode, where: string, includeHidden = false) {
+  findRelatedNode(
+    node: WunderbaumNode,
+    where: NavigationType,
+    includeHidden = false
+  ) {
     const rowHeight = this.options.rowHeightPx!;
     let res = null;
     const pageSize = Math.floor(
@@ -1385,6 +1392,16 @@ export class Wunderbaum {
           }
         }
         break;
+
+      case "prevMatch":
+      // fallthrough
+      case "nextMatch":
+        if (!this.isFilterActive) {
+          this.logWarn(`${where}: Filter is not active.`);
+          break;
+        }
+        throw new Error("Not implemented");
+
       default:
         this.logWarn("Unknown relation '" + where + "'.");
     }

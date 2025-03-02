@@ -518,29 +518,43 @@ export interface WbEventInfo {
 // export type WbNodeCallbackType = (e: WbNodeEventType) => any;
 // export type WbRenderCallbackType = (e: WbRenderEventType) => void;
 
-export type FilterModeType = null | "dim" | "hide";
+export type FilterModeType = null | "mark" | "dim" | "hide";
 export type SelectModeType = "single" | "multi" | "hier";
-export type ApplyCommandType =
-  | "addChild"
-  | "addSibling"
-  | "copy"
-  | "cut"
+
+export type NavigationType =
   | "down"
   | "first"
-  | "indent"
+  | "firstCol"
   | "last"
+  | "lastCol"
   | "left"
-  | "moveDown"
-  | "moveUp"
-  | "outdent"
+  | "nextMatch"
   | "pageDown"
   | "pageUp"
   | "parent"
+  | "prevMatch"
+  | "right"
+  | "up";
+
+export type ApplyCommandType =
+  | NavigationType
+  | "addChild"
+  | "addSibling"
+  | "collapse"
+  | "collapseAll"
+  | "copy"
+  | "cut"
+  | "edit"
+  | "expand"
+  | "expandAll"
+  | "indent"
+  | "moveDown"
+  | "moveUp"
+  | "outdent"
   | "paste"
   | "remove"
   | "rename"
-  | "right"
-  | "up";
+  | "toggleSelect";
 
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
@@ -612,7 +626,7 @@ export type TranslationsType = {
   loading: "Loading...";
   loadError: "Error";
   noData: "No data";
-  queryResult: "Matched ${match} of ${total} nodes.";
+  queryResult: "Matched ${match} of ${count} nodes.";
 };
 /* -----------------------------------------------------------------------------
  * METHOD OPTIONS TYPES
@@ -904,6 +918,19 @@ export interface VisitRowsOptions {
 /* -----------------------------------------------------------------------------
  * wb_ext_filter
  * ---------------------------------------------------------------------------*/
+
+/**
+ * Passed as tree option.filer.connect to configure automatic integration of
+ * filter UI controls.
+ */
+export interface FilterConnectType {
+  inputElem: string | HTMLInputElement | null;
+  modeButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  nextButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  prevButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  matchInfoElem?: string | HTMLElement | null;
+}
+
 /**
  * Passed as tree options to configure default filtering behavior.
  *
@@ -915,7 +942,7 @@ export type FilterOptionsType = {
    * Element or selector of an input control for filter query strings
    * @default null
    */
-  connectInput?: null | string | Element;
+  connect?: null | FilterConnectType;
   /**
    * Re-apply last filter if lazy data is loaded
    * @default true
