@@ -988,7 +988,7 @@ export class WunderbaumNode {
     return other && other.parent === this;
   }
 
-  /** (experimental) Return true if this node is partially loaded. */
+  /** Return true if this node is partially loaded. @experimental  */
   isPartload(): boolean {
     return !!this._partload;
   }

@@ -621,12 +621,18 @@ export enum NavModeEnum {
   row = "row",
 }
 
-/** */
+/** Translatable strings. */
 export type TranslationsType = {
-  loading: "Loading...";
-  loadError: "Error";
-  noData: "No data";
-  queryResult: "Matched ${match} of ${count} nodes.";
+  /** @default "Loading..." */
+  loading: string;
+  /** @default "Error" */
+  loadError: string;
+  /** @default "No data" */
+  noData: string;
+  /** @default "Matched ${matches} of ${count} nodes." */
+  queryResult: string;
+  /** @default "${match} / ${matches} matches." */
+  filterPosition: string;
 };
 /* -----------------------------------------------------------------------------
  * METHOD OPTIONS TYPES
@@ -921,7 +927,7 @@ export interface VisitRowsOptions {
 
 /**
  * Passed as tree option.filer.connect to configure automatic integration of
- * filter UI controls.
+ * filter UI controls. @experimental
  */
 export interface FilterConnectType {
   inputElem: string | HTMLInputElement | null;
@@ -939,7 +945,9 @@ export interface FilterConnectType {
  */
 export type FilterOptionsType = {
   /**
-   * Element or selector of an input control for filter query strings
+   * Element or selector of input controls and buttons for filter query strings.
+   * @experimental
+   * @since 0.13
    * @default null
    */
   connect?: null | FilterConnectType;

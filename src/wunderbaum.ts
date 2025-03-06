@@ -226,9 +226,8 @@ export class Wunderbaum {
         strings: {
           loadError: "Error",
           loading: "Loading...",
-          // loading: "Loading&hellip;",
           noData: "No data",
-          queryResult: "Matched ${match} of ${count} nodes.",
+          queryResult: "Matched ${matches} of ${count} nodes.",
         },
       },
       options
@@ -808,30 +807,29 @@ export class Wunderbaum {
     return this._getNodeByRowIdx(bottomIdx)!;
   }
 
-  /** Return preceeding visible node in the viewport. */
-  protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
-    this.visitRows(
-      (n) => {
-        node = n;
-        if (ofs-- <= 0) {
-          return false;
-        }
-      },
-      { reverse: true, start: node || this.getActiveNode() }
-    );
-    return node;
-  }
-
   /** Return following visible node in the viewport. */
-  protected _getNextNodeInView(node?: WunderbaumNode, ofs = 1) {
+  protected _getNextNodeInView(
+    node?: WunderbaumNode,
+    options?: {
+      ofs?: number;
+      reverse?: boolean;
+      cb?: (n: WunderbaumNode) => boolean;
+    }
+  ) {
+    let ofs = options?.ofs || 1;
+    const reverse = !!options?.reverse;
+
     this.visitRows(
       (n) => {
         node = n;
+        if (options?.cb && options.cb(n)) {
+          return false;
+        }
         if (ofs-- <= 0) {
           return false;
         }
       },
-      { reverse: false, start: node || this.getActiveNode() }
+      { reverse: reverse, start: node || this.getActiveNode() }
     );
     return node;
   }
@@ -1259,15 +1257,17 @@ export class Wunderbaum {
    */
   findNextNode(
     match: string | MatcherCallback,
-    startNode?: WunderbaumNode | null
+    startNode?: WunderbaumNode | null,
+    reverse = false
   ): WunderbaumNode | null {
     //, visibleOnly) {
     let res: WunderbaumNode | null = null;
     const firstNode = this.getFirstChild()!;
+    const lastNode = this.findRelatedNode(firstNode, "last")!;
 
     const matcher =
       typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
-    startNode = startNode || firstNode;
+    startNode = startNode || (reverse ? lastNode : firstNode);
 
     function _checkNode(n: WunderbaumNode) {
       // console.log("_check " + n)
@@ -1281,12 +1281,14 @@ export class Wunderbaum {
     this.visitRows(_checkNode, {
       start: startNode,
       includeSelf: false,
+      reverse: reverse,
     });
     // Wrap around search
     if (!res && startNode !== firstNode) {
       this.visitRows(_checkNode, {
-        start: firstNode,
+        start: reverse ? lastNode : firstNode,
         includeSelf: true,
+        reverse: reverse,
       });
     }
     return res;
@@ -1361,7 +1363,7 @@ export class Wunderbaum {
         // }
         break;
       case "up":
-        res = this._getPrevNodeInView(node);
+        res = this._getNextNodeInView(node, { reverse: true });
         break;
       case "down":
         res = this._getNextNodeInView(node);
@@ -1374,7 +1376,10 @@ export class Wunderbaum {
           if (node._rowIdx! < bottomNode._rowIdx!) {
             res = bottomNode;
           } else {
-            res = this._getNextNodeInView(node, pageSize);
+            res = this._getNextNodeInView(node, {
+              reverse: false,
+              ofs: pageSize,
+            });
           }
         }
         break;
@@ -1388,7 +1393,10 @@ export class Wunderbaum {
           if (node._rowIdx! > topNode._rowIdx!) {
             res = topNode;
           } else {
-            res = this._getPrevNodeInView(node, pageSize);
+            res = this._getNextNodeInView(node, {
+              reverse: true,
+              ofs: pageSize,
+            });
           }
         }
         break;
@@ -1400,8 +1408,13 @@ export class Wunderbaum {
           this.logWarn(`${where}: Filter is not active.`);
           break;
         }
-        throw new Error("Not implemented");
-
+        res = this.findNextNode(
+          (n) => n.isMatched(),
+          node,
+          where === "prevMatch"
+        );
+        res?.setActive();
+        break;
       default:
         this.logWarn("Unknown relation '" + where + "'.");
     }
@@ -1470,6 +1483,13 @@ export class Wunderbaum {
    */
   getFirstChild() {
     return this.root.getFirstChild();
+  }
+
+  /**
+   * Return the last top level node if any (not the invisible root node).
+   */
+  getLastChild() {
+    return this.root.getLastChild();
   }
 
   /**

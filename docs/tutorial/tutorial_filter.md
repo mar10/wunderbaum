@@ -70,7 +70,7 @@ const tree = new Wunderbaum({
     autoApply: true, // Re-apply last filter if lazy data is loaded
     autoExpand: false, // Expand all branches that contain matches while filtered
     matchBranch: false, // Whether to implicitly match all children of matched nodes
-    connectInput: null, // Element or selector of an input control for filter query strings
+    connect: null, // Element or selector of an input control for filter query strings
     fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
     hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
     highlight: true, // Highlight matches by wrapping inside <mark> tags
@@ -191,16 +191,22 @@ queryInput.addEventListener(
 tree.setOption("filter.mode", hideMode ? "hide" : "dim");
 ```
 
-An even simpler way is to use the `options.filter.connectInput` option, like
-[in the demo](https://mar10.github.io/wunderbaum/demo/#demo-plain),
-use the `connectInput` option.
+An even simpler way is to use the `options.filter.connect` option, like
+[in the demo](https://mar10.github.io/wunderbaum/demo/#demo-plain).
 
 ```js
 const tree = new Wunderbaum({
   ...
   filter: {
-    connectInput: "input#filterQuery",
-    ...
+      mode: "hide",
+      autoExpand: true,
+      connect: {
+          inputElem: "#filter-query",
+          modeButton: "#filter-hide",
+          nextButton: "#filter-next",
+          prevButton: "#filter-prev",
+          matchInfoElem: "#filter-match-info",
+      }
   },
 });
 ```

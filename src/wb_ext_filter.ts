@@ -84,8 +84,15 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
         });
       }
       if (this.modeButton) {
-        onEvent(this.modeButton, "click", () => {
-          throw new Error("Not implemented");
+        onEvent(this.modeButton, "click", (e) => {
+          this.modeButton!.classList!.toggle(
+            "wb-filter-hide",
+            tree.filterMode === "hide"
+          );
+          this.setPluginOption(
+            "mode",
+            tree.filterMode === "dim" ? "hide" : "dim"
+          );
         });
       }
       onEvent(
@@ -111,6 +118,38 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     }
   }
 
+  _updatedConnectedControls() {
+    const filterActive = this.tree.filterMode !== null;
+    let info = "";
+    let matchCount = 0;
+    if (filterActive) {
+      matchCount = this.countMatches();
+      info = this.treeOpts
+        .strings!.queryResult.replace("${matches}", matchCount.toLocaleString())
+        .replace("${count}", this.tree.count().toLocaleString());
+    }
+    this.matchInfoElem ? (this.matchInfoElem.textContent = info) : 0;
+    if (this.nextButton instanceof HTMLButtonElement) {
+      this.nextButton.disabled = !matchCount;
+    }
+    if (this.prevButton instanceof HTMLButtonElement) {
+      this.prevButton.disabled = !matchCount;
+    }
+    if (this.modeButton) {
+      this.modeButton.classList.toggle(
+        "wb-filter-hide",
+        this.tree.filterMode === "hide"
+      );
+    }
+    if (this.matchInfoElem) {
+      this.matchInfoElem.textContent = info;
+    }
+    // const info = treeOpts
+    //   .strings!.filterPosition.replace("${matches}", count.toLocaleString())
+    //   .replace("${count}", tree.count().toLocaleString());
+    // tree.log(info);
+  }
+
   _applyFilterNoUpdate(
     filter: string | RegExp | NodeFilterCallback,
     _opts: FilterNodesOptions
@@ -131,7 +170,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     const treeOpts = tree.options;
     const prevAutoCollapse = treeOpts.autoCollapse;
     // Use default options from `tree.options.filter`, but allow to override them
-    const opts = extend({}, treeOpts.filter, _opts);
+    const opts: FilterOptionsType = extend({}, treeOpts.filter, _opts);
     const hideMode = opts.mode === "hide";
     const matchBranch = !!opts.matchBranch;
     const leavesOnly = !!opts.leavesOnly && !matchBranch;
@@ -209,12 +248,12 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       };
     }
 
-    tree.filterMode = opts.mode;
+    tree.filterMode = opts.mode ?? "dim";
     // eslint-disable-next-line prefer-rest-params
     this.lastFilterArgs = arguments;
 
     tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
-    tree.element.classList.toggle("wb-ext-filter-dim", !hideMode);
+    tree.element.classList.toggle("wb-ext-filter-dim", opts.mode === "dim");
     tree.element.classList.toggle(
       "wb-ext-filter-hide-expanders",
       !!opts.hideExpanders
@@ -285,10 +324,8 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     tree.logDebug(
       `Filter '${filter}' found ${count} nodes in ${Date.now() - start} ms.`
     );
-    const info = treeOpts.strings?.queryResult
-      .replace("${match}", "" + count) //this.countMatches())
-      .replace("${count}", "" + tree.count());
-    tree.log(info);
+    this._updatedConnectedControls();
+
     return count;
   }
 
@@ -393,6 +430,8 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       "wb-ext-filter-hide"
     );
     // tree._callHook("treeStructureChanged", this, "clearFilter");
+    this._updatedConnectedControls();
+
     tree.enableUpdate(true);
   }
 }

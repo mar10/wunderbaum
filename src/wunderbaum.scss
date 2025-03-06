@@ -797,7 +797,11 @@ div.wunderbaum {
 // .wb-helper-edit-text {
 //   // content-editable: true;
 // }
-
+button.wb-filter-hide {
+  font-weight: bolder;
+  // background-color: var(--wb-active-color);
+  // -webkit-appearance: auto; /* Removes default Safari styles */
+}
 /* RTL support */
 .wb-helper-start,
 .wb-helper-start > input {

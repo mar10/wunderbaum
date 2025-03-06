@@ -120,7 +120,7 @@ export interface WunderbaumOptions {
    *   loading: "Loading...",
    *   loadError: "Error",
    *   noData: "No data",
-   *   queryResult: "Matched ${match} of ${count} nodes.",
+   *   queryResult: "Matched ${matches} of ${count} nodes.",
    * }
    * ```
    */

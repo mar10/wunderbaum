@@ -9,6 +9,8 @@ First release.
 
 - feature/next-match: Filter: Add support for prev/next-match
 - feature/next-match: Filter: New mode 'mark' (like 'dim' but does not gray out)
+- feature/next-match: BREAKING: Filter: changed `filter.connectInput` to
+  `filter.connect: {...}`.
 
 - v0.12.1: Fix flat source format for positional args.
 
