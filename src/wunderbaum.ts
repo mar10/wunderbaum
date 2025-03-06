@@ -1819,7 +1819,7 @@ export class Wunderbaum {
     this._focusNode = node;
   }
 
-  /** Return the current selection/expansion/activation status. */
+  /** Return the current selection/expansion/activation status. @experimental */
   getState(options: GetStateOptions): TreeStateDefinition {
     let expandedKeys = undefined;
     if (options.expandedKeys !== false) {
@@ -1843,7 +1843,7 @@ export class Wunderbaum {
     return state;
   }
 
-  /** Apply selection/expansion/activation status. */
+  /** Apply selection/expansion/activation status. @experimental */
   setState(state: TreeStateDefinition, options: SetStateOptions) {
     this.runWithDeferredUpdate(() => {
       if (state.selectedKeys) {
