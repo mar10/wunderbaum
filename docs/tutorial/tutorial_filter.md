@@ -163,9 +163,9 @@ const tree = new Wunderbaum({
 Define some html elements as filter controls:
 
 ```html
-<label for="filterQuery">Filter:</label>
+<label for="filter-query">Filter:</label>
 <input
-  id="filterQuery"
+  id="filter-query"
   type="search"
   placeholder="Enter search pattern"
   autofocus
@@ -178,7 +178,7 @@ Define some html elements as filter controls:
 and connect them to the `tree.filterNodes()` method:
 
 ```js
-const queryInput = document.querySelector("input#filterQuery");
+const queryInput = document.querySelector("input#filter-query");
 
 queryInput.addEventListener(
   "input",

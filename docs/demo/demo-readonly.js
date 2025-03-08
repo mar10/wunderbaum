@@ -49,7 +49,13 @@ new mar10.Wunderbaum({
   columnsResizable: true,
   columnsSortable: true,
   filter: {
-    connectInput: "input#filterQuery",
+    connect: {
+      inputElem: "#filter-query",
+      modeButton: "#filter-hide",
+      nextButton: "#filter-next",
+      prevButton: "#filter-prev",
+      matchInfoElem: "#filter-match-info",
+    },
   },
   init: (e) => {},
   buttonClick: function (e) {
