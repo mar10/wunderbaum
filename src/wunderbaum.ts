@@ -236,6 +236,7 @@ export class Wunderbaum {
           loadError: "Error",
           loading: "Loading...",
           noData: "No data",
+          breadcrumbDelimiter: " » ",
           queryResult: "Found ${matches} of ${count}",
           noMatch: "No results",
           matchIndex: "${match} of ${matches}",
@@ -2479,7 +2480,7 @@ export class Wunderbaum {
         part.href = "#";
         part.classList.add("wb-breadcrumb");
         part.dataset.key = n.key;
-        breadcrumb.append(part, " » ");
+        breadcrumb.append(part, this.options.strings!.breadcrumbDelimiter);
       }
     } else {
       breadcrumb.innerHTML = "&nbsp;";

@@ -670,6 +670,8 @@ export type TranslationsType = {
   loadError: string;
   /** @default "No data" */
   noData: string;
+  /** @default " » " */
+  breadcrumbDelimiter: string;
   /** @default "Found ${matches} of ${count}" */
   queryResult: string;
   /** @default "No result" */
