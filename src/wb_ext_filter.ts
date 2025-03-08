@@ -61,7 +61,6 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   }
 
   setPluginOption(name: string, value: any): void {
-    // alert("filter opt=" + name + ", " + value)
     super.setPluginOption(name, value);
     switch (name) {
       case "mode":
@@ -76,19 +75,24 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     const filterActive = this.tree.filterMode !== null;
     const activeNode = this.tree.getActiveNode();
     const matchCount = filterActive ? this.countMatches() : 0;
+    const strings = this.treeOpts.strings!;
+    let matchIdx: string | number = "?";
 
     if (this.matchInfoElem) {
       if (filterActive) {
         let info;
-        const strings = this.treeOpts.strings;
-        if (activeNode && activeNode.match! >= 1) {
-          info = strings.filterPosition.replace("${match}", activeNode.match);
+        if (matchCount === 0) {
+          info = strings.noMatch;
+        } else if (activeNode && activeNode.match! >= 1) {
+          matchIdx = activeNode.match ?? "?";
+          info = strings.matchIndex;
         } else {
           info = strings.queryResult;
         }
         info = info
-          .replace("${matches}", matchCount.toLocaleString())
-          .replace("${count}", this.tree.count().toLocaleString());
+          .replace("${count}", this.tree.count().toLocaleString())
+          .replace("${match}", "" + matchIdx)
+          .replace("${matches}", matchCount.toLocaleString());
         this.matchInfoElem.textContent = info;
       } else {
         this.matchInfoElem.textContent = "";
@@ -150,14 +154,12 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
           "mode",
           tree.filterMode === "dim" ? "hide" : "dim"
         );
-        // this._updatedConnectedControls();
       });
     }
     onEvent(
       this.queryInput,
       "input",
       debounce((e) => {
-        // tree.log("query", e);
         this.filterNodes(this.queryInput!.value.trim(), {});
       }, 700)
     );
@@ -279,10 +281,6 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       delete node.titleWithHighlight;
       node.subMatchCount = 0;
     });
-    // statusNode = tree.root.findDirectChild(KEY_NODATA);
-    // if (statusNode) {
-    //   statusNode.remove();
-    // }
     tree.setStatus(NodeStatusType.ok);
 
     // Adjust node.hide, .match, and .subMatchCount properties
@@ -405,30 +403,17 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
    */
   clearFilter() {
     const tree = this.tree;
-    // statusNode = tree.root.findDirectChild(KEY_NODATA),
-    // escapeTitles = tree.options.escapeTitles;
     tree.enableUpdate(false);
 
-    // if (statusNode) {
-    //   statusNode.remove();
-    // }
     tree.setStatus(NodeStatusType.ok);
     // we also counted root node's subMatchCount
     delete tree.root.match;
     delete tree.root.subMatchCount;
 
     tree.visit((node) => {
-      // if (node.match && node._rowElem) {
-      //   let titleElem = node._rowElem.querySelector("span.wb-title")!;
-      //   node._callEvent("enhanceTitle", { titleElem: titleElem });
-      // }
       delete node.match;
       delete node.subMatchCount;
       delete node.titleWithHighlight;
-      // if (node.subMatchBadge) {
-      //   node.subMatchBadge.remove();
-      //   delete node.subMatchBadge;
-      // }
       if (node._filterAutoExpanded && node.expanded) {
         node.setExpanded(false, {
           noAnimation: true,
@@ -444,7 +429,6 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       "wb-ext-filter-dim",
       "wb-ext-filter-hide"
     );
-    // tree._callHook("treeStructureChanged", this, "clearFilter");
     this._updatedConnectedControls();
 
     tree.enableUpdate(true);

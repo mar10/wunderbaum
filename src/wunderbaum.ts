@@ -227,8 +227,9 @@ export class Wunderbaum {
           loadError: "Error",
           loading: "Loading...",
           noData: "No data",
-          queryResult: "Matched ${matches} of ${count} nodes.",
-          filterPosition: "${match} of ${matches}",
+          queryResult: "Found ${matches} of ${count}",
+          noMatch: "No results",
+          matchIndex: "${match} of ${matches}",
         },
       },
       options

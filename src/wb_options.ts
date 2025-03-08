@@ -114,16 +114,6 @@ export interface WunderbaumOptions {
   skeleton?: boolean;
   /**
    * Translation map for some system messages.
-   * Default:
-   * ```js
-   * strings: {
-   *   loading: "Loading...",
-   *   loadError: "Error",
-   *   noData: "No data",
-   *   queryResult: "Matched ${matches} of ${count} nodes.",
-   *   filterPosition: "${match} of ${matches}",
-   * }
-   * ```
    */
   strings?: TranslationsType;
   /**

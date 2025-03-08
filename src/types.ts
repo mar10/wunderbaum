@@ -629,10 +629,12 @@ export type TranslationsType = {
   loadError: string;
   /** @default "No data" */
   noData: string;
-  /** @default "Matched ${matches} of ${count} nodes." */
+  /** @default "Found ${matches} of ${count}" */
   queryResult: string;
-  /** @default "${match} / ${matches} matches." */
-  filterPosition: string;
+  /** @default "No result" */
+  noMatch: string;
+  /** @default "${match} of ${matches}" */
+  matchIndex: string;
 };
 /* -----------------------------------------------------------------------------
  * METHOD OPTIONS TYPES
