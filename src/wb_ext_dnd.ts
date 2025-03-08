@@ -208,7 +208,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     //   `_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`
     // );
     // TODO: should be checked on  move only
-    if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
+    if (!this.treeOpts.dnd!.preventVoidMoves || !srcNode) {
       return false;
     }
     if (
@@ -285,7 +285,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
    */
   protected onDragEvent(e: DragEvent) {
     // const tree = this.tree;
-    const dndOpts: DndOptionsType = this.treeOpts.dnd;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd!;
     const srcNode = Wunderbaum.getNode(e);
 
     if (!srcNode) {
@@ -364,7 +364,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     const srcNode = this.srcNode;
     const srcTree = srcNode ? srcNode.tree : null;
     const targetNode = Wunderbaum.getNode(e)!;
-    const dndOpts: DndOptionsType = this.treeOpts.dnd;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd!;
     const dt = e.dataTransfer!;
     const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
 
