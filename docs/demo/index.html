@@ -143,16 +143,31 @@
             <i class="bi bi-check2-square"></i>
           </button>
           &vert;
-          <label for="filterQuery">Filter:</label>
+          <label for="filter-query">Filter:</label>
           <input
-            id="filterQuery"
+            id="filter-query"
             type="search"
             placeholder="Enter search query"
             autofocus
           />
-          <button type="button" id="filter-hide" title="Hide unmatched nodes">
+          <button
+            type="button"
+            id="filter-hide"
+            title="Hide/dim unmatched nodes"
+          >
             <i class="bi bi-funnel"></i>
           </button>
+          <button type="button" id="filter-prev" title="Show previous match">
+            <i class="bi bi-chevron-up"></i>
+          </button>
+          <button type="button" id="filter-next" title="Show next match">
+            <i class="bi bi-chevron-down"></i>
+          </button>
+          &nbsp;
+          <output id="filter-match-info" class="hide-on-welcome hidden"
+            >&nbsp;</output
+          >
+
           <!-- <select id="selectMode" class="hide-on-init">
           <option value="single">selectMode: 'single'</option>
           <option value="multi">selectMode: 'multi'</option>

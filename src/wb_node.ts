@@ -21,6 +21,7 @@ import {
   MakeVisibleOptions,
   MatcherCallback,
   NavigateOptions,
+  NavigationType,
   NodeAnyCallback,
   NodeStatusType,
   NodeStringCallback,
@@ -46,7 +47,7 @@ import {
 import {
   decompressSourceData,
   ICON_WIDTH,
-  KEY_TO_ACTION_DICT,
+  KEY_TO_NAVIGATION_MAP,
   makeNodeTitleMatcher,
   nodeTitleSorter,
   RESERVED_TREE_SOURCE_KEYS,
@@ -171,7 +172,11 @@ export class WunderbaumNode {
   _partsel = false;
   _partload = false;
   // --- FILTER ---
-  public match?: boolean; // Added and removed by filter code
+  /**
+   * > 0 if matched (-1 to keep system nodes visible);
+   * Added and removed by filter code.
+   */
+  public match?: number;
   public subMatchCount?: number = 0;
   // public subMatchBadge?: HTMLElement;
   /** @internal */
@@ -656,7 +661,7 @@ export class WunderbaumNode {
    *
    * @see {@link Wunderbaum.findRelatedNode|tree.findRelatedNode()}
    */
-  findRelatedNode(where: string, includeHidden = false) {
+  findRelatedNode(where: NavigationType, includeHidden = false) {
     return this.tree.findRelatedNode(this, where, includeHidden);
   }
 
@@ -987,7 +992,7 @@ export class WunderbaumNode {
     return other && other.parent === this;
   }
 
-  /** (experimental) Return true if this node is partially loaded. */
+  /** Return true if this node is partially loaded. @experimental  */
   isPartload(): boolean {
     return !!this._partload;
   }
@@ -1509,12 +1514,12 @@ export class WunderbaumNode {
    *   e.g. `ArrowLeft` = 'left'.
    * @param options
    */
-  async navigate(where: string, options?: NavigateOptions) {
+  async navigate(where: NavigationType | string, options?: NavigateOptions) {
     // Allow to pass 'ArrowLeft' instead of 'left'
-    where = KEY_TO_ACTION_DICT[where] || where;
+    const navType = (KEY_TO_NAVIGATION_MAP[where] ?? where) as NavigationType;
 
     // Otherwise activate or focus the related node
-    const node = this.findRelatedNode(where);
+    const node = this.findRelatedNode(navType);
     if (!node) {
       this.logWarn(`Could not find related node '${where}'.`);
       return Promise.resolve(this);
@@ -1618,91 +1623,19 @@ export class WunderbaumNode {
   }
 
   protected _createIcon(
-    iconMap: any,
     parentElem: HTMLElement,
     replaceChild: HTMLElement | null,
     showLoading: boolean
   ): HTMLElement | null {
-    let iconSpan;
-    let icon = this.getOption("icon");
-    if (this._errorInfo) {
-      icon = iconMap.error;
-    } else if (this._isLoading && showLoading) {
-      // Status nodes, or nodes without expander (< minExpandLevel) should
-      // display the 'loading' status with the i.wb-icon span
-      icon = iconMap.loading;
-    }
-    if (icon === false) {
-      return null; // explicitly disabled: don't try default icons
-    }
-    if (typeof icon === "string") {
-      // Callback returned an icon definition
-      // icon = icon.trim()
-    } else if (this.statusNodeType) {
-      icon = (<any>iconMap)[this.statusNodeType];
-    } else if (this.expanded) {
-      icon = iconMap.folderOpen;
-    } else if (this.children) {
-      icon = iconMap.folder;
-    } else if (this.lazy) {
-      icon = iconMap.folderLazy;
-    } else {
-      icon = iconMap.doc;
-    }
-
-    // this.log("_createIcon: " + icon);
-    if (!icon) {
-      iconSpan = document.createElement("i");
-      iconSpan.className = "wb-icon";
-    } else if (icon.indexOf("<") >= 0) {
-      // HTML
-      iconSpan = util.elemFromHtml(icon);
-    } else if (TEST_IMG.test(icon)) {
-      // Image URL
-      iconSpan = util.elemFromHtml(
-        `<i class="wb-icon" style="background-image: url('${icon}');">`
-      );
-    } else {
-      // Class name
-      iconSpan = document.createElement("i");
-      iconSpan.className = "wb-icon " + icon;
-    }
-    if (replaceChild) {
-      parentElem.replaceChild(iconSpan, replaceChild);
-    } else {
-      parentElem.appendChild(iconSpan);
-    }
-
-    // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
-
-    const cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
-    let badge = null;
-    if (cbRes != null && cbRes !== false) {
-      let classes = "";
-      let tooltip = "";
-      if (util.isPlainObject(cbRes)) {
-        badge = "" + cbRes.badge;
-        classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
-        tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
-      } else if (typeof cbRes === "number") {
-        badge = "" + cbRes;
+    const iconElem = this.tree._createNodeIcon(this, showLoading, true);
+    if (iconElem) {
+      if (replaceChild) {
+        parentElem.replaceChild(iconElem, replaceChild);
       } else {
-        badge = cbRes; // string or HTMLSpanElement
-      }
-      if (typeof badge === "string") {
-        badge = util.elemFromHtml(
-          `<span class="wb-badge${classes}"${tooltip}>${util.escapeHtml(
-            badge
-          )}</span>`
-        );
-      }
-      if (badge) {
-        iconSpan.append(<HTMLSpanElement>badge);
+        parentElem.appendChild(iconElem);
       }
     }
-
-    // this.log("_createIcon: ", iconSpan);
-    return iconSpan;
+    return iconElem;
   }
 
   /**
@@ -1773,12 +1706,7 @@ export class WunderbaumNode {
 
     // Render the icon (show a 'loading' icon if we do not have an expander that
     // we would prefer).
-    const iconSpan = this._createIcon(
-      tree.iconMap,
-      nodeElem,
-      null,
-      !expanderSpan
-    );
+    const iconSpan = this._createIcon(nodeElem, null, !expanderSpan);
     if (iconSpan) {
       ofsTitlePx += ICON_WIDTH;
     }
@@ -2029,7 +1957,7 @@ export class WunderbaumNode {
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
       const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
       if (iconSpan) {
-        this._createIcon(tree.iconMap, nodeElem, iconSpan, !expanderSpan);
+        this._createIcon(nodeElem, iconSpan, !expanderSpan);
       }
     }
     // Adjust column width
@@ -2641,7 +2569,7 @@ export class WunderbaumNode {
       );
 
       statusNode = this.addNode(data, "prependChild");
-      statusNode.match = true;
+      statusNode.match = -1; // Mark as 'match' to avoid hiding
       tree.update(ChangeType.structure);
 
       return statusNode;
@@ -2664,7 +2592,7 @@ export class WunderbaumNode {
           _setStatusNode({
             statusNodeType: status,
             title:
-              tree.options.strings.loading +
+              tree.options.strings!.loading +
               (message ? " (" + message + ")" : ""),
             checkbox: false,
             colspan: true,
@@ -2677,7 +2605,7 @@ export class WunderbaumNode {
         _setStatusNode({
           statusNodeType: status,
           title:
-            tree.options.strings.loadError +
+            tree.options.strings!.loadError +
             (message ? " (" + message + ")" : ""),
           checkbox: false,
           colspan: true,
@@ -2690,7 +2618,7 @@ export class WunderbaumNode {
       case "noData":
         _setStatusNode({
           statusNodeType: status,
-          title: message || tree.options.strings.noData,
+          title: message || tree.options.strings!.noData,
           checkbox: false,
           colspan: true,
           tooltip: details,

@@ -33,8 +33,10 @@ import {
   ExpandAllOptions,
   FilterModeType,
   FilterNodesOptions,
+  IconMapType,
   GetStateOptions,
   MatcherCallback,
+  NavigationType,
   NavModeEnum,
   NodeFilterCallback,
   NodeRegion,
@@ -65,6 +67,7 @@ import {
   nodeTitleSorter,
   RENDER_MAX_PREFETCH,
   DEFAULT_ROW_HEIGHT,
+  TEST_IMG,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -174,6 +177,10 @@ export class Wunderbaum {
   // /** @internal */
   // public selectRangeAnchor: WunderbaumNode | null = null;
 
+  // --- BREADCRUMB ---
+  /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
+  public breadcrumb: HTMLElement | null = null;
+
   // --- FILTER ---
   /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
   public filterMode: FilterModeType = null;
@@ -213,10 +220,10 @@ export class Wunderbaum {
         emptyChildListExpandable: false,
         // updateThrottleWait: 200,
         skeleton: false,
-        connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+        connectTopBreadcrumb: null,
         selectMode: "multi", // SelectModeType
         // --- KeyNav ---
-        navigationModeOption: null, // NavModeEnum.startRow,
+        navigationModeOption: null, // NavModeEnum,
         quicksearch: true,
         // --- Events ---
         iconBadge: null,
@@ -228,8 +235,10 @@ export class Wunderbaum {
         strings: {
           loadError: "Error",
           loading: "Loading...",
-          // loading: "Loading&hellip;",
           noData: "No data",
+          queryResult: "Found ${matches} of ${count}",
+          noMatch: "No results",
+          matchIndex: "${match} of ${matches}",
         },
       },
       options
@@ -371,6 +380,24 @@ export class Wunderbaum {
 
     this.element.classList.toggle("wb-grid", this.columns.length > 1);
 
+    if (this.options.connectTopBreadcrumb) {
+      this.breadcrumb = util.elemFromSelector(
+        this.options.connectTopBreadcrumb
+      )!;
+      util.assert(
+        !this.breadcrumb || this.breadcrumb.innerHTML != null,
+        `Invalid 'connectTopBreadcrumb' option: ${this.breadcrumb}.`
+      );
+      this.breadcrumb.addEventListener("click", (e) => {
+        // const node = Wunderbaum.getNode(e)!;
+        const elem = e.target as HTMLElement;
+        if (elem && elem.matches("a.wb-breadcrumb")) {
+          const node = this.keyMap.get(elem.dataset.key!);
+          node?.setActive();
+          e.preventDefault();
+        }
+      });
+    }
     this._initExtensions();
 
     // --- apply initial options
@@ -600,7 +627,7 @@ export class Wunderbaum {
   /**
    * Return the icon-function -> icon-definition mapping.
    */
-  get iconMap(): { [key: string]: string } {
+  get iconMap(): IconMapType {
     const map = this.options.iconMap!;
     if (typeof map === "string") {
       return iconMaps[map];
@@ -774,7 +801,10 @@ export class Wunderbaum {
     return <WunderbaumNode>node!;
   }
 
-  /** Return the topmost visible node in the viewport. */
+  /** Return the topmost visible node in the viewport.
+   * @param complete If `false`, the node is considered visible if at least one
+   * pixel is visible.
+   */
   getTopmostVpNode(complete = true) {
     const rowHeight = this.options.rowHeightPx!;
     const gracePx = 1; // ignore subpixel scrolling
@@ -809,30 +839,29 @@ export class Wunderbaum {
     return this._getNodeByRowIdx(bottomIdx)!;
   }
 
-  /** Return preceeding visible node in the viewport. */
-  protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
-    this.visitRows(
-      (n) => {
-        node = n;
-        if (ofs-- <= 0) {
-          return false;
-        }
-      },
-      { reverse: true, start: node || this.getActiveNode() }
-    );
-    return node;
-  }
-
   /** Return following visible node in the viewport. */
-  protected _getNextNodeInView(node?: WunderbaumNode, ofs = 1) {
+  protected _getNextNodeInView(
+    node?: WunderbaumNode,
+    options?: {
+      ofs?: number;
+      reverse?: boolean;
+      cb?: (n: WunderbaumNode) => boolean;
+    }
+  ) {
+    let ofs = options?.ofs || 1;
+    const reverse = !!options?.reverse;
+
     this.visitRows(
       (n) => {
         node = n;
+        if (options?.cb && options.cb(n)) {
+          return false;
+        }
         if (ofs-- <= 0) {
           return false;
         }
       },
-      { reverse: false, start: node || this.getActiveNode() }
+      { reverse: reverse, start: node || this.getActiveNode() }
     );
     return node;
   }
@@ -975,9 +1004,11 @@ export class Wunderbaum {
       case "first":
       case "last":
       case "left":
+      case "nextMatch":
       case "pageDown":
       case "pageUp":
       case "parent":
+      case "prevMatch":
       case "right":
       case "up":
         return node.navigate(cmd);
@@ -1193,6 +1224,12 @@ export class Wunderbaum {
     return visible ? this.treeRowCount : this.keyMap.size;
   }
 
+  /** Return the number of *unique* nodes in the data model, i.e. unique `node.refKey`.
+   */
+  countUnique(): number {
+    return this.refKeyMap.size;
+  }
+
   /** @internal sanity check. */
   _check() {
     let i = 0;
@@ -1258,15 +1295,18 @@ export class Wunderbaum {
    */
   findNextNode(
     match: string | MatcherCallback,
-    startNode?: WunderbaumNode | null
+    startNode?: WunderbaumNode | null,
+    reverse = false
   ): WunderbaumNode | null {
     //, visibleOnly) {
     let res: WunderbaumNode | null = null;
     const firstNode = this.getFirstChild()!;
+    // Last visible node (calculation is expensive, so do only if we need it):
+    const lastNode = reverse ? this.findRelatedNode(firstNode, "last")! : null;
 
     const matcher =
       typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
-    startNode = startNode || firstNode;
+    startNode = startNode || (reverse ? lastNode : firstNode);
 
     function _checkNode(n: WunderbaumNode) {
       // console.log("_check " + n)
@@ -1280,12 +1320,14 @@ export class Wunderbaum {
     this.visitRows(_checkNode, {
       start: startNode,
       includeSelf: false,
+      reverse: reverse,
     });
     // Wrap around search
     if (!res && startNode !== firstNode) {
       this.visitRows(_checkNode, {
-        start: firstNode,
+        start: reverse ? lastNode : firstNode,
         includeSelf: true,
+        reverse: reverse,
       });
     }
     return res;
@@ -1300,7 +1342,11 @@ export class Wunderbaum {
    *   e.g. `$.ui.keyCode.LEFT` = 'left'.
    * @param includeHidden Not yet implemented
    */
-  findRelatedNode(node: WunderbaumNode, where: string, includeHidden = false) {
+  findRelatedNode(
+    node: WunderbaumNode,
+    where: NavigationType,
+    includeHidden = false
+  ) {
     const rowHeight = this.options.rowHeightPx!;
     let res = null;
     const pageSize = Math.floor(
@@ -1356,7 +1402,7 @@ export class Wunderbaum {
         // }
         break;
       case "up":
-        res = this._getPrevNodeInView(node);
+        res = this._getNextNodeInView(node, { reverse: true });
         break;
       case "down":
         res = this._getNextNodeInView(node);
@@ -1369,7 +1415,10 @@ export class Wunderbaum {
           if (node._rowIdx! < bottomNode._rowIdx!) {
             res = bottomNode;
           } else {
-            res = this._getNextNodeInView(node, pageSize);
+            res = this._getNextNodeInView(node, {
+              reverse: false,
+              ofs: pageSize,
+            });
           }
         }
         break;
@@ -1383,9 +1432,27 @@ export class Wunderbaum {
           if (node._rowIdx! > topNode._rowIdx!) {
             res = topNode;
           } else {
-            res = this._getPrevNodeInView(node, pageSize);
+            res = this._getNextNodeInView(node, {
+              reverse: true,
+              ofs: pageSize,
+            });
           }
         }
+        break;
+
+      case "prevMatch":
+      // fallthrough
+      case "nextMatch":
+        if (!this.isFilterActive) {
+          this.logWarn(`${where}: Filter is not active.`);
+          break;
+        }
+        res = this.findNextNode(
+          (n) => n.isMatched(),
+          node,
+          where === "prevMatch"
+        );
+        res?.setActive();
         break;
       default:
         this.logWarn("Unknown relation '" + where + "'.");
@@ -1455,6 +1522,13 @@ export class Wunderbaum {
    */
   getFirstChild() {
     return this.root.getFirstChild();
+  }
+
+  /**
+   * Return the last top level node if any (not the invisible root node).
+   */
+  getLastChild() {
+    return this.root.getLastChild();
   }
 
   /**
@@ -2199,11 +2273,11 @@ export class Wunderbaum {
     return modified;
   }
 
-  protected _insertIcon(icon: string, elem: HTMLElement) {
-    const iconElem = document.createElement("i");
-    iconElem.className = icon;
-    elem.appendChild(iconElem);
-  }
+  // protected _insertIcon(icon: string, elem: HTMLElement) {
+  //   const iconElem = document.createElement("i");
+  //   iconElem.className = icon;
+  //   elem.appendChild(iconElem);
+  // }
 
   /** Create/update header markup from `this.columns` definition.
    * @internal
@@ -2307,6 +2381,111 @@ export class Wunderbaum {
     }
   }
 
+  /** @internal */
+  public _createNodeIcon(
+    node: WunderbaumNode,
+    showLoading: boolean,
+    showBadge: boolean
+  ): HTMLElement | null {
+    const iconMap = this.iconMap;
+    let iconElem;
+    let icon = node.getOption("icon");
+    if (node._errorInfo) {
+      icon = iconMap.error;
+    } else if (node._isLoading && showLoading) {
+      // Status nodes, or nodes without expander (< minExpandLevel) should
+      // display the 'loading' status with the i.wb-icon span
+      icon = iconMap.loading;
+    }
+    if (icon === false) {
+      return null; // explicitly disabled: don't try default icons
+    }
+    if (typeof icon === "string") {
+      // Callback returned an icon definition
+      // icon = icon.trim()
+    } else if (node.statusNodeType) {
+      icon = (<any>iconMap)[node.statusNodeType];
+    } else if (node.expanded) {
+      icon = iconMap.folderOpen;
+    } else if (node.children) {
+      icon = iconMap.folder;
+    } else if (node.lazy) {
+      icon = iconMap.folderLazy;
+    } else {
+      icon = iconMap.doc;
+    }
+
+    if (!icon) {
+      iconElem = document.createElement("i");
+      iconElem.className = "wb-icon";
+    } else if (icon.indexOf("<") >= 0) {
+      // HTML
+      iconElem = util.elemFromHtml(icon);
+    } else if (TEST_IMG.test(icon)) {
+      // Image URL
+      iconElem = util.elemFromHtml(
+        `<i class="wb-icon" style="background-image: url('${icon}');">`
+      );
+    } else {
+      // Class name
+      iconElem = document.createElement("i");
+      iconElem.className = "wb-icon " + icon;
+    }
+
+    // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
+    const cbRes =
+      showBadge && node._callEvent("iconBadge", { iconSpan: iconElem });
+
+    let badge = null;
+    if (cbRes != null && cbRes !== false) {
+      let classes = "";
+      let tooltip = "";
+      if (util.isPlainObject(cbRes)) {
+        badge = "" + cbRes.badge;
+        classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
+        tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
+      } else if (typeof cbRes === "number") {
+        badge = "" + cbRes;
+      } else {
+        badge = cbRes; // string or HTMLSpanElement
+      }
+      if (typeof badge === "string") {
+        badge = util.elemFromHtml(
+          `<span class="wb-badge${classes}"${tooltip}>${util.escapeHtml(
+            badge
+          )}</span>`
+        );
+      }
+      if (badge) {
+        iconElem.append(<HTMLSpanElement>badge);
+      }
+    }
+    return iconElem;
+  }
+
+  private _updateTopBreadcrumb() {
+    const breadcrumb = this.breadcrumb!;
+    const topmost = this.getTopmostVpNode(true);
+    const parentList = topmost?.getParentList(false, false);
+    if (parentList?.length) {
+      breadcrumb.innerHTML = "";
+      for (const n of topmost.getParentList(false, false)) {
+        const icon = this._createNodeIcon(n, false, false);
+        if (icon) {
+          breadcrumb.append(icon, " ");
+        }
+        const part = document.createElement("a");
+        part.textContent = n.title;
+        part.href = "#";
+        part.classList.add("wb-breadcrumb");
+        part.dataset.key = n.key;
+        breadcrumb.append(part, " » ");
+      }
+    } else {
+      breadcrumb.innerHTML = "&nbsp;";
+    }
+  }
+
   /**
    * This is the actual update method, which is wrapped inside a throttle method.
    * It calls `updateColumns()` and `_updateRows()`.
@@ -2371,14 +2550,8 @@ export class Wunderbaum {
       // console.profileEnd(`_updateViewportImmediately()`)
     }
 
-    if (this.options.connectTopBreadcrumb) {
-      util.assert(
-        this.options.connectTopBreadcrumb.textContent != null,
-        `Invalid 'connectTopBreadcrumb' option (input element expected).`
-      );
-      let path = this.getTopmostVpNode(true)?.getPath(false, "title", " > ");
-      path = path ? path + " >" : "";
-      this.options.connectTopBreadcrumb.textContent = path;
+    if (this.breadcrumb) {
+      this._updateTopBreadcrumb();
     }
     this._callEvent("update");
   }

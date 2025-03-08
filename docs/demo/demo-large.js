@@ -16,7 +16,7 @@ new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
   debugLevel: 5,
-  connectTopBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: "output#parentPath",
   // checkbox: false,
   // minExpandLevel: 1,
   // fixedCol: true,
@@ -69,7 +69,13 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
-    connectInput: "input#filterQuery",
+    connect: {
+      inputElem: "#filter-query",
+      modeButton: "#filter-hide",
+      nextButton: "#filter-next",
+      prevButton: "#filter-prev",
+      matchInfoElem: "#filter-match-info",
+    },
     // mode: "dim",
   },
   init: (e) => {

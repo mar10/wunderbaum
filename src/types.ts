@@ -173,6 +173,32 @@ export interface WbNodeData {
   [key: string]: unknown;
 }
 
+/** A plain object (dictionary) that defines node icons. */
+export interface IconMapType {
+  error: string;
+  loading: string;
+  noData: string;
+  expanderExpanded: string;
+  expanderCollapsed: string;
+  expanderLazy: string;
+  checkChecked: string;
+  checkUnchecked: string;
+  checkUnknown: string;
+  radioChecked: string;
+  radioUnchecked: string;
+  radioUnknown: string;
+  folder: string;
+  folderOpen: string;
+  folderLazy: string;
+  doc: string;
+  colSortable: string;
+  colSortAsc: string;
+  colSortDesc: string;
+  colFilter: string;
+  colFilterActive: string;
+  colMenu: string;
+  [key: string]: string;
+}
 /* -----------------------------------------------------------------------------
  * EVENT CALLBACK TYPES
  * ---------------------------------------------------------------------------*/
@@ -533,29 +559,43 @@ export interface WbEventInfo {
 // export type WbNodeCallbackType = (e: WbNodeEventType) => any;
 // export type WbRenderCallbackType = (e: WbRenderEventType) => void;
 
-export type FilterModeType = null | "dim" | "hide";
+export type FilterModeType = null | "mark" | "dim" | "hide";
 export type SelectModeType = "single" | "multi" | "hier";
-export type ApplyCommandType =
-  | "addChild"
-  | "addSibling"
-  | "copy"
-  | "cut"
+
+export type NavigationType =
   | "down"
   | "first"
-  | "indent"
+  | "firstCol"
   | "last"
+  | "lastCol"
   | "left"
-  | "moveDown"
-  | "moveUp"
-  | "outdent"
+  | "nextMatch"
   | "pageDown"
   | "pageUp"
   | "parent"
+  | "prevMatch"
+  | "right"
+  | "up";
+
+export type ApplyCommandType =
+  | NavigationType
+  | "addChild"
+  | "addSibling"
+  | "collapse"
+  | "collapseAll"
+  | "copy"
+  | "cut"
+  | "edit"
+  | "expand"
+  | "expandAll"
+  | "indent"
+  | "moveDown"
+  | "moveUp"
+  | "outdent"
   | "paste"
   | "remove"
   | "rename"
-  | "right"
-  | "up";
+  | "toggleSelect";
 
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
@@ -622,6 +662,21 @@ export enum NavModeEnum {
   row = "row",
 }
 
+/** Translatable strings. */
+export type TranslationsType = {
+  /** @default "Loading..." */
+  loading: string;
+  /** @default "Error" */
+  loadError: string;
+  /** @default "No data" */
+  noData: string;
+  /** @default "Found ${matches} of ${count}" */
+  queryResult: string;
+  /** @default "No result" */
+  noMatch: string;
+  /** @default "${match} of ${matches}" */
+  matchIndex: string;
+};
 /* -----------------------------------------------------------------------------
  * METHOD OPTIONS TYPES
  * ---------------------------------------------------------------------------*/
@@ -928,6 +983,19 @@ export interface VisitRowsOptions {
 /* -----------------------------------------------------------------------------
  * wb_ext_filter
  * ---------------------------------------------------------------------------*/
+
+/**
+ * Passed as tree option.filer.connect to configure automatic integration of
+ * filter UI controls. @experimental
+ */
+export interface FilterConnectType {
+  inputElem: string | HTMLInputElement | null;
+  modeButton?: string | HTMLButtonElement | null;
+  nextButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  prevButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  matchInfoElem?: string | HTMLElement | null;
+}
+
 /**
  * Passed as tree options to configure default filtering behavior.
  *
@@ -936,10 +1004,12 @@ export interface VisitRowsOptions {
  */
 export type FilterOptionsType = {
   /**
-   * Element or selector of an input control for filter query strings
+   * Element or selector of input controls and buttons for filter query strings.
+   * @experimental
+   * @since 0.13
    * @default null
    */
-  connectInput?: null | string | Element;
+  connect?: null | FilterConnectType;
   /**
    * Re-apply last filter if lazy data is loaded
    * @default true

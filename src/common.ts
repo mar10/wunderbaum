@@ -4,7 +4,14 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { MatcherCallback, SourceListType, SourceObjectType } from "./types";
+import {
+  ApplyCommandType,
+  NavigationType,
+  SourceListType,
+  SourceObjectType,
+  IconMapType,
+  MatcherCallback,
+} from "./types";
 import * as util from "./util";
 import { WunderbaumNode } from "./wb_node";
 
@@ -42,7 +49,7 @@ export const TEST_IMG = new RegExp(/\.|\//);
  *  - 'fontawesome6' {@link https://fontawesome.com/icons}
  *
  */
-export const iconMaps: { [key: string]: { [key: string]: string } } = {
+export const iconMaps: { [key: string]: IconMapType } = {
   bootstrap: {
     error: "bi bi-exclamation-triangle",
     // loading: "bi bi-hourglass-split wb-busy",
@@ -140,7 +147,24 @@ export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
 // ]);
 
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
+export const KEY_TO_NAVIGATION_MAP: { [key: string]: NavigationType } = {
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  ArrowUp: "up",
+  Backspace: "parent",
+  End: "lastCol",
+  Home: "firstCol",
+  "Control+End": "last",
+  "Control+Home": "first",
+  "Meta+ArrowDown": "last", // macOs
+  "Meta+ArrowUp": "first", // macOs
+  PageDown: "pageDown",
+  PageUp: "pageUp",
+};
+
+/** Map `KeyEvent.key` to navigation action. */
+export const KEY_TO_COMMAND_MAP: { [key: string]: ApplyCommandType } = {
   " ": "toggleSelect",
   "+": "expand",
   Add: "expand",
