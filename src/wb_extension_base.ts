@@ -5,6 +5,7 @@
  */
 
 import * as util from "./util";
+import { WunderbaumOptions } from "./wb_options";
 import { Wunderbaum } from "./wunderbaum";
 
 export type ExtensionsDict = { [key: string]: WunderbaumExtension<any> };
@@ -13,7 +14,7 @@ export abstract class WunderbaumExtension<TOptions> {
   public enabled = true;
   readonly id: string;
   readonly tree: Wunderbaum;
-  readonly treeOpts: any;
+  readonly treeOpts: WunderbaumOptions;
   readonly extensionOpts: any;
 
   constructor(tree: Wunderbaum, id: string, defaults: TOptions) {
@@ -23,7 +24,7 @@ export abstract class WunderbaumExtension<TOptions> {
 
     const opts = tree.options as any;
 
-    if (this.treeOpts[id] === undefined) {
+    if ((<any>this.treeOpts)[id] === undefined) {
       opts[id] = this.extensionOpts = util.extend({}, defaults);
     } else {
       // TODO: do we break existing object instance references here?

@@ -21,6 +21,7 @@ import {
   MakeVisibleOptions,
   MatcherCallback,
   NavigateOptions,
+  NavigationType,
   NodeAnyCallback,
   NodeStatusType,
   NodeStringCallback,
@@ -46,7 +47,7 @@ import {
 import {
   decompressSourceData,
   ICON_WIDTH,
-  KEY_TO_ACTION_DICT,
+  KEY_TO_NAVIGATION_MAP,
   makeNodeTitleMatcher,
   nodeTitleSorter,
   RESERVED_TREE_SOURCE_KEYS,
@@ -171,7 +172,11 @@ export class WunderbaumNode {
   _partsel = false;
   _partload = false;
   // --- FILTER ---
-  public match?: boolean; // Added and removed by filter code
+  /**
+   * > 0 if matched (-1 to keep system nodes visible);
+   * Added and removed by filter code.
+   */
+  public match?: number;
   public subMatchCount?: number = 0;
   // public subMatchBadge?: HTMLElement;
   /** @internal */
@@ -656,7 +661,7 @@ export class WunderbaumNode {
    *
    * @see {@link Wunderbaum.findRelatedNode|tree.findRelatedNode()}
    */
-  findRelatedNode(where: string, includeHidden = false) {
+  findRelatedNode(where: NavigationType, includeHidden = false) {
     return this.tree.findRelatedNode(this, where, includeHidden);
   }
 
@@ -987,7 +992,7 @@ export class WunderbaumNode {
     return other && other.parent === this;
   }
 
-  /** (experimental) Return true if this node is partially loaded. */
+  /** Return true if this node is partially loaded. @experimental  */
   isPartload(): boolean {
     return !!this._partload;
   }
@@ -1509,12 +1514,12 @@ export class WunderbaumNode {
    *   e.g. `ArrowLeft` = 'left'.
    * @param options
    */
-  async navigate(where: string, options?: NavigateOptions) {
+  async navigate(where: NavigationType | string, options?: NavigateOptions) {
     // Allow to pass 'ArrowLeft' instead of 'left'
-    where = KEY_TO_ACTION_DICT[where] || where;
+    const navType = (KEY_TO_NAVIGATION_MAP[where] ?? where) as NavigationType;
 
     // Otherwise activate or focus the related node
-    const node = this.findRelatedNode(where);
+    const node = this.findRelatedNode(navType);
     if (!node) {
       this.logWarn(`Could not find related node '${where}'.`);
       return Promise.resolve(this);
@@ -2641,7 +2646,7 @@ export class WunderbaumNode {
       );
 
       statusNode = this.addNode(data, "prependChild");
-      statusNode.match = true;
+      statusNode.match = -1; // Mark as 'match' to avoid hiding
       tree.update(ChangeType.structure);
 
       return statusNode;
@@ -2664,7 +2669,7 @@ export class WunderbaumNode {
           _setStatusNode({
             statusNodeType: status,
             title:
-              tree.options.strings.loading +
+              tree.options.strings!.loading +
               (message ? " (" + message + ")" : ""),
             checkbox: false,
             colspan: true,
@@ -2677,7 +2682,7 @@ export class WunderbaumNode {
         _setStatusNode({
           statusNodeType: status,
           title:
-            tree.options.strings.loadError +
+            tree.options.strings!.loadError +
             (message ? " (" + message + ")" : ""),
           checkbox: false,
           colspan: true,
@@ -2690,7 +2695,7 @@ export class WunderbaumNode {
       case "noData":
         _setStatusNode({
           statusNodeType: status,
-          title: message || tree.options.strings.noData,
+          title: message || tree.options.strings!.noData,
           checkbox: false,
           colspan: true,
           tooltip: details,
