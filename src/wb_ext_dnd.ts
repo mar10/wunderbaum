@@ -164,7 +164,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // if (nativeDropEffect && nativeDropEffect !== "none") {
     //   return nativeDropEffect;
     // }
-    const dndOpts: DndOptionsType = this.treeOpts.dnd;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd!;
     const ea = dndOpts.effectAllowed ?? "all";
     const canCopy = ["all", "copy", "copyLink", "copyMove"].includes(ea);
     const canLink = ["all", "link", "copyLink", "linkMove"].includes(ea);
