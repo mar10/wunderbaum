@@ -31,9 +31,9 @@ const RE_END_MARTKER = new RegExp(escapeRegex(END_MARKER), "g");
 
 export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
   public queryInput: HTMLInputElement | null = null;
-  public prevButton: HTMLElement | null = null;
-  public nextButton: HTMLButtonElement | HTMLAnchorElement | null = null;
-  public modeButton: HTMLButtonElement | HTMLAnchorElement | null = null;
+  public prevButton: HTMLElement | HTMLAnchorElement | null = null;
+  public nextButton: HTMLElement | HTMLAnchorElement | null = null;
+  public modeButton: HTMLButtonElement | null = null;
   public matchInfoElem: HTMLElement | null = null;
   public lastFilterArgs: IArguments | null = null;
 
@@ -54,55 +54,9 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 
   init() {
     super.init();
-    const tree = this.tree;
     const connect: FilterConnectType = this.getPluginOption("connect");
     if (connect) {
-      this.queryInput = elemFromSelector(connect.inputElem);
-      if (!this.queryInput) {
-        throw new Error(
-          `Invalid 'filter.connect' option: ${connect.inputElem}.`
-        );
-      }
-      this.prevButton = elemFromSelector(connect.prevButton!);
-      this.nextButton = elemFromSelector(connect.nextButton!);
-      this.modeButton = elemFromSelector(connect.modeButton!);
-      this.matchInfoElem = elemFromSelector(connect.matchInfoElem!);
-      if (this.prevButton) {
-        onEvent(this.prevButton, "click", () => {
-          tree.findRelatedNode(
-            tree.getActiveNode() || tree.getFirstChild()!,
-            "prevMatch"
-          );
-        });
-      }
-      if (this.nextButton) {
-        onEvent(this.nextButton, "click", () => {
-          tree.findRelatedNode(
-            tree.getActiveNode() || tree.getFirstChild()!,
-            "nextMatch"
-          );
-        });
-      }
-      if (this.modeButton) {
-        onEvent(this.modeButton, "click", (e) => {
-          this.modeButton!.classList!.toggle(
-            "wb-filter-hide",
-            tree.filterMode === "hide"
-          );
-          this.setPluginOption(
-            "mode",
-            tree.filterMode === "dim" ? "hide" : "dim"
-          );
-        });
-      }
-      onEvent(
-        this.queryInput,
-        "input",
-        debounce((e) => {
-          // tree.log("query", e);
-          this.filterNodes(this.queryInput!.value.trim(), {});
-        }, 700)
-      );
+      this._connectControls();
     }
   }
 
@@ -120,15 +74,27 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 
   _updatedConnectedControls() {
     const filterActive = this.tree.filterMode !== null;
-    let info = "";
-    let matchCount = 0;
-    if (filterActive) {
-      matchCount = this.countMatches();
-      info = this.treeOpts
-        .strings!.queryResult.replace("${matches}", matchCount.toLocaleString())
-        .replace("${count}", this.tree.count().toLocaleString());
+    const activeNode = this.tree.getActiveNode();
+    const matchCount = filterActive ? this.countMatches() : 0;
+
+    if (this.matchInfoElem) {
+      if (filterActive) {
+        let info;
+        const strings = this.treeOpts.strings;
+        if (activeNode && activeNode.match! >= 1) {
+          info = strings.filterPosition.replace("${match}", activeNode.match);
+        } else {
+          info = strings.queryResult;
+        }
+        info = info
+          .replace("${matches}", matchCount.toLocaleString())
+          .replace("${count}", this.tree.count().toLocaleString());
+        this.matchInfoElem.textContent = info;
+      } else {
+        this.matchInfoElem.textContent = "";
+      }
     }
-    this.matchInfoElem ? (this.matchInfoElem.textContent = info) : 0;
+
     if (this.nextButton instanceof HTMLButtonElement) {
       this.nextButton.disabled = !matchCount;
     }
@@ -136,18 +102,66 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       this.prevButton.disabled = !matchCount;
     }
     if (this.modeButton) {
+      this.modeButton.disabled = !filterActive;
       this.modeButton.classList.toggle(
         "wb-filter-hide",
         this.tree.filterMode === "hide"
       );
     }
-    if (this.matchInfoElem) {
-      this.matchInfoElem.textContent = info;
+  }
+  _connectControls() {
+    const tree = this.tree;
+    const connect: FilterConnectType = this.getPluginOption("connect");
+    if (!connect) {
+      return;
     }
-    // const info = treeOpts
-    //   .strings!.filterPosition.replace("${matches}", count.toLocaleString())
-    //   .replace("${count}", tree.count().toLocaleString());
-    // tree.log(info);
+    this.queryInput = elemFromSelector(connect.inputElem);
+    if (!this.queryInput) {
+      throw new Error(`Invalid 'filter.connect' option: ${connect.inputElem}.`);
+    }
+    this.prevButton = elemFromSelector(connect.prevButton!);
+    this.nextButton = elemFromSelector(connect.nextButton!);
+    this.modeButton = elemFromSelector(connect.modeButton!);
+    this.matchInfoElem = elemFromSelector(connect.matchInfoElem!);
+    if (this.prevButton) {
+      onEvent(this.prevButton, "click", () => {
+        tree.findRelatedNode(
+          tree.getActiveNode() || tree.getFirstChild()!,
+          "prevMatch"
+        );
+        this._updatedConnectedControls();
+      });
+    }
+    if (this.nextButton) {
+      onEvent(this.nextButton, "click", () => {
+        tree.findRelatedNode(
+          tree.getActiveNode() || tree.getFirstChild()!,
+          "nextMatch"
+        );
+        this._updatedConnectedControls();
+      });
+    }
+    if (this.modeButton) {
+      onEvent(this.modeButton, "click", (e) => {
+        if (!this.tree.filterMode) {
+          return;
+        }
+        this.setPluginOption(
+          "mode",
+          tree.filterMode === "dim" ? "hide" : "dim"
+        );
+        // this._updatedConnectedControls();
+      });
+    }
+    onEvent(
+      this.queryInput,
+      "input",
+      debounce((e) => {
+        // tree.log("query", e);
+        this.filterNodes(this.queryInput!.value.trim(), {});
+      }, 700)
+    );
+    this._updatedConnectedControls();
   }
 
   _applyFilterNoUpdate(
@@ -282,7 +296,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 
       if (res === "skip") {
         node.visit(function (c) {
-          c.match = false;
+          c.match = undefined;
         }, true);
         return "skip";
       }
@@ -295,7 +309,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 
       if (res) {
         count++;
-        node.match = true;
+        node.match = count;
         node.visitParents((p) => {
           if (p !== node) {
             p.subMatchCount! += 1;
@@ -383,6 +397,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     } else {
       tree.logWarn("updateFilter(): no filter active.");
     }
+    this._updatedConnectedControls();
   }
 
   /**

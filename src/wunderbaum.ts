@@ -228,6 +228,7 @@ export class Wunderbaum {
           loading: "Loading...",
           noData: "No data",
           queryResult: "Matched ${matches} of ${count} nodes.",
+          filterPosition: "${match} of ${matches}",
         },
       },
       options
@@ -1263,7 +1264,8 @@ export class Wunderbaum {
     //, visibleOnly) {
     let res: WunderbaumNode | null = null;
     const firstNode = this.getFirstChild()!;
-    const lastNode = this.findRelatedNode(firstNode, "last")!;
+    // Last visible node (calculation is expensive, so do only if we need it):
+    const lastNode = reverse ? this.findRelatedNode(firstNode, "last")! : null;
 
     const matcher =
       typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;

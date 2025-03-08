@@ -381,7 +381,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
     this.relatedNode = node;
 
     // Don't filter new nodes:
-    newNode.match = true;
+    newNode.match = -1;
 
     newNode.makeVisible({ noAnimation: true }).then(() => {
       this.startEditTitle(newNode);

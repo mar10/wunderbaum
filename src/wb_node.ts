@@ -172,7 +172,11 @@ export class WunderbaumNode {
   _partsel = false;
   _partload = false;
   // --- FILTER ---
-  public match?: boolean; // Added and removed by filter code
+  /**
+   * > 0 if matched (-1 to keep system nodes visible);
+   * Added and removed by filter code.
+   */
+  public match?: number;
   public subMatchCount?: number = 0;
   // public subMatchBadge?: HTMLElement;
   /** @internal */
@@ -2642,7 +2646,7 @@ export class WunderbaumNode {
       );
 
       statusNode = this.addNode(data, "prependChild");
-      statusNode.match = true;
+      statusNode.match = -1; // Mark as 'match' to avoid hiding
       tree.update(ChangeType.structure);
 
       return statusNode;

@@ -931,7 +931,7 @@ export interface VisitRowsOptions {
  */
 export interface FilterConnectType {
   inputElem: string | HTMLInputElement | null;
-  modeButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  modeButton?: string | HTMLButtonElement | null;
   nextButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
   prevButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
   matchInfoElem?: string | HTMLElement | null;
