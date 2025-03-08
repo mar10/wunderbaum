@@ -96,7 +96,7 @@ new mar10.Wunderbaum({
   },
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:
-    const node = e.tree.findFirst("Jumping dopily");
+    const node = e.tree.findFirst("Crazies not provided");
     node.setActive();
     e.tree.setFocus();
   },

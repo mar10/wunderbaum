@@ -1194,6 +1194,12 @@ export class Wunderbaum {
     return visible ? this.treeRowCount : this.keyMap.size;
   }
 
+  /** Return the number of *unique* nodes in the data model, i.e. unique `node.refKey`.
+   */
+  countUnique(): number {
+    return this.refKeyMap.size;
+  }
+
   /** @internal sanity check. */
   _check() {
     let i = 0;

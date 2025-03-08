@@ -7,10 +7,10 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- feature/next-match: Filter: Add support for prev/next-match
-- feature/next-match: Filter: New mode 'mark' (like 'dim' but does not gray out)
-- feature/next-match: BREAKING: Filter: changed `filter.connectInput` to
-  `filter.connect: {...}`.
+- v0.13.0: Filter: Add support for prev/next-match
+- v0.13.0: Filter: New mode 'mark' (like 'dim' but does not gray out)
+- v0.13.0: BREAKING: Filter: changed `filter.connectInput` to `filter.connect: {...}`.
+- v0.13.0: Add `tree.countUnique()` method.
 
 - v0.12.1: Fix flat source format for positional args.
 
