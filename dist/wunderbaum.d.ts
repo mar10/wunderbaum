@@ -425,7 +425,7 @@ declare module "common" {
      * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { MatcherCallback, SourceObjectType } from "types";
+    import { ApplyCommandType, NavigationType, SourceObjectType, IconMapType, MatcherCallback } from "types";
     import { WunderbaumNode } from "wb_node";
     export const DEFAULT_DEBUGLEVEL = 4;
     /**
@@ -459,9 +459,7 @@ declare module "common" {
      *
      */
     export const iconMaps: {
-        [key: string]: {
-            [key: string]: string;
-        };
+        [key: string]: IconMapType;
     };
     export const KEY_NODATA = "__not_found__";
     /** Define which keys are handled by embedded <input> control, and should
@@ -473,8 +471,12 @@ declare module "common" {
     /** Dict keys that are evaluated by source loader (others are added to `tree.data` instead). */
     export const RESERVED_TREE_SOURCE_KEYS: Set<string>;
     /** Map `KeyEvent.key` to navigation action. */
-    export const KEY_TO_ACTION_DICT: {
-        [key: string]: string;
+    export const KEY_TO_NAVIGATION_MAP: {
+        [key: string]: NavigationType;
+    };
+    /** Map `KeyEvent.key` to navigation action. */
+    export const KEY_TO_COMMAND_MAP: {
+        [key: string]: ApplyCommandType;
     };
     /** Return a callback that returns true if the node title matches the string
      * or regular expression.
@@ -540,7 +542,7 @@ declare module "deferred" {
 }
 declare module "wb_node" {
     import { Wunderbaum } from "wunderbaum";
-    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, CheckboxOption, ExpandAllOptions, IconOption, InsertNodeType, MakeVisibleOptions, MatcherCallback, NavigateOptions, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ResetOrderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortByPropertyOptions, SortCallback, SourceType, TooltipOption, TristateType, WbNodeData } from "types";
+    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, CheckboxOption, ExpandAllOptions, IconOption, InsertNodeType, MakeVisibleOptions, MatcherCallback, NavigateOptions, NavigationType, NodeAnyCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeVisitCallback, NodeVisitResponse, RenderOptions, ResetOrderOptions, ScrollIntoViewOptions, SetActiveOptions, SetExpandedOptions, SetSelectedOptions, SetStatusOptions, SortByPropertyOptions, SortCallback, SourceType, TooltipOption, TristateType, WbNodeData } from "types";
     /**
      * A single tree node.
      *
@@ -612,7 +614,11 @@ declare module "wb_node" {
         _errorInfo: any | null;
         _partsel: boolean;
         _partload: boolean;
-        match?: boolean;
+        /**
+         * > 0 if matched (-1 to keep system nodes visible);
+         * Added and removed by filter code.
+         */
+        match?: number;
         subMatchCount?: number;
         /** @internal */
         titleWithHighlight?: string;
@@ -730,7 +736,7 @@ declare module "wb_node" {
          *
          * @see {@link Wunderbaum.findRelatedNode|tree.findRelatedNode()}
          */
-        findRelatedNode(where: string, includeHidden?: boolean): any;
+        findRelatedNode(where: NavigationType, includeHidden?: boolean): any;
         /**
          * Iterator version of {@link WunderbaumNode.format}.
          */
@@ -847,7 +853,7 @@ declare module "wb_node" {
          * @see {@link WunderbaumNode.isAncestorOf}
          */
         isParentOf(other: WunderbaumNode): boolean;
-        /** (experimental) Return true if this node is partially loaded. */
+        /** Return true if this node is partially loaded. @experimental  */
         isPartload(): boolean;
         /** Return true if this node is partially selected (tri-state). */
         isPartsel(): boolean;
@@ -922,7 +928,7 @@ declare module "wb_node" {
          *   e.g. `ArrowLeft` = 'left'.
          * @param options
          */
-        navigate(where: string, options?: NavigateOptions): Promise<any>;
+        navigate(where: NavigationType | string, options?: NavigateOptions): Promise<any>;
         /** Delete this node and all descendants. */
         remove(): void;
         /** Remove all descendants of this node. */
@@ -930,7 +936,7 @@ declare module "wb_node" {
         /** Remove all HTML markup from the DOM. */
         removeMarkup(): void;
         protected _getRenderInfo(): any;
-        protected _createIcon(iconMap: any, parentElem: HTMLElement, replaceChild: HTMLElement | null, showLoading: boolean): HTMLElement | null;
+        protected _createIcon(parentElem: HTMLElement, replaceChild: HTMLElement | null, showLoading: boolean): HTMLElement | null;
         /**
          * Create a whole new `<div class="wb-row">` element.
          * @see {@link WunderbaumNode._render}
@@ -1118,7 +1124,7 @@ declare module "wb_options" {
      * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
      * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
      */
-    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, WbActivateEventType, WbButtonClickEventType, WbCancelableEventResultType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbIconBadgeEventResultType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType } from "types";
+    import { ColumnDefinitionList, DndOptionsType, DynamicBoolOption, DynamicBoolOrStringOption, DynamicCheckboxOption, DynamicIconOption, EditOptionsType, FilterOptionsType, IconMapType, NavModeEnum, NodeTypeDefinitionMap, SelectModeType, TranslationsType, WbActivateEventType, WbButtonClickEventType, WbCancelableEventResultType, WbChangeEventType, WbClickEventType, WbDeactivateEventType, WbErrorEventType, WbExpandEventType, WbIconBadgeCallback, WbIconBadgeEventResultType, WbInitEventType, WbKeydownEventType, WbNodeData, WbNodeEventType, WbReceiveEventType, WbRenderEventType, WbSelectEventType, WbTreeEventType } from "types";
     /**
      * Available options for {@link wunderbaum.Wunderbaum}.
      *
@@ -1193,16 +1199,8 @@ declare module "wb_options" {
         skeleton?: boolean;
         /**
          * Translation map for some system messages.
-         * Default:
-         * ```js
-         * strings: {
-         *   loading: "Loading...",
-         *   loadError: "Error",
-         *   noData: "No data",
-         * }
-         * ```
          */
-        strings?: any;
+        strings?: TranslationsType;
         /**
          * 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
          * Default: 3 (4 in local debug environment)
@@ -1231,9 +1229,7 @@ declare module "wb_options" {
          * Note: the icon font must be loaded separately.
          * Default: "bootstrap"
          */
-        iconMap?: string | {
-            [key: string]: string;
-        };
+        iconMap?: string | IconMapType;
         /**
          * Collapse siblings when a node is expanded.
          * Default: false
@@ -1254,10 +1250,10 @@ declare module "wb_options" {
          */
         adjustHeight?: boolean;
         /**
-         * HTMLElement that receives the top nodes breadcrumb.
+         * HTMLElement or selector that receives the top nodes breadcrumb.
          * Default: undefined
          */
-        connectTopBreadcrumb?: HTMLElement;
+        connectTopBreadcrumb?: HTMLElement | string;
         /**
          * Default:  NavModeEnum.startRow
          */
@@ -1632,6 +1628,32 @@ declare module "types" {
         /** Other data is passed to `node.data` and can be accessed via `node.data.NAME` */
         [key: string]: unknown;
     }
+    /** A plain object (dictionary) that defines node icons. */
+    export interface IconMapType {
+        error: string;
+        loading: string;
+        noData: string;
+        expanderExpanded: string;
+        expanderCollapsed: string;
+        expanderLazy: string;
+        checkChecked: string;
+        checkUnchecked: string;
+        checkUnknown: string;
+        radioChecked: string;
+        radioUnchecked: string;
+        radioUnknown: string;
+        folder: string;
+        folderOpen: string;
+        folderLazy: string;
+        doc: string;
+        colSortable: string;
+        colSortAsc: string;
+        colSortDesc: string;
+        colFilter: string;
+        colFilterActive: string;
+        colMenu: string;
+        [key: string]: string;
+    }
     /** A callback that receives a node instance and returns a string value. */
     export type WbCancelableEventResultType = false | void;
     export interface WbTreeEventType {
@@ -1890,6 +1912,19 @@ declare module "types" {
     }
     export type ColumnDefinitionList = Array<ColumnDefinition>;
     /**
+     * Used by {@link Wunderbaum.getState} and {@link Wunderbaum.setState}.
+     */
+    export interface TreeStateDefinition {
+        /** The active node's key if any. */
+        activeKey: string | null;
+        /** The active column index if any. */
+        activeColIdx: number | null;
+        /** List of selected node's keys. */
+        selectedKeys: Array<string> | undefined;
+        /** List of expanded node's keys. */
+        expandedKeys: Array<string> | undefined;
+    }
+    /**
      * Column information (passed to the `render` event).
      */
     export interface ColumnEventInfo {
@@ -1931,9 +1966,10 @@ declare module "types" {
         /** The affected column's span tag if any. */
         colElem?: HTMLSpanElement;
     }
-    export type FilterModeType = null | "dim" | "hide";
+    export type FilterModeType = null | "mark" | "dim" | "hide";
     export type SelectModeType = "single" | "multi" | "hier";
-    export type ApplyCommandType = "addChild" | "addSibling" | "copy" | "cut" | "down" | "first" | "indent" | "last" | "left" | "moveDown" | "moveUp" | "outdent" | "pageDown" | "pageUp" | "parent" | "paste" | "remove" | "rename" | "right" | "up";
+    export type NavigationType = "down" | "first" | "firstCol" | "last" | "lastCol" | "left" | "nextMatch" | "pageDown" | "pageUp" | "parent" | "prevMatch" | "right" | "up";
+    export type ApplyCommandType = NavigationType | "addChild" | "addSibling" | "collapse" | "collapseAll" | "copy" | "cut" | "edit" | "expand" | "expandAll" | "indent" | "moveDown" | "moveUp" | "outdent" | "paste" | "remove" | "rename" | "toggleSelect";
     export type NodeFilterResponse = "skip" | "branch" | boolean | void;
     export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
     /**
@@ -1993,6 +2029,23 @@ declare module "types" {
         /** Row mode only */
         row = "row"
     }
+    /** Translatable strings. */
+    export type TranslationsType = {
+        /** @default "Loading..." */
+        loading: string;
+        /** @default "Error" */
+        loadError: string;
+        /** @default "No data" */
+        noData: string;
+        /** @default " » " */
+        breadcrumbDelimiter: string;
+        /** @default "Found ${matches} of ${count}" */
+        queryResult: string;
+        /** @default "No result" */
+        noMatch: string;
+        /** @default "${match} of ${matches}" */
+        matchIndex: string;
+    };
     /** Possible values for {@link WunderbaumNode.addChildren}. */
     export interface AddChildrenOptions {
         /** Insert children before this node (or index)
@@ -2070,6 +2123,18 @@ declare module "types" {
         mode?: FilterModeType;
         /** Display a 'no data' status node if result is empty @default true */
         noData?: boolean | string;
+    }
+    /** Possible values for {@link Wunderbaum.getState}. */
+    export interface GetStateOptions {
+        /** Include the expanded keys. @default true */
+        expandedKeys?: boolean;
+        /** Include the selected keys. @default true */
+        selectedKeys?: boolean;
+    }
+    /** Possible values for {@link Wunderbaum.setState}. */
+    export interface SetStateOptions {
+        /** Recursively load lazy nodes as needed. @default false */
+        expandLazy?: boolean;
     }
     /** Possible values for {@link WunderbaumNode.makeVisible}. */
     export interface MakeVisibleOptions {
@@ -2247,6 +2312,17 @@ declare module "types" {
         wrap?: boolean;
     }
     /**
+     * Passed as tree option.filer.connect to configure automatic integration of
+     * filter UI controls. @experimental
+     */
+    export interface FilterConnectType {
+        inputElem: string | HTMLInputElement | null;
+        modeButton?: string | HTMLButtonElement | null;
+        nextButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+        prevButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+        matchInfoElem?: string | HTMLElement | null;
+    }
+    /**
      * Passed as tree options to configure default filtering behavior.
      *
      * @see {@link Wunderbaum.filterNodes}
@@ -2254,10 +2330,12 @@ declare module "types" {
      */
     export type FilterOptionsType = {
         /**
-         * Element or selector of an input control for filter query strings
+         * Element or selector of input controls and buttons for filter query strings.
+         * @experimental
+         * @since 0.13
          * @default null
          */
-        connectInput?: null | string | Element;
+        connect?: null | FilterConnectType;
         /**
          * Re-apply last filter if lazy data is loaded
          * @default true
@@ -2504,6 +2582,7 @@ declare module "types" {
     export type LoggerOptionsType = object;
 }
 declare module "wb_extension_base" {
+    import { WunderbaumOptions } from "wb_options";
     import { Wunderbaum } from "wunderbaum";
     export type ExtensionsDict = {
         [key: string]: WunderbaumExtension<any>;
@@ -2512,7 +2591,7 @@ declare module "wb_extension_base" {
         enabled: boolean;
         readonly id: string;
         readonly tree: Wunderbaum;
-        readonly treeOpts: any;
+        readonly treeOpts: WunderbaumOptions;
         readonly extensionOpts: any;
         constructor(tree: Wunderbaum, id: string, defaults: TOptions);
         /** Called on tree (re)init after all extensions are added, but before loading.*/
@@ -2529,11 +2608,17 @@ declare module "wb_ext_filter" {
     import { Wunderbaum } from "wunderbaum";
     import { WunderbaumExtension } from "wb_extension_base";
     export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
-        queryInput?: HTMLInputElement;
+        queryInput: HTMLInputElement | null;
+        prevButton: HTMLElement | HTMLAnchorElement | null;
+        nextButton: HTMLElement | HTMLAnchorElement | null;
+        modeButton: HTMLButtonElement | null;
+        matchInfoElem: HTMLElement | null;
         lastFilterArgs: IArguments | null;
         constructor(tree: Wunderbaum);
         init(): void;
         setPluginOption(name: string, value: any): void;
+        _updatedConnectedControls(): void;
+        _connectControls(): void;
         _applyFilterNoUpdate(filter: string | RegExp | NodeFilterCallback, _opts: FilterNodesOptions): number;
         _applyFilterImpl(filter: string | RegExp | NodeFilterCallback, _opts: FilterNodesOptions): number;
         /**
@@ -2779,7 +2864,7 @@ declare module "wunderbaum" {
      */
     import * as util from "util";
     import { ExtensionsDict, WunderbaumExtension } from "wb_extension_base";
-    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, ColumnDefinitionList, DynamicBoolOption, DynamicCheckboxOption, DynamicIconOption, DynamicStringOption, DynamicTooltipOption, ExpandAllOptions, FilterModeType, FilterNodesOptions, MatcherCallback, NavModeEnum, NodeFilterCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeTypeDefinitionMap, NodeVisitCallback, RenderFlag, ScrollToOptions, SetActiveOptions, SetColumnOptions, SetStatusOptions, SortByPropertyOptions, SortCallback, SourceType, UpdateOptions, VisitRowsOptions, WbEventInfo, WbNodeData } from "types";
+    import { AddChildrenOptions, ApplyCommandOptions, ApplyCommandType, ChangeType, ColumnDefinitionList, DynamicBoolOption, DynamicCheckboxOption, DynamicIconOption, DynamicStringOption, DynamicTooltipOption, ExpandAllOptions, FilterModeType, FilterNodesOptions, IconMapType, GetStateOptions, MatcherCallback, NavigationType, NavModeEnum, NodeFilterCallback, NodeStatusType, NodeStringCallback, NodeToDictCallback, NodeTypeDefinitionMap, NodeVisitCallback, RenderFlag, ScrollToOptions, SetActiveOptions, SetColumnOptions, SetStateOptions, SetStatusOptions, SortByPropertyOptions, SortCallback, SourceType, TreeStateDefinition, UpdateOptions, VisitRowsOptions, WbEventInfo, WbNodeData } from "types";
     import { WunderbaumNode } from "wb_node";
     import { WunderbaumOptions } from "wb_options";
     import { DebouncedFunction } from "debounce";
@@ -2855,6 +2940,8 @@ declare module "wunderbaum" {
         /** Expose some useful methods of the util.ts module as `tree._util`. */
         _util: typeof util;
         /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
+        breadcrumb: HTMLElement | null;
+        /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
         filterMode: FilterModeType;
         /** @internal Use `setColumn()`/`getActiveColElem()` to access. */
         activeColIdx: number;
@@ -2881,9 +2968,7 @@ declare module "wunderbaum" {
         /**
          * Return the icon-function -> icon-definition mapping.
          */
-        get iconMap(): {
-            [key: string]: string;
-        };
+        get iconMap(): IconMapType;
         /**
          * Return a WunderbaumNode instance from element or event.
          */
@@ -2930,14 +3015,19 @@ declare module "wunderbaum" {
         _callEvent(type: string, extra?: any): any;
         /** Return the node for  given row index. */
         protected _getNodeByRowIdx(idx: number): WunderbaumNode | null;
-        /** Return the topmost visible node in the viewport. */
+        /** Return the topmost visible node in the viewport.
+         * @param complete If `false`, the node is considered visible if at least one
+         * pixel is visible.
+         */
         getTopmostVpNode(complete?: boolean): WunderbaumNode;
         /** Return the lowest visible node in the viewport. */
         getLowestVpNode(complete?: boolean): WunderbaumNode;
-        /** Return preceeding visible node in the viewport. */
-        protected _getPrevNodeInView(node?: WunderbaumNode, ofs?: number): WunderbaumNode;
         /** Return following visible node in the viewport. */
-        protected _getNextNodeInView(node?: WunderbaumNode, ofs?: number): WunderbaumNode;
+        protected _getNextNodeInView(node?: WunderbaumNode, options?: {
+            ofs?: number;
+            reverse?: boolean;
+            cb?: (n: WunderbaumNode) => boolean;
+        }): WunderbaumNode;
         /**
          * Append (or insert) a list of toplevel nodes.
          *
@@ -3011,6 +3101,9 @@ declare module "wunderbaum" {
          * @param visible if true, nodes that are hidden due to collapsed parents are ignored.
          */
         count(visible?: boolean): number;
+        /** Return the number of *unique* nodes in the data model, i.e. unique `node.refKey`.
+         */
+        countUnique(): number;
         /** @internal sanity check. */
         _check(): void;
         /**
@@ -3051,7 +3144,7 @@ declare module "wunderbaum" {
          * and wrap-around at the end.
          * Used by quicksearch and keyboard navigation.
          */
-        findNextNode(match: string | MatcherCallback, startNode?: WunderbaumNode | null): WunderbaumNode | null;
+        findNextNode(match: string | MatcherCallback, startNode?: WunderbaumNode | null, reverse?: boolean): WunderbaumNode | null;
         /**
          * Find a node relative to another node.
          *
@@ -3061,7 +3154,7 @@ declare module "wunderbaum" {
          *   e.g. `$.ui.keyCode.LEFT` = 'left'.
          * @param includeHidden Not yet implemented
          */
-        findRelatedNode(node: WunderbaumNode, where: string, includeHidden?: boolean): any;
+        findRelatedNode(node: WunderbaumNode, where: NavigationType, includeHidden?: boolean): any;
         /**
          * Iterator version of {@link Wunderbaum.format}.
          */
@@ -3105,6 +3198,10 @@ declare module "wunderbaum" {
          * Return the first top level node if any (not the invisible root node).
          */
         getFirstChild(): WunderbaumNode;
+        /**
+         * Return the last top level node if any (not the invisible root node).
+         */
+        getLastChild(): WunderbaumNode;
         /**
          * Return the node that currently has keyboard focus or null.
          * Alias for {@link Wunderbaum.focusNode}.
@@ -3190,6 +3287,10 @@ declare module "wunderbaum" {
         /** Set or remove keyboard focus to the tree container. */
         setFocus(flag?: boolean): void;
         _setFocusNode(node: WunderbaumNode | null): void;
+        /** Return the current selection/expansion/activation status. @experimental */
+        getState(options: GetStateOptions): TreeStateDefinition;
+        /** Apply selection/expansion/activation status. @experimental */
+        setState(state: TreeStateDefinition, options: SetStateOptions): void;
         /**
          * Schedule an update request to reflect a tree change.
          * The render operation is async and debounced unless the `immediate` option
@@ -3250,7 +3351,6 @@ declare module "wunderbaum" {
          * Return true if at least one column width changed.
          */
         _updateColumnWidths(): boolean;
-        protected _insertIcon(icon: string, elem: HTMLElement): void;
         /** Create/update header markup from `this.columns` definition.
          * @internal
          */
@@ -3266,6 +3366,9 @@ declare module "wunderbaum" {
          * pending async changes if any.
          */
         updatePendingModifications(): void;
+        /** @internal */
+        _createNodeIcon(node: WunderbaumNode, showLoading: boolean, showBadge: boolean): HTMLElement | null;
+        private _updateTopBreadcrumb;
         /**
          * This is the actual update method, which is wrapped inside a throttle method.
          * It calls `updateColumns()` and `_updateRows()`.
