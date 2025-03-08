@@ -7,10 +7,12 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- feature/breadcrumb-improvements: connectTopBreadcrumb can be a selector
-- feature/breadcrumb-improvements: Breadcrumb shows node icons
-- feature/breadcrumb-improvements: Breadcrumb parts can be clicked (activate parent)
-
+- v0.13.0: connectTopBreadcrumb can be a selector
+- v0.13.0: Breadcrumb shows node icons
+- v0.13.0: Breadcrumb parts can be clicked (activate parent)
+- v0.13.0: Filter: Add support for prev/next-match
+- v0.13.0: Filter: New mode 'mark' (like 'dim' but does not gray out)
+- v0.13.0: BREAKING: Filter: changed `filter.connectInput` to `filter.connect: {...}`.
 - v0.13.0: Add `tree.countUnique()` method.
 
 - v0.12.1: Fix flat source format for positional args.

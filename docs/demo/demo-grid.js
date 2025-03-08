@@ -100,7 +100,13 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
-    connectInput: "input#filterQuery",
+    connect: {
+      inputElem: "#filter-query",
+      modeButton: "#filter-hide",
+      nextButton: "#filter-next",
+      prevButton: "#filter-prev",
+      matchInfoElem: "#filter-match-info",
+    },
     // mode: "dim",
   },
   init: (e) => {

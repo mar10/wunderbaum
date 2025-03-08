@@ -20,6 +20,7 @@ import {
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
+  TranslationsType,
   WbActivateEventType,
   WbButtonClickEventType,
   WbCancelableEventResultType,
@@ -114,16 +115,8 @@ export interface WunderbaumOptions {
   skeleton?: boolean;
   /**
    * Translation map for some system messages.
-   * Default:
-   * ```js
-   * strings: {
-   *   loading: "Loading...",
-   *   loadError: "Error",
-   *   noData: "No data",
-   * }
-   * ```
    */
-  strings?: any; //[key: string] string;
+  strings?: TranslationsType;
   /**
    * 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
    * Default: 3 (4 in local debug environment)

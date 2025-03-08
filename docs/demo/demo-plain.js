@@ -81,7 +81,13 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
-    connectInput: "input#filterQuery",
+    connect: {
+      inputElem: "#filter-query",
+      modeButton: "#filter-hide",
+      nextButton: "#filter-next",
+      prevButton: "#filter-prev",
+      matchInfoElem: "#filter-match-info",
+    },
     mode: "hide",
   },
   iconBadge: (e) => {
@@ -96,7 +102,7 @@ new mar10.Wunderbaum({
   },
   init: (e) => {
     // Tree was loaded and rendered. Now set focus:
-    const node = e.tree.findFirst("Jumping dopily");
+    const node = e.tree.findFirst("Crazies not provided");
     node.setActive();
     e.tree.setFocus();
   },

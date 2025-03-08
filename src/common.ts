@@ -5,10 +5,12 @@
  */
 
 import {
-  IconMapType,
-  MatcherCallback,
+  ApplyCommandType,
+  NavigationType,
   SourceListType,
   SourceObjectType,
+  IconMapType,
+  MatcherCallback,
 } from "./types";
 import * as util from "./util";
 import { WunderbaumNode } from "./wb_node";
@@ -145,7 +147,24 @@ export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
 // ]);
 
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
+export const KEY_TO_NAVIGATION_MAP: { [key: string]: NavigationType } = {
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  ArrowUp: "up",
+  Backspace: "parent",
+  End: "lastCol",
+  Home: "firstCol",
+  "Control+End": "last",
+  "Control+Home": "first",
+  "Meta+ArrowDown": "last", // macOs
+  "Meta+ArrowUp": "first", // macOs
+  PageDown: "pageDown",
+  PageUp: "pageUp",
+};
+
+/** Map `KeyEvent.key` to navigation action. */
+export const KEY_TO_COMMAND_MAP: { [key: string]: ApplyCommandType } = {
   " ": "toggleSelect",
   "+": "expand",
   Add: "expand",

@@ -424,19 +424,6 @@ export function elemFromSelector<T = HTMLElement>(obj: string | T): T | null {
   return obj as T;
 }
 
-// /** Return a EventTarget from selector or cast an existing element. */
-// export function eventTargetFromSelector(
-//   obj: string | EventTarget
-// ): EventTarget | null {
-//   if (!obj) {
-//     return null;
-//   }
-//   if (typeof obj === "string") {
-//     return document.querySelector(obj) as EventTarget;
-//   }
-//   return obj as EventTarget;
-// }
-
 /**
  * Return a canonical descriptive string for a keyboard or mouse event.
  *
