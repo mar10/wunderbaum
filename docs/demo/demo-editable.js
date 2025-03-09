@@ -107,9 +107,11 @@ new mar10.Wunderbaum({
     },
   },
   filter: {
+    mode: "hide",
+    autoExpand: true,
     connect: {
       inputElem: "#filter-query",
-      modeButton: "#filter-hide",
+      // modeButton: "#filter-hide",  // using a custom handler
       nextButton: "#filter-next",
       prevButton: "#filter-prev",
       matchInfoElem: "#filter-match-info",

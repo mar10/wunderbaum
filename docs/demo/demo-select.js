@@ -109,6 +109,17 @@ new mar10.Wunderbaum({
       return { url: "../assets/json/ajax-lazy-products.json" };
     }, 4000);
   },
+  filter: {
+    mode: "hide",
+    autoExpand: true,
+    connect: {
+      inputElem: "#filter-query",
+      // modeButton: "#filter-hide",  // using a custom handler
+      nextButton: "#filter-next",
+      prevButton: "#filter-prev",
+      matchInfoElem: "#filter-match-info",
+    },
+  },
   iconBadge: (e) => {
     const node = e.node;
     if (node.expanded || !node.children) {
