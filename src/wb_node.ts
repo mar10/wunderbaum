@@ -2320,6 +2320,24 @@ export class WunderbaumNode {
     return nodeList;
   }
 
+  /**
+   * Return an array of refKey values.
+   *
+   * RefKeys are unique identifiers for a node data, and are used to identify
+   * clones.
+   * If more than one node has the same refKey, it is only returned once.
+   * @param selected if true, only return refKeys of selected nodes.
+   */
+  getRefKeys(selected = false): string[] {
+    const refKeys = new Set<string>();
+    this.visit((node) => {
+      if (node.refKey != null && (!selected || node.selected)) {
+        refKeys.add(node.refKey);
+      }
+    });
+    return Array.from(refKeys);
+  }
+
   /** Toggle the check/uncheck state. */
   toggleSelected(options?: SetSelectedOptions): TristateType {
     let flag = this.isSelected();

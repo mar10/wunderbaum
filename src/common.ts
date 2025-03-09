@@ -97,7 +97,7 @@ export const iconMaps: { [key: string]: IconMapType } = {
     radioChecked: "fa-solid fa-circle",
     radioUnchecked: "fa-regular fa-circle",
     radioUnknown: "fa-regular fa-circle-question",
-    folder: "fa-solid fa-folder-closed",
+    folder: "fa-regular fa-folder-closed",
     folderOpen: "fa-regular fa-folder-open",
     folderLazy: "fa-solid fa-folder-plus",
     doc: "fa-regular fa-file",

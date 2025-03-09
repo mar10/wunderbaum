@@ -203,7 +203,7 @@ export interface IconMapType {
  * EVENT CALLBACK TYPES
  * ---------------------------------------------------------------------------*/
 
-/** A callback that receives a node instance and returns a string value. */
+/** Retuen value of an event handler that can return `false` to prevent the default action. */
 export type WbCancelableEventResultType = false | void;
 
 export interface WbTreeEventType {

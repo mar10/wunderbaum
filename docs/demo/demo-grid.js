@@ -3,7 +3,7 @@
  *
  * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
  */
-/* global mar10 */
+/* global mar10 addCssImport */
 /* eslint-env browser */
 /* eslint-disable no-console */
 
@@ -14,6 +14,11 @@ document.getElementById("demo-info").innerHTML = `
  Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
 `;
 
+// addCssImport(
+//   "fontawesome6",
+//   "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+// );
+
 new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
@@ -22,6 +27,7 @@ new mar10.Wunderbaum({
   connectTopBreadcrumb: "output#parentPath",
   checkbox: true,
   minExpandLevel: 1,
+  // iconMap: "fontawesome6",
   // fixedCol: true,
   // Types are sent as part of the source data:
   navigationModeOption: "startRow",

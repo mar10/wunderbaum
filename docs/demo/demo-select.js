@@ -17,7 +17,7 @@ Collapse nodes to test select counter badges.
 
 addCssImport(
   "fontawesome6",
-  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css"
+  "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
 );
 
 new mar10.Wunderbaum({
@@ -25,7 +25,7 @@ new mar10.Wunderbaum({
   element: document.getElementById("demo-tree"),
   header: "Select Tree",
   // selectMode: "single",
-  iconMap: "fontawesome6",
+  // iconMap: "fontawesome6",
   selectMode: "hier",
   checkbox: true,
   // minExpandLevel: 1,

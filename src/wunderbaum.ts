@@ -1180,6 +1180,18 @@ export class Wunderbaum {
     return this.root.getSelectedNodes(stopOnParents);
   }
 
+  /**
+   * Return an array of refKey values.
+   *
+   * RefKeys are unique identifiers for a node data, and are used to identify
+   * clones.
+   * If more than one node has the same refKey, it is only returned once.
+   * @param selected if true, only return refKeys of selected nodes.
+   */
+  getRefKeys(selected = false): string[] {
+    return this.root.getRefKeys(selected);
+  }
+
   /*
    * Return an array of selected nodes.
    */
@@ -1493,6 +1505,13 @@ export class Wunderbaum {
    */
   format(name_cb?: NodeStringCallback, connectors?: string[]): string {
     return this.root.format(name_cb, connectors);
+  }
+
+  /**
+   * Return a list of top-level nodes.
+   */
+  get children(): WunderbaumNode[] {
+    return this.root.children || [];
   }
 
   /**
