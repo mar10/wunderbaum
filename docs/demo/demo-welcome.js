@@ -5,7 +5,6 @@
  */
 /* global mar10 */
 /* eslint-env browser */
-/* eslint-disable no-console */
 
 document.getElementById("demo-tree").innerHTML = `
 <div class="welcome-page">
