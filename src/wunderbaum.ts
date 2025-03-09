@@ -1508,6 +1508,13 @@ export class Wunderbaum {
   }
 
   /**
+   * Always returns null (makes it sometimes easier to pass a tree as node argument).
+   */
+  get parent(): null {
+    return null;
+  }
+
+  /**
    * Return a list of top-level nodes.
    */
   get children(): WunderbaumNode[] {

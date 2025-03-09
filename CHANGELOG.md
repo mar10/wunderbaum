@@ -7,7 +7,7 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.13.1: Add `tree.children` getter.
+- v0.13.1: Add `tree.children` and `tree.parent` getters.
 - v0.13.1: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
 
 - v0.13.0: Add `tree.saveState()` and `tree.restoreState()` methods (experimental).
