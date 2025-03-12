@@ -20,6 +20,7 @@ import {
   NavModeEnum,
   NodeTypeDefinitionMap,
   SelectModeType,
+  SourceType,
   TranslationsType,
   WbActivateEventType,
   WbButtonClickEventType,
@@ -33,7 +34,6 @@ import {
   WbIconBadgeEventResultType,
   WbInitEventType,
   WbKeydownEventType,
-  WbNodeData,
   WbNodeEventType,
   WbReceiveEventType,
   WbRenderEventType,
@@ -72,91 +72,56 @@ import {
  */
 export interface WunderbaumOptions {
   /**
-   * The target `div` element (or selector) that shall become a Wunderbaum.
-   */
-  element: string | HTMLDivElement;
-  /**
-   * The identifier of this tree. Used to reference the instance, especially
-   * when multiple trees are present (e.g. `tree = mar10.Wunderbaum.getTree("demo")`).
-   *
-   * Default: `"wb_" + COUNTER`.
-   */
-  id?: string;
-  /**
-   * Define the initial tree data. Typically a URL of an endpoint that serves
-   * a JSON formatted structure, but also a callback, Promise, or static data
-   * is allowed.
-   *
-   * Default: `{}`.
-   */
-  source?: string | Array<WbNodeData>;
-  /**
-   * Define shared attributes for multiple nodes of the same type.
-   * This allows for more compact data models. Type definitions can be passed
-   * as tree option, or be part of a `source` response.
-   *
-   * Default: `{}`.
-   */
-  types?: NodeTypeDefinitionMap;
-  /**
-   * A list of maps that define column headers. If this option is set,
-   * Wunderbaum becomes a treegrid control instead of a plain tree.
-   * Column definitions can be passed as tree option, or be part of a `source`
-   * response.
-   * Default: `[]` meaning this is a plain tree.
-   */
-  columns?: ColumnDefinitionList;
-  /**
    * If true, add a `wb-skeleton` class to all nodes, that will result in a
    * 'glow' effect. Typically used with initial dummy nodes, while loading the
    * real data.
-   * Default: false.
+   * @default false.
    */
-  skeleton?: boolean;
+  skeleton: boolean;
   /**
    * Translation map for some system messages.
    */
-  strings?: TranslationsType;
+  strings: TranslationsType;
   /**
    * 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
-   * Default: 3 (4 in local debug environment)
+   * @default 3 (4 in local debug environment)
    */
-  debugLevel?: number;
+  debugLevel: number;
   /**
    * Number of levels that are forced to be expanded, and have no expander icon.
    * E.g. 1 would keep all toplevel nodes expanded.
-   * Default: 0
+   * @default 0
    */
-  minExpandLevel?: number;
+  minExpandLevel: number;
   /**
    * If true, allow to expand parent nodes, even if `node.children` conatains
    * an empty array (`[]`). This is the the behavior of macOS Finder, for example.
-   * Default: false
+   * @default false
    */
-  emptyChildListExpandable?: boolean;
+  emptyChildListExpandable: boolean;
   // escapeTitles: boolean;
   // /**
   //  * Height of the header row div.
-  //  * Default: 22
+  //  * @default 22
   //  */
   // headerHeightPx: number;
   /**
    * Height of a node row div.
-   * Default: 22
+   * @default 22
    */
-  rowHeightPx?: number;
+  rowHeightPx: number;
   /**
    * Icon font definition. May be a string (e.g. "fontawesome6" or "bootstrap")
    * or a map of `iconName: iconClass` pairs.
    * Note: the icon font must be loaded separately.
-   * Default: "bootstrap"
+   * @default "bootstrap"
    */
-  iconMap?: string | IconMapType;
+  iconMap: string | IconMapType;
   /**
    * Collapse siblings when a node is expanded.
-   * Default: false
+   * @default false
    */
-  autoCollapse?: boolean;
+  autoCollapse: boolean;
   /**
    * If true, the tree will automatically adjust its height to fit the parent
    * container. This is useful when the tree is embedded in a container with
@@ -170,16 +135,16 @@ export interface WunderbaumOptions {
    *
    * @default: true
    */
-  adjustHeight?: boolean;
+  adjustHeight: boolean;
   /**
    * HTMLElement or selector that receives the top nodes breadcrumb.
-   * Default: undefined
+   * @default undefined
    */
-  connectTopBreadcrumb?: HTMLElement | string;
+  connectTopBreadcrumb: HTMLElement | string | null;
   /**
-   * Default:  NavModeEnum.startRow
+   * @default  NavModeEnum.startRow
    */
-  navigationModeOption?: NavModeEnum;
+  navigationModeOption: NavModeEnum;
   /**
    * Show/hide header (default: null)
    * null: assume false for plain tree and true for grids.
@@ -187,17 +152,18 @@ export interface WunderbaumOptions {
    * true: display a header (use tree's id as text for plain trees)
    * false: do not display a header
    */
-  header?: boolean | string | null;
+  header: boolean | string | null;
   /**
-   *
+   * Show a `<progress>` element while loading data.
+   * @default false.
    */
-  showSpinner?: boolean;
+  showSpinner: boolean;
   /**
    * If true, render a checkbox before the node tile to allow selection with the
    * mouse. Pass `"radio"` to render a radio button instead.
-   * Default: false.
+   * @default false.
    */
-  checkbox?: DynamicCheckboxOption;
+  checkbox: DynamicCheckboxOption;
   /** Optional callback to render icons per node. */
   icon?: DynamicIconOption;
   /** Optional callback to render a tooltip for the icon. */
@@ -209,65 +175,66 @@ export interface WunderbaumOptions {
   /** Optional callback to make a node unselectable. */
   unselectable?: DynamicBoolOption;
   // /**
-  //  * Default: 200
+  //  * @default 200
   //  */
   // updateThrottleWait?: number;
   /**
-   * Default: true
+   * @default true
    */
-  enabled?: boolean;
+  enabled: boolean;
   /**
-   * Default: false
+   *
+   * @default false
    */
-  fixedCol?: boolean;
+  fixedCol: boolean;
   /**
    * Default value for ColumnDefinition.filterable option.
-   * Default: false
+   * @default false
    * @since 0.11.0
    */
-  columnsFilterable?: boolean;
+  columnsFilterable: boolean;
   /**
    * Default value for ColumnDefinition.menu option.
-   * Default: false
+   * @default false
    * @since 0.11.0
    */
-  columnsMenu?: boolean;
+  columnsMenu: boolean;
   /**
    * Default value for ColumnDefinition.resizable option.
-   * Default: false
+   * @default false
    * @since 0.10.0
    */
   columnsResizable?: boolean;
   /**
    * Default value for ColumnDefinition.sortable option.
-   * Default: false
+   * @default false
    * @since 0.11.0
    */
   columnsSortable?: boolean;
 
   // --- Selection ---
   /**
-   * Default: "multi"
+   * @default "multi"
    */
-  selectMode?: SelectModeType;
+  selectMode: SelectModeType;
 
   // --- KeyNav ---
   /**
-   * Default: true
+   * @default true
    */
-  quicksearch?: boolean;
+  quicksearch: boolean;
 
   /**
    * Scroll Node into view on Expand Click
    * @default true
    */
-  scrollIntoViewOnExpandClick?: boolean;
+  scrollIntoViewOnExpandClick: boolean;
 
   // --- Extensions ------------------------------------------------------------
 
-  dnd?: DndOptionsType;
-  edit?: EditOptionsType;
-  filter?: FilterOptionsType;
+  dnd: DndOptionsType;
+  edit: EditOptionsType;
+  filter: FilterOptionsType;
   // grid?: GridOptionsType;
   // keynav?: KeynavOptionsType;
   // logger?: LoggerOptionsType;
@@ -417,4 +384,57 @@ export interface WunderbaumOptions {
    * @category Callback
    */
   update?: (e: WbTreeEventType) => void;
+}
+
+/**
+ * Partial options that can be passed to {@link wunderbaum.Wunderbaum.init}.
+ *
+ * Most of the properties are optional, and will be merged with the default options.
+ * They are then available as `tree.options` and can be changed at runtime. <br>
+ * However some options passed  here, are not available as `tree.options`, but
+ * are moved to the `tree` instance directly:
+ * - `tree.element`
+ * - `tree.id`
+ * - `tree.columns`
+ * - `tree.types`
+ * - ...
+ *
+ * Only the `element` option is mandatory.
+ */
+export interface InitWunderbaumOptions extends Partial<WunderbaumOptions> {
+  /**
+   * The target `div` element (or selector) that shall become a Wunderbaum.
+   */
+  element: string | HTMLDivElement;
+  /**
+   * The identifier of this tree. Used to reference the instance, especially
+   * when multiple trees are present (e.g. `tree = mar10.Wunderbaum.getTree("demo")`).
+   *
+   * @default `"wb_" + COUNTER`.
+   */
+  id?: string;
+  /**
+   * A list of maps that define column headers. If this option is set,
+   * Wunderbaum becomes a treegrid control instead of a plain tree.
+   * Column definitions can be passed as tree option, or be part of a `source`
+   * response.
+   * @default `[]` meaning this is a plain tree.
+   */
+  columns?: ColumnDefinitionList;
+  /**
+   * Define shared attributes for multiple nodes of the same type.
+   * This allows for more compact data models. Type definitions can be passed
+   * as tree option, or be part of a `source` response.
+   *
+   * @default `{}`.
+   */
+  types?: NodeTypeDefinitionMap;
+  /**
+   * Define the initial tree data. Typically a URL of an endpoint that serves
+   * a JSON formatted structure, but also a callback, Promise, or static data
+   * is allowed.
+   *
+   * @default `[]`.
+   */
+  source?: SourceType;
 }

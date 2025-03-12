@@ -75,7 +75,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
     const filterActive = this.tree.filterMode !== null;
     const activeNode = this.tree.getActiveNode();
     const matchCount = filterActive ? this.countMatches() : 0;
-    const strings = this.treeOpts.strings!;
+    const strings = this.treeOpts.strings;
     let matchIdx: string | number = "?";
 
     if (this.matchInfoElem) {

@@ -78,7 +78,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // this.$scrollParent = $temp.scrollParent();
     // $temp.remove();
     const tree = this.tree;
-    const dndOpts = tree.options.dnd!;
+    const dndOpts = tree.options.dnd;
 
     // Enable drag support if dragStart() is specified:
     if (dndOpts.dragStart) {
@@ -134,7 +134,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     e: DragEvent,
     allowed: DropRegionTypeSet | null
   ): DropRegionType | false {
-    const rowHeight = this.tree.options.rowHeightPx!;
+    const rowHeight = this.tree.options.rowHeightPx;
     const dy = e.offsetY;
 
     if (!allowed) {
@@ -164,7 +164,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // if (nativeDropEffect && nativeDropEffect !== "none") {
     //   return nativeDropEffect;
     // }
-    const dndOpts: DndOptionsType = this.treeOpts.dnd!;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const ea = dndOpts.effectAllowed ?? "all";
     const canCopy = ["all", "copy", "copyLink", "copyMove"].includes(ea);
     const canLink = ["all", "link", "copyLink", "linkMove"].includes(ea);
@@ -225,7 +225,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
   protected _applyScrollDir(): void {
     if (this.isDragging() && this.currentScrollDir) {
-      const dndOpts = this.tree.options.dnd!;
+      const dndOpts = this.tree.options.dnd;
       const sp = this.tree.element; // scroll parent
       const scrollTop = sp.scrollTop;
       if (this.currentScrollDir < 0) {
@@ -238,7 +238,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
   protected _autoScroll(viewportY: number): number {
     const tree = this.tree;
-    const dndOpts = tree.options.dnd!;
+    const dndOpts = tree.options.dnd;
     const sensitivity = dndOpts.scrollSensitivity;
     const sp = tree.element; // scroll parent
     const headerHeight = tree.headerElement.clientHeight; // May be 0
@@ -285,7 +285,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
    */
   protected onDragEvent(e: DragEvent) {
     // const tree = this.tree;
-    const dndOpts: DndOptionsType = this.treeOpts.dnd!;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const srcNode = Wunderbaum.getNode(e);
 
     if (!srcNode) {
@@ -364,7 +364,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     const srcNode = this.srcNode;
     const srcTree = srcNode ? srcNode.tree : null;
     const targetNode = Wunderbaum.getNode(e)!;
-    const dndOpts: DndOptionsType = this.treeOpts.dnd!;
+    const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const dt = e.dataTransfer!;
     const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
 

@@ -332,7 +332,7 @@ export class WunderbaumNode {
         nodeData = [<WbNodeData>nodeData];
       }
       const forceExpand =
-        applyMinExpanLevel && _level < tree.options.minExpandLevel!;
+        applyMinExpanLevel && _level < tree.options.minExpandLevel;
       for (const child of <WbNodeData[]>nodeData) {
         const subChildren = child.children;
         delete child.children;
@@ -1645,7 +1645,7 @@ export class WunderbaumNode {
   protected _render_markup(opts: RenderOptions) {
     const tree = this.tree;
     const treeOptions = tree.options;
-    const rowHeight = treeOptions.rowHeightPx!;
+    const rowHeight = treeOptions.rowHeightPx;
     const checkbox = this.getOption("checkbox");
     const columns = tree.columns;
     const level = this.getLevel();
@@ -2610,7 +2610,7 @@ export class WunderbaumNode {
           _setStatusNode({
             statusNodeType: status,
             title:
-              tree.options.strings!.loading +
+              tree.options.strings.loading +
               (message ? " (" + message + ")" : ""),
             checkbox: false,
             colspan: true,
@@ -2623,7 +2623,7 @@ export class WunderbaumNode {
         _setStatusNode({
           statusNodeType: status,
           title:
-            tree.options.strings!.loadError +
+            tree.options.strings.loadError +
             (message ? " (" + message + ")" : ""),
           checkbox: false,
           colspan: true,
@@ -2636,7 +2636,7 @@ export class WunderbaumNode {
       case "noData":
         _setStatusNode({
           statusNodeType: status,
-          title: message || tree.options.strings!.noData,
+          title: message || tree.options.strings.noData,
           checkbox: false,
           colspan: true,
           tooltip: details,

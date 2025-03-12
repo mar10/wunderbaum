@@ -783,6 +783,11 @@ export function toPixel(
   throw new Error(`Expected a string like '123px': ${defaults}`);
 }
 
+/** Cast any value to <T>. */
+export function unsafeCast<T>(value: any): T {
+  return value as T;
+}
+
 /** Return the the boolean value of the first non-null element.
  * Example:
  * ```js
