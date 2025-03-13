@@ -387,19 +387,23 @@ export interface WunderbaumOptions {
 }
 
 /**
- * Partial options that can be passed to {@link wunderbaum.Wunderbaum.init}.
+ * Options that can be passed to {@link wunderbaum.Wunderbaum.init}.
  *
  * Most of the properties are optional, and will be merged with the default options.
  * They are then available as `tree.options` and can be changed at runtime. <br>
+ * Only the `element` option is mandatory.
+ *
  * However some options passed  here, are not available as `tree.options`, but
- * are moved to the `tree` instance directly:
+ * are moved to the `tree` instance instead. These are:
  * - `tree.element`
  * - `tree.id`
  * - `tree.columns`
  * - `tree.types`
  * - ...
  *
- * Only the `element` option is mandatory.
+ * Some options are only used during initialization and are not stored in the tree instance:
+ * - `source`
+ *
  */
 export interface InitWunderbaumOptions extends Partial<WunderbaumOptions> {
   /**
