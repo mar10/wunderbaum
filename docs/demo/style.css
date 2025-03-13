@@ -71,33 +71,41 @@ div.grid-wrapper nav.nav {
   overflow: hidden;
 }
 
-div.grid-wrapper section.header {
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
-  background-color: var(--bg-color-light);
+div.grid-wrapper div.flex-container {
   grid-column: 2;
-  grid-row: 2;
-  padding: 5px;
-  font-size: 90%;
-}
-
-div.grid-wrapper main.view {
-  background-color: var(--bg-color-light);
-  grid-column: 2;
-  grid-row: 3;
-  min-height: 4px;
-  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  grid-row: 2 / 5;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
 }
 
-div.grid-wrapper section.footer {
-  grid-column: 2;
-  grid-row: 4;
+section.header {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  background-color: var(--bg-color-light);
+  padding: 5px;
+  font-size: 90%;
+  /* min-height: 20px; */
+  max-height: 100px;
+}
+
+main.view {
+  background-color: var(--bg-color-light);
+  min-height: 4px;
+  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+section.footer {
   padding: 5px;
   font-size: 90%;
   background-color: var(--bg-color-dimmed);
   border-bottom-left-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
+  /* min-height: 20px;   */
+  max-height: 100px;
 }
 
 div.grid-wrapper div.statbar {
