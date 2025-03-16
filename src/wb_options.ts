@@ -387,7 +387,7 @@ export interface WunderbaumOptions {
 }
 
 /**
- * Options that can be passed to {@link wunderbaum.Wunderbaum.init}.
+ * Options that can be passed to {@link wunderbaum.Wunderbaum.constructor}.
  *
  * Most of the properties are optional, and will be merged with the default options.
  * They are then available as `tree.options` and can be changed at runtime. <br>

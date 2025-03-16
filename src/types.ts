@@ -163,7 +163,7 @@ export interface WbNodeData {
   title: string;
   /** Pass true to set node tooltip to the node's title. Defaults to {@link WunderbaumOptions.tooltip}. */
   tooltip?: TooltipOption;
-  /** Inherit shared settings from the matching entry in {@link WunderbaumOptions.types}. */
+  /** Inherit shared settings from the matching entry in `InitWunderbaumOptions.types`. */
   type?: string;
   /** Set to `true` to prevent selection. Defaults to {@link WunderbaumOptions.unselectable}. */
   unselectable?: boolean;

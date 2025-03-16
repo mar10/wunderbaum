@@ -2718,7 +2718,8 @@ export class Wunderbaum {
 
   /**
    * Call `callback(node)` for all nodes in hierarchical order (depth-first, pre-order).
-   * @see {@link IterableIterator<WunderbaumNode>}, {@link WunderbaumNode.visit}.
+   * @see `wb_node.WunderbaumNode.IterableIterator<WunderbaumNode>`
+   * @see {@link WunderbaumNode.visit}.
    *
    * @param {function} callback the callback function.
    *     Return false to stop iteration, return "skip" to skip this node and
