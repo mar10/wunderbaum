@@ -157,6 +157,7 @@ export class Wunderbaum {
   public readonly ready: Promise<any>;
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   public static util = util;
+  public static iconMaps = iconMaps;
   /** Expose some useful methods of the util.ts module as `tree._util`. */
   public _util = util;
 

@@ -89,6 +89,32 @@ const tree = new mar10.Wunderbaum({
 });
 ```
 
+If we want to only override some default icons, this pattern can be used:
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: Object.assign(
+    Wunderbaum.iconMaps["bootstrap"],
+    {
+      folder: "bi bi-file-earmark",
+    },
+  ),
+});
+```
+
+If the icon definition contains html markup (i.e. contains a `<` character),
+the icon is rendered as HTML, otherwise it is rendered as a CSS class.
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: {
+    folder: "<span>😍</span>",
+  },
+});
+```
+
 ## Custom Markup
 
 ### Using the `render` Event
@@ -212,14 +238,12 @@ const tree = new Wunderbaum({
 
 ```css
 span.wb-my-special-icon-alert {
-	background-color: white !important;
-	background-image: url('img/alert.svg');
-	width: 12px;
-	height: 12px;
+  background-color: white !important;
+  background-image: url("img/alert.svg");
+  width: 12px;
+  height: 12px;
 }
 ```
-
-
 
 !!! info "See also"
 

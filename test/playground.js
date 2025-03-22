@@ -30,7 +30,9 @@ const tree = new Wunderbaum({
   // },
   // autoCollapse: true,
   header: true, //"Playground",
-  // iconMap: "fontawesome6",
+  iconMap: Object.assign(Wunderbaum.iconMaps["bootstrap"], {
+    folder: "<i>😍</i>",
+  }),
   // navigationModeOption: "cell",
   // scrollIntoViewOnExpandClick: false,
   showSpinner: true,
