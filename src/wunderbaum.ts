@@ -114,7 +114,7 @@ export class Wunderbaum {
 
   protected readonly _updateViewportThrottled: DebouncedFunction<() => void>;
   protected extensionList: WunderbaumExtension<any>[] = [];
-  protected extensions: ExtensionsDict = {};
+  protected extensions: ExtensionsDict = <ExtensionsDict>{};
 
   /** Merged options from constructor args and tree- and extension defaults. */
   public options: WunderbaumOptions;
@@ -2964,10 +2964,7 @@ export class Wunderbaum {
     filter: string | RegExp | NodeFilterCallback,
     options: FilterNodesOptions
   ): number {
-    return (this.extensions.filter as FilterExtension).filterNodes(
-      filter,
-      options
-    );
+    return this.extensions.filter.filterNodes(filter, options);
   }
 
   /**
@@ -2976,7 +2973,7 @@ export class Wunderbaum {
    * @since 0.9.0
    */
   countMatches(): number {
-    return (this.extensions.filter as FilterExtension).countMatches();
+    return this.extensions.filter.countMatches();
   }
 
   /**
@@ -2987,17 +2984,14 @@ export class Wunderbaum {
     filter: string | NodeFilterCallback,
     options: FilterNodesOptions
   ) {
-    return (this.extensions.filter as FilterExtension).filterBranches(
-      filter,
-      options
-    );
+    return this.extensions.filter.filterBranches(filter, options);
   }
 
   /**
    * Reset the filter.
    */
   clearFilter() {
-    return (this.extensions.filter as FilterExtension).clearFilter();
+    return this.extensions.filter.clearFilter();
   }
   /**
    * Return true if a filter is currently applied.
@@ -3009,6 +3003,6 @@ export class Wunderbaum {
    * Re-apply current filter.
    */
   updateFilter() {
-    return (this.extensions.filter as FilterExtension).updateFilter();
+    return this.extensions.filter.updateFilter();
   }
 }

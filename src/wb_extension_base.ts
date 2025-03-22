@@ -5,10 +5,25 @@
  */
 
 import * as util from "./util";
+import { DndExtension } from "./wb_ext_dnd";
+import { EditExtension } from "./wb_ext_edit";
+import { FilterExtension } from "./wb_ext_filter";
+import { GridExtension } from "./wb_ext_grid";
+import { KeynavExtension } from "./wb_ext_keynav";
+import { LoggerExtension } from "./wb_ext_logger";
 import { WunderbaumOptions } from "./wb_options";
 import { Wunderbaum } from "./wunderbaum";
 
-export type ExtensionsDict = { [key: string]: WunderbaumExtension<any> };
+export type ExtensionsDict = {
+  dnd: DndExtension;
+  edit: EditExtension;
+  filter: FilterExtension;
+  grid: GridExtension;
+  keynav: KeynavExtension;
+  logger: LoggerExtension;
+
+  [key: string]: WunderbaumExtension<any>;
+};
 
 export abstract class WunderbaumExtension<TOptions> {
   public enabled = true;
