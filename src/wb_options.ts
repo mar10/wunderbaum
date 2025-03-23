@@ -114,6 +114,16 @@ export interface WunderbaumOptions {
    * Icon font definition. May be a string (e.g. "fontawesome6" or "bootstrap")
    * or a map of `iconName: iconClass` pairs.
    * Note: the icon font must be loaded separately.
+   * In order to only override some defauöt icons, use this pattern:
+   * ```js
+   * const tree = new mar10.Wunderbaum({
+   *   ...
+   *   iconMap: Object.assign(Wunderbaum.iconMaps.bootstrap, {
+   *     folder: "bi bi-archive",
+   *   }),
+   * });
+   * ```
+
    * @default "bootstrap"
    */
   iconMap: string | IconMapType;

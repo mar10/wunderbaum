@@ -94,10 +94,8 @@ If we want to only override some default icons, this pattern can be used:
 ```js
 const tree = new mar10.Wunderbaum({
   ...
-  iconMap: Object.assign(
-    Wunderbaum.iconMaps["bootstrap"],
-    {
-      folder: "bi bi-file-earmark",
+  iconMap: Object.assign(Wunderbaum.iconMaps.bootstrap, {
+      folder: "bi bi-archive",
     },
   ),
 });
@@ -110,7 +108,10 @@ the icon is rendered as HTML, otherwise it is rendered as a CSS class.
 const tree = new mar10.Wunderbaum({
   ...
   iconMap: {
-    folder: "<span>😍</span>",
+    doc: "<i class='wb-icon'>😍</i>",
+    expanderCollapsed: "<i class='wb-expander'>🤔</i>",
+    expanderExpanded: "<i class='wb-expander'>🤗</i>",
+    ...
   },
 });
 ```

@@ -51,7 +51,8 @@ import {
   makeNodeTitleMatcher,
   nodeTitleSorter,
   RESERVED_TREE_SOURCE_KEYS,
-  TEST_IMG,
+  TEST_FILE_PATH,
+  TEST_HTML,
   TITLE_SPAN_PAD_Y,
 } from "./common";
 import { Deferred } from "./deferred";
@@ -1866,11 +1867,11 @@ export class WunderbaumNode {
     const rowDiv = this._rowElem!;
 
     // Row markup already exists
-    const nodeElem = rowDiv.querySelector("span.wb-node") as HTMLSpanElement;
-    const expanderSpan = nodeElem.querySelector(
+    const nodeSpan = rowDiv.querySelector("span.wb-node") as HTMLSpanElement;
+    const expanderElem = nodeSpan.querySelector(
       "i.wb-expander"
     ) as HTMLLIElement;
-    const checkboxSpan = nodeElem.querySelector(
+    const checkboxElem = nodeSpan.querySelector(
       "i.wb-checkbox"
     ) as HTMLLIElement;
 
@@ -1903,7 +1904,7 @@ export class WunderbaumNode {
       rowDiv.classList.add(...typeInfo.classes);
     }
 
-    if (expanderSpan) {
+    if (expanderElem) {
       let image = null;
       if (this._isLoading) {
         image = iconMap.loading;
@@ -1918,14 +1919,16 @@ export class WunderbaumNode {
       }
 
       if (image == null) {
-        expanderSpan.classList.add("wb-indent");
-      } else if (TEST_IMG.test(image)) {
-        expanderSpan.style.backgroundImage = `url('${image}')`;
+        expanderElem.classList.add("wb-indent");
+      } else if (TEST_HTML.test(image)) {
+        expanderElem.replaceWith(util.elemFromHtml(image));
+      } else if (TEST_FILE_PATH.test(image)) {
+        expanderElem.style.backgroundImage = `url('${image}')`;
       } else {
-        expanderSpan.className = "wb-expander " + image;
+        expanderElem.className = "wb-expander " + image;
       }
     }
-    if (checkboxSpan) {
+    if (checkboxElem) {
       let cbclass = "wb-checkbox ";
       if (this.isRadio()) {
         cbclass += "wb-radio ";
@@ -1945,7 +1948,7 @@ export class WunderbaumNode {
           cbclass += iconMap.checkUnchecked;
         }
       }
-      checkboxSpan.className = cbclass;
+      checkboxElem.className = cbclass;
     }
     // Fix active cell in cell-nav mode
     if (!opts.isNew) {
@@ -1955,9 +1958,9 @@ export class WunderbaumNode {
         colSpan.classList.remove("wb-error", "wb-invalid");
       }
       // Update icon (if not opts.isNew, which would rebuild markup anyway)
-      const iconSpan = nodeElem.querySelector("i.wb-icon") as HTMLElement;
+      const iconSpan = nodeSpan.querySelector("i.wb-icon") as HTMLElement;
       if (iconSpan) {
-        this._createIcon(nodeElem, iconSpan, !expanderSpan);
+        this._createIcon(nodeSpan, iconSpan, !expanderElem);
       }
     }
     // Adjust column width

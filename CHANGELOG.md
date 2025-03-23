@@ -9,7 +9,10 @@ First release.
 
 - v0.13.1: Add `tree.children` and `tree.parent` getters.
 - v0.13.1: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
-- v0.13.1: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap`.
+- v0.13.1: Support HTML string for `iconMap.expander...` properties.
+- v0.13.1: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
+  passing partial maps.
+  Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps`.
 
 - v0.13.0: Add `tree.saveState()` and `tree.restoreState()` methods (experimental).
 - v0.13.0: Breadcrumb:

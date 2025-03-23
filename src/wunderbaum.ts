@@ -60,12 +60,13 @@ import {
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
-  iconMaps,
+  defaultIconMaps,
   makeNodeTitleStartMatcher,
   nodeTitleSorter,
   RENDER_MAX_PREFETCH,
   DEFAULT_ROW_HEIGHT,
-  TEST_IMG,
+  TEST_FILE_PATH,
+  TEST_HTML,
 } from "./common";
 import { WunderbaumNode } from "./wb_node";
 import { Deferred } from "./deferred";
@@ -157,12 +158,22 @@ export class Wunderbaum {
   public readonly ready: Promise<any>;
   /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
   public static util = util;
-  public static iconMaps = iconMaps;
+  /** A map of default iconMaps.
+   * May be used as default, when passing partial icon definition maps:
+   * ```js
+   * const tree = new mar10.Wunderbaum({
+   *   ...
+   *   iconMap: Object.assign(Wunderbaum.iconMaps.bootstrap, {
+   *     folder: "bi bi-archive",
+   *   }),
+   * });
+   * ```
+   */
+  public static iconMaps = defaultIconMaps;
   /** Expose some useful methods of the util.ts module as `tree._util`. */
   public _util = util;
 
   // --- SELECT ---
-  // /** @internal */
   // public selectRangeAnchor: WunderbaumNode | null = null;
 
   // --- BREADCRUMB ---
@@ -636,14 +647,16 @@ export class Wunderbaum {
 
   /**
    * Return the icon-function -> icon-definition mapping.
+   * @deprecated Use {@link Wunderbaum.iconMaps}
    */
   get iconMap(): IconMapType {
     const map = this.options.iconMap;
     if (typeof map === "string") {
-      return iconMaps[map];
+      return defaultIconMaps[map as keyof typeof defaultIconMaps];
     }
     return map;
   }
+
   /**
    * Return a WunderbaumNode instance from element or event.
    */
@@ -2454,11 +2467,9 @@ export class Wunderbaum {
     if (!icon) {
       iconElem = document.createElement("i");
       iconElem.className = "wb-icon";
-    } else if (icon.indexOf("<") >= 0) {
-      // HTML
+    } else if (TEST_HTML.test(icon)) {
       iconElem = util.elemFromHtml(icon);
-    } else if (TEST_IMG.test(icon)) {
-      // Image URL
+    } else if (TEST_FILE_PATH.test(icon)) {
       iconElem = util.elemFromHtml(
         `<i class="wb-icon" style="background-image: url('${icon}');">`
       );

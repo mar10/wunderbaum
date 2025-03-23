@@ -37,11 +37,16 @@ export const RENDER_MIN_PREFETCH = 5;
 export const DEFAULT_MIN_COL_WIDTH = 4;
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
+ * `<` is ignored, because it is probably an html tag.
  */
-export const TEST_IMG = new RegExp(/\.|\//);
+export const TEST_FILE_PATH = /^(?!.*<).*[/.]/;
+/** Regular expression to detect if a string describes an HTML element. */
+export const TEST_HTML = /</;
 // export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
 // export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
+/** Currently supported default icon maps. */
+type IconLibrary = "bootstrap" | "fontawesome6";
 /**
  * Default node icons for icon libraries
  *
@@ -49,7 +54,7 @@ export const TEST_IMG = new RegExp(/\.|\//);
  *  - 'fontawesome6' {@link https://fontawesome.com/icons}
  *
  */
-export const iconMaps: { [key: string]: IconMapType } = {
+export const defaultIconMaps: { [key in IconLibrary]: IconMapType } = {
   bootstrap: {
     error: "bi bi-exclamation-triangle",
     // loading: "bi bi-hourglass-split wb-busy",
