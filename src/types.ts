@@ -1147,6 +1147,8 @@ export interface DropEventType extends WbNodeEventType {
   node: WunderbaumNode;
   /** The source node if any. */
   sourceNode: WunderbaumNode;
+  /** The DataTransfer object. */
+  dataTransfer: DataTransfer;
 }
 
 export type DndOptionsType = {

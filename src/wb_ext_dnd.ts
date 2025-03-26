@@ -529,6 +529,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
           // suggestedDropEffect: e.dataTransfer?.dropEffect,
           sourceNode: srcNode,
           sourceNodeData: nodeData,
+          dataTransfer: e.dataTransfer,
         });
       }, 10);
     }
