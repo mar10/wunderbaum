@@ -494,10 +494,6 @@ export class Wunderbaum {
 
       // this.log("click", info);
 
-      // if (this._selectRange(info) === false) {
-      //   return;
-      // }
-
       if (
         this._callEvent("click", { event: e, node: node, info: info }) === false
       ) {
@@ -521,18 +517,19 @@ export class Wunderbaum {
           node.startEditTitle();
         }
 
-        if (info.colIdx >= 0) {
-          node.setActive(true, { colIdx: info.colIdx, event: e });
-        } else {
-          node.setActive(true, { event: e });
-        }
-
         if (info.region === NodeRegion.expander) {
           node.setExpanded(!node.isExpanded(), {
             scrollIntoView: this.options.scrollIntoViewOnExpandClick !== false,
           });
         } else if (info.region === NodeRegion.checkbox) {
           node.toggleSelected();
+        } else {
+          if (info.colIdx >= 0) {
+            node.setActive(true, { colIdx: info.colIdx, event: e });
+          } else {
+            node.setActive(true, { event: e });
+          }
+          node.setFocus();
         }
       }
       this.lastClickTime = Date.now();
