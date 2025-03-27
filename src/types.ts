@@ -60,8 +60,13 @@ export type MatcherCallback = (node: WunderbaumNode) => boolean;
 export type WbIconBadgeCallback = (
   e: WbIconBadgeEventType
 ) => WbIconBadgeEventResultType;
-/** Passed to `sortChildren()` methods. Should return -1, 0, or 1. */
+/**
+ * Passed to `sort()` methods. Should return -1, 0, or 1.
+ * @deprecated Use SortKeyCallback instead
+ */
 export type SortCallback = (a: WunderbaumNode, b: WunderbaumNode) => number;
+/** Passed to `sort()` methods. Should return a representation that can be compared using `<`. */
+export type SortKeyCallback = (node: WunderbaumNode) => string | number | any[];
 /** When set as option, called when the value is needed (e.g. `colspan` type definition). */
 export type BoolOptionResolver = (node: WunderbaumNode) => boolean;
 /** When set as option, called when the value is needed (e.g. `icon` type definition). */
@@ -98,6 +103,12 @@ export type NodeToDictCallback = (
  * (de)selection.
  */
 export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
+
+/** @internal */
+export type DeprecationOptions = {
+  since?: string;
+  hint?: string;
+};
 
 /**
  * See also {@link WunderbaumNode.getOption|WunderbaumNode.getOption()}
@@ -918,7 +929,7 @@ export interface SetStatusOptions {
 }
 
 /**
- * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
+ * Possible values for {@link WunderbaumNode.resetNativeChildOrder} `options` argument.
  */
 export interface ResetOrderOptions {
   /** Sort descendants recursively. @default true */
@@ -930,31 +941,35 @@ export interface ResetOrderOptions {
 }
 
 /**
- * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
+ * Possible values for {@link WunderbaumNode.sort} `options` argument.
  */
-export interface SortByPropertyOptions {
-  /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
-  colId?: string;
+export interface SortOptions {
   /** The name of the node property that will be used for sorting.
-   * @default use the `colId` as property name.
+   * Mandatory, unless  {@link key} or  {@link colId} are given.
    */
   propName?: string;
-  // /** If defined, this callback is used to extract the value to be sorted. */
-  // vallueGetter?: NodePropertyGetterCallback;
-  /** Sort order. @default Use value from column definition (rotated).*/
+  /** Callback that determines a node representation for comparison.
+   * @default {@link common.nodeTitleKeyGetter} */
+  key?: SortKeyCallback;
+  /** Callback that determines the order. @default {@link common.nodeTitleSorter}
+   * @deprecated use {@link key} instead
+   */
+  cmp?: SortCallback;
+  /** Sort order 'asc' or 'desc'.
+   * @default 'asc' (or if `updateColInfo` is true, the rotated status of the column definition. */
   order?: SortOrderType;
+  /** Sort descendants recursively. @default true */
+  deep?: boolean;
+  /** Sort string values case insensitive. @default false */
+  caseInsensitive?: boolean;
+  /** Group nodes with children or of `type: 'folder'` at the top. @default false */
+  foldersFirst?: boolean;
   /**
    * Sort by this property if order is `undefined`.
    * See also {@link WunderbaumNode.resetNativeChildOrder}.
    * @default `_nativeIndex`.
    */
   nativeOrderPropName?: string;
-  /** Sort string values case insensitive. @default false */
-  caseInsensitive?: boolean;
-  /** Sort descendants recursively. @default true */
-  deep?: boolean;
-  // /** Rotate sort order (asc -> desc -> none) before sorting. @default false */
-  // rotateOrder?: boolean;
   /**
    * Rotate sort order (asc -> desc -> none) before sorting.
    * Update the sort icons in the column header
@@ -965,7 +980,15 @@ export interface SortByPropertyOptions {
    * @default false
    */
   updateColInfo?: boolean;
+  /** Column ID as defined in `tree.columns` definition. Required if updateColInfo is true.*/
+  colId?: string;
 }
+
+/**
+ * Possible values for {@link WunderbaumNode.sortByProperty} `options` argument.
+ * @deprecated
+ */
+export type SortByPropertyOptions = SortOptions;
 
 /** Options passed to {@link Wunderbaum.visitRows}. */
 export interface VisitRowsOptions {
