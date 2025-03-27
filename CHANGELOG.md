@@ -18,6 +18,8 @@ First release.
 - v0.14.0: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
   passing partial maps.
   Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps` property.
+- v0.14.0: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
+  Focus on click.
 
 - v0.13.0: Add `tree.saveState()` and `tree.restoreState()` methods (experimental).
 - v0.13.0: Breadcrumb:
