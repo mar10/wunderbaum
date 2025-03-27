@@ -46,7 +46,6 @@ import {
   SetColumnOptions,
   SetStateOptions,
   SetStatusOptions,
-  SortByPropertyOptions,
   SortCallback,
   SourceType,
   TreeStateDefinition,
@@ -57,6 +56,9 @@ import {
   FilterOptionsType,
   EditOptionsType,
   DndOptionsType,
+  SortOptions,
+  DeprecationOptions,
+  SortByPropertyOptions,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -1753,6 +1755,20 @@ export class Wunderbaum {
     }
   }
 
+  /** Emit a warning for deprecated methods. @internal */
+  logDeprecate(method: string, options?: DeprecationOptions) {
+    if (this.options.debugLevel! >= 2) {
+      let msg = `${this}: ${method} is deprecated`;
+      if (options?.since) {
+        msg += ` since ${options.since}`;
+      }
+      if (options?.hint) {
+        msg += ` (${options.since})`;
+      }
+      console.warn(msg + "."); // eslint-disable-line no-console
+    }
+  }
+
   /** Reset column widths to default. @since 0.10.0 */
   resetColumns() {
     this.columns.forEach((col) => {
@@ -2184,21 +2200,37 @@ export class Wunderbaum {
    * @param {function} cmp custom compare function(a, b) that returns -1, 0, or 1
    *    (defaults to sorting by title).
    * @param {boolean} deep pass true to sort all descendant nodes recursively
+   * @deprecated use {@link sort}
    */
   sortChildren(
     cmp: SortCallback | null = nodeTitleSorter,
     deep: boolean = false
   ): void {
-    this.root.sortChildren(cmp, deep);
+    this.logDeprecate("sortChildren()", { since: "0.14.0" });
+    return this.sort({
+      cmp: cmp ? cmp : undefined,
+      deep: deep,
+      propName: "title",
+    });
   }
 
   /**
    * Convenience method to implement column sorting.
    * @see {@link WunderbaumNode.sortByProperty}.
    * @since 0.11.0
+   * @deprecated use {@link sort}
    */
   sortByProperty(options: SortByPropertyOptions) {
+    this.logDeprecate("sortByProperty()", { since: "0.14.0" });
     this.root.sortByProperty(options);
+  }
+
+  /**
+   * Sort nodes list by title or custom criteria.
+   * @since 0.14.0
+   */
+  sort(options: SortOptions): void {
+    this.root.sort(options);
   }
 
   /** Convert tree to an array of plain objects.

@@ -35,6 +35,11 @@ export const RENDER_MAX_PREFETCH = 5;
 export const RENDER_MIN_PREFETCH = 5;
 /** Minimum column width if not set otherwise. */
 export const DEFAULT_MIN_COL_WIDTH = 4;
+/**
+ * A value for `node.type` that by convention may be used to mark a node as directory.
+ * It may be used to sort 'directories' to the top.
+ */
+export const NODE_TYPE_FOLDER = "folder";
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
  * `<` is ignored, because it is probably an html tag.
@@ -226,13 +231,22 @@ export function makeNodeTitleStartMatcher(s: string): MatcherCallback {
   };
 }
 
-/** Compare two nodes by title (case-insensitive). */
+/** Compare two nodes by title (case-insensitive).
+ * @deprecated Use `key` option instead of `cmp` in sort methods.
+ */
 export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
   const x = a.title.toLowerCase();
   const y = b.title.toLowerCase();
 
   return x === y ? 0 : x > y ? 1 : -1;
 }
+
+// /** Compare nodes by title (case-insensitive). */
+// export function nodeTitleKeyGetter(
+//   node: WunderbaumNode
+// ): string | number | Array<any> {
+//   return node.title.toLowerCase();
+// }
 
 /**
  * Convert 'flat' to 'nested' format.

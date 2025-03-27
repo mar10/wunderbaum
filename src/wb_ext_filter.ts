@@ -363,6 +363,10 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
       options.matchBranch === undefined,
       "filterBranches() is deprecated."
     );
+    this.tree.logDeprecate("filterBranches()", {
+      since: "0.9.0",
+      hint: "Use `filterNodes` instead and set `options.matchBranch: true`",
+    });
     options.matchBranch = true;
     return this._applyFilterNoUpdate(filter, options);
   }

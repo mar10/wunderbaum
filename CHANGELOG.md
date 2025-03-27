@@ -7,13 +7,17 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.13.1: Add `dataTransfer` to `DropEventType`.
-- v0.13.1: Add `tree.children` and `tree.parent` getters.
-- v0.13.1: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
-- v0.13.1: Support HTML string for `iconMap.expander...` properties.
-- v0.13.1: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
+- v0.14.0: Refactor sorting:
+  - Deprecate `sortChildren()` and `sortByProperty()` in favor of `sort()`.
+  - Add `key` callback argument and deprecate `cmp`.
+  - Add `foldersFirst` option.
+- v0.14.0: Add `dataTransfer` to `DropEventType`.
+- v0.14.0: Add `tree.children` and `tree.parent` getters.
+- v0.14.0: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
+- v0.14.0: Support HTML string for `iconMap.expander...` properties.
+- v0.14.0: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
   passing partial maps.
-  Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps`.
+  Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps` property.
 
 - v0.13.0: Add `tree.saveState()` and `tree.restoreState()` methods (experimental).
 - v0.13.0: Breadcrumb:

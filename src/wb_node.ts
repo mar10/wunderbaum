@@ -13,7 +13,6 @@ import {
   ApplyCommandType,
   ChangeType,
   CheckboxOption,
-  ColumnDefinition,
   ColumnEventInfoMap,
   ExpandAllOptions,
   IconOption,
@@ -37,7 +36,7 @@ import {
   SetStatusOptions,
   SortByPropertyOptions,
   SortCallback,
-  SortOrderType,
+  SortOptions,
   SourceType,
   TooltipOption,
   TristateType,
@@ -49,6 +48,7 @@ import {
   ICON_WIDTH,
   KEY_TO_NAVIGATION_MAP,
   makeNodeTitleMatcher,
+  NODE_TYPE_FOLDER,
   nodeTitleSorter,
   RESERVED_TREE_SOURCE_KEYS,
   TEST_FILE_PATH,
@@ -2667,35 +2667,19 @@ export class WunderbaumNode {
     this.update();
   }
 
-  _sortChildren(cmp: SortCallback, deep: boolean): void {
-    const cl = this.children;
-
-    if (!cl) {
-      return;
-    }
-    cl.sort(cmp);
-    if (deep) {
-      for (let i = 0, l = cl.length; i < l; i++) {
-        if (cl[i].children) {
-          cl[i]._sortChildren(cmp, deep);
-        }
-      }
-    }
-  }
-
   /**
    * Sort child list by title or custom criteria.
    * @param {function} cmp custom compare function(a, b) that returns -1, 0, or 1
    *    (defaults to sorting by title).
    * @param {boolean} deep pass true to sort all descendant nodes recursively
+   * @deprecated use {@link sort}
    */
   sortChildren(
     cmp: SortCallback | null = nodeTitleSorter,
     deep: boolean = false
   ): void {
-    this._sortChildren(cmp || nodeTitleSorter, deep);
-    this.tree.update(ChangeType.structure);
-    // this.triggerModify("sort"); // TODO
+    this.tree.logDeprecate("node.sortChildren()", { since: "0.14.0" });
+    return this.sort({ cmp: cmp ? cmp : undefined, deep: deep });
   }
 
   /**
@@ -2720,82 +2704,129 @@ export class WunderbaumNode {
   /**
    * Convenience method to implement column sorting.
    * @since 0.11.0
+   * @deprecated use {@link sort}
    */
   sortByProperty(options: SortByPropertyOptions) {
-    const {
-      caseInsensitive = true,
+    this.tree.logDeprecate("node.sortByProperty()", { since: "0.14.0" });
+    return this.sort(options);
+  }
+
+  /**
+   * Implement column sorting.
+   * @since 0.14.0
+   */
+  sort(options: SortOptions) {
+    const tree = this.tree;
+    let {
+      propName = undefined,
       deep = true,
-      nativeOrderPropName = "_nativeIndex",
+      key = undefined,
+      order = undefined,
+      caseInsensitive = true,
+      foldersFirst = false,
+      cmp = undefined,
+      // Support click on column sort header:
       updateColInfo = false,
+      nativeOrderPropName = "_nativeIndex",
+      colId = undefined,
     } = options;
 
-    let order: SortOrderType;
-    let colDef: ColumnDefinition | null;
+    propName ??= colId;
+    if (propName === "*") {
+      propName = "title";
+    }
+
+    // updateColInfo: Assume user clicked a colmúmn header to toggle sorting:
 
     if (updateColInfo) {
-      colDef = this.tree["_columnsById"][options.colId!];
+      const colDef = this.tree["_columnsById"][options.colId!];
       util.assert(colDef, `Invalid colId specified: ${options.colId}`);
-      order =
-        options.order ??
-        util.rotate(colDef!.sortOrder, ["asc", "desc", undefined]);
+      order ??= util.rotate(colDef.sortOrder, ["asc", "desc", undefined]);
 
       for (const col of this.tree.columns) {
         col.sortOrder = col === colDef ? order : undefined;
       }
-
+      if (order === undefined) {
+        propName = nativeOrderPropName;
+        order = "asc";
+      }
       this.tree.update(ChangeType.colStructure);
     } else {
-      order = options.order ?? "asc";
+      propName ??= "title";
+      order ??= "asc";
     }
 
-    let propName = options.propName ?? (options.colId || "");
-    if (propName === "*") {
-      propName = "title";
-    }
-    if (order == null) {
-      propName = nativeOrderPropName;
-      order = "asc";
-    }
-    this.logDebug(`sortByProperty(), propName=${propName}, ${order}`, options);
-    util.assert(propName, "No property name specified");
+    this.logDebug(`sort(), propName=${propName}, ${order}`, options);
+    util.assert(propName || cmp || key, "No `propName` or `key` specified");
 
-    const cmp = (a: WunderbaumNode, b: WunderbaumNode) => {
-      let av, bv;
-      if (NODE_DICT_PROPS.has(<string>propName)) {
-        av = a[propName as keyof WunderbaumNode];
-        bv = b[propName as keyof WunderbaumNode];
-      } else {
-        av = a.data[propName];
-        bv = b.data[propName];
-      }
-      if (av == null && bv == null) {
-        return 0;
-      }
-      if (av == null) {
-        av = typeof bv === "string" ? "" : 0;
-      } else if (typeof av === "boolean") {
-        av = av ? 1 : 0;
-      }
-      if (bv == null) {
-        bv = typeof av === "string" ? "" : 0;
-      } else if (typeof bv === "boolean") {
-        bv = bv ? 1 : 0;
-      }
-      if (caseInsensitive) {
-        if (typeof av === "string") {
-          av = av.toLowerCase();
+    // Define a key callback from the parameters we have
+    if (key == null && cmp == null) {
+      key = (node) => {
+        let val;
+        if (NODE_DICT_PROPS.has(<string>propName)) {
+          val = node[propName as keyof WunderbaumNode];
+        } else {
+          val = node.data[propName!];
         }
-        if (typeof bv === "string") {
-          bv = bv.toLowerCase();
+        if (val == null) {
+          val = typeof val === "string" ? "" : 0;
+        } else if (typeof val === "boolean") {
+          val = val ? 1 : 0;
+        }
+        if (caseInsensitive && typeof val === "string") {
+          val = val.toLowerCase();
+        }
+        if (foldersFirst) {
+          // return a tuple with 'is dir' prefix
+          val = [
+            node.hasChildren() === true || node.type === NODE_TYPE_FOLDER
+              ? 0
+              : 1,
+            val,
+          ];
+        }
+        return val;
+      };
+    }
+    // Define a compare callback that uses the key callback
+    if (cmp) {
+      util.assert(!key, "`key` and `cmp` are mutually exclusive");
+      tree.logDeprecate("SortOptions.cmp", {
+        since: "0.14.0",
+        hint: "use the `key` callback instead",
+      });
+    } else {
+      if (options.propName || options.caseInsensitive) {
+        tree.logWarn("sort(): ignoring propName, caseInsensitive");
+      }
+      cmp = (a, b) => {
+        const x = key!(a);
+        const y = key!(b);
+        if (order === "desc") {
+          return x === y ? 0 : x > y ? -1 : 1;
+        }
+        return x === y ? 0 : x > y ? 1 : -1;
+      };
+    }
+
+    function _sortChildren(cl: WunderbaumNode[]): void {
+      if (!cl) {
+        return;
+      }
+      cl.sort(cmp);
+      if (deep) {
+        for (let i = 0, l = cl.length; i < l; i++) {
+          if (cl[i].children) {
+            _sortChildren(cl[i].children!);
+          }
         }
       }
-      if (order === "desc") {
-        return av === bv ? 0 : av > bv ? -1 : 1;
-      }
-      return av === bv ? 0 : av > bv ? 1 : -1;
-    };
-
-    return this.sortChildren(cmp, deep);
+    }
+    if (this.children) {
+      _sortChildren(this.children);
+    }
+    this.tree.update(ChangeType.structure);
+    // this.triggerModify("sort"); // TODO
   }
 
   /**
