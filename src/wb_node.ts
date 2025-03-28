@@ -2768,18 +2768,13 @@ export class WunderbaumNode {
         } else {
           val = node.data[propName!];
         }
-        if (val == null) {
-          val = typeof val === "string" ? "" : 0;
-        } else if (typeof val === "boolean") {
-          val = val ? 1 : 0;
-        }
         if (caseInsensitive && typeof val === "string") {
           val = val.toLowerCase();
         }
-        if (foldersFirst) {
+        if (foldersFirst && propName !== nativeOrderPropName) {
           // return a tuple with 'is dir' prefix
           val = [
-            node.hasChildren() === true || node.type === NODE_TYPE_FOLDER
+            node.hasChildren() !== false || node.type === NODE_TYPE_FOLDER
               ? 0
               : 1,
             val,
@@ -2800,8 +2795,20 @@ export class WunderbaumNode {
         tree.logWarn("sort(): ignoring propName, caseInsensitive");
       }
       cmp = (a, b) => {
-        const x = key!(a);
-        const y = key!(b);
+        let x = key!(a);
+        let y = key!(b);
+        // Assure we have reasonable comparisons with null values:
+        if (x == null) {
+          x = typeof y === "string" ? "" : 0;
+        } else if (typeof x === "boolean") {
+          x = x ? 1 : 0;
+        }
+        if (y == null) {
+          y = typeof x === "string" ? "" : 0;
+        } else if (typeof y === "boolean") {
+          y = y ? 1 : 0;
+        }
+
         if (order === "desc") {
           return x === y ? 0 : x > y ? -1 : 1;
         }
