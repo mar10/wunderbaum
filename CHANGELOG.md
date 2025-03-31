@@ -15,6 +15,7 @@ First release.
 - v0.14.0: Add `tree.children` and `tree.parent` getters.
 - v0.14.0: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
 - v0.14.0: Support HTML string for `iconMap.expander...` properties.
+- v0.14.0: Fix drop event (dataTransfer.items not available in some cases).
 - v0.14.0: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
   passing partial maps.
   Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps` property.
