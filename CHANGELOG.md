@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.14.0: Fix drop event (dataTransfer.items not available in some cases).
+
 - v0.13.1: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
   Focus on click.
 - v0.13.1: Add `dataTransfer` to `DropEventType`.

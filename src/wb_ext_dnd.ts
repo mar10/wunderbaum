@@ -284,7 +284,6 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
    * Handle dragstart, drag and dragend events for the source node.
    */
   protected onDragEvent(e: DragEvent) {
-    // const tree = this.tree;
     const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const srcNode = Wunderbaum.getNode(e);
 
@@ -518,20 +517,20 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       const srcNode = this.srcNode;
       const lastDropEffect = this.lastDropEffect;
 
-      setTimeout(() => {
-        // Decouple this call, because drop actions may prevent the dragend event
-        // from being fired on some browsers
-        targetNode._callEvent("dnd.drop", {
-          event: e,
-          region: region,
-          suggestedDropMode: region === "over" ? "appendChild" : region,
-          suggestedDropEffect: lastDropEffect,
-          // suggestedDropEffect: e.dataTransfer?.dropEffect,
-          sourceNode: srcNode,
-          sourceNodeData: nodeData,
-          dataTransfer: e.dataTransfer,
-        });
-      }, 10);
+      /* Before v0.14.0, we decoupled `_callEvent` like so:
+           Decouple this call, because drop actions may prevent the dragend
+           event from being fired on some browsers.
+           setTimeout(() => {...}, 10);
+        however this made e.dataTransfer.items inaccessible */
+      targetNode._callEvent("dnd.drop", {
+        event: e,
+        region: region,
+        suggestedDropMode: region === "over" ? "appendChild" : region,
+        suggestedDropEffect: lastDropEffect,
+        sourceNode: srcNode,
+        sourceNodeData: nodeData,
+        dataTransfer: e.dataTransfer,
+      });
     }
     return false;
   }
