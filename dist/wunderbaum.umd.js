@@ -5,6 +5,11 @@
 })(this, (function (exports) { 'use strict';
 
     /*!
+     * Wunderbaum - debounce.ts
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
+     */
+    /*
      * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
      * MIT License: https://raw.githubusercontent.com/lodash/lodash/4.17.21-npm/LICENSE
      * Modified for TypeScript type annotations.
@@ -293,8 +298,8 @@
 
     /*!
      * Wunderbaum - util
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     /** @module util */
     /** Readable names for `MouseEvent.button` */
@@ -677,18 +682,6 @@
         }
         return obj;
     }
-    // /** Return a EventTarget from selector or cast an existing element. */
-    // export function eventTargetFromSelector(
-    //   obj: string | EventTarget
-    // ): EventTarget | null {
-    //   if (!obj) {
-    //     return null;
-    //   }
-    //   if (typeof obj === "string") {
-    //     return document.querySelector(obj) as EventTarget;
-    //   }
-    //   return obj as EventTarget;
-    // }
     /**
      * Return a canonical descriptive string for a keyboard or mouse event.
      *
@@ -1147,8 +1140,8 @@
 
     /*!
      * Wunderbaum - types
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
@@ -1172,7 +1165,7 @@
         /** Vertical scroll event. Update the 'top' property of all rows. */
         ChangeType["scroll"] = "scroll";
     })(ChangeType || (ChangeType = {}));
-    /* Internal use. */
+    /** @internal */
     var RenderFlag;
     (function (RenderFlag) {
         RenderFlag["clearMarkup"] = "clearMarkup";
@@ -1203,16 +1196,20 @@
     /** Initial navigation mode and possible transition. */
     var NavModeEnum;
     (function (NavModeEnum) {
+        /** Start with row mode, but allow cell-nav mode */
         NavModeEnum["startRow"] = "startRow";
+        /** Cell-nav mode only */
         NavModeEnum["cell"] = "cell";
+        /** Start in cell-nav mode, but allow row mode */
         NavModeEnum["startCell"] = "startCell";
+        /** Row mode only */
         NavModeEnum["row"] = "row";
     })(NavModeEnum || (NavModeEnum = {}));
 
     /*!
      * Wunderbaum - wb_extension_base
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     class WunderbaumExtension {
         constructor(tree, id, defaults) {
@@ -1270,8 +1267,8 @@
 
     /*!
      * Wunderbaum - ext-filter
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     const START_MARKER = "\uFFF7";
     const END_MARKER = "\uFFF8";
@@ -1283,7 +1280,7 @@
                 autoApply: true, // Re-apply last filter if lazy data is loaded
                 autoExpand: false, // Expand all branches that contain matches while filtered
                 matchBranch: false, // Whether to implicitly match all children of matched nodes
-                connectInput: null, // Element or selector of an input control for filter query strings
+                connect: null, // Element or selector of an input control for filter query strings
                 fuzzy: false, // Match single characters in order, e.g. 'fb' will match 'FooBar'
                 hideExpanders: false, // Hide expanders if all child nodes are hidden by filter
                 highlight: true, // Highlight matches by wrapping inside <mark> tags
@@ -1291,29 +1288,109 @@
                 mode: "dim", // Grayout unmatched nodes (pass "hide" to remove unmatched node instead)
                 noData: true, // Display a 'no data' status node if result is empty
             });
+            this.queryInput = null;
+            this.prevButton = null;
+            this.nextButton = null;
+            this.modeButton = null;
+            this.matchInfoElem = null;
             this.lastFilterArgs = null;
         }
         init() {
             super.init();
-            const connectInput = this.getPluginOption("connectInput");
-            if (connectInput) {
-                this.queryInput = elemFromSelector(connectInput);
-                assert(this.queryInput, `Invalid 'filter.connectInput' option: ${connectInput}.`);
-                onEvent(this.queryInput, "input", debounce((e) => {
-                    // this.tree.log("query", e);
-                    this.filterNodes(this.queryInput.value.trim(), {});
-                }, 700));
+            const connect = this.getPluginOption("connect");
+            if (connect) {
+                this._connectControls();
             }
         }
         setPluginOption(name, value) {
-            // alert("filter opt=" + name + ", " + value)
             super.setPluginOption(name, value);
             switch (name) {
                 case "mode":
-                    this.tree.filterMode = value === "hide" ? "hide" : "dim";
+                    this.tree.filterMode =
+                        value === "hide" ? "hide" : value === "mark" ? "mark" : "dim";
                     this.tree.updateFilter();
                     break;
             }
+        }
+        _updatedConnectedControls() {
+            var _a;
+            const filterActive = this.tree.filterMode !== null;
+            const activeNode = this.tree.getActiveNode();
+            const matchCount = filterActive ? this.countMatches() : 0;
+            const strings = this.treeOpts.strings;
+            let matchIdx = "?";
+            if (this.matchInfoElem) {
+                if (filterActive) {
+                    let info;
+                    if (matchCount === 0) {
+                        info = strings.noMatch;
+                    }
+                    else if (activeNode && activeNode.match >= 1) {
+                        matchIdx = (_a = activeNode.match) !== null && _a !== void 0 ? _a : "?";
+                        info = strings.matchIndex;
+                    }
+                    else {
+                        info = strings.queryResult;
+                    }
+                    info = info
+                        .replace("${count}", this.tree.count().toLocaleString())
+                        .replace("${match}", "" + matchIdx)
+                        .replace("${matches}", matchCount.toLocaleString());
+                    this.matchInfoElem.textContent = info;
+                }
+                else {
+                    this.matchInfoElem.textContent = "";
+                }
+            }
+            if (this.nextButton instanceof HTMLButtonElement) {
+                this.nextButton.disabled = !matchCount;
+            }
+            if (this.prevButton instanceof HTMLButtonElement) {
+                this.prevButton.disabled = !matchCount;
+            }
+            if (this.modeButton) {
+                this.modeButton.disabled = !filterActive;
+                this.modeButton.classList.toggle("wb-filter-hide", this.tree.filterMode === "hide");
+            }
+        }
+        _connectControls() {
+            const tree = this.tree;
+            const connect = this.getPluginOption("connect");
+            if (!connect) {
+                return;
+            }
+            this.queryInput = elemFromSelector(connect.inputElem);
+            if (!this.queryInput) {
+                throw new Error(`Invalid 'filter.connect' option: ${connect.inputElem}.`);
+            }
+            this.prevButton = elemFromSelector(connect.prevButton);
+            this.nextButton = elemFromSelector(connect.nextButton);
+            this.modeButton = elemFromSelector(connect.modeButton);
+            this.matchInfoElem = elemFromSelector(connect.matchInfoElem);
+            if (this.prevButton) {
+                onEvent(this.prevButton, "click", () => {
+                    tree.findRelatedNode(tree.getActiveNode() || tree.getFirstChild(), "prevMatch");
+                    this._updatedConnectedControls();
+                });
+            }
+            if (this.nextButton) {
+                onEvent(this.nextButton, "click", () => {
+                    tree.findRelatedNode(tree.getActiveNode() || tree.getFirstChild(), "nextMatch");
+                    this._updatedConnectedControls();
+                });
+            }
+            if (this.modeButton) {
+                onEvent(this.modeButton, "click", (e) => {
+                    if (!this.tree.filterMode) {
+                        return;
+                    }
+                    this.setPluginOption("mode", tree.filterMode === "dim" ? "hide" : "dim");
+                });
+            }
+            onEvent(this.queryInput, "input", debounce((e) => {
+                this.filterNodes(this.queryInput.value.trim(), {});
+            }, 700));
+            this._updatedConnectedControls();
         }
         _applyFilterNoUpdate(filter, _opts) {
             return this.tree.runWithDeferredUpdate(() => {
@@ -1321,6 +1398,7 @@
             });
         }
         _applyFilterImpl(filter, _opts) {
+            var _a;
             let //temp,
             count = 0;
             const start = Date.now();
@@ -1402,11 +1480,11 @@
                     return !!res;
                 };
             }
-            tree.filterMode = opts.mode;
-            // eslint-disable-next-line prefer-rest-params, prefer-spread
+            tree.filterMode = (_a = opts.mode) !== null && _a !== void 0 ? _a : "dim";
+            // eslint-disable-next-line prefer-rest-params
             this.lastFilterArgs = arguments;
             tree.element.classList.toggle("wb-ext-filter-hide", !!hideMode);
-            tree.element.classList.toggle("wb-ext-filter-dim", !hideMode);
+            tree.element.classList.toggle("wb-ext-filter-dim", opts.mode === "dim");
             tree.element.classList.toggle("wb-ext-filter-hide-expanders", !!opts.hideExpanders);
             // Reset current filter
             tree.root.subMatchCount = 0;
@@ -1415,10 +1493,6 @@
                 delete node.titleWithHighlight;
                 node.subMatchCount = 0;
             });
-            // statusNode = tree.root.findDirectChild(KEY_NODATA);
-            // if (statusNode) {
-            //   statusNode.remove();
-            // }
             tree.setStatus(NodeStatusType.ok);
             // Adjust node.hide, .match, and .subMatchCount properties
             treeOpts.autoCollapse = false; // #528
@@ -1429,7 +1503,7 @@
                 let res = filter(node);
                 if (res === "skip") {
                     node.visit(function (c) {
-                        c.match = false;
+                        c.match = undefined;
                     }, true);
                     return "skip";
                 }
@@ -1440,7 +1514,7 @@
                 }
                 if (res) {
                     count++;
-                    node.match = true;
+                    node.match = count;
                     node.visitParents((p) => {
                         if (p !== node) {
                             p.subMatchCount += 1;
@@ -1467,6 +1541,7 @@
             }
             // Redraw whole tree
             tree.logDebug(`Filter '${filter}' found ${count} nodes in ${Date.now() - start} ms.`);
+            this._updatedConnectedControls();
             return count;
         }
         /**
@@ -1511,34 +1586,22 @@
             else {
                 tree.logWarn("updateFilter(): no filter active.");
             }
+            this._updatedConnectedControls();
         }
         /**
          * [ext-filter] Reset the filter.
          */
         clearFilter() {
             const tree = this.tree;
-            // statusNode = tree.root.findDirectChild(KEY_NODATA),
-            // escapeTitles = tree.options.escapeTitles;
             tree.enableUpdate(false);
-            // if (statusNode) {
-            //   statusNode.remove();
-            // }
             tree.setStatus(NodeStatusType.ok);
             // we also counted root node's subMatchCount
             delete tree.root.match;
             delete tree.root.subMatchCount;
             tree.visit((node) => {
-                // if (node.match && node._rowElem) {
-                //   let titleElem = node._rowElem.querySelector("span.wb-title")!;
-                //   node._callEvent("enhanceTitle", { titleElem: titleElem });
-                // }
                 delete node.match;
                 delete node.subMatchCount;
                 delete node.titleWithHighlight;
-                // if (node.subMatchBadge) {
-                //   node.subMatchBadge.remove();
-                //   delete node.subMatchBadge;
-                // }
                 if (node._filterAutoExpanded && node.expanded) {
                     node.setExpanded(false, {
                         noAnimation: true,
@@ -1552,7 +1615,7 @@
             tree.element.classList.remove(
             // "wb-ext-filter",
             "wb-ext-filter-dim", "wb-ext-filter-hide");
-            // tree._callHook("treeStructureChanged", this, "clearFilter");
+            this._updatedConnectedControls();
             tree.enableUpdate(true);
         }
     }
@@ -1595,8 +1658,8 @@
 
     /*!
      * Wunderbaum - ext-keynav
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     const QUICKSEARCH_DELAY = 500;
     class KeynavExtension extends WunderbaumExtension {
@@ -1959,8 +2022,8 @@
 
     /*!
      * Wunderbaum - ext-logger
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     class LoggerExtension extends WunderbaumExtension {
         constructor(tree) {
@@ -2001,8 +2064,8 @@
 
     /*!
      * Wunderbaum - ext-dnd
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     const nodeMimeType = "application/x-wunderbaum-node";
     class DndExtension extends WunderbaumExtension {
@@ -2222,7 +2285,7 @@
                 viewportY >= height - sensitivity) {
                 // Mouse in bottom 20px area: scroll down
                 // sp.scrollTop = scrollTop + dndOpts.scrollSpeed;
-                this.currentScrollDir = +1;
+                this.currentScrollDir = 1;
             }
             if (this.currentScrollDir) {
                 this.applyScrollDirThrottled();
@@ -2451,8 +2514,8 @@
 
     /*!
      * Wunderbaum - drag_observer
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2600,8 +2663,8 @@
 
     /*!
      * Wunderbaum - common
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
     /**
@@ -2628,8 +2691,11 @@
     // export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
     // export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
     /**
-     * Default node icons.
-     * Requires bootstrap icons https://icons.getbootstrap.com
+     * Default node icons for icon libraries
+     *
+     *  - 'bootstrap': {@link https://icons.getbootstrap.com}
+     *  - 'fontawesome6' {@link https://fontawesome.com/icons}
+     *
      */
     const iconMaps = {
         bootstrap: {
@@ -2711,29 +2777,20 @@
     //   "Escape",
     // ]);
     /** Map `KeyEvent.key` to navigation action. */
-    const KEY_TO_ACTION_DICT = {
-        " ": "toggleSelect",
-        "+": "expand",
-        Add: "expand",
+    const KEY_TO_NAVIGATION_MAP = {
         ArrowDown: "down",
         ArrowLeft: "left",
         ArrowRight: "right",
         ArrowUp: "up",
         Backspace: "parent",
-        "/": "collapseAll",
-        Divide: "collapseAll",
         End: "lastCol",
         Home: "firstCol",
         "Control+End": "last",
         "Control+Home": "first",
         "Meta+ArrowDown": "last", // macOs
         "Meta+ArrowUp": "first", // macOs
-        "*": "expandAll",
-        Multiply: "expandAll",
         PageDown: "pageDown",
         PageUp: "pageUp",
-        "-": "collapse",
-        Subtract: "collapse",
     };
     /** Return a callback that returns true if the node title matches the string
      * or regular expression.
@@ -2770,10 +2827,12 @@
     /**
      * Convert 'flat' to 'nested' format.
      *
-     *  Flat node entry format:
-     *    [PARENT_ID, [POSITIONAL_ARGS]]
-     *  or
-     *    [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
+     * Flat node entry format:
+     *    [PARENT_IDX, {KEY_VALUE_ARGS}]
+     * or, if N _positional re defined:
+     *    [PARENT_IDX, POSITIONAL_ARG_1, POSITIONAL_ARG_2, ..., POSITIONAL_ARG_N]
+     * Even if _positional additional are defined, KEY_VALUE_ARGS can be appended:
+     *    [PARENT_IDX, POSITIONAL_ARG_1, ..., {KEY_VALUE_ARGS}]
      *
      * 1. Parent-referencing list is converted to a list of nested dicts with
      *    optional `children` properties.
@@ -2782,10 +2841,11 @@
     function unflattenSource(source) {
         var _a, _b, _c;
         const { _format, _keyMap = {}, _positional = [], children } = source;
+        const _positionalCount = _positional.length;
         if (_format !== "flat") {
             throw new Error(`Expected source._format: "flat", but got ${_format}`);
         }
-        if (_positional && _positional.includes("children")) {
+        if (_positionalCount && _positional.includes("children")) {
             throw new Error(`source._positional must not include "children": ${_positional}`);
         }
         let longToShort = _keyMap;
@@ -2799,7 +2859,7 @@
                 longToShort[value] = key;
             }
         }
-        const positionalShort = _positional.map((e) => longToShort[e]);
+        const positionalShort = _positional.map((e) => { var _a; return (_a = longToShort[e]) !== null && _a !== void 0 ? _a : e; });
         const newChildren = [];
         const keyToNodeMap = {};
         const indexToNodeMap = {};
@@ -2809,19 +2869,32 @@
             // Node entry format:
             //   [PARENT_ID, [POSITIONAL_ARGS]]
             // or
-            //   [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
-            const [parentId, args, kwargs = {}] = nodeTuple;
+            //   [PARENT_ID, POSITIONAL_ARG_1, POSITIONAL_ARG_2, ..., {KEY_VALUE_ARGS}]
+            let kwargs;
+            const [parentId, ...args] = nodeTuple;
+            if (args.length === _positionalCount) {
+                kwargs = {};
+            }
+            else if (args.length === _positionalCount + 1) {
+                kwargs = args.pop();
+                if (typeof kwargs !== "object") {
+                    throw new Error(`unflattenSource: Expected dict as last tuple element: ${nodeTuple}`);
+                }
+            }
+            else {
+                throw new Error(`unflattenSource: unexpected tuple length: ${nodeTuple}`);
+            }
             // Free up some memory as we go
             nodeTuple[1] = null;
             if (nodeTuple[2] != null) {
                 nodeTuple[2] = null;
             }
-            // console.log("flatten", parentId, args, kwargs)
             // We keep `kwargs` as our new node definition. Then we add all positional
             // values to this object:
             args.forEach((val, positionalIdx) => {
                 kwargs[positionalShort[positionalIdx]] = val;
             });
+            args.length = 0;
             // Find the parent node. `null` means 'toplevel'. PARENT_ID may be the numeric
             // index of the source.children list. If PARENT_ID is a string, we search
             // a parent with node.key of this value.
@@ -2940,8 +3013,8 @@
 
     /*!
      * Wunderbaum - ext-grid
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     class GridExtension extends WunderbaumExtension {
         constructor(tree) {
@@ -3031,8 +3104,8 @@
 
     /*!
      * Wunderbaum - deferred
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     /**
      * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -3084,8 +3157,8 @@
 
     /*!
      * Wunderbaum - wunderbaum_node
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     /** WunderbaumNode properties that can be passed with source data.
      * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3867,7 +3940,7 @@
         isParentOf(other) {
             return other && other.parent === this;
         }
-        /** (experimental) Return true if this node is partially loaded. */
+        /** Return true if this node is partially loaded. @experimental  */
         isPartload() {
             return !!this._partload;
         }
@@ -4325,10 +4398,11 @@
          * @param options
          */
         async navigate(where, options) {
+            var _a;
             // Allow to pass 'ArrowLeft' instead of 'left'
-            where = KEY_TO_ACTION_DICT[where] || where;
+            const navType = ((_a = KEY_TO_NAVIGATION_MAP[where]) !== null && _a !== void 0 ? _a : where);
             // Otherwise activate or focus the related node
-            const node = this.findRelatedNode(where);
+            const node = this.findRelatedNode(navType);
             if (!node) {
                 this.logWarn(`Could not find related node '${where}'.`);
                 return Promise.resolve(this);
@@ -4425,86 +4499,17 @@
                 renderColInfosById: renderColInfosById,
             };
         }
-        _createIcon(iconMap, parentElem, replaceChild, showLoading) {
-            let iconSpan;
-            let icon = this.getOption("icon");
-            if (this._errorInfo) {
-                icon = iconMap.error;
-            }
-            else if (this._isLoading && showLoading) {
-                // Status nodes, or nodes without expander (< minExpandLevel) should
-                // display the 'loading' status with the i.wb-icon span
-                icon = iconMap.loading;
-            }
-            if (icon === false) {
-                return null; // explicitly disabled: don't try default icons
-            }
-            if (typeof icon === "string") ;
-            else if (this.statusNodeType) {
-                icon = iconMap[this.statusNodeType];
-            }
-            else if (this.expanded) {
-                icon = iconMap.folderOpen;
-            }
-            else if (this.children) {
-                icon = iconMap.folder;
-            }
-            else if (this.lazy) {
-                icon = iconMap.folderLazy;
-            }
-            else {
-                icon = iconMap.doc;
-            }
-            // this.log("_createIcon: " + icon);
-            if (!icon) {
-                iconSpan = document.createElement("i");
-                iconSpan.className = "wb-icon";
-            }
-            else if (icon.indexOf("<") >= 0) {
-                // HTML
-                iconSpan = elemFromHtml(icon);
-            }
-            else if (TEST_IMG.test(icon)) {
-                // Image URL
-                iconSpan = elemFromHtml(`<i class="wb-icon" style="background-image: url('${icon}');">`);
-            }
-            else {
-                // Class name
-                iconSpan = document.createElement("i");
-                iconSpan.className = "wb-icon " + icon;
-            }
-            if (replaceChild) {
-                parentElem.replaceChild(iconSpan, replaceChild);
-            }
-            else {
-                parentElem.appendChild(iconSpan);
-            }
-            // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
-            const cbRes = this._callEvent("iconBadge", { iconSpan: iconSpan });
-            let badge = null;
-            if (cbRes != null && cbRes !== false) {
-                let classes = "";
-                let tooltip = "";
-                if (isPlainObject(cbRes)) {
-                    badge = "" + cbRes.badge;
-                    classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
-                    tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
-                }
-                else if (typeof cbRes === "number") {
-                    badge = "" + cbRes;
+        _createIcon(parentElem, replaceChild, showLoading) {
+            const iconElem = this.tree._createNodeIcon(this, showLoading, true);
+            if (iconElem) {
+                if (replaceChild) {
+                    parentElem.replaceChild(iconElem, replaceChild);
                 }
                 else {
-                    badge = cbRes; // string or HTMLSpanElement
-                }
-                if (typeof badge === "string") {
-                    badge = elemFromHtml(`<span class="wb-badge${classes}"${tooltip}>${escapeHtml(badge)}</span>`);
-                }
-                if (badge) {
-                    iconSpan.append(badge);
+                    parentElem.appendChild(iconElem);
                 }
             }
-            // this.log("_createIcon: ", iconSpan);
-            return iconSpan;
+            return iconElem;
         }
         /**
          * Create a whole new `<div class="wb-row">` element.
@@ -4559,7 +4564,7 @@
             }
             // Render the icon (show a 'loading' icon if we do not have an expander that
             // we would prefer).
-            const iconSpan = this._createIcon(tree.iconMap, nodeElem, null, !expanderSpan);
+            const iconSpan = this._createIcon(nodeElem, null, !expanderSpan);
             if (iconSpan) {
                 ofsTitlePx += ICON_WIDTH;
             }
@@ -4791,7 +4796,7 @@
                 // Update icon (if not opts.isNew, which would rebuild markup anyway)
                 const iconSpan = nodeElem.querySelector("i.wb-icon");
                 if (iconSpan) {
-                    this._createIcon(tree.iconMap, nodeElem, iconSpan, !expanderSpan);
+                    this._createIcon(nodeElem, iconSpan, !expanderSpan);
                 }
             }
             // Adjust column width
@@ -5169,7 +5174,8 @@
                 case undefined:
                     changed = this.selected || !this._partsel;
                     this.selected = false;
-                    this._partsel = true;
+                    // #110: end nodess cannot have a `_partsel` flag
+                    this._partsel = this.hasChildren() ? true : false;
                     break;
                 default:
                     error(`Invalid state: ${state}`);
@@ -5339,7 +5345,7 @@
                 assert(data.statusNodeType, "Not a status node");
                 assert(!firstChild || !firstChild.isStatusNode(), "Child must not be a status node");
                 statusNode = this.addNode(data, "prependChild");
-                statusNode.match = true;
+                statusNode.match = -1; // Mark as 'match' to avoid hiding
                 tree.update(ChangeType.structure);
                 return statusNode;
             };
@@ -5630,8 +5636,8 @@
 
     /*!
      * Wunderbaum - ext-edit
-     * Copyright (c) 2021-2024, Martin Wendt. Released under the MIT license.
-     * v0.12.0, Sun, 12 Jan 2025 10:51:41 GMT (https://github.com/mar10/wunderbaum)
+     * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+     * v0.13.0, Sat, 08 Mar 2025 14:16:31 GMT (https://github.com/mar10/wunderbaum)
      */
     // const START_MARKER = "\uFFF7";
     class EditExtension extends WunderbaumExtension {
@@ -5950,7 +5956,7 @@
             newNode.setClass("wb-edit-new");
             this.relatedNode = node;
             // Don't filter new nodes:
-            newNode.match = true;
+            newNode.match = -1;
             newNode.makeVisible({ noAnimation: true }).then(() => {
                 this.startEditTitle(newNode);
             });
@@ -5962,12 +5968,12 @@
      *
      * A treegrid control.
      *
-     * Copyright (c) 2021-2024, Martin Wendt (https://wwWendt.de).
+     * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
      * https://github.com/mar10/wunderbaum
      *
      * Released under the MIT license.
-     * @version v0.12.0
-     * @date Sun, 12 Jan 2025 10:51:41 GMT
+     * @version v0.13.0
+     * @date Sat, 08 Mar 2025 14:16:31 GMT
      */
     // import "./wunderbaum.scss";
     class WbSystemRoot extends WunderbaumNode {
@@ -5988,7 +5994,7 @@
      */
     class Wunderbaum {
         /** Currently active node if any.
-         * Use @link {WunderbaumNode.setActive|setActive} to modify.
+         * Use {@link WunderbaumNode.setActive|setActive} to modify.
          */
         get activeNode() {
             var _a;
@@ -5996,7 +6002,7 @@
             return ((_a = this._activeNode) === null || _a === void 0 ? void 0 : _a.tree) ? this._activeNode : null;
         }
         /** Current node hat has keyboard focus if any.
-         * Use @link {WunderbaumNode.setFocus|setFocus()} to modify.
+         * Use {@link WunderbaumNode.setFocus|setFocus()} to modify.
          */
         get focusNode() {
             var _a;
@@ -6028,6 +6034,9 @@
             // --- SELECT ---
             // /** @internal */
             // public selectRangeAnchor: WunderbaumNode | null = null;
+            // --- BREADCRUMB ---
+            /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
+            this.breadcrumb = null;
             // --- FILTER ---
             /** Filter options (used as defaults for calls to {@link Wunderbaum.filterNodes} ) */
             this.filterMode = null;
@@ -6062,10 +6071,10 @@
                 emptyChildListExpandable: false,
                 // updateThrottleWait: 200,
                 skeleton: false,
-                connectTopBreadcrumb: null, // HTMLElement that receives the top nodes breadcrumb
+                connectTopBreadcrumb: null,
                 selectMode: "multi", // SelectModeType
                 // --- KeyNav ---
-                navigationModeOption: null, // NavModeEnum.startRow,
+                navigationModeOption: null, // NavModeEnum,
                 quicksearch: true,
                 // --- Events ---
                 iconBadge: null,
@@ -6077,8 +6086,11 @@
                 strings: {
                     loadError: "Error",
                     loading: "Loading...",
-                    // loading: "Loading&hellip;",
                     noData: "No data",
+                    breadcrumbDelimiter: " » ",
+                    queryResult: "Found ${matches} of ${count}",
+                    noMatch: "No results",
+                    matchIndex: "${match} of ${matches}",
                 },
             }, options));
             const readyDeferred = new Deferred();
@@ -6146,7 +6158,7 @@
             const wantHeader = opts.header == null ? this.columns.length > 1 : !!opts.header;
             if (this.headerElement) {
                 // User existing header markup to define `this.columns`
-                assert(!this.columns, "`opts.columns` must not be set if markup already contains a header");
+                assert(!this.columns, "`opts.columns` must not be set if table markup already contains a header");
                 this.columns = [];
                 const rowElement = this.headerElement.querySelector("div.wb-row");
                 for (const colDiv of rowElement.querySelectorAll("div")) {
@@ -6184,6 +6196,19 @@
             this.headerElement =
                 this.element.querySelector("div.wb-header");
             this.element.classList.toggle("wb-grid", this.columns.length > 1);
+            if (this.options.connectTopBreadcrumb) {
+                this.breadcrumb = elemFromSelector(this.options.connectTopBreadcrumb);
+                assert(!this.breadcrumb || this.breadcrumb.innerHTML != null, `Invalid 'connectTopBreadcrumb' option: ${this.breadcrumb}.`);
+                this.breadcrumb.addEventListener("click", (e) => {
+                    // const node = Wunderbaum.getNode(e)!;
+                    const elem = e.target;
+                    if (elem && elem.matches("a.wb-breadcrumb")) {
+                        const node = this.keyMap.get(elem.dataset.key);
+                        node === null || node === void 0 ? void 0 : node.setActive();
+                        e.preventDefault();
+                    }
+                });
+            }
             this._initExtensions();
             // --- apply initial options
             ["enabled", "fixedCol"].forEach((optName) => {
@@ -6194,8 +6219,7 @@
             // --- Load initial data
             if (opts.source) {
                 if (opts.showSpinner) {
-                    this.nodeListElement.innerHTML =
-                        "<progress class='spinner'>loading...</progress>";
+                    this.nodeListElement.innerHTML = `<progress class='spinner'>${opts.strings.loading}</progress>`;
                 }
                 this.load(opts.source)
                     .then(() => {
@@ -6548,7 +6572,10 @@
             });
             return node;
         }
-        /** Return the topmost visible node in the viewport. */
+        /** Return the topmost visible node in the viewport.
+         * @param complete If `false`, the node is considered visible if at least one
+         * pixel is visible.
+         */
         getTopmostVpNode(complete = true) {
             const rowHeight = this.options.rowHeightPx;
             const gracePx = 1; // ignore subpixel scrolling
@@ -6581,24 +6608,19 @@
             bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
             return this._getNodeByRowIdx(bottomIdx);
         }
-        /** Return preceeding visible node in the viewport. */
-        _getPrevNodeInView(node, ofs = 1) {
-            this.visitRows((n) => {
-                node = n;
-                if (ofs-- <= 0) {
-                    return false;
-                }
-            }, { reverse: true, start: node || this.getActiveNode() });
-            return node;
-        }
         /** Return following visible node in the viewport. */
-        _getNextNodeInView(node, ofs = 1) {
+        _getNextNodeInView(node, options) {
+            let ofs = (options === null || options === void 0 ? void 0 : options.ofs) || 1;
+            const reverse = !!(options === null || options === void 0 ? void 0 : options.reverse);
             this.visitRows((n) => {
                 node = n;
+                if ((options === null || options === void 0 ? void 0 : options.cb) && options.cb(n)) {
+                    return false;
+                }
                 if (ofs-- <= 0) {
                     return false;
                 }
-            }, { reverse: false, start: node || this.getActiveNode() });
+            }, { reverse: reverse, start: node || this.getActiveNode() });
             return node;
         }
         /**
@@ -6718,9 +6740,11 @@
                 case "first":
                 case "last":
                 case "left":
+                case "nextMatch":
                 case "pageDown":
                 case "pageUp":
                 case "parent":
+                case "prevMatch":
                 case "right":
                 case "up":
                     return node.navigate(cmd);
@@ -6912,6 +6936,11 @@
         count(visible = false) {
             return visible ? this.treeRowCount : this.keyMap.size;
         }
+        /** Return the number of *unique* nodes in the data model, i.e. unique `node.refKey`.
+         */
+        countUnique() {
+            return this.refKeyMap.size;
+        }
         /** @internal sanity check. */
         _check() {
             let i = 0;
@@ -6970,12 +6999,14 @@
          * and wrap-around at the end.
          * Used by quicksearch and keyboard navigation.
          */
-        findNextNode(match, startNode) {
+        findNextNode(match, startNode, reverse = false) {
             //, visibleOnly) {
             let res = null;
             const firstNode = this.getFirstChild();
+            // Last visible node (calculation is expensive, so do only if we need it):
+            const lastNode = reverse ? this.findRelatedNode(firstNode, "last") : null;
             const matcher = typeof match === "string" ? makeNodeTitleStartMatcher(match) : match;
-            startNode = startNode || firstNode;
+            startNode = startNode || (reverse ? lastNode : firstNode);
             function _checkNode(n) {
                 // console.log("_check " + n)
                 if (matcher(n)) {
@@ -6988,12 +7019,14 @@
             this.visitRows(_checkNode, {
                 start: startNode,
                 includeSelf: false,
+                reverse: reverse,
             });
             // Wrap around search
             if (!res && startNode !== firstNode) {
                 this.visitRows(_checkNode, {
-                    start: firstNode,
+                    start: reverse ? lastNode : firstNode,
                     includeSelf: true,
+                    reverse: reverse,
                 });
             }
             return res;
@@ -7060,7 +7093,7 @@
                     // }
                     break;
                 case "up":
-                    res = this._getPrevNodeInView(node);
+                    res = this._getNextNodeInView(node, { reverse: true });
                     break;
                 case "down":
                     res = this._getNextNodeInView(node);
@@ -7073,7 +7106,10 @@
                             res = bottomNode;
                         }
                         else {
-                            res = this._getNextNodeInView(node, pageSize);
+                            res = this._getNextNodeInView(node, {
+                                reverse: false,
+                                ofs: pageSize,
+                            });
                         }
                     }
                     break;
@@ -7088,9 +7124,22 @@
                             res = topNode;
                         }
                         else {
-                            res = this._getPrevNodeInView(node, pageSize);
+                            res = this._getNextNodeInView(node, {
+                                reverse: true,
+                                ofs: pageSize,
+                            });
                         }
                     }
+                    break;
+                case "prevMatch":
+                // fallthrough
+                case "nextMatch":
+                    if (!this.isFilterActive) {
+                        this.logWarn(`${where}: Filter is not active.`);
+                        break;
+                    }
+                    res = this.findNextNode((n) => n.isMatched(), node, where === "prevMatch");
+                    res === null || res === void 0 ? void 0 : res.setActive();
                     break;
                 default:
                     this.logWarn("Unknown relation '" + where + "'.");
@@ -7152,6 +7201,12 @@
          */
         getFirstChild() {
             return this.root.getFirstChild();
+        }
+        /**
+         * Return the last top level node if any (not the invisible root node).
+         */
+        getLastChild() {
+            return this.root.getLastChild();
         }
         /**
          * Return the node that currently has keyboard focus or null.
@@ -7480,6 +7535,51 @@
         _setFocusNode(node) {
             this._focusNode = node;
         }
+        /** Return the current selection/expansion/activation status. @experimental */
+        getState(options) {
+            var _a, _b;
+            let expandedKeys = undefined;
+            if (options.expandedKeys !== false) {
+                expandedKeys = [];
+                for (const node of this) {
+                    if (node.expanded) {
+                        expandedKeys.push(node.key);
+                    }
+                }
+            }
+            const state = {
+                activeKey: (_b = (_a = this.activeNode) === null || _a === void 0 ? void 0 : _a.key) !== null && _b !== void 0 ? _b : null,
+                activeColIdx: this.activeColIdx,
+                selectedKeys: options.selectedKeys === false
+                    ? undefined
+                    : this.getSelectedNodes().flatMap((n) => n.key),
+                expandedKeys: expandedKeys,
+            };
+            return state;
+        }
+        /** Apply selection/expansion/activation status. @experimental */
+        setState(state, options) {
+            this.runWithDeferredUpdate(() => {
+                var _a, _b;
+                if (state.selectedKeys) {
+                    this.selectAll(false);
+                    for (const key of state.selectedKeys) {
+                        (_a = this.findKey(key)) === null || _a === void 0 ? void 0 : _a.setSelected(true);
+                    }
+                }
+                if (state.expandedKeys) {
+                    for (const key of state.expandedKeys) {
+                        (_b = this.findKey(key)) === null || _b === void 0 ? void 0 : _b.setExpanded(true);
+                    }
+                }
+                if (state.activeKey) {
+                    this.setActiveNode(state.activeKey);
+                }
+                if (state.activeColIdx != null) {
+                    this.setColumn(state.activeColIdx);
+                }
+            });
+        }
         update(change, node, options) {
             // this.log(`update(${change}) node=${node}`);
             if (!(node instanceof WunderbaumNode)) {
@@ -7761,11 +7861,11 @@
             // }
             return modified;
         }
-        _insertIcon(icon, elem) {
-            const iconElem = document.createElement("i");
-            iconElem.className = icon;
-            elem.appendChild(iconElem);
-        }
+        // protected _insertIcon(icon: string, elem: HTMLElement) {
+        //   const iconElem = document.createElement("i");
+        //   iconElem.className = icon;
+        //   elem.appendChild(iconElem);
+        // }
         /** Create/update header markup from `this.columns` definition.
          * @internal
          */
@@ -7863,6 +7963,104 @@
                 this._updateViewportImmediately();
             }
         }
+        /** @internal */
+        _createNodeIcon(node, showLoading, showBadge) {
+            const iconMap = this.iconMap;
+            let iconElem;
+            let icon = node.getOption("icon");
+            if (node._errorInfo) {
+                icon = iconMap.error;
+            }
+            else if (node._isLoading && showLoading) {
+                // Status nodes, or nodes without expander (< minExpandLevel) should
+                // display the 'loading' status with the i.wb-icon span
+                icon = iconMap.loading;
+            }
+            if (icon === false) {
+                return null; // explicitly disabled: don't try default icons
+            }
+            if (typeof icon === "string") ;
+            else if (node.statusNodeType) {
+                icon = iconMap[node.statusNodeType];
+            }
+            else if (node.expanded) {
+                icon = iconMap.folderOpen;
+            }
+            else if (node.children) {
+                icon = iconMap.folder;
+            }
+            else if (node.lazy) {
+                icon = iconMap.folderLazy;
+            }
+            else {
+                icon = iconMap.doc;
+            }
+            if (!icon) {
+                iconElem = document.createElement("i");
+                iconElem.className = "wb-icon";
+            }
+            else if (icon.indexOf("<") >= 0) {
+                // HTML
+                iconElem = elemFromHtml(icon);
+            }
+            else if (TEST_IMG.test(icon)) {
+                // Image URL
+                iconElem = elemFromHtml(`<i class="wb-icon" style="background-image: url('${icon}');">`);
+            }
+            else {
+                // Class name
+                iconElem = document.createElement("i");
+                iconElem.className = "wb-icon " + icon;
+            }
+            // Event handler `tree.iconBadge` can return a badge text or HTMLSpanElement
+            const cbRes = showBadge && node._callEvent("iconBadge", { iconSpan: iconElem });
+            let badge = null;
+            if (cbRes != null && cbRes !== false) {
+                let classes = "";
+                let tooltip = "";
+                if (isPlainObject(cbRes)) {
+                    badge = "" + cbRes.badge;
+                    classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
+                    tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
+                }
+                else if (typeof cbRes === "number") {
+                    badge = "" + cbRes;
+                }
+                else {
+                    badge = cbRes; // string or HTMLSpanElement
+                }
+                if (typeof badge === "string") {
+                    badge = elemFromHtml(`<span class="wb-badge${classes}"${tooltip}>${escapeHtml(badge)}</span>`);
+                }
+                if (badge) {
+                    iconElem.append(badge);
+                }
+            }
+            return iconElem;
+        }
+        _updateTopBreadcrumb() {
+            const breadcrumb = this.breadcrumb;
+            const topmost = this.getTopmostVpNode(true);
+            const parentList = topmost === null || topmost === void 0 ? void 0 : topmost.getParentList(false, false);
+            if (parentList === null || parentList === void 0 ? void 0 : parentList.length) {
+                breadcrumb.innerHTML = "";
+                for (const n of topmost.getParentList(false, false)) {
+                    const icon = this._createNodeIcon(n, false, false);
+                    if (icon) {
+                        breadcrumb.append(icon, " ");
+                    }
+                    const part = document.createElement("a");
+                    part.textContent = n.title;
+                    part.href = "#";
+                    part.classList.add("wb-breadcrumb");
+                    part.dataset.key = n.key;
+                    breadcrumb.append(part, this.options.strings.breadcrumbDelimiter);
+                }
+            }
+            else {
+                breadcrumb.innerHTML = "&nbsp;";
+            }
+        }
         /**
          * This is the actual update method, which is wrapped inside a throttle method.
          * It calls `updateColumns()` and `_updateRows()`.
@@ -7873,7 +8071,6 @@
          * @internal
          */
         _updateViewportImmediately() {
-            var _a;
             if (this._disableUpdateCount) {
                 this.log(`_updateViewportImmediately() IGNORED (disable level: ${this._disableUpdateCount}).`);
                 this._disableUpdateIgnoreCount++;
@@ -7920,11 +8117,8 @@
                 this._updateRows();
                 // console.profileEnd(`_updateViewportImmediately()`)
             }
-            if (this.options.connectTopBreadcrumb) {
-                assert(this.options.connectTopBreadcrumb.textContent != null, `Invalid 'connectTopBreadcrumb' option (input element expected).`);
-                let path = (_a = this.getTopmostVpNode(true)) === null || _a === void 0 ? void 0 : _a.getPath(false, "title", " > ");
-                path = path ? path + " >" : "";
-                this.options.connectTopBreadcrumb.textContent = path;
+            if (this.breadcrumb) {
+                this._updateTopBreadcrumb();
             }
             this._callEvent("update");
         }
@@ -7990,8 +8184,9 @@
             // this.debug("render", opts);
             const obsoleteNodes = new Set();
             this.nodeListElement.childNodes.forEach((elem) => {
-                const tr = elem;
-                obsoleteNodes.add(tr._wb_node);
+                if (elem._wb_node) {
+                    obsoleteNodes.add(elem._wb_node);
+                }
             });
             let idx = 0;
             let top = 0;
@@ -8292,7 +8487,7 @@
     }
     Wunderbaum.sequence = 0;
     /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-    Wunderbaum.version = "v0.12.0"; // Set to semver by 'grunt release'
+    Wunderbaum.version = "v0.13.0"; // Set to semver by 'grunt release'
     /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
     Wunderbaum.util = util;
 

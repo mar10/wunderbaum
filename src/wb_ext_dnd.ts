@@ -78,7 +78,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // this.$scrollParent = $temp.scrollParent();
     // $temp.remove();
     const tree = this.tree;
-    const dndOpts = tree.options.dnd!;
+    const dndOpts = tree.options.dnd;
 
     // Enable drag support if dragStart() is specified:
     if (dndOpts.dragStart) {
@@ -134,7 +134,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     e: DragEvent,
     allowed: DropRegionTypeSet | null
   ): DropRegionType | false {
-    const rowHeight = this.tree.options.rowHeightPx!;
+    const rowHeight = this.tree.options.rowHeightPx;
     const dy = e.offsetY;
 
     if (!allowed) {
@@ -208,7 +208,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     //   `_isVoidDrop: ${srcNode} -> ${dropRegion} ${targetNode}`
     // );
     // TODO: should be checked on  move only
-    if (!this.treeOpts.dnd.preventVoidMoves || !srcNode) {
+    if (!this.treeOpts.dnd!.preventVoidMoves || !srcNode) {
       return false;
     }
     if (
@@ -225,7 +225,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
   protected _applyScrollDir(): void {
     if (this.isDragging() && this.currentScrollDir) {
-      const dndOpts = this.tree.options.dnd!;
+      const dndOpts = this.tree.options.dnd;
       const sp = this.tree.element; // scroll parent
       const scrollTop = sp.scrollTop;
       if (this.currentScrollDir < 0) {
@@ -238,7 +238,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
   protected _autoScroll(viewportY: number): number {
     const tree = this.tree;
-    const dndOpts = tree.options.dnd!;
+    const dndOpts = tree.options.dnd;
     const sensitivity = dndOpts.scrollSensitivity;
     const sp = tree.element; // scroll parent
     const headerHeight = tree.headerElement.clientHeight; // May be 0
@@ -284,7 +284,6 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
    * Handle dragstart, drag and dragend events for the source node.
    */
   protected onDragEvent(e: DragEvent) {
-    // const tree = this.tree;
     const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const srcNode = Wunderbaum.getNode(e);
 
@@ -518,19 +517,20 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       const srcNode = this.srcNode;
       const lastDropEffect = this.lastDropEffect;
 
-      setTimeout(() => {
-        // Decouple this call, because drop actions may prevent the dragend event
-        // from being fired on some browsers
-        targetNode._callEvent("dnd.drop", {
-          event: e,
-          region: region,
-          suggestedDropMode: region === "over" ? "appendChild" : region,
-          suggestedDropEffect: lastDropEffect,
-          // suggestedDropEffect: e.dataTransfer?.dropEffect,
-          sourceNode: srcNode,
-          sourceNodeData: nodeData,
-        });
-      }, 10);
+      /* Before v0.14.0, we decoupled `_callEvent` like so:
+           Decouple this call, because drop actions may prevent the dragend
+           event from being fired on some browsers.
+           setTimeout(() => {...}, 10);
+        however this made e.dataTransfer.items inaccessible */
+      targetNode._callEvent("dnd.drop", {
+        event: e,
+        region: region,
+        suggestedDropMode: region === "over" ? "appendChild" : region,
+        suggestedDropEffect: lastDropEffect,
+        sourceNode: srcNode,
+        sourceNodeData: nodeData,
+        dataTransfer: e.dataTransfer,
+      });
     }
     return false;
   }

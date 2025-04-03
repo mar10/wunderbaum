@@ -4,7 +4,14 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { MatcherCallback, SourceListType, SourceObjectType } from "./types";
+import {
+  ApplyCommandType,
+  NavigationType,
+  SourceListType,
+  SourceObjectType,
+  IconMapType,
+  MatcherCallback,
+} from "./types";
 import * as util from "./util";
 import { WunderbaumNode } from "./wb_node";
 
@@ -30,11 +37,16 @@ export const RENDER_MIN_PREFETCH = 5;
 export const DEFAULT_MIN_COL_WIDTH = 4;
 /** Regular expression to detect if a string describes an image URL (in contrast
  * to a class name). Strings are considered image urls if they contain '.' or '/'.
+ * `<` is ignored, because it is probably an html tag.
  */
-export const TEST_IMG = new RegExp(/\.|\//);
+export const TEST_FILE_PATH = /^(?!.*<).*[/.]/;
+/** Regular expression to detect if a string describes an HTML element. */
+export const TEST_HTML = /</;
 // export const RECURSIVE_REQUEST_ERROR = "$recursive_request";
 // export const INVALID_REQUEST_TARGET_ERROR = "$request_target_invalid";
 
+/** Currently supported default icon maps. */
+type IconLibrary = "bootstrap" | "fontawesome6";
 /**
  * Default node icons for icon libraries
  *
@@ -42,7 +54,7 @@ export const TEST_IMG = new RegExp(/\.|\//);
  *  - 'fontawesome6' {@link https://fontawesome.com/icons}
  *
  */
-export const iconMaps: { [key: string]: { [key: string]: string } } = {
+export const defaultIconMaps: { [key in IconLibrary]: IconMapType } = {
   bootstrap: {
     error: "bi bi-exclamation-triangle",
     // loading: "bi bi-hourglass-split wb-busy",
@@ -90,7 +102,7 @@ export const iconMaps: { [key: string]: { [key: string]: string } } = {
     radioChecked: "fa-solid fa-circle",
     radioUnchecked: "fa-regular fa-circle",
     radioUnknown: "fa-regular fa-circle-question",
-    folder: "fa-solid fa-folder-closed",
+    folder: "fa-regular fa-folder-closed",
     folderOpen: "fa-regular fa-folder-open",
     folderLazy: "fa-solid fa-folder-plus",
     doc: "fa-regular fa-file",
@@ -140,7 +152,24 @@ export const RESERVED_TREE_SOURCE_KEYS: Set<string> = new Set([
 // ]);
 
 /** Map `KeyEvent.key` to navigation action. */
-export const KEY_TO_ACTION_DICT: { [key: string]: string } = {
+export const KEY_TO_NAVIGATION_MAP: { [key: string]: NavigationType } = {
+  ArrowDown: "down",
+  ArrowLeft: "left",
+  ArrowRight: "right",
+  ArrowUp: "up",
+  Backspace: "parent",
+  End: "lastCol",
+  Home: "firstCol",
+  "Control+End": "last",
+  "Control+Home": "first",
+  "Meta+ArrowDown": "last", // macOs
+  "Meta+ArrowUp": "first", // macOs
+  PageDown: "pageDown",
+  PageUp: "pageUp",
+};
+
+/** Map `KeyEvent.key` to navigation action. */
+export const KEY_TO_COMMAND_MAP: { [key: string]: ApplyCommandType } = {
   " ": "toggleSelect",
   "+": "expand",
   Add: "expand",
@@ -208,10 +237,12 @@ export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
 /**
  * Convert 'flat' to 'nested' format.
  *
- *  Flat node entry format:
- *    [PARENT_ID, [POSITIONAL_ARGS]]
- *  or
- *    [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
+ * Flat node entry format:
+ *    [PARENT_IDX, {KEY_VALUE_ARGS}]
+ * or, if N _positional re defined:
+ *    [PARENT_IDX, POSITIONAL_ARG_1, POSITIONAL_ARG_2, ..., POSITIONAL_ARG_N]
+ * Even if _positional additional are defined, KEY_VALUE_ARGS can be appended:
+ *    [PARENT_IDX, POSITIONAL_ARG_1, ..., {KEY_VALUE_ARGS}]
  *
  * 1. Parent-referencing list is converted to a list of nested dicts with
  *    optional `children` properties.
@@ -219,11 +250,12 @@ export function nodeTitleSorter(a: WunderbaumNode, b: WunderbaumNode): number {
  */
 function unflattenSource(source: SourceObjectType): void {
   const { _format, _keyMap = {}, _positional = [], children } = source;
+  const _positionalCount = _positional.length;
 
   if (_format !== "flat") {
     throw new Error(`Expected source._format: "flat", but got ${_format}`);
   }
-  if (_positional && _positional.includes("children")) {
+  if (_positionalCount && _positional.includes("children")) {
     throw new Error(
       `source._positional must not include "children": ${_positional}`
     );
@@ -239,7 +271,7 @@ function unflattenSource(source: SourceObjectType): void {
       longToShort[value] = key;
     }
   }
-  const positionalShort = _positional.map((e: string) => longToShort[e]);
+  const positionalShort = _positional.map((e: string) => longToShort[e] ?? e);
   const newChildren: SourceListType = [];
   const keyToNodeMap: { [key: string]: number } = {};
   const indexToNodeMap: { [key: number]: any } = {};
@@ -250,21 +282,33 @@ function unflattenSource(source: SourceObjectType): void {
     // Node entry format:
     //   [PARENT_ID, [POSITIONAL_ARGS]]
     // or
-    //   [PARENT_ID, [POSITIONAL_ARGS], {KEY_VALUE_ARGS}]
-    const [parentId, args, kwargs = {}] = <any>nodeTuple;
+    //   [PARENT_ID, POSITIONAL_ARG_1, POSITIONAL_ARG_2, ..., {KEY_VALUE_ARGS}]
+    let kwargs;
+    const [parentId, ...args] = <any>nodeTuple;
+    if (args.length === _positionalCount) {
+      kwargs = {};
+    } else if (args.length === _positionalCount + 1) {
+      kwargs = args.pop();
+      if (typeof kwargs !== "object") {
+        throw new Error(
+          `unflattenSource: Expected dict as last tuple element: ${nodeTuple}`
+        );
+      }
+    } else {
+      throw new Error(`unflattenSource: unexpected tuple length: ${nodeTuple}`);
+    }
 
     // Free up some memory as we go
     nodeTuple[1] = null;
     if (nodeTuple[2] != null) {
       nodeTuple[2] = null;
     }
-    // console.log("flatten", parentId, args, kwargs)
-
     // We keep `kwargs` as our new node definition. Then we add all positional
     // values to this object:
     args.forEach((val: string, positionalIdx: number) => {
       kwargs[positionalShort[positionalIdx]] = val;
     });
+    args.length = 0;
 
     // Find the parent node. `null` means 'toplevel'. PARENT_ID may be the numeric
     // index of the source.children list. If PARENT_ID is a string, we search

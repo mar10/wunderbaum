@@ -5,7 +5,6 @@
  */
 /* global mar10 */
 /* eslint-env browser */
-/* eslint-disable no-console */
 
 document.getElementById("demo-info").innerHTML = `
 A simple tree, no frills (filter will not work).

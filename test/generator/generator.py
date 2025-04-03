@@ -235,9 +235,9 @@ def compress_child_list(
             }
             key_args.pop(inverse_key_map.get("children", "children"), None)
             if key_args:
-                elem = (parent_idx, pos_args, key_args)
+                elem = (parent_idx, *pos_args, key_args)
             else:
-                elem = (parent_idx, pos_args)
+                elem = (parent_idx, *pos_args)
             node_list.append(elem)
         # else:
         #     node =

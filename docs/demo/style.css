@@ -27,7 +27,7 @@ body {
     "Bitstream Vera Sans", "Trebuchet MS", Verdana, "Verdana Ref", sans-serif;
   background-color: var(--bg-color-dark);
   color: var(--font-color);
-  /* `<!DOCTYPE html>` switches to standard mode, which would define 
+  /* `<!DOCTYPE html>` switches to standard mode, which would define
   100% as content height. We want 100% to interpreted as viewport height: */
   height: 100%;
   /* prevent scrollbars, which would break `100vh` */
@@ -71,33 +71,41 @@ div.grid-wrapper nav.nav {
   overflow: hidden;
 }
 
-div.grid-wrapper section.header {
-  border-top-left-radius: var(--border-radius);
-  border-top-right-radius: var(--border-radius);
-  background-color: var(--bg-color-light);
+div.grid-wrapper div.flex-container {
   grid-column: 2;
-  grid-row: 2;
-  padding: 5px;
-  font-size: 90%;
-}
-
-div.grid-wrapper main.view {
-  background-color: var(--bg-color-light);
-  grid-column: 2;
-  grid-row: 3;
-  min-height: 4px;
-  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  grid-row: 2 / 5;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
   overflow: hidden;
 }
 
-div.grid-wrapper section.footer {
-  grid-column: 2;
-  grid-row: 4;
+section.header {
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  background-color: var(--bg-color-light);
+  padding: 5px;
+  font-size: 90%;
+  /* min-height: 20px; */
+  max-height: 100px;
+}
+
+main.view {
+  background-color: var(--bg-color-light);
+  min-height: 4px;
+  /* Needed for fixed columns: embedded tree 100% width should not stretch the grid layout: */
+  overflow: hidden;
+  flex-grow: 1;
+}
+
+section.footer {
   padding: 5px;
   font-size: 90%;
   background-color: var(--bg-color-dimmed);
   border-bottom-left-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
+  /* min-height: 20px;   */
+  max-height: 100px;
 }
 
 div.grid-wrapper div.statbar {
@@ -116,7 +124,7 @@ div.wunderbaum:focus-visible {
 
 div#demo-tree {
   /* fill parent container */
-  height: calc(100% - 12px);
+  height: calc(100% - 18px);
   /* Leave some space for the blue focus outline*/
   /* padding: 5px;  */
 }
@@ -173,10 +181,10 @@ output.tree-version {
 }
 
 output#parentPath:not(.hidden) {
-  font-size: 60%;
+  font-size: 80%;
   display: block;
   padding: 1px 3px;
-  height: 12px;
+  height: 18px;
   background-color: var(--bg-color-light);
 }
 

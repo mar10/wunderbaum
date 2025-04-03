@@ -7,6 +7,31 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.14.0: Fix drop event (dataTransfer.items not available in some cases).
+
+- v0.13.1: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
+  Focus on click.
+- v0.13.1: Add `dataTransfer` to `DropEventType`.
+- v0.13.1: Add `tree.children` and `tree.parent` getters.
+- v0.13.1: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
+- v0.13.1: Support HTML string for `iconMap.expander...` properties.
+- v0.13.1: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
+  passing partial maps.
+  Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps`.
+
+- v0.13.0: Add `tree.saveState()` and `tree.restoreState()` methods (experimental).
+- v0.13.0: Breadcrumb:
+  - Show node icons
+  - Parts can be clicked to activate parent nodes
+  - `connectTopBreadcrumb` can also be a selector
+- v0.13.0: Filter:
+  - BREAKING: Filter: changed `filter.connectInput` to `filter.connect: {...}`.
+  - Add support for prev/next-match buttons and an info string.
+  - New mode 'mark' (like 'dim' but does not gray out)
+- v0.13.0: Add `tree.countUnique()` method.
+
+- v0.12.1: Fix flat source format for positional args.
+
 - v0.12.0: Add `deep`, `resetLazy`, and `collapseOthers` options to
   `node.` and `tree.expandAll()`.
 - v0.12.0: Add `resetLazy` options to `tree.setExpanded(false, ...)`.

@@ -88,7 +88,7 @@ formatting:
 - `wb-helper-invalid` <br>
   Apply _invalid_ style to cell content, i.e. render in red.
 - `wb-helper-lazy-expander` <br>
-  Can be used in `iconMaps` to make a font icon appear colored.
+  Can be used in iconMaps to make a font icon appear colored.
 - `wb-helper-link` <br>
   Apply link style to cell content.
 - `wb-helper-start` <br>

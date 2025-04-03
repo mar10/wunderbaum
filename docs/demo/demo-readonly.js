@@ -16,7 +16,7 @@ new mar10.Wunderbaum({
   id: "demo",
   element: document.getElementById("demo-tree"),
   debugLevel: 5,
-  connectTopBreadcrumb: document.getElementById("parentPath"),
+  connectTopBreadcrumb: "output#parentPath",
   // checkbox: true,
   // fixedCol: true,
   navigationModeOption: "cell",
@@ -49,7 +49,15 @@ new mar10.Wunderbaum({
   columnsResizable: true,
   columnsSortable: true,
   filter: {
-    connectInput: "input#filterQuery",
+    mode: "hide",
+    autoExpand: true,
+    connect: {
+      inputElem: "#filter-query",
+      // modeButton: "#filter-hide",  // using a custom handler
+      nextButton: "#filter-next",
+      prevButton: "#filter-prev",
+      matchInfoElem: "#filter-match-info",
+    },
   },
   init: (e) => {},
   buttonClick: function (e) {

@@ -6,7 +6,7 @@ repo_url: https://github.com/mar10/wunderbaum
 
 site_author: Martin Wendt
 copyright: |
-  Copyright © 2021-2024 Martin Wendt,
+  Copyright © 2021-2025 Martin Wendt,
   Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
 
 # remote_branch: gh-pages
@@ -47,7 +47,6 @@ theme:
     # - toc.integrate
 
   palette:
-
     # Palette toggle for automatic mode
     - media: "(prefers-color-scheme)"
       toggle:
@@ -129,7 +128,7 @@ plugins:
   # - sitemap
 
 extra:
-  generator: false  # Added to Copyright instead
+  generator: false # Added to Copyright instead
   analytics:
     provider: google
     property: G-W8EGCZFQ00

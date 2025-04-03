@@ -202,27 +202,30 @@ or the numeric 0-based index of a node that appeared before in the list.
 `KEY_VALUE_ARGS` define other properties as key/value pairs (optional).
 
 ```js
-{
-  "_format": "flat",
-  "types": {...},       // Optional, but likely if `_valueMap` is used
-  "columns": [...],     // Optional
-  // Map from short key to final key (if a key is not found here it will
-  // be used literally):
-  "_keyMap": {"expanded": "e"},
-  // Values for these keys are appended as list items.
-  // Other items - if any - are collected into one dict that is also appended:
-  "_positional": ["title", "key", "type"],
-  // Optional: if a 'type' entry has a numeric value, use it as index into this
-  // list (string values are still used literally):
-  "_valueMap": {
-    "type": ["folder", "person"]
-  },
-  // List index is 0-based, parent index null means 'top-node'.
-  // If parent index is a string, parent is searched by `node.key` (slower)
-  "children": [
-    [null, "Node 1", "id123", 0, {"e": true}],  // index=0
-    [0, "Node 1.1", "id234", 1],                // index=1
-    [0, "Node 1.2", "id345", 1, {"age": 32}]    // index=2
-  ]
-}
+source: {
+    // Define format as flat, parent-referencong list:
+    "_format": "flat",
+    // types are optional, but likely if `_valueMap` is used:
+    "types": { "person": { "icon": "bi-person" }, "folder": { "icon": "bi-folder" } },
+    // Map from short key to final key (if a key is not found here
+    // it will be used literally):
+    "_keyMap": { "expanded": "e" },
+    // Optional: Values for these keys are appended as list items (after the index).
+    // Other items - if any - are collected into one dict that is
+    // also appended:
+    "_positional": ["title", "key", "type"],
+    // Optional: if a 'type' entry has a numeric value, use it as
+    // index into this list (string values are still used literally):
+    "_valueMap": {
+        "type": ["folder", "person"]
+    },
+    // List index is 0-based, parent index null means 'top-node'.
+    // If parent index is a string, parent is searched by `node.key`
+    // (slower)
+    "children": [
+        [null, "Node 1", "id123", 0, { "e": true }],  // index=0, type=folder
+        [0, "Node 1.1", "id234", 1],                  // index=1, type=person
+        [0, "Node 1.2", "id345", 1, { "age": 32 }]    // index=2, type=person
+    ]
+},
 ```

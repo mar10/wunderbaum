@@ -6,7 +6,7 @@ import rup_replace from "@rollup/plugin-replace";
 // import rup_terser from "@rollup/plugin-terser";
 import rup_typescript from "@rollup/plugin-typescript";
 
-let package_json = JSON.parse(fs.readFileSync("package.json", "utf8"));
+const package_json = JSON.parse(fs.readFileSync("package.json", "utf8"));
 
 export default {
   input: "src/wunderbaum.ts",

@@ -93,7 +93,10 @@ export type NodeToDictCallback = (
   dict: WbNodeData,
   node: WunderbaumNode
 ) => NodeVisitResponse;
-/** A callback that receives a node instance and returns a string value. */
+/**
+ * A callback that receives a node instance and may returnsa `false` to prevent
+ * (de)selection.
+ */
 export type NodeSelectCallback = (node: WunderbaumNode) => boolean | void;
 
 /**
@@ -160,7 +163,7 @@ export interface WbNodeData {
   title: string;
   /** Pass true to set node tooltip to the node's title. Defaults to {@link WunderbaumOptions.tooltip}. */
   tooltip?: TooltipOption;
-  /** Inherit shared settings from the matching entry in {@link WunderbaumOptions.types}. */
+  /** Inherit shared settings from the matching entry in `InitWunderbaumOptions.types`. */
   type?: string;
   /** Set to `true` to prevent selection. Defaults to {@link WunderbaumOptions.unselectable}. */
   unselectable?: boolean;
@@ -170,11 +173,37 @@ export interface WbNodeData {
   [key: string]: unknown;
 }
 
+/** A plain object (dictionary) that defines node icons. */
+export interface IconMapType {
+  error: string;
+  loading: string;
+  noData: string;
+  expanderExpanded: string;
+  expanderCollapsed: string;
+  expanderLazy: string;
+  checkChecked: string;
+  checkUnchecked: string;
+  checkUnknown: string;
+  radioChecked: string;
+  radioUnchecked: string;
+  radioUnknown: string;
+  folder: string;
+  folderOpen: string;
+  folderLazy: string;
+  doc: string;
+  colSortable: string;
+  colSortAsc: string;
+  colSortDesc: string;
+  colFilter: string;
+  colFilterActive: string;
+  colMenu: string;
+  [key: string]: string;
+}
 /* -----------------------------------------------------------------------------
  * EVENT CALLBACK TYPES
  * ---------------------------------------------------------------------------*/
 
-/** A callback that receives a node instance and returns a string value. */
+/** Retuen value of an event handler that can return `false` to prevent the default action. */
 export type WbCancelableEventResultType = false | void;
 
 export interface WbTreeEventType {
@@ -469,6 +498,21 @@ export interface ColumnDefinition {
 export type ColumnDefinitionList = Array<ColumnDefinition>;
 
 /**
+ * Used by {@link Wunderbaum.getState} and {@link Wunderbaum.setState}.
+ */
+export interface TreeStateDefinition {
+  /** The active node's key if any. */
+  activeKey: string | null;
+  /** The active column index if any. */
+  activeColIdx: number | null;
+  /** List of selected node's keys. */
+  selectedKeys: Array<string> | undefined;
+  /** List of expanded node's keys. */
+  expandedKeys: Array<string> | undefined;
+  /** List of checked node's keys. */
+}
+
+/**
  * Column information (passed to the `render` event).
  */
 export interface ColumnEventInfo {
@@ -515,29 +559,43 @@ export interface WbEventInfo {
 // export type WbNodeCallbackType = (e: WbNodeEventType) => any;
 // export type WbRenderCallbackType = (e: WbRenderEventType) => void;
 
-export type FilterModeType = null | "dim" | "hide";
+export type FilterModeType = null | "mark" | "dim" | "hide";
 export type SelectModeType = "single" | "multi" | "hier";
-export type ApplyCommandType =
-  | "addChild"
-  | "addSibling"
-  | "copy"
-  | "cut"
+
+export type NavigationType =
   | "down"
   | "first"
-  | "indent"
+  | "firstCol"
   | "last"
+  | "lastCol"
   | "left"
-  | "moveDown"
-  | "moveUp"
-  | "outdent"
+  | "nextMatch"
   | "pageDown"
   | "pageUp"
   | "parent"
+  | "prevMatch"
+  | "right"
+  | "up";
+
+export type ApplyCommandType =
+  | NavigationType
+  | "addChild"
+  | "addSibling"
+  | "collapse"
+  | "collapseAll"
+  | "copy"
+  | "cut"
+  | "edit"
+  | "expand"
+  | "expandAll"
+  | "indent"
+  | "moveDown"
+  | "moveUp"
+  | "outdent"
   | "paste"
   | "remove"
   | "rename"
-  | "right"
-  | "up";
+  | "toggleSelect";
 
 export type NodeFilterResponse = "skip" | "branch" | boolean | void;
 export type NodeFilterCallback = (node: WunderbaumNode) => NodeFilterResponse;
@@ -604,6 +662,23 @@ export enum NavModeEnum {
   row = "row",
 }
 
+/** Translatable strings. */
+export type TranslationsType = {
+  /** @default "Loading..." */
+  loading: string;
+  /** @default "Error" */
+  loadError: string;
+  /** @default "No data" */
+  noData: string;
+  /** @default " » " */
+  breadcrumbDelimiter: string;
+  /** @default "Found ${matches} of ${count}" */
+  queryResult: string;
+  /** @default "No result" */
+  noMatch: string;
+  /** @default "${match} of ${matches}" */
+  matchIndex: string;
+};
 /* -----------------------------------------------------------------------------
  * METHOD OPTIONS TYPES
  * ---------------------------------------------------------------------------*/
@@ -688,6 +763,22 @@ export interface FilterNodesOptions {
   mode?: FilterModeType;
   /** Display a 'no data' status node if result is empty @default true */
   noData?: boolean | string;
+}
+
+/** Possible values for {@link Wunderbaum.getState}. */
+export interface GetStateOptions {
+  // /** Include the activated key. @default true */
+  // activeKey?: boolean;
+  /** Include the expanded keys. @default true */
+  expandedKeys?: boolean;
+  /** Include the selected keys. @default true */
+  selectedKeys?: boolean;
+}
+
+/** Possible values for {@link Wunderbaum.setState}. */
+export interface SetStateOptions {
+  /** Recursively load lazy nodes as needed. @default false */
+  expandLazy?: boolean;
 }
 
 /** Possible values for {@link WunderbaumNode.makeVisible}. */
@@ -894,6 +985,19 @@ export interface VisitRowsOptions {
 /* -----------------------------------------------------------------------------
  * wb_ext_filter
  * ---------------------------------------------------------------------------*/
+
+/**
+ * Passed as tree option.filer.connect to configure automatic integration of
+ * filter UI controls. @experimental
+ */
+export interface FilterConnectType {
+  inputElem: string | HTMLInputElement | null;
+  modeButton?: string | HTMLButtonElement | null;
+  nextButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  prevButton?: string | HTMLButtonElement | HTMLAnchorElement | null;
+  matchInfoElem?: string | HTMLElement | null;
+}
+
 /**
  * Passed as tree options to configure default filtering behavior.
  *
@@ -902,10 +1006,12 @@ export interface VisitRowsOptions {
  */
 export type FilterOptionsType = {
   /**
-   * Element or selector of an input control for filter query strings
+   * Element or selector of input controls and buttons for filter query strings.
+   * @experimental
+   * @since 0.13
    * @default null
    */
-  connectInput?: null | string | Element;
+  connect?: null | FilterConnectType;
   /**
    * Re-apply last filter if lazy data is loaded
    * @default true
@@ -1041,6 +1147,8 @@ export interface DropEventType extends WbNodeEventType {
   node: WunderbaumNode;
   /** The source node if any. */
   sourceNode: WunderbaumNode;
+  /** The DataTransfer object. */
+  dataTransfer: DataTransfer;
 }
 
 export type DndOptionsType = {

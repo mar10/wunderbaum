@@ -89,6 +89,33 @@ const tree = new mar10.Wunderbaum({
 });
 ```
 
+If we want to only override some default icons, this pattern can be used:
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: Object.assign(Wunderbaum.iconMaps.bootstrap, {
+      folder: "bi bi-archive",
+    },
+  ),
+});
+```
+
+If the icon definition contains html markup (i.e. contains a `<` character),
+the icon is rendered as HTML, otherwise it is rendered as a CSS class.
+
+```js
+const tree = new mar10.Wunderbaum({
+  ...
+  iconMap: {
+    doc: "<i class='wb-icon'>😍</i>",
+    expanderCollapsed: "<i class='wb-expander'>🤔</i>",
+    expanderExpanded: "<i class='wb-expander'>🤗</i>",
+    ...
+  },
+});
+```
+
 ## Custom Markup
 
 ### Using the `render` Event
@@ -193,6 +220,32 @@ div.wunderbaum span.wb-badge.selection-count {
 }
 ```
 
+You can also use e.g. "data" to control the badge and display an image instead of text.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    if (e.node.data.badgeIcon) {
+      return {
+        badge: "",
+        badgeClass: "wb-my-special-icon-" + e.node.data.badgeIcon
+      };
+    }
+  },
+  ...
+});
+```
+
+```css
+span.wb-my-special-icon-alert {
+  background-color: white !important;
+  background-image: url("img/alert.svg");
+  width: 12px;
+  height: 12px;
+}
+```
+
 !!! info "See also"
 
     See also [WbIconBadgeEventType](https://mar10.github.io/wunderbaum/api/interfaces/types.WbIconBadgeEventType.html)
@@ -208,10 +261,45 @@ div.wunderbaum span.wb-badge.selection-count {
 
 ### Code Hacks
 
+#### Custom badge content
+
+If needed, you can use completely custom elements like this:
+
 ```js
-
-``` -->
-
+const tree = new Wunderbaum({
+  ...
+  iconBadge: (e) => {
+    if (e.node.data.badgeIconPath) {
+      const badgeSpan = document.createElement("span");
+      badgeSpan.className = "tree-badge-icon";
+      const badgeImg = document.createElement("img");
+      badgeImg.src = e.node.data.badgeIconPath;
+      badgeSpan.appendChild(badgeImg);
+      return badgeSpan;
+    }
+  },
+  ...
+});
 ```
 
+```css
+div.wunderbaum span.tree-badge-icon {
+  position: absolute;
+  display: inline-block;
+  top: 0;
+  left: -0.6rem;
+  padding: 0.2em 0.3rem 0.1em 0.3rem;
+  font-size: 60%;
+  font-weight: 200;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+div.wunderbaum span.tree-badge-icon img {
+  width: 12px;
+  height: 12px;
+}
 ```

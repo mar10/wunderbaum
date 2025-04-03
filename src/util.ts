@@ -424,19 +424,6 @@ export function elemFromSelector<T = HTMLElement>(obj: string | T): T | null {
   return obj as T;
 }
 
-// /** Return a EventTarget from selector or cast an existing element. */
-// export function eventTargetFromSelector(
-//   obj: string | EventTarget
-// ): EventTarget | null {
-//   if (!obj) {
-//     return null;
-//   }
-//   if (typeof obj === "string") {
-//     return document.querySelector(obj) as EventTarget;
-//   }
-//   return obj as EventTarget;
-// }
-
 /**
  * Return a canonical descriptive string for a keyboard or mouse event.
  *
@@ -794,6 +781,11 @@ export function toPixel(
     assert(d == null, `Expected a number or string like '123px': ${d}`);
   }
   throw new Error(`Expected a string like '123px': ${defaults}`);
+}
+
+/** Cast any value to <T>. */
+export function unsafeCast<T>(value: any): T {
+  return value as T;
 }
 
 /** Return the the boolean value of the first non-null element.
