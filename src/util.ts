@@ -887,7 +887,7 @@ export function adaptiveThrottle(
   const throttledFn = (...args: any[]) => {
     if (waiting) {
       pendingArgs = args;
-      // console.log(`adaptiveThrottle() queing request #${waiting}...`, args);
+      // console.log(`adaptiveThrottle() queueing request #${waiting}...`, args);
       waiting += 1;
     } else {
       // Prevent invocations while running or blocking

@@ -799,7 +799,7 @@ export class WunderbaumNode {
     }
     return l;
   }
-  /** Return a string representing the hierachical node path, e.g. "a/b/c".
+  /** Return a string representing the hierarchical node path, e.g. "a/b/c".
    * @param includeSelf
    * @param part property name or callback
    * @param separator
@@ -829,7 +829,7 @@ export class WunderbaumNode {
     return path.join(separator);
   }
 
-  /** Return the preceeding node (under the same parent) or null. */
+  /** Return the preceding node (under the same parent) or null. */
   getPrevSibling(): WunderbaumNode | null {
     const ac = this.parent.children!;
     const idx = ac.indexOf(this);
@@ -861,7 +861,7 @@ export class WunderbaumNode {
     return this.classes ? this.classes.has(className) : false;
   }
 
-  /** Return true if node ist the currently focused node. @since 0.9.0 */
+  /** Return true if node is the currently focused node. @since 0.9.0 */
   hasFocus(): boolean {
     return this.tree.focusNode === this;
   }
@@ -922,7 +922,7 @@ export class WunderbaumNode {
    * an expand operation is currently possible.
    */
   isExpandable(andCollapsed = false): boolean {
-    // `false` is never expandable (unoffical)
+    // `false` is never expandable (unofficial)
     if ((andCollapsed && this.expanded) || <any>this.children === false) {
       return false;
     }
@@ -997,12 +997,12 @@ export class WunderbaumNode {
     return !this.selected && !!this._partsel;
   }
 
-  /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
+  /** Return true if this node has DOM representation, i.e. is displayed in the viewport. */
   isRadio(): boolean {
     return !!this.parent.radiogroup || this.getOption("checkbox") === "radio";
   }
 
-  /** Return true if this node has DOM representaion, i.e. is displayed in the viewport. */
+  /** Return true if this node has DOM representation, i.e. is displayed in the viewport. */
   isRendered(): boolean {
     return !!this._rowElem;
   }

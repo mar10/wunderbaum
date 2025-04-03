@@ -806,7 +806,7 @@ export class Wunderbaum {
     return this._getNodeByRowIdx(bottomIdx)!;
   }
 
-  /** Return preceeding visible node in the viewport. */
+  /** Return preceding visible node in the viewport. */
   protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
     this.visitRows(
       (n) => {
