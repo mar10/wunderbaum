@@ -440,7 +440,7 @@ export class FilterExtension extends WunderbaumExtension<FilterOptionsType> {
 }
 
 /**
- * @description Marks the matching charecters of `text` either by `mark` or
+ * @description Marks the matching characters of `text` either by `mark` or
  * by exotic*Chars (if `escapeTitles` is `true`) based on `matches`
  * which is an array of matching groups.
  * @param {string} text

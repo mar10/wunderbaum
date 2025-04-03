@@ -77,7 +77,7 @@ export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   }
 
   /**
-   * Hanldes drag and sragstop events for column resizing.
+   * Handles drag and sragstop events for column resizing.
    */
   protected handleDrag(e: DragCallbackArgType): void {
     const custom = e.customData;

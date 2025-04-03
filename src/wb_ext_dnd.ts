@@ -143,8 +143,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       return dy < 0.25 * rowHeight
         ? "before"
         : dy > 0.75 * rowHeight
-          ? "after"
-          : "over";
+        ? "after"
+        : "over";
     } else if (allowed.size === 1 && allowed.has("over")) {
       return "over";
     } else {
@@ -311,7 +311,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         return false;
       }
       const nodeData = srcNode.toDict(true, (n: any) => {
-        // We don't want to re-use the key on drop:
+        // We don't want to reuse the key on drop:
         n._orgKey = n.key;
         delete n.key;
       });

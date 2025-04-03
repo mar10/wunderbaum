@@ -861,6 +861,20 @@ export class Wunderbaum {
     return this._getNodeByRowIdx(bottomIdx)!;
   }
 
+  /** Return preceding visible node in the viewport. */
+  protected _getPrevNodeInView(node?: WunderbaumNode, ofs = 1) {
+    this.visitRows(
+      (n) => {
+        node = n;
+        if (ofs-- <= 0) {
+          return false;
+        }
+      },
+      { reverse: true, start: node || this.getActiveNode() }
+    );
+    return node;
+  }
+
   /** Return following visible node in the viewport. */
   protected _getNextNodeInView(
     node?: WunderbaumNode,
