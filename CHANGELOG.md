@@ -9,6 +9,7 @@ First release.
 
 - v0.14.0: Fix drop event (dataTransfer.items not available in some cases).
 
+- v0.13.1: Don't open file in browser when dropped in empty area.
 - v0.13.1: Fix icon when expanding an empty lazy node.
 - v0.13.1: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
   Focus on click.
