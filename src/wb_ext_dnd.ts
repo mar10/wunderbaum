@@ -143,8 +143,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       return dy < 0.25 * rowHeight
         ? "before"
         : dy > 0.75 * rowHeight
-        ? "after"
-        : "over";
+          ? "after"
+          : "over";
     } else if (allowed.size === 1 && allowed.has("over")) {
       return "over";
     } else {
@@ -376,6 +376,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     };
     if (!targetNode) {
       this._leaveNode();
+      e.preventDefault(); // Don't open file in browser when dropped in empty area
       return;
     }
     if (["drop"].includes(e.type)) {
