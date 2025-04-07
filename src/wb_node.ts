@@ -1919,6 +1919,7 @@ export class WunderbaumNode {
       }
 
       if (image == null) {
+        expanderElem.className = "wb-expander";
         expanderElem.classList.add("wb-indent");
       } else if (TEST_HTML.test(image)) {
         expanderElem.replaceWith(util.elemFromHtml(image));
