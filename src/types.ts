@@ -1145,6 +1145,7 @@ export type DropEffectAllowedType =
 
 export type DropRegionType = "over" | "before" | "after";
 export type DropRegionTypeSet = Set<DropRegionType>;
+export type DropRegionTypeList = Array<DropRegionType>;
 // type AllowedDropRegionType =
 //   | "after"
 //   | "afterBefore"
@@ -1317,7 +1318,9 @@ export type DndOptionsType = {
    */
   dragEnter?:
     | null
-    | ((e: DropEventType) => DropRegionType | DropRegionTypeSet | boolean);
+    | ((
+        e: DropEventType
+      ) => DropRegionType | DropRegionTypeSet | DropRegionTypeList | boolean);
   /**
    * Callback(targetNode, data)
    * @default null
