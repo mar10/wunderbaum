@@ -376,6 +376,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     };
     if (!targetNode) {
       this._leaveNode();
+      e.preventDefault(); // Don't open file in browser when dropped in empty area
       return;
     }
     if (["drop"].includes(e.type)) {
