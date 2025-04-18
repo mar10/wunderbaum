@@ -7,7 +7,11 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.14.0: Fix drop event (dataTransfer.items not available in some cases).
+- v0.14.0: Refactor sorting:
+
+  - Deprecate `sortChildren()` and `sortByProperty()` in favor of `sort()`.
+  - Add `key` callback argument and deprecate `cmp`.
+  - Add `foldersFirst` option.
 
 - v0.13.1: Don't open file in browser when dropped in empty area.
 - v0.13.1: Fix icon when expanding an empty lazy node.
