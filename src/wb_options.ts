@@ -1,5 +1,5 @@
 /*!
- * Wunderbaum - utils
+ * Wunderbaum - options
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
@@ -42,33 +42,10 @@ import {
 } from "./types";
 
 /**
- * Available options for {@link wunderbaum.Wunderbaum}.
+ * Properties of {@link wunderbaum.Wunderbaum.options}.
  *
- * Options are passed to the constructor as plain object:
- *
- * ```js
- * const tree = new mar10.Wunderbaum({
- *   id: "demo",
- *   element: document.getElementById("demo-tree"),
- *   source: "url/of/data/request",
- *   ...
- * });
- * ```
- *
- * Event handlers are also passed as callbacks
- *
- * ```js
- * const tree = new mar10.Wunderbaum({
- *   ...
- *   init: (e) => {
- *     console.log(`Tree ${e.tree} was initialized and loaded.`)
- *   },
- *   activate: (e) => {
- *     console.log(`Node ${e.node} was activated.`)
- *   },
- *   ...
- * });
- * ```
+ * This is similar, but not identical, to the options that can be passed to the
+ * constructor(@see {@link InitWunderbaumOptions}).
  */
 export interface WunderbaumOptions {
   /**
@@ -169,6 +146,15 @@ export interface WunderbaumOptions {
    */
   showSpinner: boolean;
   /**
+   * Generate missing keys by hashing a combination of refKey (or title) and
+   * the parent key. This is useful when the source data does not contain unique
+   * keys but we want stable keys for persisting the active node, selection or
+   * expansion state. Note that this still assumes that the same refKey must not
+   * appear twice in the same parent node.
+   * @default false.
+   */
+  autoKeys: boolean;
+  /**
    * If true, render a checkbox before the node tile to allow selection with the
    * mouse. Pass `"radio"` to render a radio button instead.
    * @default false.
@@ -242,8 +228,11 @@ export interface WunderbaumOptions {
 
   // --- Extensions ------------------------------------------------------------
 
+  /** Configuration options for the drag-and-drop extension. */
   dnd: DndOptionsType;
+  /** Configuration options for the edit-title extension. */
   edit: EditOptionsType;
+  /** Configuration options for the node-filter extension. */
   filter: FilterOptionsType;
   // grid?: GridOptionsType;
   // keynav?: KeynavOptionsType;
@@ -397,21 +386,49 @@ export interface WunderbaumOptions {
 }
 
 /**
- * Options that can be passed to {@link wunderbaum.Wunderbaum.constructor}.
+ * Available options for {@link wunderbaum.Wunderbaum}.
  *
- * Most of the properties are optional, and will be merged with the default options.
- * They are then available as `tree.options` and can be changed at runtime. <br>
+ * Options are passed to the constructor as plain object:
+ *
+ * ```js
+ * const tree = new mar10.Wunderbaum({
+ *   id: "demo",
+ *   element: document.getElementById("demo-tree"),
+ *   source: "url/of/data/request",
+ *   ...
+ * });
+ * ```
+ *
+ * Event handlers are also passed as callbacks
+ *
+ * ```js
+ * const tree = new mar10.Wunderbaum({
+ *   ...
+ *   init: (e) => {
+ *     console.log(`Tree ${e.tree} was initialized and loaded.`)
+ *   },
+ *   activate: (e) => {
+ *     console.log(`Node ${e.node} was activated.`)
+ *   },
+ *   ...
+ * });
+ * ```
+ *
+ * Most of the properties are optional and have resonable default.
+ * They are then available as {@link Wunderbaum.options} property and can be
+ * changed at runtime. <br>
  * Only the `element` option is mandatory.
  *
- * However some options passed  here, are not available as `tree.options`, but
- * are moved to the `tree` instance instead. These are:
+ * Note that some options passed here, are *not* available as {@link Wunderbaum.options}.
+ * They are moved to the `tree` instance instead:
  * - `tree.element`
  * - `tree.id`
  * - `tree.columns`
  * - `tree.types`
  * - ...
  *
- * Some options are only used during initialization and are not stored in the tree instance:
+ * Some options are only used during initialization and are not stored in the
+ * tree instance:
  * - `source`
  *
  */

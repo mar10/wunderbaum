@@ -286,7 +286,7 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       newValue = newValue.trim();
     }
     if (!node) {
-      this.tree.logDebug("stopEditTitle: not in edit mode.");
+      // this.tree.logDebug("stopEditTitle: not in edit mode.");
       return;
     }
     node.logDebug(`stopEditTitle(${apply})`, options, focusElem, newValue);

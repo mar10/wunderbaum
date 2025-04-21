@@ -503,6 +503,8 @@ export type ColumnDefinitionList = Array<ColumnDefinition>;
 export interface TreeStateDefinition {
   /** The active node's key if any. */
   activeKey: string | null;
+  /** The active node's key path if any. */
+  activeKeyPath: string | null;
   /** The active column index if any. */
   activeColIdx: number | null;
   /** List of selected node's keys. */
@@ -915,6 +917,16 @@ export interface SetStatusOptions {
   message?: string;
   /** Used as tooltip. */
   details?: string;
+}
+
+/**
+ * Possible values for {@link Wunderbaum.reload} `options` argument.
+ */
+export interface ReloadOptions {
+  /** Load this source instead. @default initial source (if loaded via ajax) */
+  source?: SourceType;
+  /** Reactivate currently active node if any. @default true */
+  reactivate?: boolean;
 }
 
 /**
