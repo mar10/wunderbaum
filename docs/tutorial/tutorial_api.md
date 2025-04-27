@@ -117,12 +117,22 @@ provides a number of utility methods that are useful when working with trees.
 ## Performance Tips
 
 Use `tree.runWithDeferredUpdate()` to avoid multiple updates while changing many
-nodes at once.
+nodes at once. <br>
+Synchronous methods can be wrapped in a `runWithDeferredUpdate()` call to avoid
+multiple redraws:
 
 ```js
 tree.runWithDeferredUpdate(() => {
   tree.visit((node) => {
     node.setSelected(true);
   });
+});
+```
+
+Asynchronous methods can be wrapped in a `runWithDeferredUpdateAsync()` like so:
+
+```js
+await tree.runWithDeferredUpdateAsync(async () => {
+  return await node.someAsyncFuntion();
 });
 ```

@@ -187,13 +187,13 @@ export class WunderbaumNode {
   _rowIdx: number | undefined = 0;
   _rowElem: HTMLDivElement | undefined = undefined;
 
-  constructor(tree: Wunderbaum, parent: WunderbaumNode, data: any) {
+  constructor(tree: Wunderbaum, parent: WunderbaumNode, data: WbNodeData) {
     util.assert(!parent || parent.tree === tree, `Invalid parent: ${parent}`);
     util.assert(!data.children, "'children' not allowed here");
 
     this.tree = tree;
     this.parent = parent;
-    this.key = "" + (data.key ?? ++WunderbaumNode.sequence);
+    this.key = tree._calculateKey(data, parent);
     this.title = "" + (data.title ?? "<" + this.key + ">");
     this.expanded = !!data.expanded;
     this.lazy = !!data.lazy;
@@ -336,9 +336,16 @@ export class WunderbaumNode {
         applyMinExpanLevel && _level < tree.options.minExpandLevel;
       for (const child of <WbNodeData[]>nodeData) {
         const subChildren = child.children;
+        // Remove children property from source data because it should not be
+        // passed to the constructor of WunderbaumNode:
         delete child.children;
 
         const n = new WunderbaumNode(tree, this, child);
+
+        // Set `children` property again, so it can be used in `reload()`
+        if (subChildren != null) {
+          child.children = subChildren;
+        }
         if (forceExpand && !n.isUnloaded()) {
           n.expanded = true;
         }
@@ -815,10 +822,6 @@ export class WunderbaumNode {
     part: keyof WunderbaumNode | NodeAnyCallback = "title",
     separator: string = "/"
   ) {
-    // includeSelf = includeSelf !== false;
-    // part = part || "title";
-    // separator = separator || "/";
-
     let val;
     const path: string[] = [];
     const isFunc = typeof part === "function";
@@ -2221,6 +2224,7 @@ export class WunderbaumNode {
   async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
     const { force, scrollIntoView, immediate, resetLazy } = options ?? {};
     const sendEvents = !options?.noEvents; // Default: send events
+
     if (
       !flag &&
       this.isExpanded() &&
@@ -2287,6 +2291,32 @@ export class WunderbaumNode {
   setKey(key: string | null, refKey: string | null) {
     throw new Error("Not yet implemented");
   }
+  // /**
+  //  * Calculate a *stable*, unique key for this node from its refKey (or title).
+  //  * We also add information from the parent, because a refKey may occur multiple
+  //  * times in a tree.
+  //  */
+  // calcUniqueKey() {
+  //   // Assuming that the parent's key was calculated the same way, we implicitly
+  //   // involve the whole refKey-path:
+  //   const s = this.key + (this.refKey || this.title);
+  //   // 32-bit has a high probability of collisions, so we pump up to 64-bit
+  //   // https://security.stackexchange.com/q/209882/207588
+  //   const h1 = util.murmurHash3(s, true);
+  //   return "id_" + h1 + util.murmurHash3(h1 + s, true);
+  //   // const l = [];
+  //   // // eslint-disable-next-line  @typescript-eslint/no-this-alias
+  //   // let node: WunderbaumNode = this;
+  //   // while (node.parent) {
+  //   //   l.unshift(node.refKey || node.key);
+  //   //   node = node.parent;
+  //   // }
+  //   // const path = l.join("/");
+  //   // 32-bit has a high probability of collisions, so we pump up to 64-bit
+  //   // https://security.stackexchange.com/q/209882/207588
+  //   // const h1 = util.murmurHash3(path, true);
+  //   // return "id_" + h1 + util.murmurHash3(h1 + path, true);
+  // }
 
   /**
    * Trigger a repaint, typically after a status or data change.

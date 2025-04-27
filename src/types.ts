@@ -509,21 +509,6 @@ export interface ColumnDefinition {
 export type ColumnDefinitionList = Array<ColumnDefinition>;
 
 /**
- * Used by {@link Wunderbaum.getState} and {@link Wunderbaum.setState}.
- */
-export interface TreeStateDefinition {
-  /** The active node's key if any. */
-  activeKey: string | null;
-  /** The active column index if any. */
-  activeColIdx: number | null;
-  /** List of selected node's keys. */
-  selectedKeys: Array<string> | undefined;
-  /** List of expanded node's keys. */
-  expandedKeys: Array<string> | undefined;
-  /** List of checked node's keys. */
-}
-
-/**
  * Column information (passed to the `render` event).
  */
 export interface ColumnEventInfo {
@@ -764,8 +749,7 @@ export interface FilterNodesOptions {
   /**Hide expanders if all child nodes are hidden by filter @default false */
   hideExpanders?: boolean;
   /** Highlight matches by wrapping inside `<mark>` tags.
-   * Does not work for filter callbacks.
-   *  @default true
+   * Does not work for filter callbacks.  @default true
    */
   highlight?: boolean;
   /** Match end nodes only @default false */
@@ -778,11 +762,11 @@ export interface FilterNodesOptions {
 
 /** Possible values for {@link Wunderbaum.getState}. */
 export interface GetStateOptions {
-  // /** Include the activated key. @default true */
-  // activeKey?: boolean;
-  /** Include the expanded keys. @default true */
+  /** Include the active node's key (and expand its parents). @default true */
+  activeKey?: boolean;
+  /** Include the expanded keys. @default false */
   expandedKeys?: boolean;
-  /** Include the selected keys. @default true */
+  /** Include the selected keys. @default false */
   selectedKeys?: boolean;
 }
 
@@ -790,6 +774,28 @@ export interface GetStateOptions {
 export interface SetStateOptions {
   /** Recursively load lazy nodes as needed. @default false */
   expandLazy?: boolean;
+}
+
+/** Used by {@link Wunderbaum.getState} and {@link Wunderbaum.setState}. */
+export interface TreeStateDefinition {
+  /** List of expanded node's keys. */
+  expandedKeys: Array<string> | undefined;
+  /** The active node's key if any. */
+  activeKey: string | null;
+  /** The active column index if any. */
+  activeColIdx: number | null;
+  /** List of selected node's keys. */
+  selectedKeys: Array<string> | undefined;
+}
+
+/** Possible values for {@link Wunderbaum.loadLazyNodes} `options` argument. */
+export interface LoadLazyNodesOptions {
+  /** Expand node (otherwise load, but keep collapsed). @default true */
+  expand?: boolean;
+  /** Force reloading even if already loaded. @default false */
+  force?: boolean;
+  /** Do not send events. @default false */
+  noEvents?: boolean;
 }
 
 /** Possible values for {@link WunderbaumNode.makeVisible}. */
@@ -926,6 +932,16 @@ export interface SetStatusOptions {
   message?: string;
   /** Used as tooltip. */
   details?: string;
+}
+
+/**
+ * Possible values for {@link Wunderbaum.reload} `options` argument.
+ */
+export interface ReloadOptions {
+  /** Load this source instead. @default initial source (if loaded via ajax) */
+  source?: SourceType;
+  /** Reactivate currently active node if any. @default true */
+  reactivate?: boolean;
 }
 
 /**
