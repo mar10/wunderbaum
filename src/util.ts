@@ -177,7 +177,7 @@ export function each(
   return obj;
 }
 
-/** Shortcut for `throw new Error(msg)`.*/
+/** Shortcut for `throw new Error(msg)`. */
 export function error(msg: string) {
   throw new Error(msg);
 }
