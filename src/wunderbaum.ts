@@ -58,6 +58,7 @@ import {
   EditOptionsType,
   DndOptionsType,
   ReloadOptions,
+  LoadLazyNodesOptions,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -129,7 +130,7 @@ export class Wunderbaum {
 
   protected _activeNode: WunderbaumNode | null = null;
   protected _focusNode: WunderbaumNode | null = null;
-  protected _initial_ajax_source: SourceType | null = null;
+  protected _initial_source: SourceType | null = null;
 
   /** Currently active node if any.
    * Use {@link WunderbaumNode.setActive|setActive} to modify.
@@ -1208,20 +1209,36 @@ export class Wunderbaum {
   /** Run code, but defer rendering of viewport until done.
    *
    * ```js
-   * tree.runWithDeferredUpdate(() => {
-   *   return someFuncThatWouldUpdateManyNodes();
+   * const res = tree.runWithDeferredUpdate(() => {
+   *   return someFunctionThatWouldUpdateManyNodes();
    * });
    * ```
    */
-  runWithDeferredUpdate(func: () => any, hint = null): any {
+  runWithDeferredUpdate<T>(func: () => util.NotPromise<T>): T {
     try {
       this.enableUpdate(false);
       const res = func();
       util.assert(
         !(res instanceof Promise),
-        `Promise return not allowed: ${res}`
+        `Promise return not allowed (see 'runWithDeferredUpdateAsync()'): ${res}`
       );
       return res;
+    } finally {
+      this.enableUpdate(true);
+    }
+  }
+  /** Run code, but defer rendering of viewport until done.
+   *
+   * ```js
+   * const res = await tree.runWithDeferredUpdate(async () => {
+   *   return someAsyncFunctionThatWouldUpdateManyNodes();
+   * });
+   * ```
+   */
+  async runWithDeferredUpdateAsync<T>(func: () => Promise<T>): Promise<T> {
+    try {
+      this.enableUpdate(false);
+      return await func();
     } finally {
       this.enableUpdate(true);
     }
@@ -1713,7 +1730,7 @@ export class Wunderbaum {
 
   /** Return true if any node title or grid cell is currently beeing edited.
    *
-   * See also {@link Wunderbaum.isEditingTitle}.
+   * See also {@link isEditingTitle}.
    */
   isEditing(): boolean {
     const focusElem = this.nodeListElement.querySelector(
@@ -1724,7 +1741,7 @@ export class Wunderbaum {
 
   /** Return true if any node is currently in edit-title mode.
    *
-   * See also {@link WunderbaumNode.isEditingTitle} and {@link Wunderbaum.isEditing}.
+   * See also {@link WunderbaumNode.isEditingTitle} and {@link isEditing}.
    */
   isEditingTitle(): boolean {
     return this._callMethod("edit.isEditingTitle");
@@ -1747,7 +1764,7 @@ export class Wunderbaum {
   }
 
   /** Write to `console.log` with tree name as prefix if opts.debugLevel >= 4.
-   * @see {@link Wunderbaum.logDebug}
+   * @see {@link logDebug}
    */
   log(...args: any[]) {
     if (this.options.debugLevel! >= 4) {
@@ -1757,7 +1774,7 @@ export class Wunderbaum {
 
   /** Write to `console.debug`  with tree name as prefix if opts.debugLevel >= 4.
    * and browser console level includes debug/verbose messages.
-   * @see {@link Wunderbaum.log}
+   * @see {@link log}
    */
   logDebug(...args: any[]) {
     if (this.options.debugLevel! >= 4) {
@@ -1992,47 +2009,66 @@ export class Wunderbaum {
 
   /** Return the current selection/expansion/activation status. @experimental */
   getState(options: GetStateOptions = {}): TreeStateDefinition {
-    let expandedKeys = undefined;
-    if (options.expandedKeys !== false) {
-      expandedKeys = [];
+    const {
+      activeKey = true,
+      expandedKeys = false,
+      selectedKeys = false,
+    } = options;
+
+    const expandSet = new Set<string>();
+
+    if (expandedKeys) {
       for (const node of this) {
-        if (node.expanded) {
-          expandedKeys.push(node.key);
+        if (node.isExpanded() && node.hasChildren()) {
+          expandSet.add(node.key);
         }
       }
     }
+    // Parents of active node are always expanded
+    if (activeKey && this.activeNode) {
+      this.activeNode.visitParents((n) => {
+        if (n.parent) {
+          expandSet.add(n.key);
+        }
+      }, false);
+    }
 
     const state: TreeStateDefinition = {
+      expandedKeys: expandSet.size ? Array.from(expandSet) : undefined,
       activeKey: this.activeNode?.key ?? null,
-      activeKeyPath: this.activeNode
-        ? this.activeNode.getPath(true, "key")
-        : null,
       activeColIdx: this.activeColIdx,
-      selectedKeys:
-        options.selectedKeys === false
-          ? undefined
-          : this.getSelectedNodes().flatMap((n) => n.key),
-      expandedKeys: expandedKeys,
+      selectedKeys: selectedKeys
+        ? this.getSelectedNodes().flatMap((n) => n.key)
+        : undefined,
     };
     return state;
   }
 
   /** Apply selection/expansion/activation status. @experimental */
   async setState(state: TreeStateDefinition, options: SetStateOptions = {}) {
-    this.runWithDeferredUpdate(() => {
+    const { expandLazy = true } = options;
+    return this.runWithDeferredUpdateAsync(async () => {
+      if (state.expandedKeys && state.expandedKeys.length) {
+        if (expandLazy) {
+          // Expand all keys recursively, even if they are not in the tree yet
+          await this._loadLazyNodes(state.expandedKeys, {
+            expand: true,
+            noEvents: true,
+          });
+        } else {
+          for (const key of state.expandedKeys) {
+            this.findKey(key)?.setExpanded(true);
+          }
+        }
+      }
+      if (state.activeKey) {
+        this.setActiveNode(state.activeKey);
+      }
       if (state.selectedKeys) {
         this.selectAll(false);
         for (const key of state.selectedKeys) {
           this.findKey(key)?.setSelected(true);
         }
-      }
-      if (state.expandedKeys) {
-        for (const key of state.expandedKeys) {
-          this.findKey(key)?.setExpanded(true);
-        }
-      }
-      if (state.activeKey) {
-        this.setActiveNode(state.activeKey);
       }
       if (this.isCellNav() && state.activeColIdx != null) {
         this.setColumn(state.activeColIdx);
@@ -2959,13 +2995,7 @@ export class Wunderbaum {
    */
   async load(source: SourceType) {
     this.clear();
-    this._initial_ajax_source =
-      typeof source === "string" ||
-      (typeof source === "object" &&
-        "url" in source &&
-        typeof source.url === "string")
-        ? source
-        : null;
+    this._initial_source = source;
     return this.root.load(source);
   }
 
@@ -2977,17 +3007,58 @@ export class Wunderbaum {
    * @experimental
    */
   async reload(options: ReloadOptions = {}) {
-    const source = options.source ?? this._initial_ajax_source;
+    const { source = this._initial_source, reactivate = true } = options;
     if (!source) {
       this.logWarn("No previous ajax source to reload.");
       return;
     }
-    if (options.reactivate === false) {
+    if (!reactivate) {
       return this.load(source);
     }
     const state = this.getState();
     await this.load(source);
     return this.setState(state);
+  }
+
+  /**
+   * Make sure that all nodes in the given keyList are accessible.
+   * This may include loading lazy parent nodes.
+   * Recursively load (and optionally expand) all requested node paths.
+   */
+  protected async _loadLazyNodes(
+    keyList: string[],
+    options: LoadLazyNodesOptions = {}
+  ) {
+    const { expand = true } = options;
+    const keySet = new Set<string>(keyList);
+
+    // Make sure that all parent nodes are loaded (and expand if requested)
+    while (keySet.size > 0) {
+      const pendingNodes: Promise<void>[] = [];
+      const curSet = new Set(keySet);
+      for (const key of curSet) {
+        const node = this.findKey(key);
+        if (!node) {
+          continue; // key not yet found (need to load lazy parent?)
+        }
+        keySet.delete(key);
+        if (expand) {
+          pendingNodes.push(node.setExpanded(true));
+        } else if (node.isUnloaded()) {
+          pendingNodes.push(node.loadLazy());
+        }
+        if (node._rowElem) {
+          node._render(); // show spinner even is update is suppressed
+        }
+      }
+      if (pendingNodes.length === 0) {
+        // will not load any more nodes, so if if there are still keys
+        // left in the set, we will never find them
+        this.logWarn(`Could not expand ${keySet.size} nodes:`, keySet);
+        break;
+      }
+      await Promise.allSettled(pendingNodes);
+    }
   }
 
   /**

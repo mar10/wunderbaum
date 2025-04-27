@@ -336,9 +336,16 @@ export class WunderbaumNode {
         applyMinExpanLevel && _level < tree.options.minExpandLevel;
       for (const child of <WbNodeData[]>nodeData) {
         const subChildren = child.children;
+        // Remove children property from source data because it should not be
+        // passed to the constructor of WunderbaumNode:
         delete child.children;
 
         const n = new WunderbaumNode(tree, this, child);
+
+        // Set `children` property again, so it can be used in `reload()`
+        if (subChildren != null) {
+          child.children = subChildren;
+        }
         if (forceExpand && !n.isUnloaded()) {
           n.expanded = true;
         }
@@ -2217,6 +2224,7 @@ export class WunderbaumNode {
   async setExpanded(flag: boolean = true, options?: SetExpandedOptions) {
     const { force, scrollIntoView, immediate, resetLazy } = options ?? {};
     const sendEvents = !options?.noEvents; // Default: send events
+
     if (
       !flag &&
       this.isExpanded() &&

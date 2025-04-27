@@ -36,6 +36,8 @@ const ENTITY_MAP: { [key: string]: string } = {
   "/": "&#x2F;",
 };
 
+export type NotPromise<T> = T extends Promise<any> ? never : T;
+
 export type FunctionType = (...args: any[]) => any;
 export type EventCallbackType = (e: Event) => boolean | void;
 type PromiseCallbackType = (val: any) => void;
