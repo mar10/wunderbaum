@@ -132,7 +132,7 @@ export class Wunderbaum {
 
   protected _activeNode: WunderbaumNode | null = null;
   protected _focusNode: WunderbaumNode | null = null;
-  protected _initial_source: SourceType | null = null;
+  protected _initialSource: SourceType | null = null;
 
   /** Currently active node if any.
    * Use {@link WunderbaumNode.setActive|setActive} to modify.
@@ -3027,7 +3027,7 @@ export class Wunderbaum {
    */
   async load(source: SourceType) {
     this.clear();
-    this._initial_source = source;
+    this._initialSource = source;
     return this.root.load(source);
   }
 
@@ -3039,7 +3039,7 @@ export class Wunderbaum {
    * @experimental
    */
   async reload(options: ReloadOptions = {}) {
-    const { source = this._initial_source, reactivate = true } = options;
+    const { source = this._initialSource, reactivate = true } = options;
     if (!source) {
       this.logWarn("No previous ajax source to reload.");
       return;
