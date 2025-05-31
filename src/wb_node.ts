@@ -2867,6 +2867,21 @@ export class WunderbaumNode {
   }
 
   /**
+   * Re-apply current sorting if any (use after lazy load).
+   * @since 0.14.0
+   */
+  resort(options: SortOptions = {}): void {
+    for (const colDef of this.tree.columns) {
+      if (colDef.sortOrder) {
+        options.colId = colDef.id;
+        options.order = colDef.sortOrder;
+        this.sort(options);
+        break;
+      }
+    }
+  }
+
+  /**
    * Trigger `modifyChild` event on a parent to signal that a child was modified.
    * @param {string} operation Type of change: 'add', 'remove', 'rename', 'move', 'data', ...
    */
