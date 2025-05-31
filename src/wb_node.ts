@@ -2754,7 +2754,6 @@ export class WunderbaumNode {
       key = undefined,
       order = undefined,
       caseInsensitive = true,
-      foldersFirst = false,
       cmp = undefined,
       // Support click on column sort header:
       updateColInfo = false,
@@ -2767,8 +2766,11 @@ export class WunderbaumNode {
       propName = "title";
     }
 
-    const isFolder = (node: WunderbaumNode) =>
-      node.hasChildren() !== false || node.type === NODE_TYPE_FOLDER;
+    const isFolder =
+      tree.options.sortFoldersFirst === true
+        ? (node: WunderbaumNode) =>
+            node.hasChildren() !== false || node.type === NODE_TYPE_FOLDER
+        : tree.options.sortFoldersFirst;
 
     if (updateColInfo) {
       const colDef = this.tree["_columnsById"][options.colId!];
@@ -2819,7 +2821,7 @@ export class WunderbaumNode {
       }
 
       cmp = (a, b) => {
-        if (foldersFirst) {
+        if (isFolder) {
           const isFolderA = isFolder(a);
           if (isFolderA !== isFolder(b)) {
             return isFolderA ? -1 : 1;

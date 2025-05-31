@@ -957,7 +957,8 @@ export interface ResetOrderOptions {
 }
 
 /**
- * Possible values for {@link WunderbaumNode.sort} `options` argument.
+ * Possible values for {@link Wunderbaum.sort} and {@link WunderbaumNode.sort}
+ * `options` argument.
  */
 export interface SortOptions {
   /** The name of the node property that will be used for sorting.
@@ -972,14 +973,15 @@ export interface SortOptions {
    */
   cmp?: SortCallback;
   /** Sort order 'asc' or 'desc'.
-   * @default 'asc' (or if `updateColInfo` is true, the rotated status of the column definition. */
+   * @default 'asc' (or if `updateColInfo` is true, the rotated status of the
+   * column definition.
+   * See also {@link WunderbaumOptions.sortFoldersFirst}.
+   */
   order?: SortOrderType;
   /** Sort descendants recursively. @default true */
   deep?: boolean;
   /** Sort string values case insensitive. @default false */
   caseInsensitive?: boolean;
-  /** Group nodes with children or of `type: 'folder'` at the top. @default false */
-  foldersFirst?: boolean;
   /**
    * Sort by this property if order is `undefined`.
    * See also {@link WunderbaumNode.resetNativeChildOrder}.

@@ -207,6 +207,16 @@ export interface WunderbaumOptions {
    * @since 0.11.0
    */
   columnsSortable?: boolean;
+  /**
+   * Group nodes with children or of `type: 'folder'` at the top when sorting.
+   * If a function is passed, it is called with the node as argument to determine
+   * whether the node is a folder or not. The function should return `true` for
+   * folders.
+   * and should return `true` for folders.
+   * @default false
+   * @since 0.14.0
+   */
+  sortFoldersFirst?: DynamicBoolOption;
 
   // --- Selection ---
   /**

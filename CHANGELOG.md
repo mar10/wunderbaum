@@ -11,7 +11,7 @@ First release.
 
   - Deprecate `sortChildren()` and `sortByProperty()` in favor of `sort()`.
   - Add `key` callback argument and deprecate `cmp`.
-  - Add `foldersFirst` option.
+  - Add `tree.options.sortFoldersFirst` option.
 
 - v0.13.1: Add `tree.reload()`.
 - v0.13.1: Add tree option `autoKeys`.
