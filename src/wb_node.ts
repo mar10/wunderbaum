@@ -2767,7 +2767,8 @@ export class WunderbaumNode {
       propName = "title";
     }
 
-    // updateColInfo: Assume user clicked a colmúmn header to toggle sorting:
+    const isFolder = (node: WunderbaumNode) =>
+      node.hasChildren() !== false || node.type === NODE_TYPE_FOLDER;
 
     if (updateColInfo) {
       const colDef = this.tree["_columnsById"][options.colId!];
@@ -2802,15 +2803,6 @@ export class WunderbaumNode {
         if (caseInsensitive && typeof val === "string") {
           val = val.toLowerCase();
         }
-        if (foldersFirst && propName !== nativeOrderPropName) {
-          // return a tuple with 'is dir' prefix
-          val = [
-            node.hasChildren() !== false || node.type === NODE_TYPE_FOLDER
-              ? 0
-              : 1,
-            val,
-          ];
-        }
         return val;
       };
     }
@@ -2825,7 +2817,14 @@ export class WunderbaumNode {
       if (options.propName || options.caseInsensitive) {
         tree.logWarn("sort(): ignoring propName, caseInsensitive");
       }
+
       cmp = (a, b) => {
+        if (foldersFirst) {
+          const isFolderA = isFolder(a);
+          if (isFolderA !== isFolder(b)) {
+            return isFolderA ? -1 : 1;
+          }
+        }
         let x = key!(a);
         let y = key!(b);
         // Assure we have reasonable comparisons with null values:
