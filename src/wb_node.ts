@@ -2870,6 +2870,13 @@ export class WunderbaumNode {
 
   /**
    * Re-apply current sorting if any (use after lazy load).
+   * Example:
+   * ```js
+   * load: function (e) {
+   *   // Whe loading a lazy branch, apply current sort order if any
+   *   e.node.resort();
+   * },
+   * ```
    * @since 0.14.0
    */
   resort(options: SortOptions = {}): void {
