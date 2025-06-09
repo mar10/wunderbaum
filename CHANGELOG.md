@@ -8,22 +8,21 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.14.0: Refactor sorting:
-
   - Deprecate `sortChildren()` and `sortByProperty()` in favor of `sort()`.
   - Add `key` callback argument and deprecate `cmp`.
   - Add `tree.options.sortFoldersFirst` option.
-
-- v0.13.1: Add `tree.reload()`.
-- v0.13.1: Add tree option `autoKeys`.
-- v0.13.1: Don't open file in browser when dropped in empty area.
-- v0.13.1: Fix icon when expanding an empty lazy node.
-- v0.13.1: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
+  - Add `tree.resort()`.
+- v0.14.0: Add `tree.reload()`.
+- v0.14.0: Add tree option `autoKeys`.
+- v0.14.0: Don't open file in browser when dropped in empty area.
+- v0.14.0: Fix icon when expanding an empty lazy node.
+- v0.14.0: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
   Focus on click.
-- v0.13.1: Add `dataTransfer` to `DropEventType`.
-- v0.13.1: Add `tree.children` and `tree.parent` getters.
-- v0.13.1: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
-- v0.13.1: Support HTML string for `iconMap.expander...` properties.
-- v0.13.1: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
+- v0.14.0: Add `dataTransfer` to `DropEventType`.
+- v0.14.0: Add `tree.children` and `tree.parent` getters.
+- v0.14.0: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
+- v0.14.0: Support HTML string for `iconMap.expander...` properties.
+- v0.14.0: Expose `Wunderbaum.iconMaps` to be used as defaults for `iconMap` when
   passing partial maps.
   Deprecate `Wunderbaum.iconMap` getter in favor of `iconMaps`.
 
