@@ -2573,9 +2573,11 @@ export class WunderbaumNode {
         this.selected = flag;
         if (selectMode === "hier") {
           this.fixSelection3AfterClick();
-        } else if (selectMode === "single") {
+        } else if (selectMode === "single" && flag) {
           tree.visit((n) => {
-            n.selected = false;
+            if (n !== this) {
+              n.selected = false;
+            }
           });
         }
       }
