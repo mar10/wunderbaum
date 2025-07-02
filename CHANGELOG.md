@@ -18,6 +18,8 @@ First release.
 - v0.14.0: Fix icon when expanding an empty lazy node.
 - v0.14.0: Fix [#129](https://github.com/mar10/wunderbaum/issues/129)
   Focus on click.
+- v0.14.0: Fix [#136)(https://github.com/mar10/wunderbaum/issues/136)
+  Fix behavior of setSelected in "single" selectMode.
 - v0.14.0: Add `dataTransfer` to `DropEventType`.
 - v0.14.0: Add `tree.children` and `tree.parent` getters.
 - v0.14.0: Add `tree.getRefKeys(selected)` and `node.getRefKeys(selected)` methods.
