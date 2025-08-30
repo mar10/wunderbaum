@@ -229,3 +229,8 @@ source: {
     ]
 },
 ```
+
+!!! info "See also"
+
+    This [forum comment](https://github.com/mar10/wunderbaum/discussions/137#discussioncomment-13737321)
+    for an example of how to use the flat format.
