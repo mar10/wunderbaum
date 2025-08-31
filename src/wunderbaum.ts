@@ -534,7 +534,6 @@ export class Wunderbaum {
           } else {
             node.setActive(true, { event: e });
           }
-          node.setFocus();
         }
       }
       this.lastClickTime = Date.now();
