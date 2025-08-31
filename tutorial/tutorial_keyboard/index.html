@@ -1,0 +1,1620 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+        <meta name="author" content="Martin Wendt">
+      
+      
+        <link rel="canonical" href="https://mar10.github.io/wunderbaum/tutorial/tutorial_keyboard/">
+      
+      
+        <link rel="prev" href="../tutorial_filter/">
+      
+      
+        <link rel="next" href="../tutorial_api/">
+      
+      
+      <link rel="icon" href="../../assets/favicon/favicon.ico">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.6.18">
+    
+    
+      
+        <title>Keyboard - Wunderbaum</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.7e37652d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+<script id="__analytics">function __md_analytics(){function e(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],e("js",new Date),e("config","G-W8EGCZFQ00"),document.addEventListener("DOMContentLoaded",(function(){document.forms.search&&document.forms.search.query.addEventListener("blur",(function(){this.value&&e("event","search",{search_term:this.value})}));document$.subscribe((function(){var t=document.forms.feedback;if(void 0!==t)for(var a of t.querySelectorAll("[type=submit]"))a.addEventListener("click",(function(a){a.preventDefault();var n=document.location.pathname,d=this.getAttribute("data-md-value");e("event","feedback",{page:n,data:d}),t.firstElementChild.disabled=!0;var r=t.querySelector(".md-feedback__note [data-md-value='"+d+"']");r&&(r.hidden=!1)})),t.hidden=!1})),location$.subscribe((function(t){e("config","G-W8EGCZFQ00",{page_path:t.pathname})}))}));var t=document.createElement("script");t.async=!0,t.src="https://www.googletagmanager.com/gtag/js?id=G-W8EGCZFQ00",document.getElementById("__analytics").insertAdjacentElement("afterEnd",t)}</script>
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#keyboard-navigation" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="Wunderbaum" class="md-header__button md-logo" aria-label="Wunderbaum" data-md-component="logo">
+      
+  <img src="../../assets/tree_logo_32.png" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Wunderbaum
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Keyboard
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m14.3 16-.7-2h-3.2l-.7 2H7.8L11 7h2l3.2 9zM20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12zm-9.15 3.96h2.3L12 9z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: light)" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_2" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="(prefers-color-scheme: dark)" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to system preference"  type="radio" name="__palette" id="__palette_2">
+    
+      <label class="md-header__button md-icon" title="Switch to system preference" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/mar10/wunderbaum" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+    
+      
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../.." class="md-tabs__link">
+          
+  
+  
+    
+  
+  User Guide
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://mar10.github.io/wunderbaum/api/index.html" class="md-tabs__link">
+        
+  
+  
+    
+  
+  API Reference
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://mar10.github.io/wunderbaum/demo/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Online Demos
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Changelog
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Wunderbaum" class="md-nav__button md-logo" aria-label="Wunderbaum" data-md-component="logo">
+      
+  <img src="../../assets/tree_logo_32.png" alt="logo">
+
+    </a>
+    Wunderbaum
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/mar10/wunderbaum" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.0.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+          
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+        
+        
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        
+          
+          <div class="md-nav__link md-nav__container">
+            <a href="../.." class="md-nav__link ">
+              
+  
+  
+  <span class="md-ellipsis">
+    User Guide
+    
+  </span>
+  
+
+            </a>
+            
+              
+              <label class="md-nav__link " for="__nav_1" id="__nav_1_label" tabindex="">
+                <span class="md-nav__icon md-icon"></span>
+              </label>
+            
+          </div>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1">
+            <span class="md-nav__icon md-icon"></span>
+            User Guide
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../quick_start/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Quick start
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_initialize/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Initialization
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_source/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Data Formats
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+          
+          
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_1_5" id="__nav_1_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    Features
+    
+  </span>
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_1_5">
+            <span class="md-nav__icon md-icon"></span>
+            Features
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_render/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Render
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_styling/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Styling
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_grid/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Grid
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_edit/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Edit
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_dnd/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Drag'n'Drop
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_select/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Select
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_events/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Events
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_filter/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Filter
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    Keyboard
+    
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    Keyboard
+    
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-keyboard-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Keyboard Navigation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Keyboard Navigation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#navigation-in-row-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Navigation in Row Mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation-in-cell-nav-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Navigation in Cell-Nav Mode
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-and-customization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration and Customization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration and Customization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-tree-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Tree Options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Methods
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-css-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related CSS Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-hacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Hacks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tutorial_api/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Concepts
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrate/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Migration
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../contribute/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Contribute
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://mar10.github.io/wunderbaum/api/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    API Reference
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://mar10.github.io/wunderbaum/demo/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Online Demos
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    Changelog
+    
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#general-keyboard-navigation" class="md-nav__link">
+    <span class="md-ellipsis">
+      General Keyboard Navigation
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="General Keyboard Navigation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#navigation-in-row-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Navigation in Row Mode
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#navigation-in-cell-nav-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      Navigation in Cell-Nav Mode
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#configuration-and-customization" class="md-nav__link">
+    <span class="md-ellipsis">
+      Configuration and Customization
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration and Customization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#related-tree-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Tree Options
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-methods" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related Methods
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#related-css-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      Related CSS Rules
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#code-hacks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Code Hacks
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="keyboard-navigation">Keyboard Navigation<a class="headerlink" href="#keyboard-navigation" title="Permanent link">#</a></h1>
+<div class="admonition abstract">
+<p class="admonition-title">TL;DR</p>
+<p>Wunderbaum tree and treegrid is navigable using keyboard shortcuts.
+Different navigation modes are available.</p>
+</div>
+<p>The option <code>keyboard: true</code> enables standard keyboard navigation.</p>
+<div class="admonition info">
+<p class="admonition-title">See also</p>
+<p>See also a <a href="https://mar10.github.io/wunderbaum/demo/#demo-editable">live demo</a>
+and use the keyboard to navigate, expand, and edit grid cells.</p>
+</div>
+<h2 id="general-keyboard-navigation">General Keyboard Navigation<a class="headerlink" href="#general-keyboard-navigation" title="Permanent link">#</a></h2>
+<p>We distinguish node states 'focused', 'active', and 'selected'.<br>
+<code>setFocus()</code> only sets a dotted border around the node. When <code>autoActivate</code>
+is enabled (which is on by default), the node also gets activated.<br>
+A node becomes 'selected', when the checkbox is checked.</p>
+<p>A tree can have one of two navigation modes. We can toggle using the keyboard:</p>
+<p><em>Row Mode</em> &harr; <em>Cell-Nav Mode</em></p>
+<p>The initial mode, and if modes can be switched, is controlled by the
+<code>navigationModeOption</code> option:<br>
+If the tree has only one column, or if <em>navigationModeOption</em> is <code>"row"</code>,
+Row Mode is obligatory.
+If the value is <code>"cell"</code>, Cell-Nav Mode is obligatory.<br>
+A value of <code>"startCell"</code> or <code>"startRow"</code> allows switching.</p>
+<h3 id="navigation-in-row-mode">Navigation in <strong>Row Mode</strong><a class="headerlink" href="#navigation-in-row-mode" title="Permanent link">#</a></h3>
+<p>In <em>row mode</em>, Wunderbaum behaves like a simple tree. Even if multiple columns
+are present, always the whole row is highlighted.</p>
+<table>
+<thead>
+  <tr>
+    <th>Windows</th>
+    <th>macOS</th>
+    <th>Function</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
+    <td>Jump to next matching node, i.e. title starts with this character (if `quicksearch` is true).</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd> + <kbd>Tab</kbd></td>
+    <td>Leave the Wunderbaum tree control and focus next/previous control on the page.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>+</kbd> / <kbd>-</kbd></td>
+    <td>Expand/collapse node</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Space</kbd></td>
+    <td>Toggle <i>selected</i> status if <i>checkbox</i> option is on.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>F2</kbd></td>
+    <td>Edit node title.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Enter</kbd></td>
+    <td>
+      If node is active and expandable: toggle expansion.<br>
+      <b>Note:</b>
+      Behaves as alias for <kbd>F2</kbd> on macOS if <i>edit.trigger</i> option list
+      contains "macEnter".<br>
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Escape</kbd></td>
+    <td>Discard edit title operation if any.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Backspace</kbd></td>
+    <td>Set focus to parent node.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowLeft</kbd></td>
+    <td>
+      If expanded: collapse. Otherwise set focus to parent node.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowRight</kbd></td>
+    <td>
+      If collapsed: expand. <br>
+      Otherwise switch to &rarr;<b>Cell-Nav Mode</b>.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowUp</kbd></td>
+    <td>Set focus to previous sibling (or parent if already on first sibling).</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>ArrowDown</kbd></td>
+    <td>Set focus to next visible node.</td>
+  </tr>
+  <tr>
+    <td><kbd>Ctrl</kbd> + <kbd>Arrow&hellip;</kbd></td>
+    <td><kbd>⌘</kbd> + <kbd>Arrow&hellip;</kbd></td>
+    <td>
+      Same as plain <kbd>Arrow&hellip;</kbd>, but only sets the focus, even if
+      <i>autoActivate</i> option is on.
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>Home</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowLeft</kbd></td>
+    <td>
+      &mdash;
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>End</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowRight</kbd></td>
+    <td>
+      &mdash;
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>PageUp</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowUp</kbd></td>
+    <td>
+      Select top row in viewport or scroll one page upwards if we are already
+      at the top.
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>PageDown</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowDown</kbd></td>
+    <td>
+      Select bottom row in viewport or scroll one page down if we are already
+      at the bottom.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Ctrl</kbd> + <kbd>Home</kbd>,<br>
+      <kbd>Ctrl</kbd> + <kbd>End</kbd>
+    </td>
+    <td>
+      <kbd>⌘</kbd> + <kbd>ArrowUp</kbd>,<br>
+      <kbd>⌘</kbd> + <kbd>ArrowDown</kbd>
+    </td>
+    <td>Select first / last row.</td>
+  </tr>
+
+</tbody>
+</table>
+
+<h3 id="navigation-in-cell-nav-mode">Navigation in <strong>Cell-Nav Mode</strong><a class="headerlink" href="#navigation-in-cell-nav-mode" title="Permanent link">#</a></h3>
+<p><em>Cell-Nav mode</em> is only available, when multiple columns are defined.
+In this mode we navigate the single grid cells in read-only mode mostly. <br>
+However, if the cell contains an embedded <code>&lt;input&gt;</code> element,
+we can focus that control and edit its content.</p>
+<table>
+<thead>
+  <tr>
+    <th>Windows</th>
+    <th>macOS</th>
+    <th>Function</th>
+  </tr>
+</thead>
+<tbody>
+  <tr>
+    <td colspan=2 align=center><kbd>+</kbd> / <kbd>-</kbd></td>
+    <td>Expand/collapse node if the title column is highlighted.</td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center>
+      <kbd>ArrowUp</kbd>, <kbd>ArrowDown</kbd>, <kbd>ArrowLeft</kbd>, <kbd>ArrowRight</kbd>
+    </td>
+    <td>
+      Navigate to adjacent cell.<br>
+      <kbd>ArrowLeft</kbd> on the leftmost column switches to &rarr;<b>Row Mode</b>.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center>
+      <kbd>Tab</kbd>,
+      <kbd>Shift</kbd> + <kbd>Tab</kbd>
+    </td>
+    <td>
+      Move to adjacent cell.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Escape</kbd></td>
+    <td>
+      If the focus is inside an embedded <code>&lt;input&gt;</code> element:
+      discard changes and set focus to the outer cell.<br>
+      Otherwise switch to &rarr;<b>Row Mode</b>.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>F2</kbd></td>
+    <td>
+      Edit the current grid cell.
+      If the title column is highlighted, edit the node title.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Enter</kbd></td>
+    <td>
+      If on the first column and node is expandable: toggle expansion.<br>
+      If the cell contains an embedded <code>&lt;input&gt;</code> element:
+      set focus into that input control.<br>
+      If the input control already had the focus, accept the entered data.<br>
+      <b>Note:</b>
+      <kbd>Enter</kbd> behaves as alias for <kbd>F2</kbd> on macOS if the
+      <i>edit.trigger</i> option list contains "macEnter".
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
+    <td>
+      If the cell contains an embedded <code>&lt;input&gt;</code> element:
+      start editing its value.
+    </td>
+  </tr>
+  <tr>
+    <td colspan=2 align=center><kbd>Space</kbd></td>
+    <td>
+      Toggle value if current cell contains a checkbox.
+      Toggle node selection if current cell is in the title column.
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>Home</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowLeft</kbd></td>
+    <td> Select leftmost cell. </td>
+  </tr>
+  <tr>
+    <td><kbd>End</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowRight</kbd></td>
+    <td> Select rightmost cell. </td>
+  </tr>
+  <tr>
+    <td><kbd>PageUp</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowUp</kbd></td>
+    <td>
+      Select top cell in viewport or scroll one page upwards if we are already
+      at the top.
+    </td>
+  </tr>
+  <tr>
+    <td><kbd>PageDown</kbd></td>
+    <td><kbd>Fn</kbd> + <kbd>ArrowDown</kbd></td>
+    <td>
+      Select bottom cell in viewport or scroll one page down if we are already
+      at the bottom.
+    </td>
+  </tr>
+  <tr>
+    <td>
+      <kbd>Ctrl</kbd> + <kbd>Home</kbd>,<br>
+      <kbd>Ctrl</kbd> + <kbd>End</kbd>
+    </td>
+    <td>
+      <kbd>⌘</kbd> + <kbd>ArrowUp</kbd>,<br>
+      <kbd>⌘</kbd> + <kbd>ArrowDown</kbd>
+    </td>
+    <td>Select top / bottom tree cell.</td>
+  </tr>
+
+</tbody>
+</table>
+
+<h2 id="configuration-and-customization">Configuration and Customization<a class="headerlink" href="#configuration-and-customization" title="Permanent link">#</a></h2>
+<h3 id="related-tree-options">Related Tree Options<a class="headerlink" href="#related-tree-options" title="Permanent link">#</a></h3>
+<div class="language-js highlight"><pre><span></span><code><span class="kd">const</span><span class="w"> </span><span class="nx">tree</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="ow">new</span><span class="w"> </span><span class="nx">Wunderbaum</span><span class="p">({</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="nx">enable</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">autoActivate</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">checkbox</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">navigationModeOption</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;startRow&quot;</span><span class="p">,</span><span class="w">  </span><span class="c1">// | &quot;cell&quot; | &quot;startCell&quot; | &quot;row&quot;</span>
+<span class="w">  </span><span class="nx">quicksearch</span><span class="o">:</span><span class="w"> </span><span class="kc">true</span><span class="p">,</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="c1">// --- Events ---</span>
+<span class="w">  </span><span class="nx">keydown</span><span class="o">:</span><span class="w"> </span><span class="p">(</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="c1">// Return false to prevent default behavior</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="w">  </span><span class="nx">edit</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">trigger</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;F2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;macEnter&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">...],</span>
+<span class="w">    </span><span class="p">...</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="p">});</span>
+</code></pre></div>
+<h3 id="related-methods">Related Methods<a class="headerlink" href="#related-methods" title="Permanent link">#</a></h3>
+<ul>
+<li><code>tree.setNavigationOption(mode: NavModeEnum)</code></li>
+<li><code>tree.setColumn(colIdx: number|string,  options?: SetColumnOptions)</code></li>
+<li><code>tree.setEnabled(flag: boolean)</code></li>
+</ul>
+<h3 id="related-css-rules">Related CSS Rules<a class="headerlink" href="#related-css-rules" title="Permanent link">#</a></h3>
+<div class="language-css highlight"><pre><span></span><code><span class="nt">div</span><span class="p">.</span><span class="nc">wunderbaum</span><span class="p">.</span><span class="nc">wb-grid</span><span class="p">.</span><span class="nc">wb-cell-mode</span><span class="w"> </span><span class="nt">div</span><span class="p">.</span><span class="nc">wb-row</span><span class="p">.</span><span class="nc">wb-active</span><span class="w"> </span><span class="nt">span</span><span class="p">.</span><span class="nc">wb-col</span><span class="p">.</span><span class="nc">wb-active</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="c">/* Highlighted cell in cell-nav mode */</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="code-hacks">Code Hacks<a class="headerlink" href="#code-hacks" title="Permanent link">#</a></h3>
+<div class="language-js highlight"><pre><span></span><code>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../tutorial_filter/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Filter">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                Filter
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../tutorial_api/" class="md-footer__link md-footer__link--next" aria-label="Next: API">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                API
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright © 2021-2025 Martin Wendt,
+Documentation generated with <a href="https://squidfunk.github.io/mkdocs-material/">MkDocs</a>.
+
+    </div>
+  
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      <script id="__config" type="application/json">{"base": "../..", "features": ["content.code.annotate", "content.code.copy", "header.autohide", "navigation.bottom", "navigation.breadcrumbs", "navigation.expand", "navigation.footer", "navigation.indexes", "navigation.path", "navigation.prev_next", "navigation.sections", "navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "toc.follow"], "search": "../../assets/javascripts/workers/search.973d3a69.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.92b07e13.min.js"></script>
+      
+    
+  </body>
+</html>
