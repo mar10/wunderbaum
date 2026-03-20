@@ -52,6 +52,7 @@
     "@rollup/plugin-replace": "^6.0.2",
     "@rollup/plugin-terser": "^0.4.4",
     "@rollup/plugin-typescript": "^12.1.2",
+    "@types/firebase": "^2.4.32",
     "@types/jest": "^29.5.14",
     "@typescript-eslint/eslint-plugin": "^8.24.0",
     "@typescript-eslint/parser": "^8.24.0",
@@ -104,7 +105,7 @@
   "scripts": {
     "test": "npm run lint && npm run build:js && grunt ci --verbose",
     "api_docs": "typedoc && touch docs/api/.nojekyll && rm docs/unittest/*.*; cp test/unit/*.* docs/unittest",
-    "format": "eslint src --fix && prettier src docs/demo -w && npm run lint",
+    "format": "eslint src docs/demo --fix && prettier src docs/demo -w && npm run lint",
     "lint": "prettier src docs/demo --check && eslint src docs/demo && tsc -t esnext --moduleResolution node --noEmit src/wunderbaum.ts",
     "build:minjs:umd": "terser build/wunderbaum.umd.js --compress --mangle --source-map \"base='build',url='wunderbaum.umd.min.js.map',filename='wunderbaum.umd.js'\" --output build/wunderbaum.umd.min.js",
     "build:minjs:esm": "terser build/wunderbaum.esm.js --compress --mangle --source-map \"base='build',url='wunderbaum.esm.min.js.map',filename='wunderbaum.esm.js'\" --output build/wunderbaum.esm.min.js",
