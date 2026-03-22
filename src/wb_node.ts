@@ -213,7 +213,9 @@ export class WunderbaumNode {
     data.colspan != null ? (this.colspan = !!data.colspan) : 0;
 
     // Selection
-    data.checkbox != null ? util.intToBool(data.checkbox) : 0;
+    data.checkbox != null
+      ? (this.checkbox = util.intToBool(data.checkbox) as CheckboxOption)
+      : 0;
     data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
     data.selected != null ? (this.selected = !!data.selected) : 0;
     data.unselectable != null ? (this.unselectable = !!data.unselectable) : 0;
