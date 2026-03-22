@@ -1,7 +1,7 @@
 /*!
  * Wunderbaum - debounce.ts
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 /*
  * debounce & throttle, taken from https://github.com/lodash/lodash v4.17.21
@@ -293,7 +293,7 @@ function throttle(func, wait = 0, options = {}) {
 /*!
  * Wunderbaum - util
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 /** @module util */
 /** Readable names for `MouseEvent.button` */
@@ -1195,7 +1195,7 @@ var util = /*#__PURE__*/Object.freeze({
 /*!
  * Wunderbaum - types
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Possible values for {@link WunderbaumNode.update} and {@link Wunderbaum.update}.
@@ -1263,7 +1263,7 @@ var NavModeEnum;
 /*!
  * Wunderbaum - wb_extension_base
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 class WunderbaumExtension {
     constructor(tree, id, defaults) {
@@ -1322,7 +1322,7 @@ class WunderbaumExtension {
 /*!
  * Wunderbaum - ext-filter
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";
@@ -1717,7 +1717,7 @@ function _markFuzzyMatchedChars(text, matches, escapeTitles = true) {
 /*!
  * Wunderbaum - ext-keynav
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 const QUICKSEARCH_DELAY = 500;
 class KeynavExtension extends WunderbaumExtension {
@@ -2081,7 +2081,7 @@ class KeynavExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-logger
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 class LoggerExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -2123,7 +2123,7 @@ class LoggerExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - ext-dnd
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 const nodeMimeType = "application/x-wunderbaum-node";
 class DndExtension extends WunderbaumExtension {
@@ -2574,7 +2574,7 @@ class DndExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - drag_observer
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Convert mouse- and touch events to 'dragstart', 'drag', and 'dragstop'.
@@ -2723,7 +2723,7 @@ class DragObserver {
 /*!
  * Wunderbaum - common
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 const DEFAULT_DEBUGLEVEL = 3; // Replaced by rollup script
 /**
@@ -3087,7 +3087,7 @@ function decompressSourceData(source) {
 /*!
  * Wunderbaum - ext-grid
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 class GridExtension extends WunderbaumExtension {
     constructor(tree) {
@@ -3178,7 +3178,7 @@ class GridExtension extends WunderbaumExtension {
 /*!
  * Wunderbaum - deferred
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 /**
  * Implement a ES6 Promise, that exposes a resolve() and reject() method.
@@ -3231,7 +3231,7 @@ class Deferred {
 /*!
  * Wunderbaum - wunderbaum_node
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)
@@ -3330,7 +3330,9 @@ class WunderbaumNode {
             : 0;
         data.colspan != null ? (this.colspan = !!data.colspan) : 0;
         // Selection
-        data.checkbox != null ? intToBool(data.checkbox) : 0;
+        data.checkbox != null
+            ? (this.checkbox = intToBool(data.checkbox))
+            : 0;
         data.radiogroup != null ? (this.radiogroup = !!data.radiogroup) : 0;
         data.selected != null ? (this.selected = !!data.selected) : 0;
         data.unselectable != null ? (this.unselectable = !!data.unselectable) : 0;
@@ -5817,7 +5819,7 @@ WunderbaumNode.sequence = 0;
 /*!
  * Wunderbaum - ext-edit
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
- * v0.14.0, Fri, 20 Mar 2026 16:58:31 GMT (https://github.com/mar10/wunderbaum)
+ * v0.14.1, Sun, 22 Mar 2026 05:52:05 GMT (https://github.com/mar10/wunderbaum)
  */
 // const START_MARKER = "\uFFF7";
 class EditExtension extends WunderbaumExtension {
@@ -6152,8 +6154,8 @@ class EditExtension extends WunderbaumExtension {
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
- * @version v0.14.0
- * @date Fri, 20 Mar 2026 16:58:31 GMT
+ * @version v0.14.1
+ * @date Sun, 22 Mar 2026 05:52:05 GMT
  */
 // import "./wunderbaum.scss";
 class WbSystemRoot extends WunderbaumNode {
@@ -8867,7 +8869,7 @@ class Wunderbaum {
 }
 Wunderbaum.sequence = 0;
 /** Wunderbaum release version number "MAJOR.MINOR.PATCH". */
-Wunderbaum.version = "v0.14.0"; // Set to semver by 'grunt release'
+Wunderbaum.version = "v0.14.1"; // Set to semver by 'grunt release'
 /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
 Wunderbaum.util = util;
 /** A map of default iconMaps.
