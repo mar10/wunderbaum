@@ -5,7 +5,6 @@
  */
 
 /* global mar10 */
-/* eslint-env browser */
 
 document.getElementById("demo-info").innerHTML = `
 Convert and consume data from a custom endpoint

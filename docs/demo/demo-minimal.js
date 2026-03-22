@@ -4,7 +4,6 @@
  * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
-/* eslint-env browser */
 
 document.getElementById("demo-info").innerHTML = `
 A simple tree, no frills (filter will not work).

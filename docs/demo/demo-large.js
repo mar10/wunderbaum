@@ -4,7 +4,6 @@
  * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
  */
 /* global mar10 */
-/* eslint-env browser */
 /* eslint-disable no-console */
 
 document.getElementById("demo-info").innerHTML = `

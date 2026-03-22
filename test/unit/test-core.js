@@ -4,7 +4,6 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 /* global mar10, QUnit */
-/* eslint-env browser */
 /* eslint-disable no-console */
 
 const { test } = QUnit;

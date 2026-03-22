@@ -1,5 +1,4 @@
 /* global mar10 */
-/* eslint-env browser */
 /* eslint-disable no-console */
 
 document.addEventListener("DOMContentLoaded", (event) => {
