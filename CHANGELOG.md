@@ -7,6 +7,8 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.14.2: Update TS version to ES2020 to allow using `Promise.allSettled()` and other features.
+
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
 - v0.14.0: Refactor sorting:
@@ -117,7 +119,6 @@ First release.
 - v0.7.0: #69 prevent iOS browser from opening links on drop.
 - v0.7.0: BREAKING CHANGE:
   Changed syntax format for compressed formats:
-
   - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`.
   - `_typeList: [...]` -> `_valueMap: {"type": [...]}`.
     This allows to compress values of other properties than `type`.
