@@ -36,31 +36,10 @@ export interface DebouncedFunction<F extends Procedure> {
 }
 
 /* --- */
-/** Detect free variable `global` from Node.js. */
-const freeGlobal =
-  // @ts-expect-error `global` is not defined in browser environments
-  typeof global === "object" &&
-  // @ts-expect-error `global` is not defined in browser environments
-  global !== null &&
-  // @ts-expect-error `global` is not defined in browser environments
-  global.Object === Object &&
-  // @ts-expect-error `global` is not defined in browser environments
-  global;
-
-/** Detect free variable `globalThis` */
-const freeGlobalThis =
-  typeof globalThis === "object" &&
-  globalThis !== null &&
-  globalThis.Object == Object &&
-  globalThis;
-
-/** Detect free variable `self`. */
-const freeSelf =
-  typeof self === "object" && self !== null && self.Object === Object && self;
-
 /** Used as a reference to the global object. */
 const root =
-  freeGlobalThis || freeGlobal || freeSelf || Function("return this")();
+  (typeof globalThis !== "undefined" && globalThis) ||
+  Function("return this")();
 
 /**
  * Checks if `value` is the

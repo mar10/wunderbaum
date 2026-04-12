@@ -11,6 +11,8 @@ First release.
   to `wb_common`, `wb_deferred`, `wb_drag_observer`, `wb_types`, `wb_util` to
   avoid name conflicts with other libraries.
 - v0.15.0: Update TS version to ES2020 to allow using `Promise.allSettled()` and other features.
+- v0.15.0: Update module format to "bundler" to allow better tree-shaking and smaller bundles.
+- v0.15.0: Assume that `globalThis` is available (requires Node.js >= v12).
 
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
