@@ -1,11 +1,11 @@
 /*!
  * Wunderbaum - ext-keynav
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { KeynavOptionsType, NavModeEnum } from "./types";
-import { eventToString } from "./util";
+import { KeynavOptionsType, NavModeEnum } from "./wb_types";
+import { eventToString } from "./wb_util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";

@@ -2,7 +2,7 @@
   "compilerOptions": {
     /* Basic Options */
     // "incremental": true,                   /* Enable incremental compilation */
-    "target": "ES2019" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
+    "target": "ES2020" /* Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019', 'ES2020', or 'ESNEXT'. */,
     "module": "esnext" /* Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', 'es2020', or 'ESNext'. */,
     // "lib": [],                             /* Specify library files to be included in the compilation. */
     // "allowJs": true,                       /* Allow javascript files to be compiled. */
@@ -36,7 +36,7 @@
     // "noImplicitReturns": true /* Report error when not all code paths in function return a value. */,
     // "noFallthroughCasesInSwitch": true /* Report errors for fallthrough cases in switch statement. */,
     /* Module Resolution Options */
-    "moduleResolution": "node" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
+    "moduleResolution": "bundler" /* Specify module resolution strategy: 'node' (Node.js) or 'classic' (TypeScript pre-1.6). */,
     // "baseUrl": "./",                       /* Base directory to resolve non-absolute module names. */
     // "paths": {},                           /* A series of entries which re-map imports to lookup locations relative to the 'baseUrl'. */
     // "rootDirs": [],                        /* List of root folders whose combined content represents the structure of the project at runtime. */
@@ -72,9 +72,9 @@
       "src/wunderbaum.ts",
       "src/wb_node.ts",
       "src/wb_options.ts",
-      "src/common.ts",
-      "src/types.ts",
-      "src/util.ts"
+      "src/wb_common.ts",
+      "src/wb_types.ts",
+      "src/wb_util.ts"
     ],
     "out": "docs/api",
     "excludePrivate": true,

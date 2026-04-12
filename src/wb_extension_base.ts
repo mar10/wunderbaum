@@ -1,10 +1,10 @@
 /*!
  * Wunderbaum - wb_extension_base
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import * as util from "./util";
+import * as util from "./wb_util";
 import { DndExtension } from "./wb_ext_dnd";
 import { EditExtension } from "./wb_ext_edit";
 import { FilterExtension } from "./wb_ext_filter";

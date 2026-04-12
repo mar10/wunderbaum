@@ -1,12 +1,12 @@
 /*!
  * Wunderbaum - util
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
 /** @module util */
 
-import { DebouncedFunction, debounce, throttle } from "./debounce";
+import { DebouncedFunction, debounce, throttle } from "./wb_debounce";
 
 export { debounce, throttle };
 

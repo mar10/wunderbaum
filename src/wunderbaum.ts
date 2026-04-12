@@ -3,7 +3,7 @@
  *
  * A treegrid control.
  *
- * Copyright (c) 2021-2025, Martin Wendt (https://wwWendt.de).
+ * Copyright (c) 2021-2026, Martin Wendt (https://wwWendt.de).
  * https://github.com/mar10/wunderbaum
  *
  * Released under the MIT license.
@@ -12,7 +12,7 @@
  */
 
 // import "./wunderbaum.scss";
-import * as util from "./util";
+import * as util from "./wb_util";
 import { FilterExtension } from "./wb_ext_filter";
 import { KeynavExtension } from "./wb_ext_keynav";
 import { LoggerExtension } from "./wb_ext_logger";
@@ -61,7 +61,7 @@ import {
   SortByPropertyOptions,
   ReloadOptions,
   LoadLazyNodesOptions,
-} from "./types";
+} from "./wb_types";
 import {
   DEFAULT_DEBUGLEVEL,
   defaultIconMaps,
@@ -71,12 +71,12 @@ import {
   DEFAULT_ROW_HEIGHT,
   TEST_FILE_PATH,
   TEST_HTML,
-} from "./common";
+} from "./wb_common";
 import { WunderbaumNode } from "./wb_node";
-import { Deferred } from "./deferred";
+import { Deferred } from "./wb_deferred";
 import { EditExtension } from "./wb_ext_edit";
 import { InitWunderbaumOptions, WunderbaumOptions } from "./wb_options";
-import { DebouncedFunction } from "./debounce";
+import { DebouncedFunction } from "./wb_debounce";
 
 class WbSystemRoot extends WunderbaumNode {
   constructor(tree: Wunderbaum) {
@@ -161,7 +161,7 @@ export class Wunderbaum {
 
   /** A Promise that is resolved when the tree was initialized (similar to `init(e)` event). */
   public readonly ready: Promise<any>;
-  /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
+  /** Expose some useful methods of the wb_util.ts module as `Wunderbaum.util`. */
   public static util = util;
   /** A map of default iconMaps.
    * May be used as default, when passing partial icon definition maps:
@@ -175,7 +175,7 @@ export class Wunderbaum {
    * ```
    */
   public static iconMaps = defaultIconMaps;
-  /** Expose some useful methods of the util.ts module as `tree._util`. */
+  /** Expose some useful methods of the wb_util.ts module as `tree._util`. */
   public _util = util;
 
   // --- SELECT ---

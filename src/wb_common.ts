@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - common
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -11,8 +11,8 @@ import {
   SourceObjectType,
   IconMapType,
   MatcherCallback,
-} from "./types";
-import * as util from "./util";
+} from "./wb_types";
+import * as util from "./wb_util";
 import { WunderbaumNode } from "./wb_node";
 
 export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script

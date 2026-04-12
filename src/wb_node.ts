@@ -1,10 +1,10 @@
 /*!
  * Wunderbaum - wunderbaum_node
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import * as util from "./util";
+import * as util from "./wb_util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
@@ -41,7 +41,7 @@ import {
   TooltipOption,
   TristateType,
   WbNodeData,
-} from "./types";
+} from "./wb_types";
 
 import {
   decompressSourceData,
@@ -54,8 +54,8 @@ import {
   TEST_FILE_PATH,
   TEST_HTML,
   TITLE_SPAN_PAD_Y,
-} from "./common";
-import { Deferred } from "./deferred";
+} from "./wb_common";
+import { Deferred } from "./wb_deferred";
 
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)

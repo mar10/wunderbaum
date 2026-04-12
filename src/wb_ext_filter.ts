@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - ext-filter
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -11,18 +11,18 @@ import {
   escapeRegex,
   extend,
   onEvent,
-} from "./util";
+} from "./wb_util";
 import {
   FilterConnectType,
   FilterNodesOptions,
   FilterOptionsType,
   NodeFilterCallback,
   NodeStatusType,
-} from "./types";
+} from "./wb_types";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
-import { debounce } from "./debounce";
+import { debounce } from "./wb_debounce";
 
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";

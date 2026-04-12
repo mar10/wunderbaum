@@ -1,11 +1,11 @@
 /*!
  * Wunderbaum - ext-logger
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { LoggerOptionsType } from "./types";
-import { overrideMethod } from "./util";
+import { LoggerOptionsType } from "./wb_types";
+import { overrideMethod } from "./wb_util";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { Wunderbaum } from "./wunderbaum";
 

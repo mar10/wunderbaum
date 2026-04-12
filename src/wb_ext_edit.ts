@@ -1,6 +1,6 @@
 /*!
  * Wunderbaum - ext-edit
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
@@ -15,10 +15,10 @@ import {
   isPlainObject,
   onEvent,
   ValidationError,
-} from "./util";
-import { debounce } from "./debounce";
+} from "./wb_util";
+import { debounce } from "./wb_debounce";
 import { WunderbaumNode } from "./wb_node";
-import { EditOptionsType, InsertNodeType, WbNodeData } from "./types";
+import { EditOptionsType, InsertNodeType, WbNodeData } from "./wb_types";
 
 // const START_MARKER = "\uFFF7";
 

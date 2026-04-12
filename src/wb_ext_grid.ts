@@ -1,14 +1,14 @@
 /*!
  * Wunderbaum - ext-grid
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
-import { DragCallbackArgType, DragObserver } from "./drag_observer";
-import { ChangeType, ColumnDefinition, GridOptionsType } from "./types";
-import { DEFAULT_MIN_COL_WIDTH } from "./common";
-import { toBool, toPixel } from "./util";
+import { DragCallbackArgType, DragObserver } from "./wb_drag_observer";
+import { ChangeType, ColumnDefinition, GridOptionsType } from "./wb_types";
+import { DEFAULT_MIN_COL_WIDTH } from "./wb_common";
+import { toBool, toPixel } from "./wb_util";
 
 export class GridExtension extends WunderbaumExtension<GridOptionsType> {
   protected observer: DragObserver;

@@ -1,6 +1,6 @@
 /*!
- * Wunderbaum - debounce.ts
- * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
+ * Wunderbaum - wb_debounce.ts
+ * Copyright (c) 2021-2026, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 /*
@@ -36,27 +36,10 @@ export interface DebouncedFunction<F extends Procedure> {
 }
 
 /* --- */
-/** Detect free variable `global` from Node.js. */
-const freeGlobal =
-  typeof global === "object" &&
-  global !== null &&
-  global.Object === Object &&
-  global;
-
-/** Detect free variable `globalThis` */
-const freeGlobalThis =
-  typeof globalThis === "object" &&
-  globalThis !== null &&
-  globalThis.Object == Object &&
-  globalThis;
-
-/** Detect free variable `self`. */
-const freeSelf =
-  typeof self === "object" && self !== null && self.Object === Object && self;
-
 /** Used as a reference to the global object. */
 const root =
-  freeGlobalThis || freeGlobal || freeSelf || Function("return this")();
+  (typeof globalThis !== "undefined" && globalThis) ||
+  Function("return this")();
 
 /**
  * Checks if `value` is the
