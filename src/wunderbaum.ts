@@ -161,7 +161,7 @@ export class Wunderbaum {
 
   /** A Promise that is resolved when the tree was initialized (similar to `init(e)` event). */
   public readonly ready: Promise<any>;
-  /** Expose some useful methods of the util.ts module as `Wunderbaum.util`. */
+  /** Expose some useful methods of the wb_util.ts module as `Wunderbaum.util`. */
   public static util = util;
   /** A map of default iconMaps.
    * May be used as default, when passing partial icon definition maps:
@@ -175,7 +175,7 @@ export class Wunderbaum {
    * ```
    */
   public static iconMaps = defaultIconMaps;
-  /** Expose some useful methods of the util.ts module as `tree._util`. */
+  /** Expose some useful methods of the wb_util.ts module as `tree._util`. */
   public _util = util;
 
   // --- SELECT ---

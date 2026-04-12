@@ -72,9 +72,9 @@
       "src/wunderbaum.ts",
       "src/wb_node.ts",
       "src/wb_options.ts",
-      "src/common.ts",
-      "src/types.ts",
-      "src/util.ts"
+      "src/wb_common.ts",
+      "src/wb_types.ts",
+      "src/wb_util.ts"
     ],
     "out": "docs/api",
     "excludePrivate": true,

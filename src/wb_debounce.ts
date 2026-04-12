@@ -1,5 +1,5 @@
 /*!
- * Wunderbaum - debounce.ts
+ * Wunderbaum - wb_debounce.ts
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */

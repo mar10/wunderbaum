@@ -1,9 +1,9 @@
 {
   "intentionallyNotExported": [
-    "src/debounce.ts:DebouncedFunction",
-    "src/debounce.ts:DebounceOptions",
-    "src/debounce.ts:ThrottleOptions",
-    "src/debounce.ts:Procedure"
-    // "src/debounce.ts"
+    "src/wb_debounce.ts:DebouncedFunction",
+    "src/wb_debounce.ts:DebounceOptions",
+    "src/wb_debounce.ts:ThrottleOptions",
+    "src/wb_debounce.ts:Procedure"
+    // "src/wb_debounce.ts"
   ]
 }

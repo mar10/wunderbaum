@@ -7,7 +7,10 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.14.2: Update TS version to ES2020 to allow using `Promise.allSettled()` and other features.
+- v0.15.0: Rename modules `common`, `deferred`, `drag_observer`, `types`, `util`
+  to `wb_common`, `wb_deferred`, `wb_drag_observer`, `wb_types`, `wb_util` to
+  avoid name conflicts with other libraries.
+- v0.15.0: Update TS version to ES2020 to allow using `Promise.allSettled()` and other features.
 
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
