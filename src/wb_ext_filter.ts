@@ -11,14 +11,14 @@ import {
   escapeRegex,
   extend,
   onEvent,
-} from "./util";
+} from "./wb_util";
 import {
   FilterConnectType,
   FilterNodesOptions,
   FilterOptionsType,
   NodeFilterCallback,
   NodeStatusType,
-} from "./types";
+} from "./wb_types";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";

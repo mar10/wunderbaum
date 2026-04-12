@@ -3,8 +3,8 @@
  * Copyright (c) 2021-2025, Martin Wendt. Released under the MIT license.
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
-import * as util from "./util";
-import { EventCallbackType, onEvent } from "./util";
+import * as util from "./wb_util";
+import { EventCallbackType, onEvent } from "./wb_util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
 import { WunderbaumNode } from "./wb_node";
@@ -13,7 +13,7 @@ import {
   DropEffectType,
   DropRegionType,
   DropRegionTypeSet,
-} from "./types";
+} from "./wb_types";
 import { DebouncedFunction, throttle } from "./debounce";
 
 const nodeMimeType = "application/x-wunderbaum-node";

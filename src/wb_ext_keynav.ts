@@ -4,8 +4,8 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import { KeynavOptionsType, NavModeEnum } from "./types";
-import { eventToString } from "./util";
+import { KeynavOptionsType, NavModeEnum } from "./wb_types";
+import { eventToString } from "./wb_util";
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";

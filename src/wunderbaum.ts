@@ -12,7 +12,7 @@
  */
 
 // import "./wunderbaum.scss";
-import * as util from "./util";
+import * as util from "./wb_util";
 import { FilterExtension } from "./wb_ext_filter";
 import { KeynavExtension } from "./wb_ext_keynav";
 import { LoggerExtension } from "./wb_ext_logger";
@@ -61,7 +61,7 @@ import {
   SortByPropertyOptions,
   ReloadOptions,
   LoadLazyNodesOptions,
-} from "./types";
+} from "./wb_types";
 import {
   DEFAULT_DEBUGLEVEL,
   defaultIconMaps,

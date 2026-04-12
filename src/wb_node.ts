@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import * as util from "./util";
+import * as util from "./wb_util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
@@ -41,7 +41,7 @@ import {
   TooltipOption,
   TristateType,
   WbNodeData,
-} from "./types";
+} from "./wb_types";
 
 import {
   decompressSourceData,

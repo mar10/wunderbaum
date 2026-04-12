@@ -39,7 +39,7 @@ import {
   WbRenderEventType,
   WbSelectEventType,
   WbTreeEventType,
-} from "./types";
+} from "./wb_types";
 
 /**
  * Properties of {@link wunderbaum.Wunderbaum.options}.

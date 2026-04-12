@@ -15,10 +15,10 @@ import {
   isPlainObject,
   onEvent,
   ValidationError,
-} from "./util";
+} from "./wb_util";
 import { debounce } from "./debounce";
 import { WunderbaumNode } from "./wb_node";
-import { EditOptionsType, InsertNodeType, WbNodeData } from "./types";
+import { EditOptionsType, InsertNodeType, WbNodeData } from "./wb_types";
 
 // const START_MARKER = "\uFFF7";
 

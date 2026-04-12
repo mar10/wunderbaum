@@ -11,8 +11,8 @@ import {
   SourceObjectType,
   IconMapType,
   MatcherCallback,
-} from "./types";
-import * as util from "./util";
+} from "./wb_types";
+import * as util from "./wb_util";
 import { WunderbaumNode } from "./wb_node";
 
 export const DEFAULT_DEBUGLEVEL = 4; // Replaced by rollup script

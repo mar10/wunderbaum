@@ -4,7 +4,7 @@
  * @VERSION, @DATE (https://github.com/mar10/wunderbaum)
  */
 
-import * as util from "./util";
+import * as util from "./wb_util";
 import { DndExtension } from "./wb_ext_dnd";
 import { EditExtension } from "./wb_ext_edit";
 import { FilterExtension } from "./wb_ext_filter";
