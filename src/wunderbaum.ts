@@ -71,12 +71,12 @@ import {
   DEFAULT_ROW_HEIGHT,
   TEST_FILE_PATH,
   TEST_HTML,
-} from "./common";
+} from "./wb_common";
 import { WunderbaumNode } from "./wb_node";
-import { Deferred } from "./deferred";
+import { Deferred } from "./wb_deferred";
 import { EditExtension } from "./wb_ext_edit";
 import { InitWunderbaumOptions, WunderbaumOptions } from "./wb_options";
-import { DebouncedFunction } from "./debounce";
+import { DebouncedFunction } from "./wb_debounce";
 
 class WbSystemRoot extends WunderbaumNode {
   constructor(tree: Wunderbaum) {

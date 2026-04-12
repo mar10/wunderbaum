@@ -5,9 +5,9 @@
  */
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumExtension } from "./wb_extension_base";
-import { DragCallbackArgType, DragObserver } from "./drag_observer";
+import { DragCallbackArgType, DragObserver } from "./wb_drag_observer";
 import { ChangeType, ColumnDefinition, GridOptionsType } from "./wb_types";
-import { DEFAULT_MIN_COL_WIDTH } from "./common";
+import { DEFAULT_MIN_COL_WIDTH } from "./wb_common";
 import { toBool, toPixel } from "./wb_util";
 
 export class GridExtension extends WunderbaumExtension<GridOptionsType> {

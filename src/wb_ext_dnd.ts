@@ -14,7 +14,7 @@ import {
   DropRegionType,
   DropRegionTypeSet,
 } from "./wb_types";
-import { DebouncedFunction, throttle } from "./debounce";
+import { DebouncedFunction, throttle } from "./wb_debounce";
 
 const nodeMimeType = "application/x-wunderbaum-node";
 

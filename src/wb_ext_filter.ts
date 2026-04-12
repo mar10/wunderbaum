@@ -22,7 +22,7 @@ import {
 import { Wunderbaum } from "./wunderbaum";
 import { WunderbaumNode } from "./wb_node";
 import { WunderbaumExtension } from "./wb_extension_base";
-import { debounce } from "./debounce";
+import { debounce } from "./wb_debounce";
 
 const START_MARKER = "\uFFF7";
 const END_MARKER = "\uFFF8";

@@ -54,8 +54,8 @@ import {
   TEST_FILE_PATH,
   TEST_HTML,
   TITLE_SPAN_PAD_Y,
-} from "./common";
-import { Deferred } from "./deferred";
+} from "./wb_common";
+import { Deferred } from "./wb_deferred";
 
 /** WunderbaumNode properties that can be passed with source data.
  * (Any other source properties will be stored as `node.data.PROP`.)

@@ -6,7 +6,7 @@
 
 /** @module util */
 
-import { DebouncedFunction, debounce, throttle } from "./debounce";
+import { DebouncedFunction, debounce, throttle } from "./wb_debounce";
 
 export { debounce, throttle };
 

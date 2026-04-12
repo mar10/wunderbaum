@@ -16,7 +16,7 @@ import {
   onEvent,
   ValidationError,
 } from "./wb_util";
-import { debounce } from "./debounce";
+import { debounce } from "./wb_debounce";
 import { WunderbaumNode } from "./wb_node";
 import { EditOptionsType, InsertNodeType, WbNodeData } from "./wb_types";
 
