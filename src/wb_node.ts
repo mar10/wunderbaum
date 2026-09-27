@@ -139,6 +139,8 @@ export class WunderbaumNode {
   public radiogroup?: boolean;
   /** If true, (in grid mode) no cells are rendered, except for the node title.*/
   public colspan?: boolean;
+  /** Number of row slots this node occupies (default 1). @see {@link WbNodeData.rowSpan} */
+  public rowSpan?: number;
   /** Icon definition. */
   public icon?: IconOption;
   /** Lazy loading flag.
@@ -211,6 +213,9 @@ export class WunderbaumNode {
       ? (this.statusNodeType = ("" + data.statusNodeType) as NodeStatusType)
       : 0;
     data.colspan != null ? (this.colspan = !!data.colspan) : 0;
+    data.rowSpan != null
+      ? (this.rowSpan = Math.max(1, Math.floor(+data.rowSpan) || 1))
+      : 0;
 
     // Selection
     data.checkbox != null
@@ -1890,6 +1895,8 @@ export class WunderbaumNode {
     this._errorInfo ? rowClasses.push("wb-error") : 0;
     this._isLoading ? rowClasses.push("wb-loading") : 0;
     this.isColspan() ? rowClasses.push("wb-colspan") : 0;
+    const isMultiRow = !!this.rowSpan && this.rowSpan > 1;
+    isMultiRow ? rowClasses.push("wb-multirow") : 0;
     this.statusNodeType
       ? rowClasses.push("wb-status-" + this.statusNodeType)
       : 0;
@@ -1900,6 +1907,9 @@ export class WunderbaumNode {
 
     // Replace previous classes:
     rowDiv.className = rowClasses.join(" ");
+    rowDiv.style.height = isMultiRow
+      ? this.rowSpan! * treeOptions.rowHeightPx + "px"
+      : "";
 
     // Add classes from `node.classes`
     this.classes ? rowDiv.classList.add(...this.classes) : 0;

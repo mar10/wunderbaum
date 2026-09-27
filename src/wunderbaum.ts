@@ -127,6 +127,8 @@ export class Wunderbaum {
   protected keyMap = new Map<string, WunderbaumNode>();
   protected refKeyMap = new Map<string, Set<WunderbaumNode>>();
   protected treeRowCount = 0;
+  /** Number of row slots (differs from treeRowCount if nodes use rowSpan). */
+  protected treeSlotCount = 0;
   protected _disableUpdateCount = 0;
   protected _disableUpdateIgnoreCount = 0;
 
@@ -852,7 +854,7 @@ export class Wunderbaum {
     // TODO: start searching from active node (reverse)
     let node: WunderbaumNode | null = null;
     this.visitRows((n) => {
-      if (n._rowIdx === idx) {
+      if (n._rowIdx! <= idx && idx < n._rowIdx! + (n.rowSpan ?? 1)) {
         node = n;
         return false;
       }
@@ -894,7 +896,7 @@ export class Wunderbaum {
     } else {
       bottomIdx = Math.ceil((scrollTop + clientHeight) / rowHeight) - 1;
     }
-    bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
+    bottomIdx = Math.min(bottomIdx, this.treeSlotCount - 1);
     return this._getNodeByRowIdx(bottomIdx)!;
   }
 
@@ -1097,6 +1099,7 @@ export class Wunderbaum {
     this.keyMap.clear();
     this.refKeyMap.clear();
     this.treeRowCount = 0;
+    this.treeSlotCount = 0;
     this._activeNode = null;
     this._focusNode = null;
 
@@ -1875,7 +1878,8 @@ export class Wunderbaum {
     const rowTop = node._rowIdx! * rowHeight + headerHeight;
     const vpTop = headerHeight;
     const vpRowTop = rowTop - scrollTop;
-    const vpRowBottom = vpRowTop + rowHeight;
+    const nodeHeight = rowHeight * (node.rowSpan ?? 1);
+    const vpRowBottom = vpRowTop + nodeHeight;
     const topNode = options?.topNode;
 
     // this.log( `scrollTo(${node.title}), vpTop:${vpTop}px, scrollTop:${scrollTop}, vpHeight:${vpHeight}, rowTop:${rowTop}, vpRowTop:${vpRowTop}`, nodeOrOpts , options);
@@ -1888,7 +1892,11 @@ export class Wunderbaum {
       } else {
         // Node is below viewport
         // this.log("Below viewport");
-        newScrollTop = rowTop + rowHeight - vpHeight + PADDING; // leave some pixels between viewport bounds
+        newScrollTop = rowTop + nodeHeight - vpHeight + PADDING; // leave some pixels between viewport bounds
+        if (nodeHeight > rowHeight) {
+          // Multi-row node: don't scroll its top out of the viewport
+          newScrollTop = Math.min(newScrollTop, rowTop - vpTop - PADDING);
+        }
       }
     } else {
       // Node is above viewport
@@ -2792,7 +2800,8 @@ export class Wunderbaum {
       }
     });
 
-    let idx = 0;
+    let idx = 0; // row slot index (a node with `rowSpan` uses more than one)
+    let rowCount = 0;
     let top = 0;
     let modified = false;
     let prevElem: HTMLDivElement | "first" | "last" = "first";
@@ -2800,6 +2809,7 @@ export class Wunderbaum {
     this.visitRows(function (node) {
       // node.log("visit")
       const rowDiv = node._rowElem;
+      const span = node.rowSpan ?? 1;
 
       // Renumber all expanded nodes
       if (node._rowIdx !== idx) {
@@ -2807,7 +2817,7 @@ export class Wunderbaum {
         modified = true;
       }
 
-      if (idx < startIdx || idx > endIdx) {
+      if (idx + span - 1 < startIdx || idx > endIdx) {
         // row is outside viewport bounds
         if (rowDiv) {
           prevElem = rowDiv;
@@ -2827,10 +2837,12 @@ export class Wunderbaum {
         // node.log("render", top, prevElem, "=>", node._rowElem);
         prevElem = node._rowElem!;
       }
-      idx++;
-      top += rowHeight;
+      idx += span;
+      rowCount++;
+      top += rowHeight * span;
     });
-    this.treeRowCount = idx;
+    this.treeRowCount = rowCount;
+    this.treeSlotCount = idx;
     for (const n of obsoleteNodes) {
       n._callEvent("discard");
       n.removeMarkup();
