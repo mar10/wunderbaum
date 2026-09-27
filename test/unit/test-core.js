@@ -222,3 +222,205 @@ QUnit.module("Instance tests", (hooks) => {
     });
   });
 });
+
+QUnit.module("Paging nodes", (hooks) => {
+  let tree = null;
+  const treeElem = () => document.querySelector("#tree");
+  const press = (key) => {
+    tree.element.dispatchEvent(
+      new KeyboardEvent("keydown", { key: key, bubbles: true })
+    );
+  };
+  const makeSource = () => [
+    {
+      title: "Parent",
+      key: "p",
+      expanded: true,
+      children: [
+        { title: "Child 1", key: "c1" },
+        { title: "Child 2", key: "c2" },
+      ],
+    },
+  ];
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+  });
+
+  test("addPagingNode", (assert) => {
+    assert.expect(7);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: makeSource(),
+      init: (e) => {
+        const parent = tree.findKey("p");
+        const paging = parent.addPagingNode();
+
+        assert.true(paging.isPagingNode(), "is a paging node");
+        assert.true(paging.isStatusNode(), "is a status node");
+        assert.equal(paging.title, "More...", "default title");
+        assert.true(paging.isColspan(), "spans all columns");
+        assert.equal(parent.children[2], paging, "appended after children");
+
+        const paging2 = parent.addPagingNode("Show 100 more");
+        assert.deepEqual(
+          parent.children.map((n) => n.title),
+          ["Child 1", "Child 2", "Show 100 more"],
+          "replaces the existing paging node"
+        );
+        assert.equal(paging2.parent, parent);
+        done();
+      },
+    });
+  });
+
+  test("Enter and click fire clickPaging", (assert) => {
+    assert.expect(4);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: makeSource(),
+      clickPaging: (e) => {
+        assert.step(`clickPaging(${e.node.parent.key})`);
+      },
+      activate: (e) => {
+        if (e.node.isPagingNode()) {
+          assert.step("activate(paging)");
+        }
+      },
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        const paging = tree.findKey("p").addPagingNode();
+        tree.update("any", { immediate: true });
+
+        paging.setFocus();
+        press("Enter");
+        press(" ");
+        paging.getColElem(0).querySelector("span.wb-title").click();
+
+        assert.verifySteps(
+          ["clickPaging(p)", "clickPaging(p)", "clickPaging(p)"],
+          "Enter, Space and click fire clickPaging, but don't activate"
+        );
+        done();
+      },
+    });
+  });
+
+  test("Enter fires clickPaging in cell mode", (assert) => {
+    assert.expect(2);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: makeSource(),
+      columns: [
+        { id: "*", title: "Name", width: "200px" },
+        { id: "size", title: "Size", width: "50px" },
+      ],
+      navigationModeOption: "cell",
+      clickPaging: (e) => {
+        assert.step("clickPaging");
+      },
+      init: (e) => {
+        const paging = tree.findKey("p").addPagingNode();
+        paging.setFocus();
+        press("Enter");
+        assert.verifySteps(["clickPaging"]);
+        done();
+      },
+    });
+  });
+
+  test("Ignore clicks while an async clickPaging handler runs", (assert) => {
+    assert.expect(6);
+    const done = assert.async();
+    let resolvePage;
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: makeSource(),
+      clickPaging: (e) => {
+        assert.step("clickPaging");
+        return new Promise((resolve) => {
+          resolvePage = resolve;
+        });
+      },
+      init: async (e) => {
+        const paging = tree.findKey("p").addPagingNode();
+        paging.setFocus();
+        press("Enter");
+        press("Enter");
+        assert.verifySteps(["clickPaging"], "second Enter was ignored");
+        assert.true(paging._isLoading, "shows loading state");
+
+        resolvePage();
+        await Promise.resolve();
+        await Promise.resolve();
+        assert.false(paging._isLoading, "loading state reset");
+        press("Enter");
+        assert.verifySteps(["clickPaging"], "can be clicked again");
+        done();
+      },
+    });
+  });
+
+  test("sort() keeps the paging node last", (assert) => {
+    assert.expect(1);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: makeSource(),
+      init: (e) => {
+        const parent = tree.findKey("p");
+        parent.addPagingNode("Aaa more");
+        parent.sort({ key: (n) => n.title });
+        assert.deepEqual(
+          parent.children.map((n) => n.title),
+          ["Child 1", "Child 2", "Aaa more"]
+        );
+        done();
+      },
+    });
+  });
+
+  test("Replacing a focused paging node clears the focus", (assert) => {
+    assert.expect(3);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: makeSource(),
+      clickPaging: (e) => {
+        const parent = e.node.parent;
+        e.node.remove();
+        parent.addChildren([{ title: "Child 3", key: "c3" }]);
+      },
+      init: (e) => {
+        const parent = tree.findKey("p");
+        const paging = parent.addPagingNode();
+        paging.setActive();
+        paging.setFocus();
+        press("Enter");
+
+        assert.equal(tree.getFocusNode(), null, "focus node was reset");
+        assert.equal(tree.getActiveNode(), null, "active node was reset");
+        assert.deepEqual(
+          parent.children.map((n) => n.key),
+          ["c1", "c2", "c3"],
+          "next page was added"
+        );
+        done();
+      },
+    });
+  });
+});

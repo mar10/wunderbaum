@@ -7,6 +7,11 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.14.2: Add paging nodes ("More..." links) for long child lists:
+  `node.addPagingNode()`, new `clickPaging` event (click, Enter, or Space),
+  and `strings.moreItems`. `sort()` keeps paging nodes at the end.
+  `node.remove()` now resets the active and focus node if they are removed.
+
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
 - v0.14.0: Refactor sorting:

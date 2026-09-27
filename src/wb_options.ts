@@ -284,6 +284,13 @@ export interface WunderbaumOptions {
    */
   change?: (e: WbChangeEventType) => void;
   /**
+   * A 'paging' status node (see {@link WunderbaumNode.addPagingNode}) was
+   * clicked, or activated with Enter or Space. `e.node` is the paging node;
+   * `e.node.parent` is the node whose next page should be loaded.
+   * @category Callback
+   */
+  clickPaging?: (e: WbNodeEventType) => void;
+  /**
    *
    * Return `false` to prevent default behavior, e.g. expand/collapse, (de)selection, or activation.
    * @category Callback

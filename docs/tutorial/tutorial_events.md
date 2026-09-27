@@ -110,6 +110,29 @@ Common event handlers include:
 </dd>
 
 <dt>
+  <code>clickPaging(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbNodeEventType.html">WbNodeEventType</a>)</code>
+  <small>- <i>node event</i></small>
+</dt> <dd>
+  A paging node (see `node.addPagingNode()`) was clicked, or activated with
+  <kbd>Enter</kbd> or <kbd>Space</kbd>. `e.node` is the paging node and
+  `e.node.parent` the node whose next page of children should be loaded.
+  If the handler returns a promise (e.g. an `async` function), the paging node
+  shows its loading state and ignores further clicks until it settles:
+
+```js
+clickPaging: async (e) => {
+  const parent = e.node.parent;
+  const page = await fetchPage(parent.key, parent.children.length - 1);
+  e.node.remove();
+  parent.addChildren(page.items);
+  if (page.more) {
+    parent.addPagingNode(); // "More..."
+  }
+},
+```
+</dd>
+
+<dt>
   <code>change(<a href="https://mar10.github.io/wunderbaum/api/interfaces/types.WbChangeEventType.html">WbChangeEventType</a>)</code>
   <small>- <i>node event</i></small>
 </dt> <dd>

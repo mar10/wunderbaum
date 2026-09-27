@@ -98,6 +98,14 @@ export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
     }
     const isColspan = node.isColspan();
 
+    // Paging nodes ("More..."): Enter and Space load the next page (row and
+    // cell mode)
+    if (node.isPagingNode() && (eventName === "Enter" || eventName === " ")) {
+      node._clickPaging(event);
+      event.preventDefault();
+      return;
+    }
+
     if (tree.isRowNav()) {
       // -----------------------------------------------------------------------
       // --- Row Mode ---
@@ -185,9 +193,6 @@ export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
           node.setExpanded(false);
           break;
         case " ": // Space
-          // if (node.isPagingNode()) {
-          //   tree._triggerNodeEvent("clickPaging", ctx, event);
-          // } else
           if (node.getOption("checkbox")) {
             node.toggleSelected();
           } else {
