@@ -142,6 +142,12 @@ export interface WbNodeData {
   classes?: string;
   /** Only show title in a single, merged column. */
   colspan?: boolean;
+  /**
+   * Number of row slots this node occupies (default 1). Use it for detail rows
+   * that host other markup (a table, a chart) below a node. Combine with
+   * `colspan: true` to span all columns.
+   */
+  rowSpan?: number;
   /** Expand this node. */
   expanded?: boolean;
   /** Defaults to standard icons (doc, folder, folderOpen, ...)

@@ -222,3 +222,106 @@ QUnit.module("Instance tests", (hooks) => {
     });
   });
 });
+
+QUnit.module("Multi-row nodes (rowSpan)", (hooks) => {
+  let tree = null;
+  const treeElem = () => document.querySelector("#tree");
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+  });
+
+  test("Layout and navigation", (assert) => {
+    assert.expect(10);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      columns: [
+        { id: "*", title: "Name", width: "200px" },
+        { id: "size", title: "Size", width: "50px" },
+      ],
+      source: [
+        { title: "Node 1", key: "1" },
+        { title: "Detail", key: "d", rowSpan: 3, colspan: true },
+        { title: "Node 2", key: "2", rowSpan: 2.7 },
+        { title: "Node 3", key: "3", rowSpan: 0 },
+      ],
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        const rowHeight = tree.options.rowHeightPx;
+        const detail = tree.findKey("d");
+
+        assert.equal(detail.rowSpan, 3);
+        assert.equal(tree.findKey("2").rowSpan, 2, "rounded down");
+        assert.equal(tree.findKey("3").rowSpan, 1, "at least 1");
+        assert.equal(tree.count(true), 4, "count(true) counts nodes");
+        assert.equal(tree.findKey("2")._rowIdx, 4, "slots before Node 2");
+        assert.equal(detail._rowElem.style.height, 3 * rowHeight + "px");
+        assert.true(detail._rowElem.classList.contains("wb-multirow"));
+        assert.equal(
+          tree.nodeListElement.style.height,
+          7 * rowHeight + "px",
+          "list height covers all slots"
+        );
+        assert.equal(tree._getNodeByRowIdx(3), detail, "slot 3 is the detail");
+
+        tree.findKey("1").setActive();
+        tree.element.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true })
+        );
+        assert.equal(tree.getActiveNode(), detail, "ArrowDown");
+        done();
+      },
+    });
+  });
+
+  test("Virtual rendering, scrollTo and runtime changes", (assert) => {
+    assert.expect(5);
+    const done = assert.async();
+    const source = [];
+    for (let i = 0; i < 30; i++) {
+      source.push({ title: "Node " + i, key: "a" + i });
+    }
+    source.push({ title: "Detail", key: "d", rowSpan: 40 });
+    for (let i = 0; i < 30; i++) {
+      source.push({ title: "Node " + i, key: "b" + i });
+    }
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: source,
+      init: (e) => {
+        const rowHeight = tree.options.rowHeightPx;
+        const detail = tree.findKey("d");
+
+        // Detail uses slots 30..69: scroll so that its first slot is above
+        // the rendered window, but the rest is visible
+        tree.element.scrollTop = 50 * rowHeight;
+        tree.update("any", { immediate: true });
+        assert.ok(detail._rowElem, "partly visible multi-row node is rendered");
+        assert.notOk(tree.findKey("a0")._rowElem, "rows far above are not");
+
+        // Scrolling to a node that is higher than the viewport shows its top
+        tree.element.scrollTop = 0;
+        tree.scrollTo(detail);
+        const scrollTop = tree.element.scrollTop;
+        assert.true(
+          scrollTop <= 30 * rowHeight && scrollTop > 29 * rowHeight,
+          `scrollTo shows the top (scrollTop: ${scrollTop})`
+        );
+
+        detail.rowSpan = 2;
+        tree.update("any", { immediate: true });
+        assert.equal(detail._rowElem.style.height, 2 * rowHeight + "px");
+        assert.equal(tree.findKey("b0")._rowIdx, 32, "slots were updated");
+        done();
+      },
+    });
+  });
+});

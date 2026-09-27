@@ -166,6 +166,38 @@ const tree = new Wunderbaum({
     See the [Edit Tutorial](tutorial_edit.md) for examples how to render
     embedded controls.
 
+### Multi-Row Nodes
+
+All rows have the same height (`rowHeightPx`). A node can occupy more than
+one row slot by setting `rowSpan`, e.g. for a detail row that hosts a small
+table or chart below its parent. Combine it with `colspan: true` to use the
+full width, and render the content in the `render` event:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  source: [
+    { title: "Order 1001", children: [
+      { title: "Details", rowSpan: 4, colspan: true, type: "detail" },
+    ]},
+  ],
+  render: (e) => {
+    if (e.node.type === "detail") {
+      e.nodeElem.querySelector("span.wb-title").innerHTML = "<table>...</table>";
+    }
+  },
+});
+```
+
+Rows with `rowSpan > 1` get the `wb-multirow` class. Their content fills the
+row and scrolls if it does not fit.
+
+!!! note
+
+    Keyboard paging (<kbd>PageUp</kbd> / <kbd>PageDown</kbd>) counts nodes, not
+    row slots, and the `wb-alternate` row striping may shift while scrolling
+    trees that contain multi-row nodes.
+
 ## Editing
 
 Editing cells &mdash; other than the node title column &mdash; is not supported

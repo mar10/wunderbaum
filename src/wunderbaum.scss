@@ -350,6 +350,13 @@ div.wunderbaum {
       &.wb-status-error {
         color: var(--wb-error-color);
       }
+
+      &.wb-multirow span.wb-col,
+      &.wb-multirow span.wb-node span.wb-title {
+        height: 100%;
+        line-height: normal;
+        overflow: auto;
+      }
     }
   }
 

@@ -134,7 +134,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     e: DragEvent,
     allowed: DropRegionTypeSet | null
   ): DropRegionType | false {
-    const rowHeight = this.tree.options.rowHeightPx;
+    const node = Wunderbaum.getNode(e);
+    const rowHeight = this.tree.options.rowHeightPx * (node?.rowSpan ?? 1);
     const dy = e.offsetY;
 
     if (!allowed) {
