@@ -185,6 +185,12 @@ export class WunderbaumNode {
   public _filterAutoExpanded?: boolean;
 
   _rowIdx: number | undefined = 0;
+  /** Position among non-status siblings, see `_render_aria()`. @internal */
+  _ariaPosInSet?: number;
+  /** Number of non-status children, see `_render_aria()`. @internal */
+  _ariaSetSize?: number;
+  /** Render pass of `_ariaSetSize`, see `_render_aria()`. @internal */
+  _ariaSetPass?: number;
   _rowElem: HTMLDivElement | undefined = undefined;
 
   constructor(tree: Wunderbaum, parent: WunderbaumNode, data: WbNodeData) {
@@ -1592,6 +1598,14 @@ export class WunderbaumNode {
   /** Remove all HTML markup from the DOM. */
   removeMarkup() {
     if (this._rowElem) {
+      // Don't leave `aria-activedescendant` pointing to a removed row.
+      // (`this.tree` may already be reset, see `_unregisterNode()`.)
+      const container = this._rowElem.closest("[aria-activedescendant]");
+      if (
+        container?.getAttribute("aria-activedescendant") === this._rowElem.id
+      ) {
+        container.removeAttribute("aria-activedescendant");
+      }
       delete (<any>this._rowElem)._wb_node;
       this._rowElem.remove();
       this._rowElem = undefined;
@@ -1672,6 +1686,9 @@ export class WunderbaumNode {
 
     rowDiv = document.createElement("div");
     rowDiv.classList.add("wb-row");
+    rowDiv.setAttribute("role", "row");
+    // Referenced by the container's `aria-activedescendant` (no whitespace)
+    rowDiv.id = `${tree.id}-row-${encodeURIComponent(this.key)}`;
 
     rowDiv.style.top = this._rowIdx! * rowHeight + "px";
 
@@ -1682,6 +1699,11 @@ export class WunderbaumNode {
 
     const nodeElem: HTMLSpanElement = document.createElement("span");
     nodeElem.classList.add("wb-node", "wb-col");
+    nodeElem.setAttribute("role", "gridcell");
+    nodeElem.setAttribute("aria-colindex", "1");
+    if (this.isColspan() && columns.length > 1) {
+      nodeElem.setAttribute("aria-colspan", "" + columns.length);
+    }
     rowDiv.appendChild(nodeElem);
 
     let ofsTitlePx = 0;
@@ -1689,6 +1711,7 @@ export class WunderbaumNode {
     if (checkbox) {
       checkboxSpan = document.createElement("i");
       checkboxSpan.classList.add("wb-checkbox");
+      checkboxSpan.setAttribute("aria-hidden", "true");
       if (checkbox === "radio" || this.parent.radiogroup) {
         checkboxSpan.classList.add("wb-radio");
       }
@@ -1699,6 +1722,7 @@ export class WunderbaumNode {
     for (let i = level - 1; i > 0; i--) {
       elem = document.createElement("i");
       elem.classList.add("wb-indent");
+      elem.setAttribute("aria-hidden", "true");
       nodeElem.appendChild(elem);
       ofsTitlePx += ICON_WIDTH;
     }
@@ -1706,6 +1730,7 @@ export class WunderbaumNode {
     if (!treeOptions.minExpandLevel || level > treeOptions.minExpandLevel) {
       expanderSpan = document.createElement("i");
       expanderSpan.classList.add("wb-expander");
+      expanderSpan.setAttribute("aria-hidden", "true");
       nodeElem.appendChild(expanderSpan);
       ofsTitlePx += ICON_WIDTH;
     }
@@ -1746,6 +1771,8 @@ export class WunderbaumNode {
         } else {
           colElem = document.createElement("span");
           colElem.classList.add("wb-col");
+          colElem.setAttribute("role", "gridcell");
+          colElem.setAttribute("aria-colindex", "" + colIdx);
           rowDiv.appendChild(colElem);
         }
         if (colIdx === activeColIdx) {
@@ -1860,6 +1887,63 @@ export class WunderbaumNode {
   }
 
   /**
+   * Update the ARIA tree grid state of a rendered row: level, position in the
+   * sibling set, expansion, selection, busy state and virtual row index.
+   * @internal
+   */
+  protected _render_aria(rowDiv: HTMLElement) {
+    const tree = this.tree;
+    const setOrRemove = (name: string, value: string | null) =>
+      value == null
+        ? rowDiv.removeAttribute(name)
+        : rowDiv.setAttribute(name, value);
+
+    rowDiv.setAttribute("aria-level", "" + this.getLevel());
+    rowDiv.setAttribute(
+      "aria-rowindex",
+      "" + (this._rowIdx! + 1 + tree._ariaHeaderRows)
+    );
+    if (this.statusNodeType) {
+      setOrRemove("aria-setsize", null);
+      setOrRemove("aria-posinset", null);
+      setOrRemove("aria-expanded", null);
+      setOrRemove("aria-selected", null);
+    } else {
+      // Compute the sibling positions once per parent and render pass.
+      // Status nodes (loading, paging, ...) are not part of the sibling set.
+      const parent = this.parent;
+      if (
+        parent._ariaSetPass !== tree._ariaRenderPass ||
+        this._ariaPosInSet == null
+      ) {
+        let size = 0;
+        for (const n of parent.children!) {
+          n._ariaPosInSet = n.statusNodeType ? undefined : ++size;
+        }
+        parent._ariaSetSize = size;
+        parent._ariaSetPass = tree._ariaRenderPass;
+      }
+      rowDiv.setAttribute("aria-setsize", "" + parent._ariaSetSize);
+      rowDiv.setAttribute("aria-posinset", "" + this._ariaPosInSet);
+      setOrRemove(
+        "aria-expanded",
+        this.isExpandable() ? "" + !!this.expanded : null
+      );
+      // Only expose the selection state if nodes can be selected
+      setOrRemove(
+        "aria-selected",
+        this.selected || this.getOption("checkbox")
+          ? "" + !!this.selected
+          : null
+      );
+    }
+    setOrRemove("aria-busy", this._isLoading ? "true" : null);
+    if (this === tree.focusNode) {
+      tree._updateActiveDescendant();
+    }
+  }
+
+  /**
    * Update row classes to reflect active, focuses, etc.
    * @see {@link WunderbaumNode._render}
    */
@@ -1900,6 +1984,8 @@ export class WunderbaumNode {
 
     // Replace previous classes:
     rowDiv.className = rowClasses.join(" ");
+
+    this._render_aria(rowDiv);
 
     // Add classes from `node.classes`
     this.classes ? rowDiv.classList.add(...this.classes) : 0;

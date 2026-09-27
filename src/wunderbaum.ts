@@ -127,6 +127,10 @@ export class Wunderbaum {
   protected keyMap = new Map<string, WunderbaumNode>();
   protected refKeyMap = new Map<string, Set<WunderbaumNode>>();
   protected treeRowCount = 0;
+  /** Number of visible header rows (0 or 1), used for `aria-rowindex`. @internal */
+  _ariaHeaderRows = 1;
+  /** Incremented for every `_updateRows()` pass (caches ARIA set sizes). @internal */
+  _ariaRenderPass = 0;
   protected _disableUpdateCount = 0;
   protected _disableUpdateIgnoreCount = 0;
 
@@ -328,6 +332,18 @@ export class Wunderbaum {
     if (!this.element.getAttribute("tabindex")) {
       this.element.tabIndex = 0;
     }
+    // ARIA: expose the control as a tree grid. DOM focus stays on this element
+    // and `aria-activedescendant` points at the focused row (see _setFocusNode).
+    this.element.setAttribute("role", "treegrid");
+    if (
+      opts.checkbox &&
+      opts.checkbox !== "radio" &&
+      (opts.selectMode === "multi" || opts.selectMode === "hier")
+    ) {
+      this.element.setAttribute("aria-multiselectable", "true");
+    } else {
+      this.element.removeAttribute("aria-multiselectable");
+    }
 
     if (opts.rowHeightPx !== DEFAULT_ROW_HEIGHT) {
       this.element.style.setProperty(
@@ -400,6 +416,13 @@ export class Wunderbaum {
       )!;
     this.headerElement =
       this.element.querySelector<HTMLDivElement>("div.wb-header")!;
+
+    // ARIA: header row and node list are row groups of the tree grid
+    this.headerElement.setAttribute("role", "rowgroup");
+    const headerRowElem = this.headerElement.querySelector("div.wb-row");
+    headerRowElem?.setAttribute("role", "row");
+    headerRowElem?.setAttribute("aria-rowindex", "1");
+    this.nodeListElement.setAttribute("role", "rowgroup");
 
     this.element.classList.toggle("wb-grid", this.columns.length > 1);
 
@@ -2020,6 +2043,22 @@ export class Wunderbaum {
   /* Set or remove keyboard focus to the tree container. @internal */
   _setFocusNode(node: WunderbaumNode | null) {
     this._focusNode = node;
+    this._updateActiveDescendant();
+  }
+
+  /**
+   * Point `aria-activedescendant` at the focused row, if it is rendered.
+   * (Rows outside the viewport are not in the DOM; the attribute is restored
+   * when the row is rendered again.)
+   * @internal
+   */
+  _updateActiveDescendant() {
+    const rowElem = this._focusNode?._rowElem;
+    if (rowElem && rowElem.id) {
+      this.element.setAttribute("aria-activedescendant", rowElem.id);
+    } else {
+      this.element.removeAttribute("aria-activedescendant");
+    }
   }
 
   /** Return the current selection/expansion/activation status. @experimental */
@@ -2453,6 +2492,7 @@ export class Wunderbaum {
     util.assert(this.headerElement, "Expected a headerElement");
     const wantHeader = this.hasHeader();
     util.setElemDisplay(this.headerElement, wantHeader);
+    this._ariaHeaderRows = wantHeader ? 1 : 0;
     if (!wantHeader) {
       return;
     }
@@ -2468,6 +2508,18 @@ export class Wunderbaum {
 
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
+      colElem.setAttribute("role", "columnheader");
+      colElem.setAttribute("aria-colindex", "" + (i + 1));
+      if (util.toBool(col.sortable, this.options.columnsSortable, false)) {
+        colElem.setAttribute(
+          "aria-sort",
+          col.sortOrder === "asc"
+            ? "ascending"
+            : col.sortOrder === "desc"
+              ? "descending"
+              : "none"
+        );
+      }
       // Add classes from `columns` definition to `<div.wb-col>` cells
       if (typeof col.headerClasses === "string") {
         col.headerClasses
@@ -2489,7 +2541,7 @@ export class Wunderbaum {
       // reverse order
       if (util.toBool(col.menu, this.options.columnsMenu, false)) {
         const iconClass = "wb-col-icon-menu " + iconMap.colMenu;
-        const icon = `<i data-command=menu class="wb-col-icon ${iconClass}"></i>`;
+        const icon = `<i data-command=menu class="wb-col-icon ${iconClass}" aria-hidden="true"></i>`;
         addMarkup += icon;
       }
       if (util.toBool(col.sortable, this.options.columnsSortable, false)) {
@@ -2499,7 +2551,7 @@ export class Wunderbaum {
           iconClass +=
             col.sortOrder === "asc" ? iconMap.colSortAsc : iconMap.colSortDesc;
         }
-        const icon = `<i data-command=sort class="wb-col-icon ${iconClass}"></i>`;
+        const icon = `<i data-command=sort class="wb-col-icon ${iconClass}" aria-hidden="true"></i>`;
         addMarkup += icon;
       }
       if (util.toBool(col.filterable, this.options.columnsFilterable, false)) {
@@ -2508,16 +2560,17 @@ export class Wunderbaum {
         if (col.filterActive) {
           iconClass += iconMap.colFilterActive;
         }
-        const icon = `<i data-command=filter class="wb-col-icon ${iconClass}"></i>`;
+        const icon = `<i data-command=filter class="wb-col-icon ${iconClass}" aria-hidden="true"></i>`;
         addMarkup += icon;
       }
       // Add resizer to all but the last column
       if (i < colCount - 1) {
         if (util.toBool(col.resizable, this.options.columnsResizable, false)) {
           addMarkup +=
-            '<span class="wb-col-resizer wb-col-resizer-active"></span>';
+            '<span class="wb-col-resizer wb-col-resizer-active" aria-hidden="true"></span>';
         } else {
-          addMarkup += '<span class="wb-col-resizer"></span>';
+          addMarkup +=
+            '<span class="wb-col-resizer" aria-hidden="true"></span>';
         }
       }
 
@@ -2767,6 +2820,7 @@ export class Wunderbaum {
     // this.log("_updateRows", opts)
     options = Object.assign({ newNodesOnly: false }, options);
     const newNodesOnly = !!options.newNodesOnly;
+    this._ariaRenderPass++;
 
     const rowHeight = this.options.rowHeightPx;
     const vpHeight = this.element.clientHeight;
@@ -2831,6 +2885,11 @@ export class Wunderbaum {
       top += rowHeight;
     });
     this.treeRowCount = idx;
+    // ARIA: rows are virtualized, so announce the full count (incl. header)
+    this.element.setAttribute(
+      "aria-rowcount",
+      "" + (idx + this._ariaHeaderRows)
+    );
     for (const n of obsoleteNodes) {
       n._callEvent("discard");
       n.removeMarkup();
