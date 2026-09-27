@@ -222,3 +222,144 @@ QUnit.module("Instance tests", (hooks) => {
     });
   });
 });
+
+QUnit.module("Keyboard and focus", (hooks) => {
+  let tree = null;
+  const SOURCE = [
+    { title: "Alpha", key: "a" },
+    { title: "Lab A", key: "la" },
+    { title: "Lab C", key: "lc", children: [{ title: "Leaf", key: "leaf" }] },
+    { title: "Omega", key: "o" },
+  ];
+  const treeElem = () => document.querySelector("#tree");
+  const press = (key) => {
+    tree.element.dispatchEvent(
+      new KeyboardEvent("keydown", { key: key, bubbles: true })
+    );
+  };
+  const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+  const clickTitle = (node) => {
+    node.getColElem(0).querySelector("span.wb-title").click();
+  };
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+  });
+
+  test("Home/End move to first/last row in row mode", (assert) => {
+    assert.expect(4);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      init: (e) => {
+        tree.findKey("la").setActive();
+
+        press("End");
+        assert.equal(tree.getActiveNode().key, "o", "End: last row active");
+        assert.equal(tree.getFocusNode().key, "o", "End: last row focused");
+
+        press("Home");
+        assert.equal(tree.getActiveNode().key, "a", "Home: first row active");
+        assert.equal(tree.getFocusNode().key, "a", "Home: first row focused");
+        done();
+      },
+    });
+  });
+
+  test("Quick search moves the focus and continues after a space", (assert) => {
+    assert.expect(2);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      quicksearch: true,
+      init: (e) => {
+        tree.findKey("a").setActive();
+
+        for (const key of ["l", "a", "b", " ", "c"]) {
+          press(key);
+        }
+        assert.equal(tree.getActiveNode().key, "lc", "'lab c' matches");
+        assert.equal(tree.getFocusNode().key, "lc", "focus follows the match");
+        done();
+      },
+    });
+  });
+
+  test("Space after quick search toggles if no title matches", (assert) => {
+    assert.expect(2);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      quicksearch: true,
+      checkbox: true,
+      init: (e) => {
+        tree.findKey("o").setActive();
+
+        press("a");
+        assert.equal(tree.getFocusNode().key, "a", "'a' matches Alpha");
+        press(" "); // no title starts with "a "
+        assert.true(tree.findKey("a").isSelected(), "Space toggled Alpha");
+        done();
+      },
+    });
+  });
+
+  test("Click moves the focus node", (assert) => {
+    assert.expect(2);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        tree.findKey("a").setActive();
+        press("ArrowDown");
+        assert.equal(tree.getFocusNode().key, "la", "keyboard moved focus");
+
+        clickTitle(tree.findKey("o"));
+        assert.equal(tree.getFocusNode().key, "o", "click moved focus");
+        done();
+      },
+    });
+  });
+
+  test("Click on active title still starts editing (clickActive)", (assert) => {
+    assert.expect(2);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      edit: { trigger: ["clickActive"] },
+      init: async (e) => {
+        tree.update("any", { immediate: true });
+        const node = tree.findKey("la");
+        node.setActive();
+        await sleep(100); // let pending (throttled) updates run
+
+        clickTitle(node);
+        clickTitle(node);
+        await sleep(100);
+        assert.true(tree.isEditingTitle(), "title edit is active");
+        assert.ok(
+          node.getColElem(0).querySelector("input.wb-input-edit"),
+          "title input is still rendered"
+        );
+        tree._callMethod("edit.stopEditTitle", false);
+        done();
+      },
+    });
+  });
+});

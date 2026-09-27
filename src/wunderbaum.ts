@@ -534,6 +534,10 @@ export class Wunderbaum {
           } else {
             node.setActive(true, { event: e });
           }
+          // Keyboard navigation continues from the clicked node (#129).
+          // `setFocus()` only updates the row status, so a title edit that
+          // was just started by 'clickActive' is kept (#141).
+          node.setFocus();
         }
       }
       this.lastClickTime = Date.now();

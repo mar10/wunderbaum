@@ -7,6 +7,18 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.14.2: Keyboard and focus in row mode:
+  - `Home` / `End` select the first / last row (they did nothing in row mode).
+  - Clicking a row and quick search also move the focus node, so keyboard
+    navigation continues from there (again fixes
+    [#129](https://github.com/mar10/wunderbaum/issues/129)).
+  - `node.setFocus()` only updates the row status (classes), so a title edit
+    started by `clickActive` is kept (see [#141](https://github.com/mar10/wunderbaum/pull/141)).
+    Note: it no longer re-renders the row content, so the `render` event is
+    not fired for a focus change.
+  - A space typed during quick search extends the search term, if a title
+    matches.
+
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
 - v0.14.0: Refactor sorting:

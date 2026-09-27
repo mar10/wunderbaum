@@ -46,7 +46,11 @@ are present, always the whole row is highlighted.
 <tbody>
   <tr>
     <td colspan=2 align=center><kbd>AlphaNum</kbd></td>
-    <td>Jump to next matching node, i.e. title starts with this character (if `quicksearch` is true).</td>
+    <td>
+      Jump to next matching node, i.e. title starts with this character (if `quicksearch` is true).<br>
+      Characters typed in quick succession extend the search term, including
+      <kbd>Space</kbd> if a title matches (e.g. "lab c").
+    </td>
   </tr>
   <tr>
     <td colspan=2 align=center><kbd>Tab</kbd>, <kbd>Shift</kbd> + <kbd>Tab</kbd></td>
@@ -113,16 +117,12 @@ are present, always the whole row is highlighted.
   <tr>
     <td><kbd>Home</kbd></td>
     <td><kbd>Fn</kbd> + <kbd>ArrowLeft</kbd></td>
-    <td>
-      &mdash;
-    </td>
+    <td>Select first row.</td>
   </tr>
   <tr>
     <td><kbd>End</kbd></td>
     <td><kbd>Fn</kbd> + <kbd>ArrowRight</kbd></td>
-    <td>
-      &mdash;
-    </td>
+    <td>Select last row.</td>
   </tr>
   <tr>
     <td><kbd>PageUp</kbd></td>
