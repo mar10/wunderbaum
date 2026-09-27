@@ -1802,7 +1802,9 @@ export class WunderbaumNode {
       "span.wb-title"
     ) as HTMLSpanElement;
 
-    const scrollTop = tree.element.scrollTop;
+    // Reading scrollTop forces a synchronous layout. Only do it when we need
+    // to restore the position, otherwise rendering N rows costs N layouts.
+    const scrollTop = preventScroll ? tree.element.scrollTop : 0;
     if (this.titleWithHighlight) {
       titleSpan.innerHTML = this.titleWithHighlight;
     } else {
