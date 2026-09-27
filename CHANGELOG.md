@@ -7,6 +7,15 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.14.2: Derived theme colors (hover, active, drop, dim, grayscale, ...) are
+  computed by the browser from the base color variables (`color-mix()`), so a
+  theme (e.g. dark mode) only needs to set the base variables, on `:root` or on
+  the tree element. Derived variables can still be set to override the computed
+  value. Browsers without `color-mix()` support use the previous static colors.<br>
+  **Note:** the derived variables (e.g. `--wb-hover-color`) are no longer
+  declared on `:root`, so reading them with `getComputedStyle()` or using them
+  in own CSS rules returns nothing, unless they are set explicitly.
+
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
 - v0.14.0: Refactor sorting:

@@ -6,6 +6,7 @@
 // @use "sass:meta";
 @use "sass:color";
 @use "sass:list";
+@use "sass:map";
 
 // ----------------------------------------------------------------------------
 // --- Define default colors and settings
@@ -45,6 +46,46 @@ $active-hover-color-grayscale: color.grayscale($active-hover-color);
 $active-cell-color-grayscale: color.grayscale($active-cell-color);
 $grid-color-grayscale: color.grayscale($grid-color);
 // @debug $active-header-column-color;
+
+// Derived colors are computed by the browser from the base color variables
+// where they are used (instead of being declared on `:root`), so a theme
+// (e.g. a dark mode) only has to set the base variables, either on `:root`
+// or on the tree element. Setting a derived variable (e.g.
+// `--wb-hover-color`) still overrides the computed value.
+// The ratios approximate the static defaults above, which are still used by
+// browsers without `color-mix()` support (see `@supports` below).
+@function mix-vars($color, $percent, $base: background-color) {
+  @return color-mix(in srgb, var(--wb-#{$color}) $percent, var(--wb-#{$base}));
+}
+$derived-colors: (
+  alternate-row-color-hover: mix-vars(node-text-color, 3%, alternate-row-color),
+  drop-source-color: mix-vars(node-text-color, 26%),
+  drop-target-color: mix-vars(bg-highlight-color, 20%),
+  dim-color: mix-vars(node-text-color, 70%),
+  error-background-color: mix-vars(error-color, 17%),
+  hover-color: mix-vars(bg-highlight-color, 4%),
+  active-color: mix-vars(bg-highlight-color, 12%),
+  active-cell-color: mix-vars(bg-highlight-color, 60%),
+  active-border-color: mix-vars(bg-highlight-color, 66%),
+  active-hover-color: mix-vars(bg-highlight-color, 16%),
+  active-hover-border-color: var(--wb-bg-highlight-color),
+  active-column-color: mix-vars(bg-highlight-color, 4%),
+  active-header-column-color: mix-vars(node-text-color, 18%, header-color),
+  active-color-grayscale: mix-vars(node-text-color, 9%),
+  active-border-color-grayscale: mix-vars(node-text-color, 48%),
+  active-hover-color-grayscale: mix-vars(node-text-color, 12%),
+  active-cell-color-grayscale: mix-vars(node-text-color, 44%),
+  grid-color-grayscale: var(--wb-grid-color),
+);
+
+// Return `var(--wb-<name>, <computed default>)` for a derived color.
+@function derived-color($name) {
+  @if not map.has-key($derived-colors, $name) {
+    @error "Unknown derived color '#{$name}'.";
+  }
+  @return var(--wb-#{$name}, #{map.get($derived-colors, $name)});
+}
+
 $filter-dim-color: #dedede;
 $filter-submatch-color: #868581;
 
@@ -91,29 +132,11 @@ $level-rainbow:
   --wb-header-color: #{$header-color};
   --wb-background-color: #{$background-color};
   --wb-alternate-row-color: #{$alternate-row-color};
-  --wb-alternate-row-color-hover: #{$alternate-row-color-hover};
   --wb-focus-border-color: #{$focus-border-color};
-
-  // derived
-  --wb-drop-source-color: #{$drop-source-color};
-  --wb-drop-target-color: #{$drop-target-color};
-  --wb-dim-color: #{$dim-color};
-  --wb-error-background-color: #{$error-background-color};
-  --wb-hover-color: #{$hover-color};
-  --wb-hover-border-color: #{$hover-border-color};
   --wb-grid-color: #{$grid-color};
-  --wb-active-color: #{$active-color};
-  --wb-active-cell-color: #{$active-cell-color};
-  --wb-active-border-color: #{$active-border-color};
-  --wb-active-hover-color: #{$active-hover-color};
-  --wb-active-hover-border-color: #{$active-hover-border-color};
-  --wb-active-column-color: #{$active-column-color};
-  --wb-active-header-column-color: #{$active-header-column-color};
-  --wb-active-color-grayscale: #{$active-color-grayscale};
-  --wb-active-border-color-grayscale: #{$active-border-color-grayscale};
-  --wb-active-hover-color-grayscale: #{$active-hover-color-grayscale};
-  --wb-active-cell-color-grayscale: #{$active-cell-color-grayscale};
-  --wb-grid-color-grayscale: #{$grid-color-grayscale};
+
+  // Derived colors (hover, active, drop, dim, grayscale, ...) are computed
+  // where they are used, see `derived-color()` above.
 
   --wb-filter-dim-color: #{$filter-dim-color};
   --wb-filter-submatch-color: #{$filter-submatch-color};
@@ -131,6 +154,31 @@ $level-rainbow:
   --wb-icon-padding-x: #{$icon-padding-x};
 
   --wb-header-height: #{$header-height};
+}
+
+// Browsers without `color-mix()` (before 2023) use the static default colors.
+@supports not (color: color-mix(in srgb, red, red)) {
+  :root,
+  :host {
+    --wb-alternate-row-color-hover: #{$alternate-row-color-hover};
+    --wb-drop-source-color: #{$drop-source-color};
+    --wb-drop-target-color: #{$drop-target-color};
+    --wb-dim-color: #{$dim-color};
+    --wb-error-background-color: #{$error-background-color};
+    --wb-hover-color: #{$hover-color};
+    --wb-active-color: #{$active-color};
+    --wb-active-cell-color: #{$active-cell-color};
+    --wb-active-border-color: #{$active-border-color};
+    --wb-active-hover-color: #{$active-hover-color};
+    --wb-active-hover-border-color: #{$active-hover-border-color};
+    --wb-active-column-color: #{$active-column-color};
+    --wb-active-header-column-color: #{$active-header-column-color};
+    --wb-active-color-grayscale: #{$active-color-grayscale};
+    --wb-active-border-color-grayscale: #{$active-border-color-grayscale};
+    --wb-active-hover-color-grayscale: #{$active-hover-color-grayscale};
+    --wb-active-cell-color-grayscale: #{$active-cell-color-grayscale};
+    --wb-grid-color-grayscale: #{$grid-color-grayscale};
+  }
 }
 
 // ----------------------------------------------------------------------------
@@ -223,16 +271,16 @@ div.wunderbaum {
     div.wb-node-list div.wb-row {
       &.wb-active span.wb-col:first-of-type,
       &.wb-selected span.wb-col:first-of-type {
-        background-color: var(--wb-active-color);
+        background-color: derived-color(active-color);
       }
 
       &.wb-active:hover span.wb-col:first-of-type,
       &.wb-selected:hover span.wb-col:first-of-type {
-        background-color: var(--wb-active-hover-color);
+        background-color: derived-color(active-hover-color);
       }
 
       &:hover span.wb-col:first-of-type {
-        background-color: var(--wb-hover-color);
+        background-color: derived-color(hover-color);
       }
     }
 
@@ -241,11 +289,11 @@ div.wunderbaum {
       div.wb-node-list div.wb-row {
         &.wb-active span.wb-col:first-of-type,
         &.wb-selected span.wb-col:first-of-type {
-          background-color: var(--wb-active-color-grayscale);
-          border-color: var(--wb-active-border-color-grayscale);
+          background-color: derived-color(active-color-grayscale);
+          border-color: derived-color(active-border-color-grayscale);
 
           &:hover span.wb-col:first-of-type {
-            background-color: var(--wb-active-hover-color-grayscale);
+            background-color: derived-color(active-hover-color-grayscale);
           }
         }
       }
@@ -260,11 +308,11 @@ div.wunderbaum {
     div.wb-node-list div.wb-row {
       &.wb-active,
       &.wb-selected {
-        background-color: var(--wb-active-color-grayscale);
-        border-color: var(--wb-active-border-color-grayscale);
+        background-color: derived-color(active-color-grayscale);
+        border-color: derived-color(active-border-color-grayscale);
 
         &:hover {
-          background-color: var(--wb-active-hover-color-grayscale);
+          background-color: derived-color(active-hover-color-grayscale);
         }
       }
     }
@@ -275,7 +323,7 @@ div.wunderbaum {
       background-color: var(--wb-alternate-row-color);
 
       &:hover {
-        background-color: var(--wb-alternate-row-color-hover);
+        background-color: derived-color(alternate-row-color-hover);
       }
     }
   }
@@ -283,33 +331,33 @@ div.wunderbaum {
   div.wb-node-list {
     div.wb-row {
       &:hover {
-        background-color: var(--wb-hover-color);
+        background-color: derived-color(hover-color);
       }
 
       &.wb-active,
       &.wb-selected {
-        background-color: var(--wb-active-color);
+        background-color: derived-color(active-color);
 
         // border-color: var(--wb-active-border-color);
         &:hover {
-          background-color: var(--wb-active-hover-color);
+          background-color: derived-color(active-hover-color);
           // border-color: var(--wb-active-hover-border-color);
         }
       }
 
       &.wb-focus:not(.wb-active) {
         border-style: dotted;
-        border-color: var(--wb-active-border-color);
+        border-color: derived-color(active-border-color);
       }
 
       &.wb-active {
         // background-color: var(--wb-active-hover-color);
         border-style: solid;
-        border-color: var(--wb-active-border-color);
+        border-color: derived-color(active-border-color);
 
         &:hover {
           // background-color: var(--wb-active-hover-color);
-          border-color: var(--wb-active-hover-border-color);
+          border-color: derived-color(active-hover-border-color);
         }
       }
 
@@ -491,7 +539,7 @@ div.wunderbaum {
       div.wb-row {
         span.wb-col {
           &:hover {
-            background-color: var(--wb-active-header-column-color);
+            background-color: derived-color(active-header-column-color);
           }
         }
       }
@@ -499,7 +547,7 @@ div.wunderbaum {
 
     &.wb-cell-mode div.wb-header div.wb-row span.wb-col {
       &.wb-active {
-        background-color: var(--wb-active-hover-color);
+        background-color: derived-color(active-hover-color);
       }
     }
 
@@ -507,12 +555,12 @@ div.wunderbaum {
       border-bottom-color: var(--wb-grid-color);
 
       &:hover:not(.wb-active):not(.wb-selected) {
-        background-color: var(--wb-hover-color);
+        background-color: derived-color(hover-color);
         // border-color: var(--wb-hover-border-color);
       }
 
       &.wb-active {
-        border-bottom-color: var(--wb-active-border-color);
+        border-bottom-color: derived-color(active-border-color);
       }
 
       span.wb-col {
@@ -541,7 +589,7 @@ div.wunderbaum {
 
         > input:focus,
         > select:focus {
-          border: 1px dashed $active-border-color;
+          border: 1px dashed derived-color(active-border-color);
         }
       }
 
@@ -556,7 +604,7 @@ div.wunderbaum {
       div.wb-row:not(.wb-colspan) {
         &.wb-active {
           span.wb-col.wb-active {
-            background-color: var(--wb-active-cell-color-grayscale);
+            background-color: derived-color(active-cell-color-grayscale);
           }
         }
       }
@@ -568,14 +616,14 @@ div.wunderbaum {
         // background-color: var(--wb-background-color);
 
         span.wb-col.wb-active {
-          background-color: var(--wb-active-column-color);
+          background-color: derived-color(active-column-color);
         }
 
         &.wb-active {
-          background-color: var(--wb-active-column-color);
+          background-color: derived-color(active-column-color);
 
           span.wb-col.wb-active {
-            background-color: var(--wb-active-cell-color);
+            background-color: derived-color(active-cell-color);
           }
         }
       }
@@ -586,7 +634,7 @@ div.wunderbaum {
         background-color: var(--wb-alternate-row-color);
 
         &:hover {
-          background-color: var(--wb-alternate-row-color-hover);
+          background-color: derived-color(alternate-row-color-hover);
         }
       }
     }
@@ -595,7 +643,7 @@ div.wunderbaum {
     &:not(:focus-within),
     &:not(:focus) {
       div.wb-node-list div.wb-row {
-        border-bottom-color: var(--wb-grid-color-grayscale);
+        border-bottom-color: derived-color(grid-color-grayscale);
       }
     }
   }
@@ -636,7 +684,7 @@ div.wunderbaum {
     opacity: 0.5;
 
     .wb-node {
-      background-color: var(--wb-drop-source-color);
+      background-color: derived-color(drop-source-color);
     }
   }
 
@@ -644,7 +692,7 @@ div.wunderbaum {
     overflow: visible;
 
     .wb-node {
-      background-color: var(--wb-drop-target-color);
+      background-color: derived-color(drop-target-color);
       overflow: visible;
 
       // z-index: 1000;
@@ -769,7 +817,7 @@ a.wb-breadcrumb {
 }
 
 .wb-helper-disabled {
-  color: var(--wb-dim-color);
+  color: derived-color(dim-color);
 }
 
 .wb-helper-hidden {
@@ -858,14 +906,14 @@ i.wb-icon {
 // }
 // tri-state checkbox in indeterminate state
 .wb-col input[type="checkbox"]:indeterminate {
-  color: var(--wb-dim-color);
+  color: derived-color(dim-color);
   background-color: red;
 }
 
 .wb-col input:invalid {
   // border-color: var(--wb-error-color);
   // color: var(--wb-error-color);
-  background-color: var(--wb-error-background-color);
+  background-color: derived-color(error-background-color);
 }
 
 .wb-col.wb-invalid {

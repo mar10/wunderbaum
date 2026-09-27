@@ -108,6 +108,31 @@ document
 See [`wunderbaum.scss`](https://github.com/mar10/wunderbaum/blob/main/src/wunderbaum.scss)
 for a complete list of all availabe CSS variables.
 
+A theme only needs to set the base colors. Derived colors (hover, active,
+active cell, drop target, dimmed and grayscale variants, ...) are computed by
+the browser from these base colors, where they are used (`color-mix()`).
+This works on `:root` as well as on a single tree element, for example a dark
+theme:
+
+```css
+div.wunderbaum.dark {
+  --wb-node-text-color: #d4d4d4;
+  --wb-border-color: #d4d4d4;
+  --wb-background-color: #1e1e1e;
+  --wb-alternate-row-color: #252526;
+  --wb-header-color: #333333;
+  --wb-bg-highlight-color: #3794ff;
+  --wb-focus-border-color: #3794ff;
+  --wb-error-color: #f48771;
+  --wb-grid-color: #3c3c3c;
+}
+```
+
+A derived color can still be set explicitly (e.g. `--wb-hover-color` or
+`--wb-active-color`), which overrides the computed value.
+Browsers without `color-mix()` support (before 2023) use static default colors
+instead.
+
 ## CSS Hacks
 
 !!! info "See also"
