@@ -2367,8 +2367,10 @@ export class WunderbaumNode {
     util.assert(!!flag, "Blur is not yet implemented");
     const prev = this.tree.focusNode;
     this.tree._setFocusNode(this);
-    prev?.update();
-    this.update();
+    // Only the row classes change, so don't re-render the row content (which
+    // would also discard an embedded title editor).
+    prev?.update(ChangeType.status);
+    this.update(ChangeType.status);
   }
 
   /** Set a new icon path or class. */

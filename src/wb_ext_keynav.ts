@@ -119,10 +119,20 @@ export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
         return;
       }
       // --- Quick-Search
+      // A space typed quickly continues a running quick-search term ("lab c"),
+      // if a title matches. Otherwise it toggles the selection as usual.
+      const continuesTerm =
+        eventName === " " &&
+        !!tree.lastQuicksearchTerm &&
+        Date.now() - tree.lastQuicksearchTime <= QUICKSEARCH_DELAY &&
+        !!tree.findNextNode(
+          tree.lastQuicksearchTerm + " ",
+          tree.getActiveNode()
+        );
       if (
         opts.quicksearch &&
         eventName.length === 1 &&
-        /^\w$/.test(eventName) &&
+        (/^\w$/.test(eventName) || continuesTerm) &&
         !curInput
       ) {
         // Allow to search for longer streaks if typed in quickly
@@ -137,6 +147,8 @@ export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
           tree.getActiveNode()
         );
         if (matchNode) {
+          // Move the focus node too, like keyboard navigation does
+          matchNode.setFocus();
           matchNode.setActive(true, { event: event });
         }
         event.preventDefault();
@@ -202,8 +214,6 @@ export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
         case "ArrowRight":
         case "ArrowUp":
         case "Backspace":
-        case "End":
-        case "Home":
         case "Control+End":
         case "Control+Home":
         case "Meta+ArrowDown":
@@ -211,6 +221,16 @@ export class KeynavExtension extends WunderbaumExtension<KeynavOptionsType> {
         case "PageDown":
         case "PageUp":
           node.navigate(eventName, { activate: activate, event: event });
+          break;
+        case "End":
+        case "Home":
+          // Row mode has no current column, so Home/End move to the first/last
+          // visible row (WAI-ARIA tree grid pattern, row focus). In cell mode
+          // they keep moving to the first/last column.
+          node.navigate(eventName === "Home" ? "first" : "last", {
+            activate: activate,
+            event: event,
+          });
           break;
         default:
           handled = false;
