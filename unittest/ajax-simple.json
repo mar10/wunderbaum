@@ -1,0 +1,8 @@
+[
+  {
+    "title": "Node 1",
+    "expanded": true,
+    "children": [{ "title": "Node 1.1" }, { "title": "Node 1.2" }]
+  },
+  { "title": "Node 2", "lazy": true }
+]
