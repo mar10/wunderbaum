@@ -275,6 +275,27 @@ we can focus that control and edit its content.
 </tbody>
 </table>
 
+## Accessibility
+
+Wunderbaum renders
+[WAI-ARIA tree grid](https://www.w3.org/WAI/ARIA/apg/patterns/treegrid/)
+semantics, so screen readers can announce the tree structure:
+
+- The tree container has `role="treegrid"` and keeps the keyboard focus.
+  Its `aria-activedescendant` attribute points to the focused row.
+- The header and the node list are `role="rowgroup"`, with `role="row"` and
+  `role="columnheader"` / `role="gridcell"` elements (`aria-colindex`,
+  `aria-sort` for sortable columns).
+- Rows have `aria-level`, `aria-setsize`, `aria-posinset`,
+  `aria-expanded`, `aria-selected` (if nodes can be selected), `aria-busy`
+  (while loading), and `aria-rowindex`. Because rows are rendered on demand,
+  the container has `aria-rowcount` with the number of all visible rows.
+- Decorative icons (indentation, expander, checkbox, column buttons) are
+  `aria-hidden`.
+
+Give the tree an accessible name, e.g.
+`<div id="tree" aria-label="Project files"></div>`.
+
 ## Configuration and Customization
 
 ### Related Tree Options

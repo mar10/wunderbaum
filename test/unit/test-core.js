@@ -222,3 +222,143 @@ QUnit.module("Instance tests", (hooks) => {
     });
   });
 });
+
+QUnit.module("ARIA tree grid", (hooks) => {
+  let tree = null;
+  const treeElem = () => document.querySelector("#tree");
+  const SOURCE = [
+    {
+      title: "Folder",
+      key: "f",
+      expanded: true,
+      children: [
+        { title: "Doc 1", key: "d1", size: 1 },
+        { title: "Doc 2", key: "d2", size: 2 },
+      ],
+    },
+    { title: "Lazy", key: "l", lazy: true },
+  ];
+  const COLUMNS = [
+    { id: "*", title: "Name", width: "200px" },
+    { id: "size", title: "Size", width: "50px", sortable: true },
+  ];
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+  });
+
+  test("Roles and row attributes (grid)", (assert) => {
+    assert.expect(16);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      columns: COLUMNS,
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        const elem = tree.element;
+        assert.equal(elem.getAttribute("role"), "treegrid");
+        assert.equal(
+          elem.getAttribute("aria-rowcount"),
+          "5",
+          "4 rows + header"
+        );
+        assert.false(elem.hasAttribute("aria-multiselectable"));
+
+        const headers = elem.querySelectorAll(
+          "div.wb-header [role=columnheader]"
+        );
+        assert.equal(headers.length, 2, "column headers");
+        assert.equal(headers[1].getAttribute("aria-sort"), "none");
+
+        const folder = tree.findKey("f")._rowElem;
+        assert.equal(folder.getAttribute("role"), "row");
+        assert.equal(folder.getAttribute("aria-rowindex"), "2");
+        assert.equal(folder.getAttribute("aria-level"), "1");
+        assert.equal(folder.getAttribute("aria-expanded"), "true");
+        assert.equal(folder.getAttribute("aria-posinset"), "1");
+        assert.equal(folder.getAttribute("aria-setsize"), "2");
+        assert.false(folder.hasAttribute("aria-selected"), "no selection");
+
+        const doc2 = tree.findKey("d2")._rowElem;
+        assert.equal(doc2.getAttribute("aria-level"), "2");
+        assert.false(doc2.hasAttribute("aria-expanded"), "leaf");
+        assert.deepEqual(
+          [...doc2.querySelectorAll("[role=gridcell]")].map((c) =>
+            c.getAttribute("aria-colindex")
+          ),
+          ["1", "2"],
+          "cells"
+        );
+        assert.equal(
+          tree.findKey("l")._rowElem.getAttribute("aria-expanded"),
+          "false",
+          "lazy node is expandable"
+        );
+        done();
+      },
+    });
+  });
+
+  test("Header row from columns in the source", (assert) => {
+    assert.expect(2);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: { columns: COLUMNS, children: SOURCE },
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        assert.equal(tree.element.getAttribute("aria-rowcount"), "5");
+        assert.equal(
+          tree.findKey("f")._rowElem.getAttribute("aria-rowindex"),
+          "2",
+          "first row follows the header row"
+        );
+        done();
+      },
+    });
+  });
+
+  test("Plain tree, selection and active descendant", (assert) => {
+    assert.expect(7);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      checkbox: true,
+      init: async (e) => {
+        tree.update("any", { immediate: true });
+        const elem = tree.element;
+        assert.equal(elem.getAttribute("aria-rowcount"), "4", "no header");
+        assert.equal(elem.getAttribute("aria-multiselectable"), "true");
+
+        const doc1 = tree.findKey("d1");
+        assert.equal(doc1._rowElem.getAttribute("aria-rowindex"), "2");
+        assert.equal(doc1._rowElem.getAttribute("aria-selected"), "false");
+
+        doc1.setSelected(true);
+        doc1.setFocus();
+        tree.update("any", { immediate: true });
+        assert.equal(doc1._rowElem.getAttribute("aria-selected"), "true");
+        assert.equal(
+          elem.getAttribute("aria-activedescendant"),
+          doc1._rowElem.id,
+          "active descendant is the focused row"
+        );
+
+        await tree.findKey("f").setExpanded(false);
+        tree.update("any", { immediate: true });
+        assert.equal(elem.getAttribute("aria-rowcount"), "2", "collapsed");
+        done();
+      },
+    });
+  });
+});

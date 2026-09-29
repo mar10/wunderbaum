@@ -15,6 +15,11 @@ First release.
   **Note:** the derived variables (e.g. `--wb-hover-color`) are no longer
   declared on `:root`, so reading them with `getComputedStyle()` or using them
   in own CSS rules returns nothing, unless they are set explicitly.
+- v0.14.2: Add WAI-ARIA tree grid semantics (roles, `aria-level`,
+  `aria-expanded`, `aria-selected`, `aria-rowindex`/`aria-rowcount`,
+  `aria-activedescendant`, ...) for screen readers.
+- v0.14.2: Avoid a forced synchronous layout per rendered row: `_render_data()`
+  only reads `scrollTop` when `preventScroll` is set.
 
 - v0.14.1: Fix checkbox assignment bug in wb_node.ts where the value was not being assigned to this.checkbox.
 
@@ -126,7 +131,6 @@ First release.
 - v0.7.0: #69 prevent iOS browser from opening links on drop.
 - v0.7.0: BREAKING CHANGE:
   Changed syntax format for compressed formats:
-
   - `_keyMap: {"t": "title", ...}` -> `_keyMap: {"title": "t", ...}`.
   - `_typeList: [...]` -> `_valueMap: {"type": [...]}`.
     This allows to compress values of other properties than `type`.
