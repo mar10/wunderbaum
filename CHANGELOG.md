@@ -7,7 +7,7 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
-- v0.14.2: Derived theme colors (hover, active, drop, dim, grayscale, ...) are
+- v0.15.0: Derived theme colors (hover, active, drop, dim, grayscale, ...) are
   computed by the browser from the base color variables (`color-mix()`), so a
   theme (e.g. dark mode) only needs to set the base variables, on `:root` or on
   the tree element. Derived variables can still be set to override the computed
@@ -15,12 +15,12 @@ First release.
   **Note:** the derived variables (e.g. `--wb-hover-color`) are no longer
   declared on `:root`, so reading them with `getComputedStyle()` or using them
   in own CSS rules returns nothing, unless they are set explicitly.
-- v0.14.2: Add WAI-ARIA tree grid semantics (roles, `aria-level`,
+- v0.15.0: Add WAI-ARIA tree grid semantics (roles, `aria-level`,
   `aria-expanded`, `aria-selected`, `aria-rowindex`/`aria-rowcount`,
   `aria-activedescendant`, ...) for screen readers.
-- v0.14.2: Avoid a forced synchronous layout per rendered row: `_render_data()`
+- v0.15.0: Avoid a forced synchronous layout per rendered row: `_render_data()`
   only reads `scrollTop` when `preventScroll` is set.
-- v0.14.2: Keyboard and focus in row mode:
+- v0.15.0: Keyboard and focus in row mode:
   - `Home` / `End` select the first / last row (they did nothing in row mode).
   - Clicking a row and quick search also move the focus node, so keyboard
     navigation continues from there (again fixes
@@ -31,7 +31,7 @@ First release.
     not fired for a focus change.
   - A space typed during quick search extends the search term, if a title
     matches.
-- v0.14.2: Add paging nodes ("More..." links) for long child lists:
+- v0.15.0: Add paging nodes ("More..." links) for long child lists:
   `node.addPagingNode()`, new `clickPaging` event (click, Enter, or Space),
   and `strings.moreItems`. `sort()` keeps paging nodes at the end.
   `node.remove()` now resets the active and focus node if they are removed.
