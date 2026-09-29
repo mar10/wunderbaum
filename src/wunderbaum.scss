@@ -398,6 +398,12 @@ div.wunderbaum {
       &.wb-status-error {
         color: var(--wb-error-color);
       }
+
+      &.wb-status-paging span.wb-title {
+        cursor: pointer;
+        color: var(--wb-focus-border-color);
+        text-decoration: underline;
+      }
     }
   }
 

@@ -259,6 +259,7 @@ export class Wunderbaum {
           queryResult: "Found ${matches} of ${count}",
           noMatch: "No results",
           matchIndex: "${match} of ${matches}",
+          moreItems: "More...",
         },
       },
       options
@@ -527,6 +528,12 @@ export class Wunderbaum {
       ) {
         this.lastClickTime = Date.now();
         return false;
+      }
+      if (node && node.isPagingNode()) {
+        node.setFocus();
+        node._clickPaging(e);
+        this.lastClickTime = Date.now();
+        return;
       }
       if (node) {
         if (mouseEvent.ctrlKey) {

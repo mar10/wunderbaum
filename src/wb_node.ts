@@ -317,6 +317,76 @@ export class WunderbaumNode {
   }
 
   /**
+   * Append a 'paging' status node ("More...") after the loaded children,
+   * replacing an existing one.
+   *
+   * Clicking it, or pressing Enter or Space on it, fires the `clickPaging`
+   * event. The handler typically fetches the next page, removes the paging
+   * node, calls `addChildren()` and adds a new paging node if more items
+   * remain:
+   * ```js
+   * clickPaging: async (e) => {
+   *   const parent = e.node.parent;
+   *   const page = await fetchPage(parent.key, parent.children.length - 1);
+   *   e.node.remove();
+   *   parent.addChildren(page.items);
+   *   if (page.more) {
+   *     parent.addPagingNode();
+   *   }
+   * },
+   * ```
+   * If the handler returns a promise (e.g. an `async` function), the paging
+   * node shows its loading state and ignores further clicks until it settles.
+   * Paging nodes are status nodes, so they are not registered by key, and
+   * `sort()` keeps them at the end.
+   *
+   * @param node title string or node data (`statusNodeType` is forced to 'paging')
+   * @returns the new paging node
+   */
+  addPagingNode(
+    node?: WbNodeData | string | null,
+    options?: AddChildrenOptions
+  ): WunderbaumNode {
+    const given: Partial<WbNodeData> =
+      typeof node === "string" ? { title: node } : { ...(node ?? {}) };
+    const data: WbNodeData = {
+      ...given,
+      title: given.title ?? this.tree.options.strings.moreItems ?? "More...",
+      checkbox: false,
+      colspan: given.colspan ?? true,
+      statusNodeType: NodeStatusType.paging,
+    };
+    this.children
+      ?.filter((n) => n.statusNodeType === NodeStatusType.paging)
+      .forEach((n) => n.remove());
+    return this.addChildren(data, options);
+  }
+
+  /**
+   * Fire the `clickPaging` event for a paging node (click, Enter, or Space).
+   * If the handler returns a promise, the node shows its loading state and
+   * ignores further clicks until the promise settles.
+   * @internal
+   */
+  _clickPaging(event: Event): void {
+    if (this._isLoading) {
+      return;
+    }
+    const res = this._callEvent("clickPaging", { event: event });
+    if (res instanceof Promise) {
+      this._isLoading = true;
+      this.update(ChangeType.status);
+      res.finally(() => {
+        this._isLoading = false;
+        if (this.tree) {
+          // (the handler may have removed this node)
+          this.update(ChangeType.status);
+        }
+      });
+    }
+  }
+
+  /**
    * Append (or insert) a list of child nodes.
    *
    * Tip: pass `{ before: 0 }` to prepend new nodes as first children.
@@ -1553,6 +1623,16 @@ export class WunderbaumNode {
   remove() {
     const tree = this.tree;
     const pos = this.parent.children!.indexOf(this);
+    // Like removeChildren(): don't keep a reference to a removed node (e.g. a
+    // paging node that was clicked and is replaced by the next page)
+    const isRemoved = (n: WunderbaumNode | null) =>
+      !!n && (n === this || n.isDescendantOf(this));
+    if (isRemoved(tree.activeNode)) {
+      tree._setActiveNode(null);
+    }
+    if (isRemoved(tree.focusNode)) {
+      tree._setFocusNode(null);
+    }
     this.triggerModify("remove");
     this.parent.children!.splice(pos, 1);
     this.visit((n) => {
@@ -2946,7 +3026,11 @@ export class WunderbaumNode {
       if (!cl) {
         return;
       }
-      cl.sort(cmp);
+      // Paging nodes ("More...") stay at the end
+      cl.sort(
+        (a, b) =>
+          Number(a.isPagingNode()) - Number(b.isPagingNode()) || cmp!(a, b)
+      );
       if (deep) {
         for (let i = 0, l = cl.length; i < l; i++) {
           if (cl[i].children) {

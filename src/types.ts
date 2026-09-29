@@ -660,6 +660,8 @@ export enum NavModeEnum {
 
 /** Translatable strings. */
 export type TranslationsType = {
+  /** Title of paging status nodes. @default "More..." */
+  moreItems?: string;
   /** @default "Loading..." */
   loading: string;
   /** @default "Error" */
