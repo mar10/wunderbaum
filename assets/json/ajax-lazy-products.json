@@ -1,0 +1,4 @@
+[
+  { "title": "SubNode 1 (lazy)", "type": "folder", "lazy": true },
+  { "title": "SubNode 2", "author": "n.n", "year":  1999, "qty": 0, "price": 1.99, "details": "(Lazily loaded)"}
+]
