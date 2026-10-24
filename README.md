@@ -4,8 +4,6 @@
 [![Node.js CI](https://github.com/mar10/wunderbaum/actions/workflows/node.js.yml/badge.svg)](https://github.com/mar10/wunderbaum/actions/workflows/node.js.yml)
 [![npm](https://img.shields.io/npm/dm/wunderbaum.svg)](https://www.npmjs.com/package/wunderbaum)
 [![jsDelivr](https://data.jsdelivr.com/v1/package/npm/wunderbaum/badge)](https://www.jsdelivr.com/package/npm/wunderbaum)
-[![Released with: grunt-yabs](https://img.shields.io/badge/released%20with-grunt--yabs-yellowgreen)](https://github.com/mar10/grunt-yabs)
-[![StackOverflow: wunderbaum](https://img.shields.io/badge/StackOverflow-wunderbaum-blue.svg)](https://stackoverflow.com/questions/tagged/wunderbaum)
 
 > A modern tree/treegrid control for the web.
 
