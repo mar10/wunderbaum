@@ -647,6 +647,12 @@ declare module "wb_node" {
         titleWithHighlight?: string;
         _filterAutoExpanded?: boolean;
         _rowIdx: number | undefined;
+        /** Position among non-status siblings, see `_render_aria()`. @internal */
+        _ariaPosInSet?: number;
+        /** Number of non-status children, see `_render_aria()`. @internal */
+        _ariaSetSize?: number;
+        /** Render pass of `_ariaSetSize`, see `_render_aria()`. @internal */
+        _ariaSetPass?: number;
         _rowElem: HTMLDivElement | undefined;
         constructor(tree: Wunderbaum, parent: WunderbaumNode, data: WbNodeData);
         /**
@@ -673,6 +679,41 @@ declare module "wb_node" {
          * ```
          */
         _callEvent(type: string, extra?: any): any;
+        /**
+         * Append a 'paging' status node ("More...") after the loaded children,
+         * replacing an existing one.
+         *
+         * Clicking it, or pressing Enter or Space on it, fires the `clickPaging`
+         * event. The handler typically fetches the next page, removes the paging
+         * node, calls `addChildren()` and adds a new paging node if more items
+         * remain:
+         * ```js
+         * clickPaging: async (e) => {
+         *   const parent = e.node.parent;
+         *   const page = await fetchPage(parent.key, parent.children.length - 1);
+         *   e.node.remove();
+         *   parent.addChildren(page.items);
+         *   if (page.more) {
+         *     parent.addPagingNode();
+         *   }
+         * },
+         * ```
+         * If the handler returns a promise (e.g. an `async` function), the paging
+         * node shows its loading state and ignores further clicks until it settles.
+         * Paging nodes are status nodes, so they are not registered by key, and
+         * `sort()` keeps them at the end.
+         *
+         * @param node title string or node data (`statusNodeType` is forced to 'paging')
+         * @returns the new paging node
+         */
+        addPagingNode(node?: WbNodeData | string | null, options?: AddChildrenOptions): WunderbaumNode;
+        /**
+         * Fire the `clickPaging` event for a paging node (click, Enter, or Space).
+         * If the handler returns a promise, the node shows its loading state and
+         * ignores further clicks until the promise settles.
+         * @internal
+         */
+        _clickPaging(event: Event): void;
         /**
          * Append (or insert) a list of child nodes.
          *
@@ -971,6 +1012,12 @@ declare module "wb_node" {
          * @see {@link WunderbaumNode._render}
          */
         protected _render_data(opts: RenderOptions): void;
+        /**
+         * Update the ARIA tree grid state of a rendered row: level, position in the
+         * sibling set, expansion, selection, busy state and virtual row index.
+         * @internal
+         */
+        protected _render_aria(rowDiv: HTMLElement): void;
         /**
          * Update row classes to reflect active, focuses, etc.
          * @see {@link WunderbaumNode._render}
@@ -1394,6 +1441,13 @@ declare module "wb_options" {
          * @category Callback
          */
         change?: (e: WbChangeEventType) => void;
+        /**
+         * A 'paging' status node (see {@link WunderbaumNode.addPagingNode}) was
+         * clicked, or activated with Enter or Space. `e.node` is the paging node;
+         * `e.node.parent` is the node whose next page should be loaded.
+         * @category Callback
+         */
+        clickPaging?: (e: WbNodeEventType) => void;
         /**
          *
          * Return `false` to prevent default behavior, e.g. expand/collapse, (de)selection, or activation.
@@ -2139,6 +2193,8 @@ declare module "types" {
     }
     /** Translatable strings. */
     export type TranslationsType = {
+        /** Title of paging status nodes. @default "More..." */
+        moreItems?: string;
         /** @default "Loading..." */
         loading: string;
         /** @default "Error" */
@@ -3072,6 +3128,10 @@ declare module "wunderbaum" {
         protected keyMap: Map<string, WunderbaumNode>;
         protected refKeyMap: Map<string, Set<WunderbaumNode>>;
         protected treeRowCount: number;
+        /** Number of visible header rows (0 or 1), used for `aria-rowindex`. @internal */
+        _ariaHeaderRows: number;
+        /** Incremented for every `_updateRows()` pass (caches ARIA set sizes). @internal */
+        _ariaRenderPass: number;
         protected _disableUpdateCount: number;
         protected _disableUpdateIgnoreCount: number;
         protected _activeNode: WunderbaumNode | null;
@@ -3502,6 +3562,13 @@ declare module "wunderbaum" {
         /** Set or remove keyboard focus to the tree container. */
         setFocus(flag?: boolean): void;
         _setFocusNode(node: WunderbaumNode | null): void;
+        /**
+         * Point `aria-activedescendant` at the focused row, if it is rendered.
+         * (Rows outside the viewport are not in the DOM; the attribute is restored
+         * when the row is rendered again.)
+         * @internal
+         */
+        _updateActiveDescendant(): void;
         /** Return the current selection/expansion/activation status. @experimental */
         getState(options?: GetStateOptions): TreeStateDefinition;
         /** Apply selection/expansion/activation status. @experimental */
