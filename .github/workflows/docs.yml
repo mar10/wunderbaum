@@ -1,0 +1,47 @@
+# Build the User Guide with Zensical and publish it to GitHub Pages.
+# Requires Settings > Pages > Source: "GitHub Actions".
+name: docs
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/checkout@v4
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - run: uv sync --locked --only-group docs
+
+      - run: uv run --no-sync zensical build --clean
+
+      # Unit tests are excluded from the Zensical build and published as-is
+      - name: Add unit tests to /unittest
+        run: cp -r docs/unittest site/unittest
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - uses: actions/deploy-pages@v4
+        id: deployment

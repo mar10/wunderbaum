@@ -1,0 +1,112 @@
+# Zensical configuration for the Wunderbaum User Guide.
+# See https://zensical.org/docs/setup/basics/
+#   uv run zensical serve   # or: yarn dev_docs
+#   uv run zensical build
+
+[project]
+site_name = "Wunderbaum"
+site_url = "https://mar10.github.io/wunderbaum/"
+repo_url = "https://github.com/mar10/wunderbaum"
+site_author = "Martin Wendt"
+copyright = """
+Copyright &copy; 2021-2026 Martin Wendt,
+Documentation generated with <a href="https://zensical.org/">Zensical</a>.
+"""
+
+# /unittest/ is published separately by the docs workflow.
+exclude_docs = """
+.*
+/templates/
+/unittest/
+"""
+
+nav = [
+  { "User Guide" = [
+    "index.md",
+    { "Quick start" = "tutorial/quick_start.md" },
+    { "Initialization" = "tutorial/tutorial_initialize.md" },
+    { "Data Formats" = "tutorial/tutorial_source.md" },
+    { "Features" = [
+      { "Render" = "tutorial/tutorial_render.md" },
+      { "Styling" = "tutorial/tutorial_styling.md" },
+      { "Grid" = "tutorial/tutorial_grid.md" },
+      { "Edit" = "tutorial/tutorial_edit.md" },
+      { "Drag'n'Drop" = "tutorial/tutorial_dnd.md" },
+      { "Select" = "tutorial/tutorial_select.md" },
+      { "Events" = "tutorial/tutorial_events.md" },
+      { "Filter" = "tutorial/tutorial_filter.md" },
+      { "Keyboard" = "tutorial/tutorial_keyboard.md" },
+      { "API" = "tutorial/tutorial_api.md" },
+    ] },
+    { "Concepts" = "tutorial/concepts.md" },
+    { "Migration" = "tutorial/migrate.md" },
+    { "Contribute" = "tutorial/contribute.md" },
+  ] },
+  { "API Reference" = "https://mar10.github.io/wunderbaum/api/index.html" },
+  { "Online Demos" = "https://mar10.github.io/wunderbaum/demo/" },
+  { "Changelog" = "https://github.com/mar10/wunderbaum/blob/main/CHANGELOG.md" },
+]
+
+[project.validation]
+omitted_files = "warn"
+absolute_links = "warn"
+unrecognized_links = "warn"
+anchors = "warn"
+
+[project.theme]
+variant = "modern"
+language = "en"
+logo = "assets/tree_logo_32.png"
+favicon = "assets/favicon/favicon.ico"
+features = [
+  "content.code.annotate",
+  "content.code.copy",
+  "header.autohide",
+  "navigation.bottom",
+  "navigation.breadcrumbs",
+  "navigation.expand",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.path",
+  "navigation.prev_next",
+  "navigation.sections",
+  "navigation.tabs",
+  "navigation.tabs.sticky",
+  "navigation.top",
+  "navigation.tracking",
+  "toc.follow",
+]
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "material/brightness-auto"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle.icon = "material/brightness-7"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle.icon = "material/brightness-4"
+toggle.name = "Switch to system preference"
+
+[project.extra]
+generator = false # Credit is given in `copyright` instead
+
+[project.extra.analytics]
+provider = "google"
+property = "G-W8EGCZFQ00"
+
+[project.markdown_extensions]
+admonition = {}
+attr_list = {}
+pymdownx.details = {}
+pymdownx.superfences = {}
+pymdownx.highlight.use_pygments = true
+pymdownx.highlight.pygments_lang_class = true
+pymdownx.magiclink = {}
+toc.permalink = "#"

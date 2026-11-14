@@ -119,7 +119,7 @@
     "watch": "nodemon",
     "serve": "http-server test -p 8080 -o /",
     "dev": "concurrently \"http-server . -p 8080 -o /docs/demo \" \"nodemon\"",
-    "dev_mkdocs": "uv run mkdocs serve"
+    "dev_docs": "uv run zensical serve"
   },
   "npmName": "wunderbaum",
   "npmFileMap": [

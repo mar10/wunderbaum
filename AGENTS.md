@@ -16,18 +16,18 @@ documented in `CHANGELOG.md`.
 
 Package manager is Yarn 4 via corepack (`corepack enable`); CI uses Node 20.
 
-| Command           | What it does                                                                                  |
-| ----------------- | --------------------------------------------------------------------------------------------- |
-| `yarn`            | Install dependencies                                                                          |
-| `yarn lint`       | Prettier check + ESLint on `src docs/demo` + `tsc --noEmit`. Run before finishing any change. |
-| `yarn format`     | Auto-fix ESLint/Prettier issues, then lint                                                    |
-| `yarn build:js`   | Rollup + terser into `build/` (needed before running tests)                                   |
-| `yarn test`       | lint + build:js + `grunt ci` (QUnit in headless Chrome via puppeteer)                         |
-| `yarn build`      | Full build into `build/`, including types and regenerating `docs/api/` (TypeDoc)              |
-| `yarn dev`        | Serve repo on :8080 (opens `/docs/demo`) and rebuild `build/` on change                       |
-| `yarn dev_mkdocs` | Serve the MkDocs user guide (needs [uv](https://docs.astral.sh/uv/); run `uv sync` once)      |
+| Command         | What it does                                                                                  |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| `yarn`          | Install dependencies                                                                          |
+| `yarn lint`     | Prettier check + ESLint on `src docs/demo` + `tsc --noEmit`. Run before finishing any change. |
+| `yarn format`   | Auto-fix ESLint/Prettier issues, then lint                                                    |
+| `yarn build:js` | Rollup + terser into `build/` (needed before running tests)                                   |
+| `yarn test`     | lint + build:js + `grunt ci` (QUnit in headless Chrome via puppeteer)                         |
+| `yarn build`    | Full build into `build/`, including types and regenerating `docs/api/` (TypeDoc)              |
+| `yarn dev`      | Serve repo on :8080 (opens `/docs/demo`) and rebuild `build/` on change                       |
+| `yarn dev_docs` | Serve the Zensical user guide (needs [uv](https://docs.astral.sh/uv/); run `uv sync` once)    |
 
-Python is only used for tooling (MkDocs, the fixture generator in
+Python is only used for tooling (Zensical docs, the fixture generator in
 `test/generator/`). Dependencies are managed with uv in `pyproject.toml`
 (groups `docs`, `fixtures`, `dev`); format/lint Python with
 `uv run ruff format` and `uv run ruff check`.
@@ -51,7 +51,8 @@ viewed in a browser while `yarn dev` is running.
 - `src/util.ts`, `src/common.ts`, `src/debounce.ts`, `src/deferred.ts`,
   `src/drag_observer.ts` — helpers (`util` is exposed as `Wunderbaum.util`).
 - `src/wunderbaum.scss` — styles and theming variables (`--wb-*`).
-- `docs/tutorial/*.md` — user guide (MkDocs, published to GitHub Pages).
+- `docs/tutorial/*.md` — user guide (Zensical, config in `zensical.toml`,
+  published to GitHub Pages by `.github/workflows/docs.yml`).
 - `docs/demo/` — live demo page (`demo-*.js` per demo); linted like `src/`.
 - `test/unit/` — QUnit tests. `test/triage/` is gitignored and holds local
   issue repros; `test/triage/issue_000.html` is the template.
@@ -63,7 +64,7 @@ viewed in a browser while `yarn dev` is running.
   release time (`yarn make_dist`); never modify or commit changes to it.
 - `docs/api/` — TypeDoc output (`yarn api_docs`).
 - `docs/unittest/` — copied from `test/unit/` by `yarn api_docs`.
-- `site/` — MkDocs output.
+- `site/` — Zensical output.
 
 ## Conventions
 

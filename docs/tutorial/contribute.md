@@ -99,7 +99,7 @@ $ yarn test
 
 The documentation is written in Markdown and can be found in the `docs` folder.
 
-The User Guide is generated using [MkDocs](https://www.mkdocs.org/) and the
+The User Guide is generated using [Zensical](https://zensical.org/) and the
 API documentation is generated using [TypeDoc](https://typedoc.org/).
 
 **API Documentation**
@@ -117,7 +117,7 @@ $ yarn api_docs
 
 The user guide (i.e. tutorial) is written in Markdown and can be found in the
 `docs/tutorial` folder.
-It is rendered to HTML using MkDocs by a GitHub action and published as GitHub
+It is rendered to HTML using Zensical by a GitHub action and published as GitHub
 pages every time we commit.
 
 !!! note
@@ -133,10 +133,10 @@ pages every time we commit.
     $ uv sync
     ```
 
-Run the following command to start the MkDocs server:
+Run the following command to start the Zensical server:
 
 ```bash
-$ yarn dev_mkdocs
+$ yarn dev_docs
 ```
 
 You can now edit files in the `docs/tutorial` folder and see the changes in the
