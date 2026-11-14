@@ -13,6 +13,7 @@ import {
   DropEffectType,
   DropRegionType,
   DropRegionTypeSet,
+  EmptyAreaTargetType,
 } from "./types";
 import { DebouncedFunction, throttle } from "./debounce";
 
@@ -26,6 +27,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   protected lastAllowedDropRegions: DropRegionTypeSet | null = null;
   protected lastDropEffect: DropEffectType | null = null;
   protected lastDropRegion: DropRegionType | false = false;
+  /** Set while the pointer is over the empty area below the last row. */
+  protected lastEmptyAreaTarget: EmptyAreaTargetType | null = null;
   protected currentScrollDir: number = 0;
   // protected autoScrollThrottled: DebouncedFunction<(pageY: number) => number>;
   protected applyScrollDirThrottled: DebouncedFunction<() => void>;
@@ -64,6 +67,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       dragExpand: null, // Callback(targetNode, data), return false to prevent autoExpand
       drop: null, // Callback(targetNode, data)
       dragLeave: null, // Callback(targetNode, data)
+      emptyAreaTarget: null, // Callback(e) or false (null: drop after last top-level node)
     });
     this.applyScrollDirThrottled = throttle(this._applyScrollDir, 50);
   }
@@ -103,6 +107,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // We remove the marker on dragenter from the previous target:
     const ltn = this.lastTargetNode;
     this.lastEnterStamp = 0;
+    this.lastEmptyAreaTarget = null;
+    this.tree.element.classList.remove("wb-drop-empty-area");
     if (ltn) {
       ltn.setClass(
         "wb-drop-target wb-drop-over wb-drop-after wb-drop-before",
@@ -218,8 +224,55 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       // this.tree.logDebug("Prevented before/after self");
       return true;
     }
-    // Don't allow dropping nodes on own parent (or self)
-    return srcNode === targetNode || srcNode.parent === targetNode;
+    // Don't allow dropping nodes on self, or 'over' own parent.
+    // (Dropping 'before' or 'after' the own parent is a valid move.)
+    return (
+      srcNode === targetNode ||
+      (dropRegion === "over" && srcNode.parent === targetNode)
+    );
+  }
+
+  /**
+   * Return the substitute drop target, if the pointer is over the empty area
+   * below the last row (or over a tree that has no nodes).
+   * Return null if the event is not over the empty area, or if dropping there
+   * is disabled or prevented by the `dnd.emptyAreaTarget` option.
+   */
+  protected _resolveEmptyAreaTarget(e: DragEvent): EmptyAreaTargetType | null {
+    const tree = this.tree;
+    const opt = this.treeOpts.dnd.emptyAreaTarget;
+    const target = e.target as Node | null;
+
+    if (
+      opt === false ||
+      !target ||
+      !tree.listContainerElement.contains(target) ||
+      tree.headerElement?.contains(target)
+    ) {
+      return null;
+    }
+    // Default: drop after the last top-level node, or append to the root
+    // node if the tree has no nodes:
+    const lastChild = tree.root.getLastChild();
+    let res: EmptyAreaTargetType =
+      lastChild && !lastChild.isStatusNode()
+        ? { node: lastChild, region: "after" }
+        : { node: tree.root, region: "over" };
+
+    if (typeof opt === "function") {
+      const userRes = tree._callEvent("dnd.emptyAreaTarget", {
+        event: e,
+        sourceNode: this.srcNode,
+        node: res.node,
+        region: res.region,
+      });
+      if (userRes === false) {
+        return null;
+      } else if (userRes) {
+        res = userRes;
+      }
+    }
+    return res;
   }
 
   /* Implement auto scrolling when drag cursor is in top/bottom area of scroll parent. */
@@ -362,10 +415,47 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     // const isLink = event.dataTransfer.types.includes("text/uri-list");
     const srcNode = this.srcNode;
     const srcTree = srcNode ? srcNode.tree : null;
-    const targetNode = Wunderbaum.getNode(e)!;
     const dndOpts: DndOptionsType = this.treeOpts.dnd;
     const dt = e.dataTransfer!;
-    const dropRegion = this._calcDropRegion(e, this.lastAllowedDropRegions);
+    let targetNode = Wunderbaum.getNode(e);
+    let emptyTarget: EmptyAreaTargetType | null = null;
+
+    if (!targetNode) {
+      // Pointer is not over a row: maybe over the empty area below the last
+      // row, which is handled as drop on a substitute target node
+      emptyTarget =
+        e.type === "dragenter"
+          ? this._resolveEmptyAreaTarget(e)
+          : this.lastEmptyAreaTarget;
+      if (!emptyTarget) {
+        this._leaveNode();
+        e.preventDefault(); // Don't open file in browser when dropped in empty area
+        return;
+      }
+      targetNode = emptyTarget.node;
+    }
+    const isEmptyArea = !!emptyTarget;
+    // The drop region is fixed for the empty area (unless it was rejected):
+    const calcRegion = (): DropRegionType | false =>
+      emptyTarget
+        ? this.lastAllowedDropRegions
+          ? emptyTarget.region
+          : false
+        : this._calcDropRegion(e, this.lastAllowedDropRegions);
+    const dropRegion = calcRegion();
+    /** Set drop marker classes on the target node. */
+    const _markTarget = (
+      node: WunderbaumNode,
+      region: DropRegionType | false
+    ) => {
+      if (node.isRootNode()) {
+        return;
+      }
+      node.setClass("wb-drop-target");
+      node.setClass("wb-drop-over", region === "over");
+      node.setClass("wb-drop-before", region === "before");
+      node.setClass("wb-drop-after", region === "after");
+    };
 
     /** Helper to log a message if predicate is false. */
     const _t = (pred: any, msg: string) => {
@@ -374,14 +464,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       }
       return pred;
     };
-    if (!targetNode) {
-      this._leaveNode();
-      e.preventDefault(); // Don't open file in browser when dropped in empty area
-      return;
-    }
     if (["drop"].includes(e.type)) {
       this.tree.logDebug(
-        `onDropEvent.${e.type} targetNode: ${targetNode}, ea: ${dt?.effectAllowed}, ` +
+        `onDropEvent.${e.type} targetNode: ${targetNode}, isEmptyArea: ${isEmptyArea}, ea: ${dt?.effectAllowed}, ` +
           `de: ${dt?.dropEffect}, cy: ${e.offsetY}, r: ${dropRegion}, srcNode: ${srcNode}`,
         e
       );
@@ -393,10 +478,15 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       this.lastAllowedDropRegions = null;
       // `dragleave` is not reliable with event delegation, so we generate it
       // from dragenter:
-      if (this.lastTargetNode && this.lastTargetNode !== targetNode) {
+      if (
+        this.lastTargetNode &&
+        (this.lastTargetNode !== targetNode ||
+          !!this.lastEmptyAreaTarget !== isEmptyArea)
+      ) {
         this._leaveNode();
       }
       this.lastTargetNode = targetNode;
+      this.lastEmptyAreaTarget = emptyTarget;
       this.lastEnterStamp = Date.now();
 
       if (
@@ -443,6 +533,8 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       let regionSet = targetNode._callEvent("dnd.dragEnter", {
         event: e,
         sourceNode: srcNode,
+        isEmptyArea: isEmptyArea,
+        region: emptyTarget?.region,
       });
       //
       regionSet = this.unifyDragover(regionSet);
@@ -453,11 +545,9 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       this.lastAllowedDropRegions = regionSet;
       this.lastDropEffect = dt.dropEffect;
 
-      const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
-      targetNode.setClass("wb-drop-target");
-      targetNode.setClass("wb-drop-over", region === "over");
-      targetNode.setClass("wb-drop-before", region === "before");
-      targetNode.setClass("wb-drop-after", region === "after");
+      const region = calcRegion();
+      _markTarget(targetNode, region);
+      this.tree.element.classList.toggle("wb-drop-empty-area", isEmptyArea);
 
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
@@ -469,14 +559,19 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
 
       dt.dropEffect = this._guessDropEffect(e) || "none";
 
-      targetNode._callEvent("dnd.dragOver", { event: e, sourceNode: srcNode });
+      targetNode._callEvent("dnd.dragOver", {
+        event: e,
+        sourceNode: srcNode,
+        isEmptyArea: isEmptyArea,
+      });
 
-      const region = this._calcDropRegion(e, this.lastAllowedDropRegions);
+      const region = calcRegion();
 
       this.lastDropRegion = region;
       this.lastDropEffect = dt.dropEffect;
 
       if (
+        !isEmptyArea &&
         dndOpts.autoExpandMS! > 0 &&
         targetNode.isExpandable(true) &&
         !targetNode._isLoading &&
@@ -492,9 +587,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       if (!region || this._isVoidDrop(targetNode, srcNode, region)) {
         return; // We already rejected in dragenter
       }
-      targetNode.setClass("wb-drop-over", region === "over");
-      targetNode.setClass("wb-drop-before", region === "before");
-      targetNode.setClass("wb-drop-after", region === "after");
+      _markTarget(targetNode, region);
 
       e.preventDefault(); // Allow drop (Drop operation is denied by default)
       return false;
@@ -503,7 +596,11 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     } else if (e.type === "dragleave") {
       // NOTE: we cannot trust this event, since it is always fired,
       // Instead we remove the marker on dragenter
-      targetNode._callEvent("dnd.dragLeave", { event: e, sourceNode: srcNode });
+      targetNode._callEvent("dnd.dragLeave", {
+        event: e,
+        sourceNode: srcNode,
+        isEmptyArea: isEmptyArea,
+      });
 
       // --- drop ---
     } else if (e.type === "drop") {
@@ -531,6 +628,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         sourceNode: srcNode,
         sourceNodeData: nodeData,
         dataTransfer: e.dataTransfer,
+        isEmptyArea: isEmptyArea,
       });
     }
     return false;

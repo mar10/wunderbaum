@@ -7,6 +7,16 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.16.0: Switch docs to Zensical.
+- v0.16.0: DnD: Dropping into the empty area below the last row (or onto a tree
+  that has no nodes) is now handled as a drop after the last top-level node
+  (or as `appendChild` to the root node). New option `dnd.emptyAreaTarget`
+  allows to override the target node and region, or to disable this
+  (`false`). Drop events pass `e.isEmptyArea` and the tree element gets the
+  `wb-drop-empty-area` class while hovering.<br>
+  **Note:** Dropping a node `"before"` or `"after"` its own parent is no longer
+  rejected as void move (only `"over"` the own parent is).
+
 - v0.15.0: Derived theme colors (hover, active, drop, dim, grayscale, ...) are
   computed by the browser from the base color variables (`color-mix()`), so a
   theme (e.g. dark mode) only needs to set the base variables, on `:root` or on

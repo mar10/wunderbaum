@@ -83,6 +83,7 @@ These are events are sent in a typical drag and drop operation:
     suggestedDropEffect: // 'copy', 'move', 'link'
     sourceNode: // the source node if available
     sourceNodeData: // the serialized data of the source node if any
+    isEmptyArea: // true if dropped into the empty area below the last row
   }
   ```
 
@@ -90,6 +91,43 @@ These are events are sent in a typical drag and drop operation:
 
 - `dragEnd(e)`: Fired when a drag operation is ended.<br>
   We will hardly ever have to implement this handler.
+
+## Dropping Into the Empty Area
+
+Dropping an item into the empty area below the last row (or onto a tree that
+has no nodes yet) is handled like a drop on a substitute target node:
+
+- By default, the item is dropped `"after"` the **last top-level node**,
+  so it becomes the new last top-level node.
+- If the tree has no nodes, the target is `tree.root` with region `"over"`,
+  i.e. `e.suggestedDropMode` is `"appendChild"`.
+
+The `dragEnter`, `dragOver`, `drop`, and `dragLeave` events are then fired for
+this substitute node, with `e.isEmptyArea` set to `true`.
+Since the drop region is fixed in this case, `dragEnter` only needs to return
+a truthy value (returning `false` still prevents the drop).
+So a typical handler like `e.sourceNode.moveTo(e.node, e.suggestedDropMode)`
+works without changes.
+
+The `dnd.emptyAreaTarget` option can override the default target or disable
+the feature:
+
+```js
+dnd: {
+  // Pass `false` to ignore drops into the empty area:
+  // emptyAreaTarget: false,
+  emptyAreaTarget: (e) => {
+    // e.node and e.region contain the default suggestion.
+    // Example: always append as last top-level node, even on empty trees:
+    return { node: e.tree.root, region: "over" };
+    // Return `false` to prevent the drop, or nothing to accept the default.
+  },
+  ...
+}
+```
+
+While the pointer is over the empty area, the tree element has the
+`wb-drop-empty-area` class.
 
 ## Related Tree Options
 
@@ -200,6 +238,9 @@ div.wb-row.wb-drop-target {
 }
 div.wb-row.wb-drop-target.wb-drop-before .wb-node .wb-icon::after {
   /* Drop marker */
+}
+div.wunderbaum.wb-drop-empty-area div.wb-list-container {
+  /* Dragging over the empty area below the last row */
 }
 ```
 

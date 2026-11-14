@@ -1193,6 +1193,45 @@ export interface DropEventType extends WbNodeEventType {
   sourceNode: WunderbaumNode;
   /** The DataTransfer object. */
   dataTransfer: DataTransfer;
+  /**
+   * True if the pointer is over the empty area below the last row (or over
+   * an empty tree). `node` is then the substitute target that was resolved by
+   * {@link DndOptionsType.emptyAreaTarget}.
+   * @since 0.16.0
+   */
+  isEmptyArea: boolean;
+}
+
+/**
+ * Target node and drop region that are used when an item is dragged over the
+ * empty area below the last row.
+ * @see {@link DndOptionsType.emptyAreaTarget}
+ * @since 0.16.0
+ */
+export interface EmptyAreaTargetType {
+  /** The substitute target node (may be `tree.root`). */
+  node: WunderbaumNode;
+  /** The drop region relative to `node`. */
+  region: DropRegionType;
+}
+
+/**
+ * Event passed to {@link DndOptionsType.emptyAreaTarget}.
+ * `node` and `region` contain the default suggestion.
+ * @since 0.16.0
+ */
+export interface EmptyAreaTargetEventType extends WbTreeEventType {
+  /** The original event. */
+  event: DragEvent;
+  /** The source node if any (null for external objects). */
+  sourceNode: WunderbaumNode | null;
+  /**
+   * Default target: the last top-level node, or `tree.root` if the tree has
+   * no nodes.
+   */
+  node: WunderbaumNode;
+  /** Default region: `"after"`, or `"over"` if the tree has no nodes. */
+  region: DropRegionType;
 }
 
 export type DndOptionsType = {
@@ -1368,6 +1407,8 @@ export type DndOptionsType = {
           suggestedDropEffect: DropEffectType;
           sourceNode: WunderbaumNode;
           sourceNodeData: WbNodeData | null;
+          /** True if dropped into the empty area below the last row. @since 0.16.0 */
+          isEmptyArea: boolean;
         }
       ) => void);
   /**
@@ -1376,6 +1417,33 @@ export type DndOptionsType = {
    * @category Callback
    */
   dragLeave?: null | ((e: DropEventType) => void);
+  /**
+   * Define how dragging over the empty area below the last row (or over a
+   * tree that has no nodes) is handled.
+   *
+   * By default (`null`), the item is dropped `"after"` the last top-level
+   * node, i.e. it becomes the new last top-level node. If the tree has no
+   * nodes, `tree.root` with region `"over"` is used (i.e. `"appendChild"`).
+   *
+   * - `false`: ignore drops into the empty area.
+   * - Callback: called on `dragenter`; `e.node` and `e.region` contain the
+   *   default suggestion. Return `{node, region}` to override, `false` to
+   *   prevent the drop, or `undefined` to accept the default.
+   *
+   * The resolved node is then passed as `e.node` to the `dragEnter`,
+   * `dragOver`, `drop`, and `dragLeave` callbacks, with `e.isEmptyArea`
+   * set to true. The region is fixed in this case, so `dragEnter` only has
+   * to return a truthy value to accept the drop.
+   * @default null
+   * @category Callback
+   * @since 0.16.0
+   */
+  emptyAreaTarget?:
+    | null
+    | false
+    | ((
+        e: EmptyAreaTargetEventType
+      ) => EmptyAreaTargetType | false | null | undefined);
 };
 
 /* -----------------------------------------------------------------------------

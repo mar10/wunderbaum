@@ -748,6 +748,12 @@ div.wunderbaum {
     );
   }
 
+  /* Dragging over the empty area below the last row (dnd.emptyAreaTarget). */
+  &.wb-drop-empty-area div.wb-list-container {
+    outline: 2px dashed derived-color(drop-target-color);
+    outline-offset: -2px;
+  }
+
   /* --- SPECIAL EFFECTS --- */
 
   /* Colorize indentation levels. */

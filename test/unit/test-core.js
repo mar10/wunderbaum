@@ -705,3 +705,120 @@ QUnit.module("Paging nodes", (hooks) => {
     });
   });
 });
+
+QUnit.module("Drag and drop", (hooks) => {
+  let tree = null;
+  const treeElem = () => document.querySelector("#tree");
+  const SOURCE = [
+    {
+      title: "Folder",
+      key: "f",
+      type: "folder",
+      expanded: true,
+      children: [{ title: "Doc 1", key: "d1" }],
+    },
+    { title: "Doc 2", key: "d2" },
+  ];
+
+  /** Simulate dragging an external object into the empty area and dropping it. */
+  function dropOnEmptyArea() {
+    const target = tree.listContainerElement;
+    const dataTransfer = new DataTransfer();
+    dataTransfer.setData("text/plain", "external");
+    for (const type of ["dragenter", "dragover", "drop"]) {
+      target.dispatchEvent(
+        new DragEvent(type, { bubbles: true, cancelable: true, dataTransfer })
+      );
+    }
+  }
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+  });
+
+  test("Drop into empty area: after last top-level node", (assert) => {
+    assert.expect(5);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      dnd: {
+        // Only 'over' is allowed for folders, but the empty area region is fixed
+        dragEnter: (e) => (e.node.type === "folder" ? "over" : true),
+        drop: (e) => {
+          assert.equal(e.node.key, "d2", "target is last top-level node");
+          assert.equal(e.region, "after", "region");
+          assert.equal(e.suggestedDropMode, "after", "suggestedDropMode");
+          assert.true(e.isEmptyArea, "isEmptyArea");
+        },
+      },
+      init: () => {
+        dropOnEmptyArea();
+        assert.false(
+          tree.element.classList.contains("wb-drop-empty-area"),
+          "marker class removed after drop"
+        );
+        done();
+      },
+    });
+  });
+
+  test("Drop into empty area: empty tree", (assert) => {
+    assert.expect(3);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: [],
+      dnd: {
+        dragEnter: () => true,
+        drop: (e) => {
+          assert.equal(e.node, tree.root, "target is root node");
+          assert.equal(e.suggestedDropMode, "appendChild", "suggestedDropMode");
+          assert.true(e.isEmptyArea, "isEmptyArea");
+        },
+      },
+      init: () => {
+        dropOnEmptyArea();
+        done();
+      },
+    });
+  });
+
+  test("Drop into empty area: emptyAreaTarget option", (assert) => {
+    assert.expect(3);
+    const done = assert.async();
+    let mode = "override";
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      dnd: {
+        dragEnter: () => true,
+        emptyAreaTarget: (e) => {
+          if (mode === "disabled") {
+            return false;
+          }
+          assert.equal(e.node.key, "d2", "default suggestion is passed");
+          return { node: tree.findKey("d1"), region: "before" };
+        },
+        drop: (e) => {
+          assert.step(`drop ${e.node.key} ${e.suggestedDropMode}`);
+        },
+      },
+      init: () => {
+        dropOnEmptyArea();
+        mode = "disabled";
+        dropOnEmptyArea();
+        assert.verifySteps(["drop d1 before"], "override used, false ignored");
+        done();
+      },
+    });
+  });
+});
