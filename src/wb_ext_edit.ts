@@ -232,9 +232,12 @@ export class EditExtension extends WunderbaumExtension<EditOptionsType> {
       opt = this.getPluginOption("minlength");
       const minlength = opt ? ` minlength="${opt}"` : "";
       const required = opt > 0 ? " required" : "";
+      // Disable browser autofill and password manager suggestions
+      // (1Password, LastPass, Bitwarden, Dashlane):
       inputHtml =
         `<input type=text class="wb-input-edit" tabindex=-1 value="${title}" ` +
-        `autocorrect="off"${required}${minlength}${maxlength} >`;
+        `autocomplete="off" autocorrect="off" data-1p-ignore data-lpignore="true" ` +
+        `data-bwignore data-form-type="other"${required}${minlength}${maxlength} >`;
     }
     const titleSpan = node
       .getColElem(0)!

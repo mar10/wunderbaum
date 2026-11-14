@@ -8,6 +8,8 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.16.0: Switch docs to Zensical.
+- v0.16.0: The default rename `<input>` no longer offers browser autocomplete
+  or password manager suggestions.
 - v0.16.0: New column option `hidden` hides columns always or depending on a
   condition, e.g. for responsive grids. It accepts `true`, a size class
   (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`), a pixel width, or a callback.
