@@ -38,6 +38,7 @@ new mar10.Wunderbaum({
       title: "Author",
       width: 1,
       minWidth: "100px",
+      hidden: "sm", // Hide if tree is narrower than 768px
     },
     {
       id: "year",
@@ -58,7 +59,13 @@ new mar10.Wunderbaum({
       classes: "wb-helper-end",
     },
     // In order to test horizontal scrolling, we need a fixed or at least minimal width:
-    { id: "details", title: "Details", width: 3, minWidth: "200px" },
+    {
+      id: "details",
+      title: "Details",
+      width: 3,
+      minWidth: "200px",
+      hidden: "md", // Hide if tree is narrower than 992px
+    },
   ],
   columnsResizable: true,
   columnsSortable: true,

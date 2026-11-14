@@ -75,6 +75,64 @@ const tree = new Wunderbaum({
     [ColumnDefinition](https://mar10.github.io/wunderbaum/api/interfaces/types.ColumnDefinition.html)
     for details.
 
+## Hiding Columns
+
+The `hidden` column option (since v0.16) hides a column, either always or depending on a
+condition. The most important use case is responsiveness, i.e. hiding less
+important columns when the grid becomes narrow.
+
+```js
+const tree = new Wunderbaum({
+  ...
+  columns: [
+    { id: "*", title: "Product", width: "250px" },
+    // Always hidden
+    { id: "sku", title: "SKU", hidden: true },
+    // Hidden while the tree is in size class `sm` or smaller (i.e. < 768px)
+    { id: "author", title: "Author", hidden: "sm" },
+    // Hidden while the tree is 600px wide or less
+    { id: "year", title: "Year", width: "50px", hidden: 600 },
+    // Hidden if the callback returns true
+    {
+      id: "details",
+      title: "Details",
+      hidden: (e) => e.width < 900 || !e.tree.options.showDetails,
+    },
+  ],
+});
+```
+
+`hidden` accepts
+
+- `true` / `false`
+- a size class: `"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`.
+  The column is hidden while the tree width is in that size class
+  _or smaller_, e.g. `"sm"` hides the column below the `md` breakpoint.
+- a number: the column is hidden while the tree width is at most this many pixels.
+- a callback `(e) => boolean`, which receives `e.tree`, `e.column`, `e.width`
+  (tree width in pixels), and `e.breakpoint` (current size class).
+
+The size classes are compared against the width of the tree element
+(not the browser window), so a grid in a narrow sidebar behaves like a grid on
+a small screen. The default breakpoints are similar to Bootstrap and can be
+changed with the `breakpoints` tree option:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  breakpoints: { sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 },
+});
+```
+
+Visibility is re-evaluated whenever the column widths are recalculated, e.g.
+when the tree element is resized. To re-evaluate a callback after some other
+state changed, call `tree.update("colStructure")`.
+
+Hidden columns keep their index (e.g. `e.info.idx`, `tree.activeColIdx`,
+`aria-colindex`), are skipped by keyboard navigation, and are not contained in
+`e.renderColInfosById` of the `render` event.
+The first column (`"*"`) cannot be hidden.
+
 ## Rendering
 
 Wunderbaum renders the first column (the main node column) by default.
@@ -220,10 +278,16 @@ const tree = new Wunderbaum({
 
 - `tree.setNavigationOption(mode: NavModeEnum)`
 - `tree.setColumn(colIdx: number|string,  options?: SetColumnOptions)`
+- `tree.isColumnVisible(colIdOrIdx: string|number)`
+- `tree.getBreakpoint()`: current size class of the tree width (`"xs"` ... `"xxl"`)
 
 ### Related CSS Rules
 
 ```css
+/* Header and body cells of hidden columns */
+span.wb-col.wb-col-hidden {
+  display: none;
+}
 
 ```
 

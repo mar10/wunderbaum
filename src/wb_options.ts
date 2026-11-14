@@ -5,6 +5,7 @@
  */
 
 import {
+  BreakpointMap,
   ColumnDefinitionList,
   DndOptionsType,
   DynamicBoolOption,
@@ -195,6 +196,14 @@ export interface WunderbaumOptions {
    * @since 0.11.0
    */
   columnsMenu: boolean;
+  /**
+   * Minimum width (px) of the size classes used by the
+   * {@link ColumnDefinition.hidden} column option.
+   * Widths are compared against the tree element, not the window.
+   * @default `{ sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 }`
+   * @since 0.16.0
+   */
+  breakpoints?: BreakpointMap;
   /**
    * Default value for ColumnDefinition.resizable option.
    * @default false

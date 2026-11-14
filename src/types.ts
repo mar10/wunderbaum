@@ -496,6 +496,30 @@ export interface ColumnDefinition {
   // headerIcons?: string;
   /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
   html?: string;
+  /** Hide this column, either always or depending on a condition.
+   *
+   * - `true`: always hidden.
+   * - Breakpoint name (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`): hidden while
+   *   the tree element's width is in that size class *or smaller*.
+   *   For example `"sm"` hides the column while the tree is narrower than the
+   *   `md` breakpoint (768px by default), so it is shown from `md` upward.
+   *   See {@link WunderbaumOptions.breakpoints}.
+   * - Number: hidden while the tree element's width is at most this pixel value.
+   * - Callback: hidden if it returns true. It is evaluated whenever column
+   *   widths are recalculated (e.g. when the tree is resized).
+   *
+   * Breakpoints are compared to the width of the tree element, not the window.
+   * The first column (`"*"`) cannot be hidden.
+   * @default false
+   * @since 0.16.0
+   */
+  hidden?:
+    | boolean
+    | number
+    | BreakpointType
+    | ((e: ColumnHiddenCallbackArg) => boolean);
+  /** @internal */
+  _hidden?: boolean;
   /** @internal */
   _weight?: number;
   /** @internal */
@@ -507,6 +531,43 @@ export interface ColumnDefinition {
 }
 
 export type ColumnDefinitionList = Array<ColumnDefinition>;
+
+/** Size classes that can be passed to {@link ColumnDefinition.hidden}.
+ * @since 0.16.0
+ */
+export type BreakpointType = "xs" | "sm" | "md" | "lg" | "xl";
+
+/** Size class of the tree element width, as returned by
+ * {@link Wunderbaum.getBreakpoint}.
+ * @since 0.16.0
+ */
+export type SizeClassType = BreakpointType | "xxl";
+
+/** Breakpoint definitions: minimum width (px) of each size class
+ * (`xs` starts at 0).
+ * @since 0.16.0
+ */
+export type BreakpointMap = {
+  sm: number;
+  md: number;
+  lg: number;
+  xl: number;
+  xxl: number;
+};
+
+/** Argument passed to a {@link ColumnDefinition.hidden} callback.
+ * @since 0.16.0
+ */
+export interface ColumnHiddenCallbackArg {
+  /** The tree instance. */
+  tree: Wunderbaum;
+  /** The column definition. */
+  column: ColumnDefinition;
+  /** Current width of the tree element in pixels. */
+  width: number;
+  /** Current size class of the tree element width. */
+  breakpoint: SizeClassType;
+}
 
 /**
  * Column information (passed to the `render` event).

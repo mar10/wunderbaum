@@ -23,7 +23,9 @@ import {
   AddChildrenOptions,
   ApplyCommandOptions,
   ApplyCommandType,
+  BreakpointMap,
   ChangeType,
+  ColumnDefinition,
   ColumnDefinitionList,
   ExpandAllOptions,
   FilterModeType,
@@ -61,6 +63,7 @@ import {
   SortByPropertyOptions,
   ReloadOptions,
   LoadLazyNodesOptions,
+  SizeClassType,
 } from "./types";
 import {
   DEFAULT_DEBUGLEVEL,
@@ -158,6 +161,8 @@ export class Wunderbaum {
   /** List of column definitions. */
   public columns: ColumnDefinitionList = [];
   protected _columnsById: { [key: string]: any } = {};
+  /** @internal Set by `_updateColumnWidths()` if a column was shown or hidden. */
+  protected _colVisibilityChanged = false;
   protected resizeObserver: ResizeObserver;
 
   // Modification Status
@@ -236,6 +241,7 @@ export class Wunderbaum {
         columnsMenu: false,
         columnsResizable: false,
         columnsSortable: false,
+        breakpoints: { sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 },
         selectMode: "multi", // SelectModeType
         scrollIntoViewOnExpandClick: true,
         // --- Extensions (actually set by exensions on init)
@@ -1875,6 +1881,104 @@ export class Wunderbaum {
     this.update(ChangeType.colStructure);
   }
 
+  /**
+   * Return the size class (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`, `"xxl"`)
+   * of the current tree element width.
+   * @see {@link WunderbaumOptions.breakpoints}
+   * @since 0.16.0
+   */
+  getBreakpoint(width?: number): SizeClassType {
+    const w = width ?? this.element.clientWidth;
+    const bp = this.options.breakpoints!;
+    if (w >= bp.xxl) {
+      return "xxl";
+    }
+    if (w >= bp.xl) {
+      return "xl";
+    }
+    if (w >= bp.lg) {
+      return "lg";
+    }
+    if (w >= bp.md) {
+      return "md";
+    }
+    if (w >= bp.sm) {
+      return "sm";
+    }
+    return "xs";
+  }
+
+  /**
+   * Return false if a column is currently hidden by its
+   * {@link ColumnDefinition.hidden} option.
+   * @param colIdOrIdx column id or index
+   * @since 0.16.0
+   */
+  isColumnVisible(colIdOrIdx: string | number): boolean {
+    const col =
+      typeof colIdOrIdx === "number"
+        ? this.columns[colIdOrIdx]
+        : this.columns.find((c) => c.id === colIdOrIdx);
+    util.assert(col, `Invalid column: ${colIdOrIdx}`);
+    return !col!._hidden;
+  }
+
+  /**
+   * Return the index of the next visible column, starting at (and including)
+   * `colIdx` and moving in direction `dir` (+1 or -1).
+   * Return -1 if none was found.
+   * @internal
+   */
+  _findVisibleColIdx(colIdx: number, dir: 1 | -1): number {
+    const columns = this.columns;
+    for (let i = colIdx; i >= 0 && i < columns.length; i += dir) {
+      if (!columns[i]._hidden) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  /** Evaluate the `hidden` option of a column definition. @internal */
+  protected _isColumnHidden(
+    col: ColumnDefinition,
+    width: number,
+    breakpoint: SizeClassType
+  ): boolean {
+    const hidden = col.hidden;
+    if (hidden == null || hidden === false) {
+      return false;
+    }
+    if (col.id === "*") {
+      this.logWarn("The first column ('*') cannot be hidden.");
+      return false;
+    }
+    switch (typeof hidden) {
+      case "boolean":
+        return hidden;
+      case "number":
+        return width <= hidden;
+      case "function":
+        return !!hidden({
+          tree: this,
+          column: col,
+          width: width,
+          breakpoint: breakpoint,
+        });
+      case "string": {
+        const order: SizeClassType[] = ["xs", "sm", "md", "lg", "xl", "xxl"];
+        const limit = order.indexOf(hidden);
+        if (limit < 0) {
+          util.error(
+            `Invalid column option hidden: '${hidden}' (expected one of xs, sm, md, lg, xl).`
+          );
+        }
+        return order.indexOf(breakpoint) <= limit;
+      }
+    }
+    util.error(`Invalid column option hidden: ${hidden}.`);
+  }
+
   // /** Renumber nodes `_nativeIndex`. @see {@link WunderbaumNode.resetNativeChildOrder} */
   // resetNativeChildOrder(options?: ResetOrderOptions) {
   //   this.root.resetNativeChildOrder(options);
@@ -1994,6 +2098,10 @@ export class Wunderbaum {
       0 <= colIdx && colIdx < this.columns.length,
       `Invalid colIdx: ${colIdx}`
     );
+    if (this.columns[colIdx]._hidden) {
+      // Hidden columns cannot be activated: use the next visible column left
+      colIdx = Math.max(0, this._findVisibleColIdx(colIdx, -1));
+    }
     this.activeColIdx = colIdx;
 
     // Update `wb-active` class for all headers
@@ -2412,6 +2520,8 @@ export class Wunderbaum {
       throw new Error(`First column must have  id '*': got '${col0.id}'.`);
     }
     // Gather width definitions
+    const breakpoint = this.getBreakpoint(vpWidth);
+    let lastVisibleCol = col0;
     this._columnsById = {};
     for (const col of columns) {
       this._columnsById[<string>col.id] = col;
@@ -2421,6 +2531,20 @@ export class Wunderbaum {
           `Column id '*' must be defined only once: '${col.title}'.`
         );
       }
+      const hidden = this._isColumnHidden(col, vpWidth, breakpoint);
+      if (!!col._hidden !== hidden) {
+        col._hidden = hidden;
+        this._colVisibilityChanged = true;
+      }
+      if (hidden) {
+        col._weight = 0;
+        if (col._widthPx !== 0) {
+          modified = true;
+          col._widthPx = 0;
+        }
+        continue;
+      }
+      lastVisibleCol = col;
 
       if (!cw || cw === "*") {
         col._weight = 1.0;
@@ -2467,7 +2591,7 @@ export class Wunderbaum {
       col._ofsPx = ofsPx;
       ofsPx += col._widthPx!;
     }
-    columns[columns.length - 1]._widthPx! -= FIX_ADJUST_LAST_COL;
+    lastVisibleCol._widthPx! -= FIX_ADJUST_LAST_COL;
     totalWidth = ofsPx - FIX_ADJUST_LAST_COL;
 
     const tw = `${totalWidth}px`;
@@ -2519,6 +2643,7 @@ export class Wunderbaum {
 
       colElem.style.left = col._ofsPx + "px";
       colElem.style.width = col._widthPx + "px";
+      colElem.classList.toggle("wb-col-hidden", !!col._hidden);
       colElem.setAttribute("role", "columnheader");
       colElem.setAttribute("aria-colindex", "" + (i + 1));
       if (util.toBool(col.sortable, this.options.columnsSortable, false)) {
@@ -2574,8 +2699,8 @@ export class Wunderbaum {
         const icon = `<i data-command=filter class="wb-col-icon ${iconClass}" aria-hidden="true"></i>`;
         addMarkup += icon;
       }
-      // Add resizer to all but the last column
-      if (i < colCount - 1) {
+      // Add resizer to all but the last visible column
+      if (i < colCount - 1 && this._findVisibleColIdx(i + 1, 1) >= 0) {
         if (util.toBool(col.resizable, this.options.columnsResizable, false)) {
           addMarkup +=
             '<span class="wb-col-resizer wb-col-resizer-active" aria-hidden="true"></span>';
@@ -2763,17 +2888,30 @@ export class Wunderbaum {
       }
       // console.profile(`_updateViewportImmediately()`)
 
-      if (pending.has(RF.clearMarkup)) {
-        this.visit((n) => {
-          n.removeMarkup();
-        });
-      }
+      let clearMarkup = pending.has(RF.clearMarkup);
 
       // let widthModified = false;
       if (pending.has(RF.header)) {
         // widthModified = this._updateColumnWidths();
         this._updateColumnWidths();
+        if (this._colVisibilityChanged) {
+          // Rows must be re-rendered, so the `render` event can populate
+          // cells of columns that became visible
+          this._colVisibilityChanged = false;
+          clearMarkup = true;
+          if (this.columns[this.activeColIdx]?._hidden) {
+            this.activeColIdx = Math.max(
+              0,
+              this._findVisibleColIdx(this.activeColIdx, -1)
+            );
+          }
+        }
         this._renderHeaderMarkup();
+      }
+      if (clearMarkup) {
+        this.visit((n) => {
+          n.removeMarkup();
+        });
       }
       this._updateRows();
       // console.profileEnd(`_updateViewportImmediately()`)

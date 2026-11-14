@@ -1711,7 +1711,7 @@ export class WunderbaumNode {
         info: col,
       };
       // renderColInfosById only contains columns that need rendering:
-      if (!isColspan && col.id !== "*") {
+      if (!isColspan && col.id !== "*" && !col._hidden) {
         renderColInfosById[col.id] = allColInfosById[col.id];
       }
       idx++;
@@ -1863,6 +1863,9 @@ export class WunderbaumNode {
 
         colElem.style.left = col._ofsPx + "px";
         colElem.style.width = col._widthPx + "px";
+        if (col._hidden) {
+          colElem.classList.add("wb-col-hidden");
+        }
         if (isNew && col.html) {
           if (typeof col.html === "string") {
             colElem.innerHTML = col.html;
@@ -2146,6 +2149,7 @@ export class WunderbaumNode {
         const colElem = colElems[idx] as HTMLSpanElement;
         colElem.style.left = `${ofs}px`;
         colElem.style.width = `${colDef._widthPx}px`;
+        colElem.classList.toggle("wb-col-hidden", !!colDef._hidden);
         idx++;
         ofs += colDef._widthPx!;
       }

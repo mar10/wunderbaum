@@ -363,6 +363,114 @@ QUnit.module("ARIA tree grid", (hooks) => {
   });
 });
 
+QUnit.module("Hidden columns", (hooks) => {
+  let tree = null;
+  const treeElem = () => document.querySelector("#tree");
+  const SOURCE = [
+    { title: "Doc 1", key: "d1", a: 1, b: 2, c: 3, d: 4, e: 5 },
+    { title: "Doc 2", key: "d2", a: 1, b: 2, c: 3, d: 4, e: 5 },
+  ];
+  const COLUMNS = [
+    { id: "*", title: "Name", width: "100px" },
+    { id: "a", title: "Always", hidden: true },
+    { id: "b", title: "Small", hidden: "sm" },
+    { id: "c", title: "Pixel", hidden: 300 },
+    { id: "d", title: "Callback", hidden: (e) => e.width < 500 },
+    { id: "e", title: "Visible" },
+  ];
+  const setWidth = (w) => {
+    treeElem().style.width = `${w}px`;
+    tree.update("resize", { immediate: true });
+  };
+  const visibleIds = () =>
+    tree.columns.filter((c) => tree.isColumnVisible(c.id)).map((c) => c.id);
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+    treeElem().style.width = "";
+  });
+
+  test("Visibility depends on tree width", (assert) => {
+    assert.expect(14);
+    const done = assert.async();
+    const rendered = new Set();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      columns: COLUMNS,
+      render: (e) => {
+        for (const colId of Object.keys(e.renderColInfosById)) {
+          rendered.add(colId);
+        }
+      },
+      init: (e) => {
+        setWidth(1000);
+        assert.equal(tree.getBreakpoint(), "lg");
+        assert.deepEqual(visibleIds(), ["*", "b", "c", "d", "e"], "lg");
+        const colA = tree.columns[1];
+        assert.equal(colA._widthPx, 0, "hidden column has no width");
+        const headers = tree.element.querySelectorAll("div.wb-header .wb-col");
+        assert.true(headers[1].classList.contains("wb-col-hidden"));
+        assert.false(headers[2].classList.contains("wb-col-hidden"));
+        const cells = tree.findKey("d1")._rowElem.querySelectorAll(".wb-col");
+        assert.true(cells[1].classList.contains("wb-col-hidden"));
+        assert.false(rendered.has("a"), "hidden column is not rendered");
+
+        setWidth(400);
+        assert.equal(tree.getBreakpoint(), "xs");
+        assert.deepEqual(visibleIds(), ["*", "c", "e"], "xs, < 500");
+
+        setWidth(250);
+        assert.deepEqual(visibleIds(), ["*", "e"], "<= 300px");
+
+        rendered.clear();
+        setWidth(800);
+        assert.equal(tree.getBreakpoint(), "md");
+        assert.deepEqual(visibleIds(), ["*", "b", "c", "d", "e"], "md");
+        assert.true(rendered.has("b"), "re-shown column is rendered again");
+        assert.false(
+          tree
+            .findKey("d1")
+            ._rowElem.querySelectorAll(".wb-col")[2]
+            .classList.contains("wb-col-hidden"),
+          "cell is visible again"
+        );
+        done();
+      },
+    });
+  });
+
+  test("Cell navigation skips hidden columns", (assert) => {
+    assert.expect(4);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      columns: COLUMNS,
+      navigationModeOption: "cell",
+      init: (e) => {
+        setWidth(400); // visible: *, c, e
+        tree.findKey("d1").setActive();
+        tree.setColumn(1); // hidden 'a'
+        assert.equal(tree.activeColIdx, 0, "falls back to visible column");
+        assert.equal(tree._findVisibleColIdx(1, 1), 3, "next visible");
+        tree.setColumn(4); // hidden 'd'
+        assert.equal(tree.activeColIdx, 3, "falls back to the left");
+        setWidth(250); // 'c' is now hidden as well
+        assert.equal(tree.activeColIdx, 0, "active column moved");
+        done();
+      },
+    });
+  });
+});
+
 QUnit.module("Keyboard and focus", (hooks) => {
   let tree = null;
   const SOURCE = [

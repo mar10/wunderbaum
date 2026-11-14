@@ -252,6 +252,11 @@ div.wunderbaum {
     border: 1px solid transparent;
   }
 
+  // Columns hidden by the `hidden` column option
+  span.wb-col.wb-col-hidden {
+    display: none;
+  }
+
   /* Fixed column must be opaque, i.e. have the bg color set. */
   &.wb-fixed-col {
     // Sticky first column (header and nodes)

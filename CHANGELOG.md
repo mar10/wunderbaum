@@ -8,6 +8,12 @@ First release.
 > Note that semantic versioning rules are not strictly followed during this phase.
 
 - v0.16.0: Switch docs to Zensical.
+- v0.16.0: New column option `hidden` hides columns always or depending on a
+  condition, e.g. for responsive grids. It accepts `true`, a size class
+  (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`), a pixel width, or a callback.
+  Size classes are compared against the tree element width; the breakpoints
+  can be configured with the new tree option `breakpoints`. New methods
+  `tree.getBreakpoint()` and `tree.isColumnVisible()`.
 - v0.16.0: DnD: Dropping into the empty area below the last row (or onto a tree
   that has no nodes) is now handled as a drop after the last top-level node
   (or as `appendChild` to the root node). New option `dnd.emptyAreaTarget`
