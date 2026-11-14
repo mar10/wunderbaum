@@ -27,3 +27,4 @@ for details.
 - [Documentation](https://mar10.github.io/wunderbaum/)
 - [API Reference](https://mar10.github.io/wunderbaum/api/index.html)
 - [Quick Start](https://mar10.github.io/wunderbaum/#/tutorial/quick_start)
+- [llms.txt](https://mar10.github.io/wunderbaum/llms.txt) (documentation index for AI assistants)

@@ -77,7 +77,12 @@ ESM modules are also supported:
 
 ```html
 <script type="module">
-  import wunderbaum from "https://cdn.jsdelivr.net/npm/wunderbaum@0/+esm";
+  import { Wunderbaum } from "https://cdn.jsdelivr.net/npm/wunderbaum@0/+esm";
+
+  const tree = new Wunderbaum({
+    element: document.getElementById("demo-tree"),
+    source: "path/to/data.json",
+  });
 </script>
 ```
 

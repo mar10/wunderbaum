@@ -17,3 +17,4 @@ test/issue_*.*
 /.yarn
 .pnp.cjs
 .pnp.loader.mjs
+.claude/settings.local.json

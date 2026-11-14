@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(yarn lint)",
+      "Bash(yarn format)",
+      "Bash(yarn test)",
+      "Bash(yarn build)",
+      "Bash(yarn build:*)",
+      "Bash(yarn api_docs)",
+      "Bash(npx tsc:*)",
+      "Bash(npx eslint:*)",
+      "Bash(npx prettier:*)",
+      "Bash(npx grunt:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)"
+    ],
+    "deny": ["Edit(dist/**)", "Write(dist/**)"]
+  }
+}

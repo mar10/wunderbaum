@@ -1,0 +1,51 @@
+# Wunderbaum
+
+> Wunderbaum is a zero-dependency JavaScript/TypeScript tree, grid, and treegrid control for the browser, with lazy loading, virtual rendering of large data sets, keyboard navigation, editing, filtering, drag and drop, and hierarchical selection. It is the successor of Fancytree (no jQuery).
+
+Key facts:
+
+- Install: `npm install wunderbaum`, or load from a CDN, e.g. `https://cdn.jsdelivr.net/npm/wunderbaum@0/dist/wunderbaum.umd.min.js` (UMD, global `mar10.Wunderbaum`) or `import { Wunderbaum } from "https://cdn.jsdelivr.net/npm/wunderbaum@0/+esm"`.
+- Include the stylesheet `dist/wunderbaum.css` and an icon font (Bootstrap Icons by default, configurable via the `iconMap` option).
+- Create a tree with `new Wunderbaum({ element: "#tree", source: [...] | url, columns: [...], ...events })`.
+- Nodes are `WunderbaumNode` objects; data is passed as nested `{ title, key, children, lazy, ... }` objects or a compact flat format.
+- Rendering is virtual: only visible rows exist in the DOM. Customize cells in the `render` event instead of manipulating the DOM afterwards.
+- The library is in beta (0.x); check the changelog for breaking changes.
+
+## Docs
+
+- [Quick Start](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/quick_start.md): Include the library, create a first tree.
+- [Initialization](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_initialize.md): Constructor options, loading, and init events.
+- [Data Formats](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_source.md): Node data structure, lazy loading, flat/compressed formats.
+- [Render](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_render.md): Row/cell markup and custom rendering of cells.
+- [Styling](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_styling.md): CSS classes, CSS variables, themes, icons.
+- [Grid](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_grid.md): Columns, treegrid mode, cell navigation.
+- [Edit](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_edit.md): Renaming nodes and editing grid cells.
+- [Drag and Drop](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_dnd.md): Native HTML5 drag and drop within and between trees.
+- [Select](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_select.md): Checkboxes, hierarchical selection, radio groups.
+- [Events](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_events.md): Event handlers and their arguments.
+- [Filter](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_filter.md): Searching, filtering, and highlighting nodes.
+- [Keyboard](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_keyboard.md): Keyboard navigation and shortcuts.
+- [API](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/tutorial_api.md): Overview of the tree and node API.
+- [Concepts](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/concepts.md): Design goals and core concepts.
+
+## API
+
+- [Type declarations](https://raw.githubusercontent.com/mar10/wunderbaum/main/dist/wunderbaum.d.ts): Complete TypeScript declarations of the published API (most compact authoritative reference).
+- [Options](https://raw.githubusercontent.com/mar10/wunderbaum/main/src/wb_options.ts): All tree options with TSDoc comments.
+- [Types](https://raw.githubusercontent.com/mar10/wunderbaum/main/src/types.ts): Event types, node data, column definitions, enums.
+- [API Reference (HTML)](https://mar10.github.io/wunderbaum/api/index.html): TypeDoc-generated reference.
+
+## Examples
+
+- [Online demos](https://mar10.github.io/wunderbaum/demo/): Interactive demos.
+- [Grid demo](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/demo/demo-grid.js): Treegrid with columns and cell rendering.
+- [Editable demo](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/demo/demo-editable.js): Editable grid cells.
+- [Select demo](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/demo/demo-select.js): Selection and checkboxes.
+- [Large tree demo](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/demo/demo-large.js): Large data sets.
+- [Plain tree demo](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/demo/demo-plain.js): Simple tree without columns.
+
+## Optional
+
+- [Migrate from Fancytree](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/migrate.md): Differences and migration notes.
+- [Changelog](https://raw.githubusercontent.com/mar10/wunderbaum/main/CHANGELOG.md): Release notes, including breaking changes.
+- [Contributing](https://raw.githubusercontent.com/mar10/wunderbaum/main/docs/tutorial/contribute.md): Development setup and contribution guide.
