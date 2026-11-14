@@ -147,6 +147,10 @@ export interface WbNodeData {
   /** Defaults to standard icons (doc, folder, folderOpen, ...)
    * from {@link WunderbaumOptions.iconMap}.
    * Can be overridden by {@link WunderbaumOptions.icon}.
+   *
+   * A string is interpreted as image URL if it contains `.` or `/`, and as
+   * class name(s) otherwise. HTML markup (strings containing `<`) is ignored
+   * unless {@link WunderbaumOptions.allowHtmlIcons} is set.
    */
   icon?: IconOption;
   /** Tooltip for the node icon only. Defaults to {@link WunderbaumOptions.iconTooltip}. */
@@ -406,7 +410,9 @@ export interface NodeTypeDefinition {
   classes?: string;
   /** Only show title and hide other columns if any. */
   colspan?: boolean;
-  /** Default icon for matching nodes. */
+  /** Default icon for matching nodes.
+   * @see {@link WbNodeData.icon}
+   */
   icon?: IconOption;
   /** Default icon tooltip for matching nodes. */
   iconTooltip?: TooltipOption;
@@ -494,7 +500,12 @@ export interface ColumnDefinition {
   // /** A list of icon definitions added to the column header.
   //  */
   // headerIcons?: string;
-  /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.*/
+  /** Optional HTML content that is rendered into all `span.wb-col` elements of that column.
+   *
+   * **Security:** this markup is inserted as-is (not escaped). Only use trusted
+   * content here, and be aware that column definitions may also be passed by
+   * a server response (`source.columns`).
+   */
   html?: string;
   /** Hide this column, either always or depending on a condition.
    *
@@ -1467,6 +1478,10 @@ export type DndOptionsType = {
           suggestedDropMode: InsertNodeType;
           suggestedDropEffect: DropEffectType;
           sourceNode: WunderbaumNode;
+          /** Node data passed via `dataTransfer` (`null` if missing or invalid).
+           * This may come from another window or origin, so treat it as
+           * untrusted input.
+           */
           sourceNodeData: WbNodeData | null;
           /** True if dropped into the empty area below the last row. @since 0.16.0 */
           isEmptyArea: boolean;

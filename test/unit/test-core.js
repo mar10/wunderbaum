@@ -930,3 +930,84 @@ QUnit.module("Drag and drop", (hooks) => {
     });
   });
 });
+
+QUnit.module("Security", (hooks) => {
+  let tree = null;
+  const XSS_URL_ICON = "a.png'); \" onmouseover=\"window.__wbXss=1\" x=\"";
+  const XSS_HTML_ICON = "<img src=x onerror='window.__wbXss=1'>";
+  const SOURCE = [
+    { title: "Url icon", key: "url", icon: XSS_URL_ICON },
+    { title: "Html icon", key: "html", icon: XSS_HTML_ICON },
+  ];
+  // JSON.parse creates an own `__proto__` key (an object literal would not):
+  const PROTO_NODE = '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
+
+  hooks.afterEach(() => {
+    tree?.destroy();
+    tree = null;
+  });
+
+  test("util.cssUrl()", (assert) => {
+    assert.expect(3);
+    assert.equal(util.cssUrl("a/b.png"), 'url("a/b.png")');
+    assert.equal(util.cssUrl('a"b\\c'), 'url("a\\"b\\\\c")');
+    assert.equal(util.cssUrl("a\nb"), 'url("a\\a b")');
+  });
+
+  test("Icons from node data cannot inject markup", (assert) => {
+    assert.expect(5);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: [...SOURCE, JSON.parse(PROTO_NODE)],
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        const urlRow = tree.findKey("url")._rowElem;
+        const urlIcon = urlRow.querySelector("i.wb-icon");
+        assert.false(
+          urlIcon.hasAttribute("onmouseover"),
+          "URL icon cannot add attributes"
+        );
+        assert.true(
+          urlIcon.style.backgroundImage.startsWith("url("),
+          "URL icon uses CSS background"
+        );
+
+        const htmlRow = tree.findKey("html")._rowElem;
+        assert.equal(
+          htmlRow.querySelector("img"),
+          null,
+          "HTML icon is ignored by default"
+        );
+        assert.true(
+          htmlRow.querySelector("i.wb-icon") != null,
+          "Default icon is used instead"
+        );
+        assert.true(
+          Object.getPrototypeOf(tree.findKey("proto").data) ===
+            Object.prototype,
+          "__proto__ key does not change node.data prototype"
+        );
+        done();
+      },
+    });
+  });
+
+  test("allowHtmlIcons: true renders HTML icons", (assert) => {
+    assert.expect(1);
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      allowHtmlIcons: true,
+      source: [{ title: "Html icon", key: "html", icon: "<b class='x'>!</b>" }],
+      init: (e) => {
+        tree.update("any", { immediate: true });
+        const htmlRow = tree.findKey("html")._rowElem;
+        assert.true(htmlRow.querySelector("b.x") != null, "HTML icon rendered");
+        done();
+      },
+    });
+  });
+});

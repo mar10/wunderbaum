@@ -116,6 +116,18 @@ const tree = new mar10.Wunderbaum({
 });
 ```
 
+!!! warning "HTML icons in node data"
+
+    `iconMap` entries are trusted configuration and may always contain HTML.
+    Icon definitions that come from node data (`node.icon`), from `types`, or
+    from the `icon` option callback are often loaded from a server, so HTML
+    markup is **ignored** there by default to prevent
+    [XSS](https://owasp.org/www-community/attacks/xss/).
+    Set `allowHtmlIcons: true` to allow it, but only if all icon definitions
+    come from trusted sources.<br>
+    Image URLs (strings containing `.` or `/`) and class names are always
+    allowed.
+
 ## Custom Markup
 
 ### Using the `render` Event

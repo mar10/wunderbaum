@@ -197,6 +197,11 @@ Note that
   For example if JSON source contains `"title": "<script>..."`, it will be
   converted to `&lt;script&gt;...`, which is rendered by the browser as
   `<script>...`, but not interpreted as HTML element.
+- HTML markup in `icon` definitions of node data or `types` is ignored,
+  unless the `allowHtmlIcons` option is set.
+- Column definitions (which may also be passed as `source.columns`) can contain
+  an `html` property that is inserted as-is. Only load column definitions
+  from trusted sources.
 
 ### Handling External Data Formats
 

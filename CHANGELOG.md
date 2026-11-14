@@ -7,6 +7,18 @@ First release.
 > This section will be removed after the beta phase. <br>
 > Note that semantic versioning rules are not strictly followed during this phase.
 
+- v0.16.0: Security: Fix XSS via image-URL icons (e.g. `node.icon` containing
+  quotes could inject HTML attributes). Icon and expander image URLs are now
+  applied with CSSOM instead of inline `style` markup.
+- v0.16.0: **Breaking change:** HTML markup in icon definitions from node data,
+  `types`, or the `icon` option is now ignored (and a warning is logged),
+  because node data from a server could be used for XSS. Set the new option
+  `allowHtmlIcons: true` to restore the previous behavior. HTML in `iconMap`
+  entries is still allowed.
+- v0.16.0: Security hardening: escape `badgeTooltip` and `badgeClass` returned
+  by `iconBadge`, ignore invalid drop data instead of throwing, and skip
+  `__proto__`, `constructor`, and `prototype` keys when copying source data.
+- v0.16.0: Fix `source.body` being sent as `undefined` for POST requests.
 - v0.16.0: Switch docs to Zensical.
 - v0.16.0: The default rename `<input>` no longer offers browser autocomplete
   or password manager suggestions.

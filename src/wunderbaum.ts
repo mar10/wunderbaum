@@ -93,6 +93,9 @@ class WbSystemRoot extends WunderbaumNode {
   }
 }
 
+/** Nodes that already logged a warning about an ignored HTML icon. */
+const _htmlIconWarned = new WeakSet<WunderbaumNode>();
+
 /**
  * A persistent plain object or array.
  *
@@ -225,6 +228,7 @@ export class Wunderbaum {
         header: null, // Show/hide header (pass bool or string)
         rowHeightPx: DEFAULT_ROW_HEIGHT,
         iconMap: "bootstrap",
+        allowHtmlIcons: false,
         columns: [], //util.unsafeCast<ColumnDefinitionList>(null),
         types: {},
         enabled: true,
@@ -2746,15 +2750,36 @@ export class Wunderbaum {
     const iconMap = this.iconMap;
     let iconElem;
     let icon = node.getOption("icon");
+    // Icons that come from node data, types, or the `icon` option may contain
+    // untrusted input (e.g. loaded from a server), while `iconMap` entries are
+    // trusted configuration.
+    let trusted = false;
     if (node._errorInfo) {
       icon = iconMap.error;
+      trusted = true;
     } else if (node._isLoading && showLoading) {
       // Status nodes, or nodes without expander (< minExpandLevel) should
       // display the 'loading' status with the i.wb-icon span
       icon = iconMap.loading;
+      trusted = true;
     }
     if (icon === false) {
       return null; // explicitly disabled: don't try default icons
+    }
+    if (
+      typeof icon === "string" &&
+      !trusted &&
+      TEST_HTML.test(icon) &&
+      !this.options.allowHtmlIcons
+    ) {
+      if (!_htmlIconWarned.has(node)) {
+        _htmlIconWarned.add(node);
+        node.logWarn(
+          "Ignoring HTML icon definition (set `allowHtmlIcons: true` to allow it):",
+          icon
+        );
+      }
+      icon = undefined; // Fall back to default icon
     }
     if (typeof icon === "string") {
       // Callback returned an icon definition
@@ -2777,9 +2802,11 @@ export class Wunderbaum {
     } else if (TEST_HTML.test(icon)) {
       iconElem = util.elemFromHtml(icon);
     } else if (TEST_FILE_PATH.test(icon)) {
-      iconElem = util.elemFromHtml(
-        `<i class="wb-icon" style="background-image: url('${icon}');">`
-      );
+      // Use CSSOM instead of markup, so the URL cannot break out of the
+      // attribute (XSS) and no inline style is needed (CSP).
+      iconElem = document.createElement("i");
+      iconElem.className = "wb-icon";
+      iconElem.style.backgroundImage = util.cssUrl(icon);
     } else {
       // Class name
       iconElem = document.createElement("i");
@@ -2796,8 +2823,12 @@ export class Wunderbaum {
       let tooltip = "";
       if (util.isPlainObject(cbRes)) {
         badge = "" + cbRes.badge;
-        classes = cbRes.badgeClass ? " " + cbRes.badgeClass : "";
-        tooltip = cbRes.badgeTooltip ? ` title="${cbRes.badgeTooltip}"` : "";
+        classes = cbRes.badgeClass
+          ? " " + util.escapeHtml(cbRes.badgeClass)
+          : "";
+        tooltip = cbRes.badgeTooltip
+          ? ` title="${util.escapeTooltip(cbRes.badgeTooltip)}"`
+          : "";
       } else if (typeof cbRes === "number") {
         badge = "" + cbRes;
       } else {

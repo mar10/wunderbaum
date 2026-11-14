@@ -610,8 +610,15 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       this._leaveNode();
 
       const region = this.lastDropRegion;
-      let nodeData = e.dataTransfer?.getData(nodeMimeType);
-      nodeData = nodeData ? JSON.parse(nodeData) : null;
+      // NOTE: drop data may come from another window or origin and must be
+      // treated as untrusted input.
+      const nodeDataStr = e.dataTransfer?.getData(nodeMimeType);
+      let nodeData = null;
+      try {
+        nodeData = nodeDataStr ? JSON.parse(nodeDataStr) : null;
+      } catch (err) {
+        this.tree.logWarn(`Ignoring invalid ${nodeMimeType} drop data`, err);
+      }
       const srcNode = this.srcNode;
       const lastDropEffect = this.lastDropEffect;
 

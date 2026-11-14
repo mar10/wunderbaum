@@ -310,7 +310,7 @@ function reconfigureTree(tag = null) {
     })
     .catch((e) => {
       detailsElem.classList.add("error");
-      detailsElem.innerHTML = `${e}`;
+      detailsElem.textContent = `${e}`;
     });
 }
 

@@ -163,6 +163,17 @@ export interface WunderbaumOptions {
   checkbox: DynamicCheckboxOption;
   /** Optional callback to render icons per node. */
   icon?: DynamicIconOption;
+  /**
+   * Allow icon definitions that contain HTML markup (e.g. `"<img src=...>"`)
+   * in node data, `types`, or the {@link icon} option.
+   * This is disabled by default, because node data is often loaded from a
+   * server and could otherwise be used for cross-site scripting (XSS).
+   * Only enable this if all icon definitions come from trusted sources.
+   * (`iconMap` entries may always contain HTML.)
+   * @default false
+   * @since 0.16.0
+   */
+  allowHtmlIcons?: boolean;
   /** Optional callback to render a tooltip for the icon. */
   iconTooltip?: DynamicBoolOrStringOption;
   /** Optional callback to render a tooltip for the node title.

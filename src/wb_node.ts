@@ -231,7 +231,7 @@ export class WunderbaumNode {
     }
     // Store custom fields as `node.data`
     for (const [key, value] of Object.entries(data)) {
-      if (!NODE_PROPS.has(key)) {
+      if (!NODE_PROPS.has(key) && !util.UNSAFE_KEYS.has(key)) {
         this.data[key] = value;
       }
     }
@@ -1207,7 +1207,7 @@ export class WunderbaumNode {
 
     // Add extra data to `tree.data`
     for (const [key, value] of Object.entries(source)) {
-      if (!RESERVED_TREE_SOURCE_KEYS.has(key)) {
+      if (!RESERVED_TREE_SOURCE_KEYS.has(key) && !util.UNSAFE_KEYS.has(key)) {
         tree.data[key] = value;
         // tree.logDebug(`Add source.${key} to tree.data.${key}`);
       }
@@ -1248,7 +1248,7 @@ export class WunderbaumNode {
           !fetchOpts.body,
           "options.body should be passed as source.body"
         );
-        fetchOpts.body = JSON.stringify(fetchOpts.body);
+        fetchOpts.body = JSON.stringify(body);
         fetchOpts.method ??= "POST"; // set default
       }
       if (util.isPlainObject(params)) {
@@ -2100,7 +2100,7 @@ export class WunderbaumNode {
       } else if (TEST_HTML.test(image)) {
         expanderElem.replaceWith(util.elemFromHtml(image));
       } else if (TEST_FILE_PATH.test(image)) {
-        expanderElem.style.backgroundImage = `url('${image}')`;
+        expanderElem.style.backgroundImage = util.cssUrl(image);
       } else {
         expanderElem.className = "wb-expander " + image;
       }

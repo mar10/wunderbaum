@@ -189,6 +189,26 @@ export function escapeHtml(s: string): string {
   });
 }
 
+/**
+ * Return a CSS `url("...")` value for `s`, with quotes, backslashes, and
+ * control characters escaped, so it is safe to assign to `style.backgroundImage`.
+ */
+export function cssUrl(s: string): string {
+  // eslint-disable-next-line no-control-regex
+  const escaped = ("" + s).replace(/[\\"\x00-\x1f\x7f]/g, (c) =>
+    c === "\\" || c === '"'
+      ? "\\" + c
+      : "\\" + c.charCodeAt(0).toString(16) + " "
+  );
+  return `url("${escaped}")`;
+}
+
+/**
+ * Object keys that must not be copied from untrusted input, because assigning
+ * them could modify an object's prototype.
+ */
+export const UNSAFE_KEYS = new Set(["__proto__", "constructor", "prototype"]);
+
 // export function escapeRegExp(s: string) {
 //   return s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
 // }
@@ -497,7 +517,10 @@ export function extend(...args: any[]) {
       continue;
     }
     for (const key in arg) {
-      if (Object.prototype.hasOwnProperty.call(arg, key)) {
+      if (
+        Object.prototype.hasOwnProperty.call(arg, key) &&
+        !UNSAFE_KEYS.has(key)
+      ) {
         args[0][key] = arg[key];
       }
     }
