@@ -1,5 +1,4 @@
 {
-  "python.formatting.provider": "black",
   "files.exclude": {
     "**/build": true,
     "**/dist": true,
@@ -7,6 +6,8 @@
   },
   "explorer.excludeGitIgnore": false,
   "editor.formatOnSave": true,
-  "black-formatter.importStrategy": "fromEnvironment",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
   "eslint.useFlatConfig": true
 }

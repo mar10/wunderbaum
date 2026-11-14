@@ -16,9 +16,9 @@ See `make_fixture.py` for more examples.
 See `test_tree_generator.py` for details.
 """
 
+import json
 from collections import Counter
 from enum import Enum
-import json
 
 from nutree.tree_generator import GenericNodeData
 from nutree.typed_tree import TypedTree
@@ -175,7 +175,7 @@ def compress_child_list(
     # ----------
     # Pass 1: collect used attribute and type names
     seq = 0
-    for parent_idx, node in _iter_dict_pre_order(child_list):
+    for _parent_idx, node in _iter_dict_pre_order(child_list):
         # Build/update key_map / inverse_key_map
         for attr in node.keys():
             attr_counts[attr] += 1
@@ -275,7 +275,7 @@ def compress_child_list(
 
 
 def compress_source_file(file_path, *, key_map: dict) -> dict:
-    with open(file_path, "rt") as fp:
+    with open(file_path) as fp:
         source = json.load(fp)
     return compress_child_list(source, key_map=key_map)
 

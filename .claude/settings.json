@@ -11,6 +11,8 @@
       "Bash(npx eslint:*)",
       "Bash(npx prettier:*)",
       "Bash(npx grunt:*)",
+      "Bash(uv sync)",
+      "Bash(uv run ruff:*)",
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",

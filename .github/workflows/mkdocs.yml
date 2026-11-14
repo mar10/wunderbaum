@@ -17,9 +17,9 @@ jobs:
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
-          python-version: 3.x
+          enable-cache: true
 
       - run: echo "cache_id=$(date --utc '+%V')" >> $GITHUB_ENV
 
@@ -30,9 +30,9 @@ jobs:
           restore-keys: |
             mkdocs-material-
 
-      - run: pip install mkdocs-material
+      - run: uv sync --locked --only-group docs
 
-      - run: mkdocs gh-deploy --force
+      - run: uv run --no-sync mkdocs gh-deploy --force
 
       - name: Commit 'docs/unittest' folder to 'gh-pages'
         run: |

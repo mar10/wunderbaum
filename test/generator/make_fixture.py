@@ -1,9 +1,9 @@
 """
 This script generates fixture data for different tree structures.
 
-The script contains several functions that generate fixture data for different 
-tree structures. 
-Each function corresponds to a specific fixture and returns a dictionary 
+The script contains several functions that generate fixture data for different
+tree structures.
+Each function corresponds to a specific fixture and returns a dictionary
 representing the tree data.
 
 The available fixtures are:
@@ -16,18 +16,18 @@ The naming conventions for the fixture functions are as follows:
 - follwed by a name that describes the tree structure
 - and a suffix that indicates the size of the tree structure (e.g., 'XL', 'M', 'S').
 
-To generate fixture data for a specific tree structure, pass the name of the 
+To generate fixture data for a specific tree structure, pass the name of the
 fixture as a command-line argument when running the script.
 
 Example usage:
     python make_fixture.py store_XL
 
 The generated fixture data is written to JSON files in different formats:
-- tree_NAME_p.json: 
+- tree_NAME_p.json:
   Plain list format:
-  Each node is represented as a dictionary in a nested list. 
+  Each node is represented as a dictionary in a nested list.
   No compression is applied.
-  
+
 - tree_NAME_o.json:
   Standard format:
   One top-level dictionary with a 'children' key containing a nested list child nodes.
@@ -51,35 +51,40 @@ The generated fixture data is written to JSON files in different formats:
 
 - tree_NAME_t_c_flat_comp.json:
   Flat parent-referencing list with types, columns, and compression:
-  The child nodes are compressed using `_valueMap`, `_keyMap`, and `_positional` 
+  The child nodes are compressed using `_valueMap`, `_keyMap`, and `_positional`
   mappings.
 
 The generated JSON files are saved in the 'fixtures' directory.
 """
 
-from copy import deepcopy
-from datetime import date
 import json
 import os
-from pathlib import Path
 import sys
+from copy import deepcopy
+from datetime import date
+from pathlib import Path
 from textwrap import dedent
 
 sys.path.append(os.path.dirname(__file__))
 
-from generator import (
-    Automatic,
-    FileFormat,
-    compress_child_list,
-    generate_random_wb_source,
+from nutree.tree_generator import (
+    BlindTextRandomizer as Blind,
 )
 from nutree.tree_generator import (
     DateRangeRandomizer,
     RangeRandomizer,
     SampleRandomizer,
     SparseBoolRandomizer,
+)
+from nutree.tree_generator import (
     TextRandomizer as Fab,
-    BlindTextRandomizer as Blind,
+)
+
+from generator import (
+    Automatic,
+    FileFormat,
+    compress_child_list,
+    generate_random_wb_source,
 )
 
 
@@ -446,14 +451,14 @@ def _generate_fixture_fmea_XL() -> dict:
 def _size_disp(path: Path) -> str:
     size = path.stat().st_size
     if size > 500_000:
-        return f"{round(0.000001*size, 2):,} MiB"
+        return f"{round(0.000001 * size, 2):,} MiB"
     elif size > 3000:
-        return f"{round(0.001*size, 2):,} kiB"
+        return f"{round(0.001 * size, 2):,} kiB"
     return f"{size:,} bytes"
 
 
 def _write_json(path: Path, data: dict, *, debug: bool):
-    with open(path, "wt") as fp:
+    with open(path, "w") as fp:
         if debug:
             json.dump(data, fp, indent=4, separators=(", ", ": "))
         else:

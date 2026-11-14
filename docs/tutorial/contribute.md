@@ -123,14 +123,14 @@ pages every time we commit.
 !!! note
 
     In order to generate the User Guide documentation locally, we need to have
-    [Python](https://www.python.org/) and
-    [pipenv](https://pipenv.pypa.io/en/stable/index.html) installed.
+    [uv](https://docs.astral.sh/uv/) installed (it also installs the required
+    Python version).
 
     Then install the required packages:
 
     ```bash
     $ cd path/to/project
-    $ pipenv install
+    $ uv sync
     ```
 
 Run the following command to start the MkDocs server:

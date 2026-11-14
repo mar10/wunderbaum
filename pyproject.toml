@@ -1,0 +1,25 @@
+# Python tooling for Wunderbaum (documentation and test fixture generator).
+# This is not a Python package; dependencies are managed with uv:
+#   uv sync                 # install all groups into .venv
+#   uv run mkdocs serve     # or: yarn dev_mkdocs
+[project]
+name = "wunderbaum-tools"
+version = "0"
+requires-python = ">=3.12"
+
+[dependency-groups]
+docs = ["mkdocs>=1.6,<2", "mkdocs-material>=9.5"]
+fixtures = ["nutree[all]~=0.9.0"]  # generator uses the pre-1.0 GenericNodeData API
+dev = ["ruff>=0.8"]
+
+[tool.uv]
+package = false
+default-groups = ["docs", "fixtures", "dev"]
+
+[tool.ruff]
+target-version = "py312"
+extend-exclude = ["node_modules", "build", "dist", "docs/api", "site"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B"]
+ignore = ["E501"]  # line length is handled by the formatter

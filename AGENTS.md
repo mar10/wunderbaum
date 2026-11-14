@@ -25,7 +25,12 @@ Package manager is Yarn 4 via corepack (`corepack enable`); CI uses Node 20.
 | `yarn test`       | lint + build:js + `grunt ci` (QUnit in headless Chrome via puppeteer)                         |
 | `yarn build`      | Full build into `build/`, including types and regenerating `docs/api/` (TypeDoc)              |
 | `yarn dev`        | Serve repo on :8080 (opens `/docs/demo`) and rebuild `build/` on change                       |
-| `yarn dev_mkdocs` | Serve the MkDocs user guide (needs Python + pipenv)                                           |
+| `yarn dev_mkdocs` | Serve the MkDocs user guide (needs [uv](https://docs.astral.sh/uv/); run `uv sync` once)      |
+
+Python is only used for tooling (MkDocs, the fixture generator in
+`test/generator/`). Dependencies are managed with uv in `pyproject.toml`
+(groups `docs`, `fixtures`, `dev`); format/lint Python with
+`uv run ruff format` and `uv run ruff check`.
 
 Unit tests live in `test/unit/test-core.js` (QUnit, plain JS) and run against
 `build/wunderbaum.umd.js` via `test/unit/test-dev.html`. Tests can also be
