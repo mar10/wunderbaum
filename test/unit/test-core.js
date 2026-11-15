@@ -1192,14 +1192,15 @@ QUnit.module("Drag and drop", (hooks) => {
 
 QUnit.module("Security", (hooks) => {
   let tree = null;
-  const XSS_URL_ICON = "a.png'); \" onmouseover=\"window.__wbXss=1\" x=\"";
+  const XSS_URL_ICON = 'a.png\'); " onmouseover="window.__wbXss=1" x="';
   const XSS_HTML_ICON = "<img src=x onerror='window.__wbXss=1'>";
   const SOURCE = [
     { title: "Url icon", key: "url", icon: XSS_URL_ICON },
     { title: "Html icon", key: "html", icon: XSS_HTML_ICON },
   ];
   // JSON.parse creates an own `__proto__` key (an object literal would not):
-  const PROTO_NODE = '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
+  const PROTO_NODE =
+    '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
 
   hooks.afterEach(() => {
     tree?.destroy();
