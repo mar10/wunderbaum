@@ -201,6 +201,12 @@ const tree = new Wunderbaum({
     and the [Edit Tutorial](tutorial_edit.md) for rendering of embedded
     input controls in grids.
 
+!!! info
+
+    Rows have a fixed height by default, so tall custom markup is clipped.
+    Set the `autoRowHeight` tree option to let rows grow with their content,
+    see [Variable Row Height](tutorial_grid.md#variable-row-height).
+
 ### Badges
 
 Badges are small icons that can be displayed near the node title. <br>

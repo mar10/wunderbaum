@@ -543,6 +543,34 @@ div.wunderbaum {
     }
   }
 
+  /* --- AUTO ROW HEIGHT --- */
+
+  // Rows grow with their content (tree option `autoRowHeight`).
+  // The row height is set by JS to the height of the tallest cell.
+  &.wb-auto-row-height {
+    // We restore the scroll position ourselves when rows are measured
+    overflow-anchor: none;
+
+    div.wb-node-list span.wb-col {
+      height: auto;
+      min-height: 100%; // stretch grid lines to the row height
+      // Clip content if the tree option `maxRowHeightPx` is set
+      max-height: var(--wb-row-max-inner-height, none);
+
+      &.wb-wrap,
+      &.wb-wrap span.wb-title {
+        white-space: normal;
+        overflow-wrap: anywhere;
+      }
+    }
+
+    // Prevent that baseline-aligned icons increase the height of the line
+    // (this is clipped by the fixed cell height otherwise)
+    div.wb-node-list span.wb-node > * {
+      vertical-align: top;
+    }
+  }
+
   /* --- GRID --- */
 
   &.wb-grid {

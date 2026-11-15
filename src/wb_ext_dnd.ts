@@ -140,8 +140,19 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     e: DragEvent,
     allowed: DropRegionTypeSet | null
   ): DropRegionType | false {
-    const rowHeight = this.tree.options.rowHeightPx;
-    const dy = e.offsetY;
+    let rowHeight = this.tree.options.rowHeightPx;
+    let dy = e.offsetY;
+
+    if (this.tree.options.autoRowHeight) {
+      // Rows have different heights, and `offsetY` is relative to the cell
+      // content: use the position inside the row instead
+      const rowElem = (<HTMLElement>e.target)?.closest?.("div.wb-row");
+      if (rowElem) {
+        const rect = rowElem.getBoundingClientRect();
+        rowHeight = rect.height;
+        dy = e.clientY - rect.top;
+      }
+    }
 
     if (!allowed) {
       return false;

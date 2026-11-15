@@ -71,6 +71,7 @@ import {
   makeNodeTitleStartMatcher,
   nodeTitleSorter,
   RENDER_MAX_PREFETCH,
+  ROW_BORDER_HEIGHT,
   DEFAULT_ROW_HEIGHT,
   TEST_FILE_PATH,
   TEST_HTML,
@@ -166,6 +167,12 @@ export class Wunderbaum {
   protected _columnsById: { [key: string]: any } = {};
   /** @internal Set by `_updateColumnWidths()` if a column was shown or hidden. */
   protected _colVisibilityChanged = false;
+  /** Rendered nodes whose row height must be measured (`autoRowHeight`). @internal */
+  _dirtyRowHeights = new Set<WunderbaumNode>();
+  /** True while `_updateRows()` is running. @internal */
+  _isUpdatingRows = false;
+  /** Node that `scrollTo()` must reveal again after rows were measured. */
+  protected _pendingScrollTarget: ScrollToOptions | null = null;
   protected resizeObserver: ResizeObserver;
 
   // Modification Status
@@ -227,6 +234,7 @@ export class Wunderbaum {
         debugLevel: DEFAULT_DEBUGLEVEL, // 0:quiet, 1:errors, 2:warnings, 3:info, 4:verbose
         header: null, // Show/hide header (pass bool or string)
         rowHeightPx: DEFAULT_ROW_HEIGHT,
+        autoRowHeight: false,
         iconMap: "bootstrap",
         allowHtmlIcons: false,
         columns: [], //util.unsafeCast<ColumnDefinitionList>(null),
@@ -245,6 +253,7 @@ export class Wunderbaum {
         columnsMenu: false,
         columnsResizable: false,
         columnsSortable: false,
+        columnsWrap: false,
         breakpoints: { sm: 576, md: 768, lg: 992, xl: 1200, xxl: 1400 },
         selectMode: "multi", // SelectModeType
         scrollIntoViewOnExpandClick: true,
@@ -365,6 +374,21 @@ export class Wunderbaum {
         "--wb-row-inner-height",
         opts.rowHeightPx - 2 + "px"
       );
+    }
+    this.element.classList.toggle("wb-auto-row-height", !!opts.autoRowHeight);
+    if (opts.autoRowHeight && opts.maxRowHeightPx) {
+      util.assert(
+        opts.maxRowHeightPx >= opts.rowHeightPx,
+        "maxRowHeightPx must not be less than rowHeightPx"
+      );
+      // Cells are clipped by CSS, so we always measure the limited height
+      this.element.style.setProperty(
+        "--wb-row-max-inner-height",
+        opts.maxRowHeightPx - ROW_BORDER_HEIGHT + "px"
+      );
+    } else {
+      // The element may have been used by another tree instance before
+      this.element.style.removeProperty("--wb-row-max-inner-height");
     }
     // Attach tree instance to <div>
     (<any>this.element)._wb_tree = this;
@@ -909,6 +933,9 @@ export class Wunderbaum {
    * pixel is visible.
    */
   getTopmostVpNode(complete = true) {
+    if (this.options.autoRowHeight) {
+      return this._getVpNodeAuto(true, complete);
+    }
     const rowHeight = this.options.rowHeightPx;
     const gracePx = 1; // ignore subpixel scrolling
     const scrollParent = this.element;
@@ -926,6 +953,9 @@ export class Wunderbaum {
 
   /** Return the lowest visible node in the viewport. */
   getLowestVpNode(complete = true) {
+    if (this.options.autoRowHeight) {
+      return this._getVpNodeAuto(false, complete);
+    }
     const rowHeight = this.options.rowHeightPx;
     const scrollParent = this.element;
     const headerHeight = this.headerElement.clientHeight; // May be 0
@@ -940,6 +970,39 @@ export class Wunderbaum {
     }
     bottomIdx = Math.min(bottomIdx, this.count(true) - 1);
     return this._getNodeByRowIdx(bottomIdx)!;
+  }
+
+  /**
+   * Return the topmost or lowest visible node in the viewport, if rows have
+   * different heights (`autoRowHeight` mode).
+   */
+  protected _getVpNodeAuto(topmost: boolean, complete: boolean) {
+    const gracePx = 1; // ignore subpixel scrolling
+    const scrollParent = this.element;
+    const headerHeight = this.headerElement.clientHeight; // May be 0
+    const vpTop = scrollParent.scrollTop;
+    const vpBottom = vpTop + scrollParent.clientHeight - headerHeight;
+    let res: WunderbaumNode | null = null;
+
+    this.visitRows((n) => {
+      const top = n._rowTop ?? 0;
+      const bottom = top + this._rowHeightOf(n);
+      if (topmost) {
+        res = n; // Fall back to the last node
+        if (complete ? top >= vpTop - gracePx : bottom > vpTop) {
+          return false;
+        }
+      } else {
+        if (
+          res &&
+          !(complete ? bottom <= vpBottom + gracePx : top < vpBottom)
+        ) {
+          return false;
+        }
+        res = n; // Fall back to the first node
+      }
+    });
+    return <WunderbaumNode>res!;
   }
 
   /** Return preceding visible node in the viewport. */
@@ -1494,9 +1557,19 @@ export class Wunderbaum {
   ) {
     const rowHeight = this.options.rowHeightPx;
     let res = null;
-    const pageSize = Math.floor(
-      this.listContainerElement.clientHeight / rowHeight
-    );
+    const vpHeight = this.listContainerElement.clientHeight;
+    let pageSize = Math.floor(vpHeight / rowHeight);
+    let pageCb: ((n: WunderbaumNode) => boolean) | undefined;
+
+    if (this.options.autoRowHeight) {
+      // Rows have different heights: move until one viewport height is covered
+      let height = 0;
+      pageSize = Number.MAX_SAFE_INTEGER;
+      pageCb = (n) => {
+        height += this._rowHeightOf(n);
+        return height > vpHeight;
+      };
+    }
 
     switch (where) {
       case "parent":
@@ -1563,6 +1636,7 @@ export class Wunderbaum {
             res = this._getNextNodeInView(node, {
               reverse: false,
               ofs: pageSize,
+              cb: pageCb,
             });
           }
         }
@@ -1580,6 +1654,7 @@ export class Wunderbaum {
             res = this._getNextNodeInView(node, {
               reverse: true,
               ofs: pageSize,
+              cb: pageCb,
             });
           }
         }
@@ -2009,12 +2084,12 @@ export class Wunderbaum {
     }
     util.assert(node && node._rowIdx != null, `Invalid node: ${node}`);
 
-    const rowHeight = this.options.rowHeightPx;
+    const rowHeight = this._rowHeightOf(node);
     const scrollParent = this.element;
     const headerHeight = this.headerElement.clientHeight; // May be 0
     const scrollTop = scrollParent.scrollTop;
     const vpHeight = scrollParent.clientHeight;
-    const rowTop = node._rowIdx! * rowHeight + headerHeight;
+    const rowTop = this._rowTopOf(node) + headerHeight;
     const vpTop = headerHeight;
     const vpRowTop = rowTop - scrollTop;
     const vpRowBottom = vpRowTop + rowHeight;
@@ -2043,6 +2118,11 @@ export class Wunderbaum {
       if (topNode) {
         // Make sure the topNode is always visible
         this.scrollTo(topNode);
+      }
+      if (this.options.autoRowHeight) {
+        // The position was calculated from estimated row heights: check again
+        // after the rows at the new position were rendered and measured
+        this._pendingScrollTarget = options ?? { node: node };
       }
       // this.update(ChangeType.scroll);
     }
@@ -3002,6 +3082,15 @@ export class Wunderbaum {
     const newNodesOnly = !!options.newNodesOnly;
     this._ariaRenderPass++;
 
+    if (this.options.autoRowHeight) {
+      this._isUpdatingRows = true;
+      try {
+        return this._updateRowsAuto(newNodesOnly);
+      } finally {
+        this._isUpdatingRows = false;
+      }
+    }
+
     const rowHeight = this.options.rowHeightPx;
     const vpHeight = this.element.clientHeight;
     const prefetch = RENDER_MAX_PREFETCH;
@@ -3082,6 +3171,212 @@ export class Wunderbaum {
     // );
     // this.logTimeEnd(label);
     // this._validateRows();
+    return modified;
+  }
+
+  /** Return the pixel offset of the node's row inside the node list.
+   * @internal
+   */
+  _rowTopOf(node: WunderbaumNode): number {
+    return this.options.autoRowHeight
+      ? (node._rowTop ?? 0)
+      : node._rowIdx! * this.options.rowHeightPx;
+  }
+
+  /** Return the (measured or estimated) height of the node's row.
+   * @internal
+   */
+  _rowHeightOf(node: WunderbaumNode): number {
+    return this.options.autoRowHeight
+      ? (node._rowHeight ?? this.options.rowHeightPx)
+      : this.options.rowHeightPx;
+  }
+
+  /**
+   * Schedule a measurement of the node's row height (`autoRowHeight` mode).
+   * Called whenever the content of a row was rendered.
+   * @internal
+   */
+  _requestRowMeasure(node: WunderbaumNode) {
+    this._dirtyRowHeights.add(node);
+    if (!this._isUpdatingRows) {
+      // Not called by `_updateRows()`: schedule a pass that measures the row
+      // and repositions the following rows (does not render existing rows).
+      this.update(ChangeType.scroll);
+    }
+  }
+
+  /**
+   * Measure all rows that were rendered since the last call and store the
+   * result in `node._rowHeight`.
+   * Reads and writes are batched, so this forces one layout at most.
+   * @returns true if at least one row height has changed.
+   */
+  protected _measureDirtyRows(): boolean {
+    const dirty = this._dirtyRowHeights;
+    if (dirty.size === 0) {
+      return false;
+    }
+    const minHeight = this.options.rowHeightPx;
+    const nodes: WunderbaumNode[] = [];
+    // Write: Reset to the default height (cells have `min-height: 100%`, so
+    // we could not detect shrinking content otherwise)
+    for (const node of dirty) {
+      if (node._rowElem) {
+        node._rowElem.style.height = "";
+        nodes.push(node);
+      }
+    }
+    dirty.clear();
+    // Read
+    const heights = nodes.map((node) => {
+      let height = 0;
+      for (const colElem of node._rowElem!.children) {
+        height = Math.max(height, (<HTMLElement>colElem).offsetHeight);
+      }
+      return Math.max(minHeight, height + ROW_BORDER_HEIGHT);
+    });
+    // Write
+    let modified = false;
+    nodes.forEach((node, i) => {
+      const height = heights[i];
+      if (height !== minHeight) {
+        node._rowElem!.style.height = height + "px";
+      }
+      if ((node._rowHeight ?? minHeight) !== height) {
+        modified = true;
+      }
+      node._rowHeight = height;
+    });
+    return modified;
+  }
+
+  /**
+   * Variant of `_updateRows()` for the `autoRowHeight` mode.
+   *
+   * Rows are positioned by accumulating the measured height of all preceding
+   * rows (or `rowHeightPx` if a row was never rendered before). New rows are
+   * measured after they were rendered, which may shift the following rows, so
+   * we repeat the layout until the result is stable.
+   */
+  protected _updateRowsAuto(newNodesOnly: boolean): boolean {
+    const MAX_PASSES = 4;
+    const minHeight = this.options.rowHeightPx;
+    const scrollParent = this.element;
+    const vpHeight = scrollParent.clientHeight;
+    const prefetchPx = RENDER_MAX_PREFETCH * minHeight;
+    const scrollTarget = this._pendingScrollTarget;
+    let modified = false;
+    let heightsModified = false;
+    let scrollTargetFound = false;
+    let rowCount = 0;
+
+    /* Renumber and position all rows. Render rows inside the viewport. */
+    const layout = (render: "all" | "new" | "none") => {
+      const ofs = scrollParent.scrollTop;
+      const winTop = ofs - prefetchPx;
+      const winBottom = ofs + vpHeight + prefetchPx;
+      const obsoleteNodes = new Set<WunderbaumNode>();
+      let anchor: WunderbaumNode | null = null;
+      let anchorTop = 0;
+      let idx = 0;
+      let top = 0;
+      let started = false;
+      let prevNode: WunderbaumNode | null = null;
+      let prevElem: HTMLDivElement | "first" | "last" = "first";
+
+      if (render !== "none") {
+        this.nodeListElement.childNodes.forEach((elem) => {
+          if ((<any>elem)._wb_node) {
+            obsoleteNodes.add((<any>elem)._wb_node);
+          }
+        });
+      }
+      const place = (node: WunderbaumNode) => {
+        const rowDiv = node._rowElem;
+        obsoleteNodes.delete(node);
+        if (rowDiv) {
+          rowDiv.style.top = node._rowTop + "px";
+        }
+        if (!rowDiv || render === "all") {
+          node._render({ top: node._rowTop, after: prevElem });
+        }
+        prevElem = node._rowElem!;
+      };
+
+      this.visitRows((node) => {
+        const height = node._rowHeight ?? minHeight;
+        const rowDiv = node._rowElem;
+
+        if (node._rowIdx !== idx) {
+          node._rowIdx = idx;
+          modified = true;
+        }
+        node._rowTop = top;
+        if (!anchor && top + height > ofs) {
+          anchor = node;
+          anchorTop = top;
+        }
+        if (scrollTarget?.node === node) {
+          scrollTargetFound = true;
+        }
+        if (render === "none") {
+          if (rowDiv) {
+            rowDiv.style.top = top + "px";
+          }
+        } else if (top + height > winTop && top < winBottom) {
+          if (!started) {
+            started = true;
+            // Make sure the first rendered row has an even index, so the
+            // alternating row colors don't change when scrolling
+            if (idx % 2 && prevNode) {
+              place(prevNode);
+            }
+          }
+          place(node);
+        } else if (rowDiv) {
+          // row is outside viewport bounds
+          prevElem = rowDiv;
+        }
+        prevNode = node;
+        idx++;
+        top += height;
+      });
+      rowCount = idx;
+      for (const n of obsoleteNodes) {
+        n._callEvent("discard");
+        n.removeMarkup();
+      }
+      // Resize tree container
+      this.nodeListElement.style.height = `${top}px`;
+      return { anchor: anchor as WunderbaumNode | null, anchorTop: anchorTop };
+    };
+
+    let info = layout(newNodesOnly ? "new" : "all");
+    for (let pass = 1; this._measureDirtyRows(); pass++) {
+      heightsModified = true;
+      // Rows have changed their height: reposition all rows, and keep the
+      // topmost visible row in place, so the viewport content does not jump
+      const { anchor, anchorTop } = info;
+      info = layout(pass < MAX_PASSES ? "new" : "none");
+      if (anchor && !scrollTarget && anchor._rowTop !== anchorTop) {
+        scrollParent.scrollTop += anchor._rowTop! - anchorTop;
+      }
+      if (pass >= MAX_PASSES) {
+        break;
+      }
+    }
+    this.treeRowCount = rowCount;
+    // ARIA: rows are virtualized, so announce the full count (incl. header)
+    this.element.setAttribute(
+      "aria-rowcount",
+      "" + (rowCount + this._ariaHeaderRows)
+    );
+    // `scrollTo()` was called with estimated row positions: try again
+    this._pendingScrollTarget = null;
+    if (scrollTarget && scrollTargetFound && heightsModified) {
+      this.scrollTo(scrollTarget);
+    }
     return modified;
   }
 
