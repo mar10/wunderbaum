@@ -28,6 +28,14 @@ First release.
   Size classes are compared against the tree element width; the breakpoints
   can be configured with the new tree option `breakpoints`. New methods
   `tree.getBreakpoint()` and `tree.isColumnVisible()`.
+- v0.16.0: DnD: The `dnd.dragEnd` event now reports where the drag ended:
+  `e.dropEffect`, `e.droppedInTree`, `e.droppedInDocument`, `e.leftWindow`, and
+  the convenience flag `e.isExternalDrop`, e.g. to show a hint when a node was
+  dropped onto the desktop or into another application.
+- v0.16.0: DnD: New option `dnd.sendText` (default: `true`) allows to suppress
+  the default `text/plain` drag item (node title) or to provide a custom text.
+- v0.16.0: New helper `util.supportsDownloadURL()` returns true for
+  Chromium-based browsers, which create a file from a `DownloadURL` drag item.
 - v0.16.0: DnD: Dropping into the empty area below the last row (or onto a tree
   that has no nodes) is now handled as a drop after the last top-level node
   (or as `appendChild` to the root node). New option `dnd.emptyAreaTarget`

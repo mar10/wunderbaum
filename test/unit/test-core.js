@@ -34,6 +34,63 @@ QUnit.module("Utility tests", (hooks) => {
     assert.equal(util.type([]), "array", "type([])");
     assert.equal(util.type({}), "object", "type({})");
   });
+
+  test("supportsDownloadURL()", (assert) => {
+    const brands = (...names) => ({
+      userAgent: "",
+      userAgentData: { brands: names.map((brand) => ({ brand })) },
+    });
+    const ua = (userAgent) => ({ userAgent });
+    const CHROME =
+      "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36";
+
+    assert.true(
+      util.supportsDownloadURL(
+        brands("Not?A_Brand", "Chromium", "Google Chrome")
+      ),
+      "Chromium brand"
+    );
+    assert.false(
+      util.supportsDownloadURL(brands("Not?A_Brand", "Firefox")),
+      "brands without Chromium"
+    );
+    assert.true(util.supportsDownloadURL(ua(CHROME)), "Chrome UA");
+    assert.true(
+      util.supportsDownloadURL(
+        ua(CHROME.replace("Chrome/", "HeadlessChrome/"))
+      ),
+      "HeadlessChrome UA"
+    );
+    assert.true(
+      util.supportsDownloadURL(ua(CHROME + " Edg/130.0.0.0")),
+      "Edge UA"
+    );
+    assert.false(
+      util.supportsDownloadURL(
+        ua(
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Safari/605.1.15"
+        )
+      ),
+      "Safari UA"
+    );
+    assert.false(
+      util.supportsDownloadURL(
+        ua(
+          "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:131.0) Gecko/20100101 Firefox/131.0"
+        )
+      ),
+      "Firefox UA"
+    );
+    assert.false(
+      util.supportsDownloadURL(
+        ua(
+          "Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/130.0.0.0 Mobile/15E148 Safari/604.1"
+        )
+      ),
+      "Chrome on iOS UA"
+    );
+    assert.equal(typeof util.supportsDownloadURL(), "boolean", "navigator");
+  });
 });
 
 QUnit.module("Static tests", (hooks) => {
@@ -849,6 +906,171 @@ QUnit.module("Drag and drop", (hooks) => {
     treeElem().style.height = "";
   });
 
+  /**
+   * Simulate dragging node `key`: fire `dragstart` on its row, call
+   * `steps()`, then fire `dragend`.
+   * Return the event passed to `dnd.dragEnd` and the dataTransfer object.
+   */
+  function dragNode(key, steps) {
+    tree.update("any", { immediate: true });
+    const row = tree.findKey(key)._rowElem;
+    const dataTransfer = new DataTransfer();
+    const fire = (target, type, init = {}) =>
+      target.dispatchEvent(
+        new DragEvent(type, {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer,
+          ...init,
+        })
+      );
+    let dragEndEvent = null;
+    tree.options.dnd.dragEnd = (e) => {
+      dragEndEvent = e;
+    };
+    fire(row, "dragstart");
+    steps?.({ row, dataTransfer, fire });
+    fire(row, "dragend");
+    return { e: dragEndEvent, dataTransfer };
+  }
+
+  test("dragEnd reports where the drag ended", (assert) => {
+    const done = assert.async();
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      dnd: {
+        dragStart: () => true,
+        dragEnter: () => true,
+        drop: () => {},
+      },
+      init: () => {
+        const body = document.body;
+        let e;
+
+        // Drop elsewhere in the document
+        ({ e } = dragNode("d1", ({ fire }) => {
+          fire(body, "dragover");
+          fire(body, "drop");
+        }));
+        assert.true(e.droppedInDocument, "body: droppedInDocument");
+        assert.false(e.droppedInTree, "body: droppedInTree");
+        assert.false(e.isExternalDrop, "body: isExternalDrop");
+        assert.equal(
+          tree.extensions.dnd.docAbort,
+          null,
+          "document listeners removed"
+        );
+
+        // Drop on the tree
+        ({ e } = dragNode("d1", ({ fire }) => {
+          const target = tree.findKey("d2")._rowElem;
+          fire(target, "dragenter");
+          fire(target, "dragover");
+          fire(target, "drop");
+        }));
+        assert.true(e.droppedInTree, "tree: droppedInTree");
+        assert.true(e.droppedInDocument, "tree: droppedInDocument");
+        assert.false(e.isExternalDrop, "tree: isExternalDrop");
+
+        // Pointer left the window and the drop was not reported (Firefox)
+        ({ e } = dragNode("d1", ({ row, fire }) => {
+          fire(body, "dragover");
+          fire(body, "dragleave", { relatedTarget: null });
+          fire(row, "drag");
+          fire(row, "drag");
+        }));
+        assert.equal(e.dropEffect, "none", "left: dropEffect");
+        assert.true(e.leftWindow, "left: leftWindow");
+        assert.false(e.droppedInDocument, "left: droppedInDocument");
+        assert.true(e.isExternalDrop, "left: isExternalDrop");
+
+        // Previous drop events are not reported by the next drag
+        body.dispatchEvent(new DragEvent("drop", { bubbles: true }));
+        ({ e } = dragNode("d1"));
+        assert.false(e.droppedInDocument, "reset: droppedInDocument");
+        assert.false(e.leftWindow, "reset: leftWindow");
+        assert.false(e.isExternalDrop, "reset: isExternalDrop");
+
+        // Drag canceled with Esc: final `dragleave` without relatedTarget
+        ({ e } = dragNode("d1", ({ fire }) => {
+          fire(body, "dragover");
+          fire(body, "dragleave", { relatedTarget: null });
+        }));
+        assert.false(e.leftWindow, "cancel: leftWindow");
+        assert.false(e.isExternalDrop, "cancel: isExternalDrop");
+
+        // Safari: spurious `dragleave` without relatedTarget inside the window
+        ({ e } = dragNode("d1", ({ row, fire }) => {
+          fire(body, "dragleave", { relatedTarget: null });
+          fire(body, "dragover");
+          fire(row, "drag");
+        }));
+        assert.false(e.leftWindow, "spurious: leftWindow");
+        assert.false(e.isExternalDrop, "spurious: isExternalDrop");
+
+        // Drop accepted outside the document (Chrome, Safari)
+        ({ e } = dragNode("d1", ({ dataTransfer }) => {
+          // Assignment is ignored for synthetic events, so we shadow it:
+          Object.defineProperty(dataTransfer, "dropEffect", { value: "copy" });
+        }));
+        assert.equal(e.dropEffect, "copy", "accepted: dropEffect");
+        assert.true(e.isExternalDrop, "accepted: isExternalDrop");
+
+        done();
+      },
+    });
+  });
+
+  test("dnd.sendText option", (assert) => {
+    const done = assert.async();
+    const textOf = (dt) =>
+      dt.types.includes("text/plain") ? dt.getData("text/plain") : null;
+
+    tree = new Wunderbaum({
+      element: "#tree",
+      source: SOURCE,
+      dnd: {
+        dragStart: () => true,
+      },
+      init: () => {
+        const opts = tree.options.dnd;
+
+        assert.equal(textOf(dragNode("d2").dataTransfer), "Doc 2", "default");
+
+        opts.sendText = false;
+        assert.equal(textOf(dragNode("d2").dataTransfer), null, "false");
+
+        opts.sendText = (node) => `Custom ${node.key}`;
+        assert.equal(
+          textOf(dragNode("d2").dataTransfer),
+          "Custom d2",
+          "callback"
+        );
+
+        opts.sendText = () => null;
+        assert.equal(
+          textOf(dragNode("d2").dataTransfer),
+          null,
+          "callback returns null"
+        );
+
+        opts.sendText = true;
+        opts.dragStart = (e) => {
+          e.event.dataTransfer.setData("text/plain", "from dragStart");
+          return true;
+        };
+        assert.equal(
+          textOf(dragNode("d2").dataTransfer),
+          "from dragStart",
+          "dragStart handler wins"
+        );
+        done();
+      },
+    });
+  });
+
   test("Drop into empty area: after last top-level node", (assert) => {
     assert.expect(5);
     const done = assert.async();
@@ -933,14 +1155,15 @@ QUnit.module("Drag and drop", (hooks) => {
 
 QUnit.module("Security", (hooks) => {
   let tree = null;
-  const XSS_URL_ICON = "a.png'); \" onmouseover=\"window.__wbXss=1\" x=\"";
+  const XSS_URL_ICON = 'a.png\'); " onmouseover="window.__wbXss=1" x="';
   const XSS_HTML_ICON = "<img src=x onerror='window.__wbXss=1'>";
   const SOURCE = [
     { title: "Url icon", key: "url", icon: XSS_URL_ICON },
     { title: "Html icon", key: "html", icon: XSS_HTML_ICON },
   ];
   // JSON.parse creates an own `__proto__` key (an object literal would not):
-  const PROTO_NODE = '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
+  const PROTO_NODE =
+    '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
 
   hooks.afterEach(() => {
     tree?.destroy();

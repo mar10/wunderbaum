@@ -1256,6 +1256,45 @@ export interface DragEventType extends WbNodeEventType {
   node: WunderbaumNode;
 }
 
+/**
+ * Event passed to {@link DndOptionsType.dragEnd}.
+ *
+ * Contains information about where the drag operation ended, e.g. to show a
+ * hint when a node was dropped outside the browser window.
+ * @since 0.16.0
+ */
+export interface DragEndEventType extends DragEventType {
+  /**
+   * `e.event.dataTransfer.dropEffect` at `dragend`.
+   * `"none"` usually means the drag was canceled or rejected. <br>
+   * Note: Firefox on macOS reports `"none"` even when another application
+   * (e.g. Finder) accepted the drop. Use {@link leftWindow} in this case.
+   */
+  dropEffect: DropEffectType;
+  /** True if a `drop` event happened on this tree's element. */
+  droppedInTree: boolean;
+  /**
+   * True if a `drop` event happened anywhere in this document (including this
+   * tree). Drops into other windows or iframes are not detected.
+   */
+  droppedInDocument: boolean;
+  /**
+   * True if the pointer left the browser window and did not come back
+   * before the drag ended. <br>
+   * Canceling the drag (e.g. with the Esc key) inside the window does not set
+   * this flag.
+   */
+  leftWindow: boolean;
+  /**
+   * Convenience flag: true if the node was probably dropped outside this
+   * document, e.g. onto the desktop, another application, or another browser
+   * window. <br>
+   * Equivalent to
+   * `!droppedInDocument && (dropEffect !== "none" || leftWindow)`.
+   */
+  isExternalDrop: boolean;
+}
+
 export interface DropEventType extends WbNodeEventType {
   /** The original event. */
   event: DragEvent;
@@ -1392,6 +1431,19 @@ export type DndOptionsType = {
     | boolean
     | ((nodeData: WbNodeData, node: WunderbaumNode) => string);
   /**
+   * Add a `text/plain` item to the `dataTransfer` object on drag start, unless
+   * the `dragStart` handler already set one.
+   * - `true`: use the node title.
+   * - `false`: do not add a `text/plain` item.
+   * - Callback: return the text, or `null`/`undefined` to add nothing.
+   *
+   * Example: pass `false` when dragging files out of the browser, so browsers
+   * that ignore `DownloadURL` do not create a text clipping.
+   * @default true
+   * @since 0.16.0
+   */
+  sendText?: boolean | ((node: WunderbaumNode) => string | null | undefined);
+  /**
    * Enable auto-scrolling while dragging
    * @default true
    */
@@ -1436,11 +1488,13 @@ export type DndOptionsType = {
    */
   drag?: null | ((e: DragEventType) => void);
   /**
-   * Callback(sourceNode, data)
+   * Callback(sourceNode, data). <br>
+   * `e` contains information about where the drag operation ended,
+   * see {@link DragEndEventType}.
    * @default null
    * @category Callback
    */
-  dragEnd?: null | ((e: DragEventType) => void);
+  dragEnd?: null | ((e: DragEndEventType) => void);
   // Events (drop support)
   /**
    * Callback(targetNode, data), return true, to enable dnd drop

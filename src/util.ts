@@ -126,6 +126,46 @@ function _getUserInfo() {
   return res;
 }
 
+/** Subset of `Navigator` that is used by {@link supportsDownloadURL}. */
+export type NavigatorInfoType = {
+  userAgent: string;
+  userAgentData?: { brands?: { brand: string }[] };
+};
+
+/**
+ * Return true if the browser is Chromium-based (Chrome, Edge, Opera, ...),
+ * i.e. supports the non-standard `DownloadURL` drag data type
+ * (`"mime:filename:absoluteUrl"`), which creates a real file when a link is
+ * dragged onto the desktop.
+ *
+ * This cannot be feature-detected, because `dataTransfer.setData()` accepts
+ * any type without error. Safari and Firefox ignore `DownloadURL` and create
+ * a .webloc or text clipping instead.
+ *
+ * Uses `navigator.userAgentData.brands` if available (secure contexts only)
+ * and falls back to the user agent string. Chrome on iOS uses WebKit and
+ * returns false.
+ *
+ * @param nav optional navigator-like object (defaults to `navigator`)
+ * @since 0.16.0
+ */
+export function supportsDownloadURL(nav?: NavigatorInfoType): boolean {
+  nav =
+    nav ??
+    (typeof navigator === "undefined"
+      ? undefined
+      : (navigator as unknown as NavigatorInfoType));
+  if (!nav) {
+    return false;
+  }
+  const brands = nav.userAgentData?.brands;
+  if (brands && brands.length) {
+    return brands.some((b) => b.brand === "Chromium");
+  }
+  // Chromium UAs also contain "Safari/", Chrome on iOS reports "CriOS/":
+  return /\b(Headless)?Chrom(e|ium)\//.test(nav.userAgent || "");
+}
+
 /** Run `callback` when document was loaded. */
 export function documentReady(callback: () => void): void {
   if (document.readyState === "loading") {
