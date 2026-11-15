@@ -10,6 +10,8 @@ document.getElementById("demo-info").innerHTML = `
  A readonly treegrid with renaming, 'checkbox: true', 'minExpandLevel: 1'.
  Navigation mode: 'row/cell'.
  <br>
+ Responsive columns based on tree width (try resizing the window).
+ <br>
  Click the <i class="bi bi-grid-3x3-gap"></i> button to toggle navigation mode.
 `;
 
@@ -32,7 +34,7 @@ new mar10.Wunderbaum({
   navigationModeOption: "startRow",
   types: {},
   columns: [
-    { id: "*", title: "Product", width: "250px" },
+    { id: "*", title: "Product", width: 1.5 },
     {
       id: "author",
       title: "Author",
@@ -62,7 +64,7 @@ new mar10.Wunderbaum({
     {
       id: "details",
       title: "Details",
-      width: 3,
+      width: 2.5,
       minWidth: "200px",
       hidden: "md", // Hide if tree is narrower than 992px
     },
