@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
           { title: "Readonly", type: "show", key: "demo-readonly" },
           { title: "Editable", type: "show", key: "demo-editable" },
           { title: "Fixed Column", type: "show", key: "demo-fixedcol" },
+          { title: "Variable Row Height", type: "show", key: "demo-wrap" },
           { title: "Custom Data", type: "show", key: "demo-custom" },
         ],
       },
