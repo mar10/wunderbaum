@@ -80,6 +80,9 @@ viewed in a browser while `yarn dev` is running.
 - Do not bump versions, create tags, or run release tasks
   (`grunt yabs:release:*`); the maintainer does releases.
 - Keep zero runtime dependencies.
+- Always create a feature branch (feature/<topic>) for changes; never commit to main directly.
+  When working on a feature branch, regularly rebase onto the main branch to keep up with upstream changes.
+  When done ask for a review before and if a pull request should be created or if direct merging into the main branch is appropriate.
 
 ## Things to know
 
