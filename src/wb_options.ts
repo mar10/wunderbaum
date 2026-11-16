@@ -85,9 +85,30 @@ export interface WunderbaumOptions {
   // headerHeightPx: number;
   /**
    * Height of a node row div.
+   * If {@link autoRowHeight} is set, this is the minimum height and also the
+   * estimated height of rows that have not been rendered yet.
    * @default 22
    */
   rowHeightPx: number;
+  /**
+   * Let rows grow with their content instead of using the fixed
+   * {@link rowHeightPx}. The height of a row is measured when it is rendered,
+   * i.e. the positions of rows that have not been rendered yet are estimated.
+   * Use the {@link ColumnDefinition.wrap} column option (or
+   * {@link columnsWrap}) to wrap long text.
+   * Call `node.update()` if the cell content changes its size without being
+   * re-rendered (e.g. when an embedded image was loaded).
+   * @default false
+   * @since 0.16.0
+   */
+  autoRowHeight?: boolean;
+  /**
+   * Maximum height of a node row div, if {@link autoRowHeight} is set.
+   * Content that exceeds this height is clipped.
+   * @default undefined (no limit)
+   * @since 0.16.0
+   */
+  maxRowHeightPx?: number;
   /**
    * Icon font definition. May be a string (e.g. "fontawesome6" or "bootstrap")
    * or a map of `iconName: iconClass` pairs.
@@ -227,6 +248,13 @@ export interface WunderbaumOptions {
    * @since 0.11.0
    */
   columnsSortable?: boolean;
+  /**
+   * Default value for ColumnDefinition.wrap option.
+   * Only evaluated if {@link autoRowHeight} is set.
+   * @default false
+   * @since 0.16.0
+   */
+  columnsWrap?: boolean;
   /**
    * Group nodes with children or of `type: 'folder'` at the top when sorting.
    * If a function is passed, it is called with the node as argument to determine

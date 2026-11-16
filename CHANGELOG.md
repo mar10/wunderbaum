@@ -22,6 +22,13 @@ First release.
 - v0.16.0: Switch docs to Zensical.
 - v0.16.0: The default rename `<input>` no longer offers browser autocomplete
   or password manager suggestions.
+- v0.16.0: New tree option `autoRowHeight` enables rows of variable height:
+  a row grows with its tallest cell instead of using the fixed `rowHeightPx`
+  (which becomes the minimum height). New column option `wrap` (and tree option
+  `columnsWrap` as default) wraps long text into multiple lines; `wrap` may
+  also be set in a node type definition. New tree option `maxRowHeightPx`
+  limits the row height. Rows are measured when they are rendered; the position
+  of rows that have not been rendered yet is estimated.
 - v0.16.0: New column option `hidden` hides columns always or depending on a
   condition, e.g. for responsive grids. It accepts `true`, a size class
   (`"xs"`, `"sm"`, `"md"`, `"lg"`, `"xl"`), a pixel width, or a callback.

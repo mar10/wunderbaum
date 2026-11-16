@@ -471,6 +471,265 @@ QUnit.module("Hidden columns", (hooks) => {
   });
 });
 
+QUnit.module("Auto row height", (hooks) => {
+  let tree = null;
+  const ROW_HEIGHT = 22;
+  const LONG_TEXT = "Lorem ipsum dolor sit amet consectetur ".repeat(4);
+  const treeElem = () => document.querySelector("#tree");
+  const isLong = (i) => i % 3 === 1;
+  const makeSource = (count = 60) => {
+    const res = [];
+    for (let i = 0; i < count; i++) {
+      res.push({
+        title: `Node ${i}`,
+        key: `n${i}`,
+        note: isLong(i) ? LONG_TEXT : "short",
+      });
+    }
+    return res;
+  };
+  // Create new definitions for every tree (tests modify the column width)
+  const makeColumns = () => [
+    { id: "*", title: "Name", width: "150px", wrap: true },
+    { id: "note", title: "Note", width: "150px", wrap: true },
+    { id: "plain", title: "Plain", width: "80px" },
+  ];
+  const makeTree = (init, extra) => {
+    tree = new Wunderbaum(
+      Object.assign(
+        {
+          element: "#tree",
+          source: makeSource(),
+          columns: makeColumns(),
+          autoRowHeight: true,
+          render: (e) => {
+            for (const col of Object.values(e.renderColInfosById)) {
+              col.elem.textContent = e.node.data[col.id] ?? "";
+            }
+          },
+          init: (e) => {
+            flush();
+            init(e);
+          },
+        },
+        extra
+      )
+    );
+  };
+  // Run pending (throttled) updates, including follow-up scroll events
+  const flush = () => {
+    tree.update("resize", { immediate: true });
+    tree.update("scroll", { immediate: true });
+    tree.update("scroll", { immediate: true });
+  };
+  const renderedRows = () =>
+    Array.from(tree.nodeListElement.querySelectorAll("div.wb-row"));
+  const heightOf = (key) => tree.findKey(key)._rowElem.offsetHeight;
+  const topOf = (key) =>
+    Number.parseFloat(tree.findKey(key)._rowElem.style.top);
+  const isInViewport = (node) => {
+    const vp = tree.element.getBoundingClientRect();
+    const header = tree.headerElement.getBoundingClientRect();
+    const row = node._rowElem.getBoundingClientRect();
+    return row.top >= header.bottom - 1 && row.bottom <= vp.bottom + 1;
+  };
+
+  hooks.beforeEach(() => {
+    treeElem().style.height = "300px";
+    treeElem().style.width = "400px";
+  });
+  hooks.afterEach(() => {
+    tree.destroy();
+    tree = null;
+    treeElem().style.height = "";
+    treeElem().style.width = "";
+  });
+
+  test("Rows grow with wrapped content", (assert) => {
+    assert.expect(8);
+    const done = assert.async();
+
+    makeTree(() => {
+      assert.true(tree.element.classList.contains("wb-auto-row-height"));
+      assert.equal(heightOf("n0"), ROW_HEIGHT, "short row has default height");
+      assert.true(heightOf("n1") > 2 * ROW_HEIGHT, "long row is taller");
+      assert.equal(
+        tree.findKey("n1")._rowHeight,
+        heightOf("n1"),
+        "measured height is stored"
+      );
+      const cells = tree.findKey("n1")._rowElem.querySelectorAll(".wb-col");
+      assert.true(cells[1].classList.contains("wb-wrap"), "wrap class is set");
+      assert.false(cells[2].classList.contains("wb-wrap"), "no wrap class");
+
+      const rows = renderedRows();
+      let contiguous = rows.length > 5;
+      for (let i = 1; i < rows.length; i++) {
+        const prev = rows[i - 1];
+        const expected = Number.parseFloat(prev.style.top) + prev.offsetHeight;
+        if (Number.parseFloat(rows[i].style.top) !== expected) {
+          contiguous = false;
+        }
+      }
+      assert.true(contiguous, "rendered rows are stacked without gaps");
+
+      let total = 0;
+      tree.visitRows((n) => {
+        total += n._rowHeight ?? ROW_HEIGHT;
+      });
+      assert.equal(
+        Number.parseFloat(tree.nodeListElement.style.height),
+        total,
+        "container height is the sum of measured and estimated rows"
+      );
+      done();
+    });
+  });
+
+  test("Row height follows column width and content", (assert) => {
+    assert.expect(6);
+    const done = assert.async();
+
+    makeTree(() => {
+      const orgHeight = heightOf("n1");
+      const orgTop = topOf("n2");
+
+      // Widen the column, so the text needs less lines
+      tree.columns[1].customWidthPx = 300;
+      tree.update("colStructure", { immediate: true });
+      flush();
+      assert.true(heightOf("n1") < orgHeight, "wider column: row shrinks");
+      assert.true(topOf("n2") < orgTop, "following row moves up");
+
+      tree.columns[1].customWidthPx = 3000;
+      tree.update("colStructure", { immediate: true });
+      flush();
+      assert.equal(heightOf("n1"), ROW_HEIGHT, "single line: default height");
+
+      // Change the title of a single node
+      const top3 = topOf("n3");
+      tree.findKey("n2").setTitle(LONG_TEXT);
+      flush();
+      assert.true(heightOf("n2") > 2 * ROW_HEIGHT, "long title: row grows");
+      assert.equal(
+        topOf("n3"),
+        top3 + heightOf("n2") - ROW_HEIGHT,
+        "following row moves down"
+      );
+      tree.findKey("n2").setTitle("Short");
+      flush();
+      assert.equal(topOf("n3"), top3, "short title: row shrinks again");
+      done();
+    });
+  });
+
+  test("Scrolling and paging", (assert) => {
+    assert.expect(8);
+    const done = assert.async();
+
+    makeTree(() => {
+      const first = tree.findKey("n0");
+      const last = tree.findKey("n59");
+
+      assert.equal(tree.getTopmostVpNode(), first, "topmost node");
+      const lowest = tree.getLowestVpNode();
+      assert.true(isInViewport(lowest), "lowest node is completely visible");
+      assert.false(
+        isInViewport(lowest.getNextSibling()),
+        "node after lowest is not completely visible"
+      );
+
+      assert.equal(
+        tree.findRelatedNode(first, "pageDown"),
+        lowest,
+        "pageDown moves to the lowest visible node first"
+      );
+      const nextPage = tree.findRelatedNode(lowest, "pageDown");
+      const dy = nextPage._rowTop - lowest._rowTop;
+      const vpHeight = tree.listContainerElement.clientHeight;
+      assert.true(
+        dy > vpHeight / 2 && dy <= vpHeight,
+        `pageDown moves by about one viewport (${dy}px of ${vpHeight}px)`
+      );
+
+      assert.strictEqual(last._rowElem, undefined, "last row is not rendered");
+      tree.scrollTo(last);
+      flush();
+      assert.true(isInViewport(last), "scrollTo() reveals the last row");
+
+      tree.scrollTo(first);
+      flush();
+      assert.true(isInViewport(first), "scrollTo() reveals the first row");
+      done();
+    });
+  });
+
+  test("maxRowHeightPx limits the row height", (assert) => {
+    assert.expect(3);
+    const done = assert.async();
+
+    makeTree(
+      () => {
+        assert.equal(heightOf("n0"), ROW_HEIGHT, "short row is not affected");
+        assert.equal(heightOf("n1"), 50, "long row is limited");
+        assert.equal(topOf("n2"), ROW_HEIGHT + 50, "following row position");
+        done();
+      },
+      { maxRowHeightPx: 50 }
+    );
+  });
+
+  test("Node types can override the wrap option", (assert) => {
+    assert.expect(4);
+    const done = assert.async();
+    const source = makeSource();
+    source[1].type = "nowrap";
+    source[4].type = "wrap";
+    source[4].plain = LONG_TEXT;
+
+    makeTree(
+      () => {
+        assert.equal(heightOf("n1"), ROW_HEIGHT, "type.wrap=false: no wrap");
+        assert.strictEqual(
+          tree.findKey("n1")._rowElem.querySelector(".wb-wrap"),
+          null,
+          "type.wrap=false: no wrap class"
+        );
+        const cells = tree.findKey("n4")._rowElem.querySelectorAll(".wb-col");
+        assert.true(
+          cells[2].classList.contains("wb-wrap"),
+          "type.wrap=true: also wrap columns without wrap option"
+        );
+        assert.true(cells[2].offsetHeight > 2 * ROW_HEIGHT, "cell is wrapped");
+        done();
+      },
+      {
+        source: source,
+        types: { nowrap: { wrap: false }, wrap: { wrap: true } },
+      }
+    );
+  });
+
+  test("Fixed row height is the default", (assert) => {
+    assert.expect(4);
+    const done = assert.async();
+
+    makeTree(
+      () => {
+        assert.false(tree.element.classList.contains("wb-auto-row-height"));
+        assert.equal(heightOf("n1"), ROW_HEIGHT, "long text does not wrap");
+        assert.equal(topOf("n5"), 5 * ROW_HEIGHT, "fixed row positions");
+        assert.false(
+          tree.findKey("n1")._rowElem.querySelector(".wb-wrap") != null,
+          "wrap option is ignored"
+        );
+        done();
+      },
+      { autoRowHeight: false }
+    );
+  });
+});
+
 QUnit.module("Keyboard and focus", (hooks) => {
   let tree = null;
   const SOURCE = [
@@ -933,14 +1192,15 @@ QUnit.module("Drag and drop", (hooks) => {
 
 QUnit.module("Security", (hooks) => {
   let tree = null;
-  const XSS_URL_ICON = "a.png'); \" onmouseover=\"window.__wbXss=1\" x=\"";
+  const XSS_URL_ICON = 'a.png\'); " onmouseover="window.__wbXss=1" x="';
   const XSS_HTML_ICON = "<img src=x onerror='window.__wbXss=1'>";
   const SOURCE = [
     { title: "Url icon", key: "url", icon: XSS_URL_ICON },
     { title: "Html icon", key: "html", icon: XSS_HTML_ICON },
   ];
   // JSON.parse creates an own `__proto__` key (an object literal would not):
-  const PROTO_NODE = '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
+  const PROTO_NODE =
+    '{"title": "Proto", "key": "proto", "__proto__": {"x": 1}}';
 
   hooks.afterEach(() => {
     tree?.destroy();

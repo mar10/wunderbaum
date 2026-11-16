@@ -416,6 +416,13 @@ export interface NodeTypeDefinition {
   icon?: IconOption;
   /** Default icon tooltip for matching nodes. */
   iconTooltip?: TooltipOption;
+  /** Wrap long text into multiple lines for all cells of matching nodes
+   * (or never, if false). This overrides the `wrap` column option.
+   * Only evaluated if the tree option `autoRowHeight` is set.
+   * @see {@link ColumnDefinition.wrap}
+   * @since 0.16.0
+   */
+  wrap?: boolean;
   // and more
   [key: string]: unknown;
 }
@@ -453,6 +460,14 @@ export interface ColumnDefinition {
    * @since 0.10.0
    */
   resizable?: boolean;
+  /** Wrap long text into multiple lines instead of clipping it.
+   * Only evaluated if the tree option `autoRowHeight` is set.
+   * May be overridden per node type, see {@link NodeTypeDefinition.wrap}.
+   * @default false (or global tree option `columnsWrap`)
+   * @see {@link WunderbaumOptions.autoRowHeight}.
+   * @since 0.16.0
+   */
+  wrap?: boolean;
   /** Optional custom column width when user resized by mouse drag.
    * Default: unset.
    */

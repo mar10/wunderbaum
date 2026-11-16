@@ -8,6 +8,7 @@ import * as util from "./util";
 
 import { Wunderbaum } from "./wunderbaum";
 import {
+  ColumnDefinition,
   AddChildrenOptions,
   ApplyCommandOptions,
   ApplyCommandType,
@@ -185,6 +186,10 @@ export class WunderbaumNode {
   public _filterAutoExpanded?: boolean;
 
   _rowIdx: number | undefined = 0;
+  /** Pixel offset of the row (only maintained in `autoRowHeight` mode). @internal */
+  _rowTop?: number;
+  /** Last measured row height (only in `autoRowHeight` mode). @internal */
+  _rowHeight?: number;
   /** Position among non-status siblings, see `_render_aria()`. @internal */
   _ariaPosInSet?: number;
   /** Number of non-status children, see `_render_aria()`. @internal */
@@ -1745,7 +1750,7 @@ export class WunderbaumNode {
   protected _render_markup(opts: RenderOptions) {
     const tree = this.tree;
     const treeOptions = tree.options;
-    const rowHeight = treeOptions.rowHeightPx;
+    const autoRowHeight = !!treeOptions.autoRowHeight;
     const checkbox = this.getOption("checkbox");
     const columns = tree.columns;
     const level = this.getLevel();
@@ -1770,7 +1775,7 @@ export class WunderbaumNode {
     // Referenced by the container's `aria-activedescendant` (no whitespace)
     rowDiv.id = `${tree.id}-row-${encodeURIComponent(this.key)}`;
 
-    rowDiv.style.top = this._rowIdx! * rowHeight + "px";
+    rowDiv.style.top = tree._rowTopOf(this) + "px";
 
     this._rowElem = rowDiv;
 
@@ -1783,6 +1788,17 @@ export class WunderbaumNode {
     nodeElem.setAttribute("aria-colindex", "1");
     if (this.isColspan() && columns.length > 1) {
       nodeElem.setAttribute("aria-colspan", "" + columns.length);
+    }
+    // Wrap long text? A node type definition overrides the column option
+    const typeWrap = <boolean | undefined>(
+      (this.type ? tree.types[this.type]?.wrap : undefined)
+    );
+    const isWrap = (col?: ColumnDefinition) =>
+      autoRowHeight &&
+      util.toBool(typeWrap, col?.wrap, treeOptions.columnsWrap, false);
+
+    if (isWrap(columns[0])) {
+      nodeElem.classList.add("wb-wrap");
     }
     rowDiv.appendChild(nodeElem);
 
@@ -1853,6 +1869,9 @@ export class WunderbaumNode {
           colElem.classList.add("wb-col");
           colElem.setAttribute("role", "gridcell");
           colElem.setAttribute("aria-colindex", "" + colIdx);
+          if (isWrap(col)) {
+            colElem.classList.add("wb-wrap");
+          }
           rowDiv.appendChild(colElem);
         }
         if (colIdx === activeColIdx) {
@@ -1968,6 +1987,10 @@ export class WunderbaumNode {
         allColInfosById: renderInfo.allColInfosById,
         renderColInfosById: renderInfo.renderColInfosById,
       });
+    }
+    // The content may have changed the required row height
+    if (treeOptions.autoRowHeight) {
+      tree._requestRowMeasure(this);
     }
   }
 

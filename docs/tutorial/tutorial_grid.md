@@ -133,6 +133,89 @@ Hidden columns keep their index (e.g. `e.info.idx`, `tree.activeColIdx`,
 `e.renderColInfosById` of the `render` event.
 The first column (`"*"`) cannot be hidden.
 
+## Variable Row Height
+
+By default all rows have the same height (`rowHeightPx`) and cell content that
+does not fit is clipped. <br>
+The `autoRowHeight` tree option (since v0.16) lets rows grow with their content
+instead. Set the `wrap` column option to wrap long text into multiple lines
+(or `columnsWrap` to define a default for all columns):
+
+```js
+const tree = new Wunderbaum({
+  ...
+  autoRowHeight: true,
+  // columnsWrap: true,  // default for all columns
+  columns: [
+    { id: "*", title: "Task", width: "250px", wrap: true },
+    { id: "state", title: "State", width: "90px" },  // clipped as before
+    { id: "description", title: "Description", wrap: true },
+  ],
+  ...
+});
+```
+
+The height of a row is the height of its tallest cell, so this also works for
+custom markup that is created in the `render` event. `rowHeightPx` is used as
+minimum height.
+
+Use `maxRowHeightPx` to limit the height of a row. Content that exceeds this
+limit is clipped:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  autoRowHeight: true,
+  maxRowHeightPx: 100,
+  ...
+});
+```
+
+Add this CSS rule to make clipped cells scrollable instead:
+
+```css
+div.wunderbaum.wb-auto-row-height span.wb-col.wb-wrap {
+  overflow-y: auto;
+}
+```
+
+!!! note
+
+    A scrollable cell handles the mouse wheel first, so scrolling the tree
+    may feel less smooth while the pointer is over such a cell. The scrollbar
+    may also reduce the available width for the text.
+
+The `wrap` option can also be set in a node type definition. This overrides
+the column option for all cells of matching nodes:
+
+```js
+const tree = new Wunderbaum({
+  ...
+  autoRowHeight: true,
+  columnsWrap: true,
+  types: {
+    folder: { wrap: false },  // never wrap folder rows
+  },
+  ...
+});
+```
+
+Wunderbaum only renders the rows that are visible in the viewport, so a row is
+measured when it is rendered: initially, when it is scrolled into view, and
+whenever its content or the column widths change. Rows that have not been
+rendered yet are assumed to have the default height. This has some implications:
+
+- The size and position of the scrollbar thumb is an estimation that becomes
+  more precise while scrolling.
+- If the size of a cell changes _without_ rendering, e.g. because an embedded
+  image was loaded or the markup was modified by custom code, call
+  `node.update()` to measure the row again.
+- Measuring forces the browser to calculate the layout, so the fixed row height
+  remains the fastest option for very large trees.
+
+See also the
+[live demo](https://mar10.github.io/wunderbaum/demo/#demo-wrap).
+
 ## Rendering
 
 Wunderbaum renders the first column (the main node column) by default.
@@ -261,6 +344,10 @@ const tree = new Wunderbaum({
   ...
   navigationModeOption: "startRow",  // | "cell" | "startCell" | "row"
   columns: [],
+  rowHeightPx: 22,
+  autoRowHeight: false,  // rows grow with their content
+  maxRowHeightPx: undefined,  // limit the height if `autoRowHeight` is set
+  columnsWrap: false,    // default for the `wrap` column option
   ...
   // --- Events ---
   render: (e) => {
@@ -287,6 +374,15 @@ const tree = new Wunderbaum({
 /* Header and body cells of hidden columns */
 span.wb-col.wb-col-hidden {
   display: none;
+}
+
+/* Set on the tree element if `autoRowHeight` is enabled */
+div.wunderbaum.wb-auto-row-height {
+}
+
+/* Body cells of columns with the `wrap` option */
+span.wb-col.wb-wrap {
+  white-space: normal;
 }
 
 ```
