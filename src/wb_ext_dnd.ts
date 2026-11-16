@@ -32,6 +32,15 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
   protected currentScrollDir: number = 0;
   // protected autoScrollThrottled: DebouncedFunction<(pageY: number) => number>;
   protected applyScrollDirThrottled: DebouncedFunction<() => void>;
+  /** Aborts the document-level listeners that track where a drag ended. */
+  protected docAbort: AbortController | null = null;
+  /** State collected by the document-level listeners while dragging. */
+  protected dragTrack = {
+    droppedInTree: false,
+    droppedInDocument: false,
+    leftWindow: false,
+    leavePending: false,
+  };
 
   constructor(tree: Wunderbaum) {
     super(tree, "dnd", {
@@ -51,6 +60,7 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       preventSameParent: false, // Prevent dropping nodes under same direct parent
       preventVoidMoves: true, // Prevent dropping nodes 'before self', etc. (move only)
       serializeClipboardData: true, // Serialize node data to dataTransfer object
+      sendText: true, // Add node title as `text/plain` (or callback)
       scroll: true, // Enable auto-scrolling while dragging
       scrollSensitivity: 20, // Active top/bottom margin in pixel
       // scrollnterval: 50, // Generate event every 50 ms
@@ -328,6 +338,75 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
     return sp.scrollTop - scrollTop;
   }
 
+  /**
+   * Register document-level listeners that track where the current drag
+   * operation ends. The result is passed to the `dnd.dragEnd` event.
+   */
+  protected _startDragTracking(): void {
+    // In case a `dragend` event was lost:
+    this._stopDragTracking();
+
+    const track = this.dragTrack;
+    track.droppedInTree = false;
+    track.droppedInDocument = false;
+    track.leftWindow = false;
+    track.leavePending = false;
+
+    const treeElem = this.tree.element;
+    const doc = treeElem.ownerDocument;
+    const abort = new AbortController();
+    const opts = { capture: true, signal: abort.signal };
+    this.docAbort = abort;
+
+    doc.addEventListener(
+      "drop",
+      (e: DragEvent) => {
+        track.droppedInDocument = true;
+        track.droppedInTree = treeElem.contains(e.target as Node);
+      },
+      opts
+    );
+    doc.addEventListener(
+      "dragover",
+      () => {
+        track.leftWindow = false;
+        track.leavePending = false;
+      },
+      opts
+    );
+    doc.addEventListener(
+      "dragleave",
+      (e: DragEvent) => {
+        // The last `dragleave` before the pointer leaves the window has no
+        // `relatedTarget`. However this is also the case when the drag is
+        // canceled (e.g. Esc key) and sometimes in Safari while moving
+        // between elements. So we wait for a `drag` event without
+        // `dragover` to confirm.
+        if (e.relatedTarget === null) {
+          track.leavePending = true;
+        }
+      },
+      opts
+    );
+    doc.addEventListener(
+      "drag",
+      () => {
+        if (track.leavePending) {
+          track.leftWindow = true;
+        }
+      },
+      opts
+    );
+  }
+
+  /** Remove the document-level listeners added by `_startDragTracking()`. */
+  protected _stopDragTracking(): void {
+    if (this.docAbort) {
+      this.docAbort.abort();
+      this.docAbort = null;
+    }
+  }
+
   /** Return true if a drag operation currently in progress. */
   isDragging(): boolean {
     return !!this.srcNode;
@@ -338,8 +417,13 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
    */
   protected onDragEvent(e: DragEvent) {
     const dndOpts: DndOptionsType = this.treeOpts.dnd;
-    const srcNode = Wunderbaum.getNode(e);
+    let srcNode = Wunderbaum.getNode(e);
 
+    if (e.type === "dragend") {
+      // Always stop tracking, even if the source row was removed meanwhile
+      this._stopDragTracking();
+      srcNode = srcNode ?? this.srcNode;
+    }
     if (!srcNode) {
       this.tree.logWarn(`onDragEvent.${e.type}: no node`);
       return;
@@ -381,10 +465,16 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
         }
       }
       // e.dataTransfer!.setData("text/html", $(node.span).html());
-      if (!e.dataTransfer?.types.includes("text/plain")) {
-        e.dataTransfer!.setData("text/plain", srcNode.title);
+      const sendText = dndOpts.sendText ?? true;
+      if (sendText && !e.dataTransfer?.types.includes("text/plain")) {
+        const text =
+          typeof sendText === "function" ? sendText(srcNode) : srcNode.title;
+        if (typeof text === "string") {
+          e.dataTransfer!.setData("text/plain", text);
+        }
       }
       this.srcNode = srcNode;
+      this._startDragTracking();
       setTimeout(() => {
         // Decouple this call, so the CSS is applied to the node, but not to
         // the system generated drag image
@@ -403,7 +493,18 @@ export class DndExtension extends WunderbaumExtension<DndOptionsType> {
       if (this.lastTargetNode) {
         this._leaveNode();
       }
-      srcNode._callEvent("dnd.dragEnd", { event: e });
+      const dropEffect = (e.dataTransfer?.dropEffect ??
+        "none") as DropEffectType;
+      const { droppedInTree, droppedInDocument, leftWindow } = this.dragTrack;
+      srcNode._callEvent("dnd.dragEnd", {
+        event: e,
+        dropEffect: dropEffect,
+        droppedInTree: droppedInTree,
+        droppedInDocument: droppedInDocument,
+        leftWindow: leftWindow,
+        isExternalDrop:
+          !droppedInDocument && (dropEffect !== "none" || leftWindow),
+      });
     }
     return true;
   }

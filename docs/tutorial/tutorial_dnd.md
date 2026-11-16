@@ -90,7 +90,25 @@ These are events are sent in a typical drag and drop operation:
   Foreign source data can be retreived from the `e.event.dataTransfer` object.
 
 - `dragEnd(e)`: Fired when a drag operation is ended.<br>
-  We will hardly ever have to implement this handler.
+  The handler is passed additional information about where the drag ended,
+  e.g. to show a hint when a node was dropped outside the browser window
+  (see [Dragging Nodes Out of the Browser](#dragging-nodes-out-of-the-browser)):
+
+  ```js
+  e = {
+    type: "dnd.dragEnd",
+    node: // the source node
+    event: // <the original HTML DragEvent>
+    dropEffect: // e.event.dataTransfer.dropEffect: 'none', 'copy', 'move', 'link'
+    droppedInTree: // true if dropped on this tree
+    droppedInDocument: // true if dropped anywhere in this document
+    leftWindow: // true if the pointer left the browser window and did not return
+    isExternalDrop: // true if probably dropped outside this document
+  }
+  ```
+
+  `isExternalDrop` is defined as
+  `!droppedInDocument && (dropEffect !== "none" || leftWindow)`.
 
 ## Dropping Into the Empty Area
 
@@ -128,6 +146,71 @@ dnd: {
 
 While the pointer is over the empty area, the tree element has the
 `wb-drop-empty-area` class.
+
+## Dragging Nodes Out of the Browser
+
+Nodes can be dragged onto the desktop or into other applications.
+What is created there depends on the `dataTransfer` items that are set in
+`dragStart` and on the browser:
+
+- Chromium-based browsers (Chrome, Edge, Opera, ...) support the non-standard
+  `DownloadURL` type (`"mime:filename:absoluteUrl"`) and create a real file
+  by downloading the URL.
+- Safari and Firefox ignore `DownloadURL` and create a .webloc file or a text
+  clipping from the `text/uri-list` or `text/plain` items instead.
+
+`util.supportsDownloadURL()` returns true for Chromium-based browsers.
+This cannot be feature-detected, because `setData()` accepts any type without
+error.
+
+By default, the node title is added as `text/plain` item (unless `dragStart`
+already set one). Pass `sendText: false` to suppress this, or a callback that
+returns the text (or `null` to add nothing).
+
+The `dragEnd` event reports where the drag ended, so we can show a hint when a
+node was dropped outside the browser (`e.isExternalDrop`):
+
+```js
+const util = Wunderbaum.util;
+
+const tree = new Wunderbaum({
+  ...
+  dnd: {
+    // Don't create text clippings from the node title:
+    sendText: false,
+    dragStart: (e) => {
+      const node = e.node;
+      if (node.type === "folder") {
+        return false;
+      }
+      const url = new URL(node.data.href, location.href).href;
+      const dt = e.event.dataTransfer;
+      dt.effectAllowed = "copy";
+      dt.setData("text/uri-list", url);
+      if (util.supportsDownloadURL()) {
+        dt.setData("DownloadURL", `application/octet-stream:${node.title}:${url}`);
+      }
+      return true;
+    },
+    dragEnd: (e) => {
+      if (e.isExternalDrop && !util.supportsDownloadURL()) {
+        alert(`This browser created a link to '${e.node.title}', not a copy.`);
+      }
+    },
+  },
+});
+```
+
+!!! note
+
+    The drop target is detected with document-level listeners that are only
+    active while a node of this tree is dragged.
+    `dropEffect` is `"none"` when the drag was canceled, but Firefox on macOS
+    also reports `"none"` when another application (e.g. Finder) accepted
+    the drop. In this case `leftWindow` is used: it is set when the pointer
+    left the browser window and did not come back.
+    Canceling the drag with the Esc key does not set `leftWindow`.
+    Drops into other browser windows or iframes count as external drops.
 
 ## Related Tree Options
 
@@ -225,7 +308,7 @@ const tree = new Wunderbaum({
 
 ### Related Methods
 
-- `util.foo()`
+- `util.supportsDownloadURL()`
 
 ### Related CSS Rules
 

@@ -45,6 +45,15 @@ new mar10.Wunderbaum({
       );
       e.sourceNode.moveTo(e.node, e.suggestedDropMode);
     },
+    dragEnd: (e) => {
+      if (e.isExternalDrop) {
+        console.info(
+          `Dropped ${e.node} outside the browser ` +
+            `(dropEffect: ${e.dropEffect}, leftWindow: ${e.leftWindow})`,
+          e
+        );
+      }
+    },
   },
   edit: {
     trigger: ["clickActive", "F2", "macEnter"],
